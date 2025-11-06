@@ -1,0 +1,36 @@
+@extends('commonView.update_base')
+@section('action-content')
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-body">
+                    <form class="form-horizontal" role="form" method="POST" action="">
+                        {{ csrf_field() }} 
+
+                        <div class="form-group{{ $errors->has('scheme') ? ' has-error' : '' }}">
+                            <label for="scheme" class="col-form-label">Select Scheme</label>
+
+                            <select onchange="la(this.value)" class="form-control" name="scheme"  id="scheme">
+                                <option value="">--Select--</option>
+                                @foreach ($scheme_list as $scheme)
+                                <option value="{{ url('application-list-read-only-edit') }}?scheme_id={{$scheme->id}}">{{$scheme->display_name}}</option>
+                                @endforeach
+                            </select>
+                            <span id="error_construction" class="text-danger"></span>
+                        </div>
+
+                        <script>
+                            function la(src)
+                            {
+                                window.location=src;
+                            }
+                        </script>
+
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@endsection

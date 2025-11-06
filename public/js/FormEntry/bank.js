@@ -1,0 +1,135 @@
+$(document).ready(function () {
+  var scheme_id = $("#scheme_id").val();
+  var error_bank = 0;
+  $('#confirm_bank_account_number').on('copy paste cut', function(e) {
+    e.preventDefault();
+});
+  $("#btn_bank_details").click(function () {
+      error_bank = 0;
+
+      if ($.trim($("#name_of_bank").val()).length == 0) {
+          error_bank = 1;
+          $("#error_name_of_bank").text("Name of Bank is required");
+          $("#name_of_bank").addClass("is-invalid");
+      } else {
+          $("#error_name_of_bank").text("");
+          $("#name_of_bank").removeClass("is-invalid");
+      }
+
+      if ($.trim($("#bank_branch").val()).length == 0) {
+          error_bank = 1;
+          $("#error_bank_branch").text("Bank Branch is required");
+          $("#bank_branch").addClass("is-invalid");
+      } else {
+          $("#error_bank_branch").text("");
+          $("#bank_branch").removeClass("is-invalid");
+      }
+
+      if ($.trim($("#bank_account_number").val()).length == 0) {
+          error_bank = 1;
+          $("#error_bank_account_number").text("Bank Account Number is required");
+          $("#bank_account_number").addClass("is-invalid");
+      } else {
+          $("#error_bank_account_number").text("");
+          $("#bank_account_number").removeClass("is-invalid");
+      }
+
+      if ($.trim($("#confirm_bank_account_number").val()).length == 0) {
+          error_bank = 1;
+          $("#error_confirm_bank_account_number").text("Confirm Bank Account Number is required");
+          $("#confirm_bank_account_number").addClass("is-invalid");
+      } else {
+          $("#error_confirm_bank_account_number").text("");
+          $("#confirm_bank_account_number").removeClass("is-invalid");
+      }
+
+      if (
+          $.trim($("#bank_account_number").val()) !==
+          $.trim($("#confirm_bank_account_number").val())
+      ) {
+          error_bank = 1;
+          $("#error_confirm_bank_account_number").text("Bank Account Numbers do not match");
+          $("#confirm_bank_account_number").addClass("is-invalid");
+      } else if (
+          $.trim($("#confirm_bank_account_number").val()).length > 0 &&
+          $.trim($("#bank_account_number").val()).length > 0
+      ) {
+          $("#error_confirm_bank_account_number").text("");
+          $("#confirm_bank_account_number").removeClass("is-invalid");
+      }
+
+      if ($.trim($("#bank_ifsc_code").val()).length == 0) {
+          error_bank = 1;
+          $("#error_bank_ifsc_code").text("IFS Code is required");
+          $("#bank_ifsc_code").addClass("is-invalid");
+      } else {
+          $("#error_bank_ifsc_code").text("");
+          $("#bank_ifsc_code").removeClass("is-invalid");
+      }
+
+      $ifsc_data = $.trim($("#bank_ifsc_code").val());
+      $ifscRGEX = /^[a-z]{4}0[a-z0-9]{6}$/i;
+      if ($ifscRGEX.test($ifsc_data)) {
+          $("#error_bank_ifsc_code").text("");
+          $("#bank_ifsc_code").removeClass("is-invalid");
+      } else {
+          error_bank = 1;
+          $("#error_bank_ifsc_code").text("Please check IFS Code format");
+          $("#bank_ifsc_code").addClass("is-invalid");
+      }
+
+      if (error_bank == 1) {
+          return false;
+      } else {
+          $("#list_bank_details").removeClass("active active_tab1");
+          $("#list_bank_details").removeAttr("href data-toggle");
+          $("#bank_details").removeClass("active");
+          $("#list_bank_details").addClass("inactive_tab1");
+          if (scheme_id == 17) {
+              $("#list_land_details_p").removeClass("inactive_tab1");
+              $("#list_land_details_p").addClass("active_tab1 active");
+              $("#list_land_details_p").attr("href", "#bank_details");
+              $("#list_land_details_p").attr("data-toggle", "tab");
+              $("#land_details_p").addClass("active show");
+          } else if (scheme_id == 13) {
+              $("#list_land_details").removeClass("inactive_tab1");
+              $("#list_land_details").addClass("active_tab1 active");
+              $("#list_land_details").attr("href", "#experience_details");
+              $("#list_land_details").attr("data-toggle", "tab");
+              $("#land_details").addClass("active show");
+          } else {
+              $("#list_experience_details").removeClass("inactive_tab1");
+              $("#list_experience_details").addClass("active_tab1 active");
+              $("#list_experience_details").attr("href", "#experience_details");
+              $("#list_experience_details").attr("data-toggle", "tab");
+              $("#experience_details").addClass("active show");
+          }
+      }
+  });
+
+  $("#previous_btn_experience_details").click(function () {
+      $("#list_experience_details").removeClass("active active_tab1");
+      $("#list_experience_details").removeAttr("href data-toggle");
+      $("#experience_details").removeClass("active show");
+      $("#list_experience_details").addClass("inactive_tab1");
+      if (scheme_id == 17) {
+          $("#list_land_details_p").removeClass("inactive_tab1");
+          $("#list_land_details_p").addClass("active_tab1 active");
+          $("#list_land_details_p").attr("href", "#land_details_p");
+          $("#list_land_details_p").attr("data-toggle", "tab");
+          $("#land_details_p").addClass("active show");
+      } else if (scheme_id == 13) {
+          $("#list_fm_details").removeClass("inactive_tab1");
+          $("#list_fm_details").addClass("active_tab1 active");
+          $("#list_fm_details").attr("href", "#bank_details");
+          $("#list_fm_details").attr("data-toggle", "tab");
+          $("#fm_details").addClass("active show");
+      } else {
+          $("#list_bank_details").removeClass("inactive_tab1");
+          $("#list_bank_details").addClass("active_tab1 active");
+          $("#list_bank_details").attr("href", "#bank_details");
+          $("#list_bank_details").attr("data-toggle", "tab");
+          $("#bank_details").addClass("active show");
+      }
+  });
+});
