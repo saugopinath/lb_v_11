@@ -256,7 +256,7 @@
                 <div class="col-md-2 col-sm-3 text-center">
                     <img src="images/lakshmir_bhandar.png"
                         alt="Logo"
-                        class="img-fluid w-75 rounded shadow-lg p-2 logo-hover-effect">
+                        class="img-fluid w-75 p-2 logo-hover-effect">
                 </div>
 
                 <div class="col-md-10 col-sm-9">

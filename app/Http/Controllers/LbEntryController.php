@@ -1658,7 +1658,8 @@ class LbEntryController extends Controller
         } else {
             $return_status = 0;
             $return_msg = $validator->errors()->all();
-            return redirect("/lb-entry-draft-edit?status=" . $request->status . "&application_id=" . $application_id . "&tab_code=encloser")->with('errors', $return_msg);
+            // use request value directly to avoid undefined variable when validation fails
+            return redirect("/lb-entry-draft-edit?status=" . $request->status . "&application_id=" . $request->application_id . "&tab_code=encloser")->with('errors', $return_msg);
         }
     }
    

@@ -1,170 +1,8 @@
 @extends('layouts.public')
 @push('styles')
 <link rel="stylesheet" href="{{ asset('AdminLTE_3/dist/css/adminlte.min.css') }}">
-<style>
-    :root {
-        --primary: #0b3c9b;
-        --secondary: #2d80b5;
-        --success: #178f4f;
-        --light: #f7f9ff;
-    }
-
-    body {
-        background: var(--light);
-        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    }
-
-
-    /* Timeline Styles */
-    .timeline-wrap {
-        position: relative;
-        background: linear-gradient(135deg, #f5f7fa 0%, #ffffff 100%);
-        border: 1px solid #e0e8f1;
-        border-radius: 12px;
-        padding: 32px 24px;
-        overflow-x: auto;
-        overflow-y: hidden;
-        white-space: nowrap;
-        box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
-    }
-
-    .timeline-scroller {
-        overflow-x: auto;
-        white-space: nowrap;
-        padding: 0;
-        display: inline-block;
-        position: relative;
-        width: 100%;
-    }
-
-    .timeline {
-        display: flex;
-        gap: 24px;
-        min-height: 200px !important;
-        padding: 16px 8px;
-        position: relative;
-        align-items: flex-start;
-        justify-content: center;
-        margin-bottom: 10px;
-    }
-
-    .tl-card {
-        min-width: 260px;
-        max-width: 280px;
-        background: #ffffff;
-        border: 2px solid #e0e8f1;
-        border-radius: 10px;
-        padding: 18px 16px;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-        transition: all 0.3s ease;
-        display: flex;
-        flex-direction: column;
-        position: relative;
-        word-wrap: break-word;
-        word-break: break-word;
-        overflow: hidden;
-    }
-
-    .tl-card:hover {
-        transform: translateY(-6px);
-        box-shadow: 0 8px 20px rgba(45, 128, 181, 0.15);
-        border-color: #2d80b5;
-    }
-
-    .tl-date {
-        font-weight: 700;
-        color: #0b3c9b;
-        margin-bottom: 12px;
-        font-size: 0.95rem;
-        line-height: 1.4;
-        white-space: normal;
-    }
-
-    .tl-text {
-        font-size: 0.9rem;
-        color: #4a5568;
-        margin: 8px 0 20px;
-        line-height: 1.5;
-        flex-grow: 1;
-        word-wrap: break-word;
-        overflow-wrap: break-word;
-        white-space: normal;
-        display: -webkit-box;
-        -webkit-line-clamp: 4;
-        -webkit-box-orient: vertical;
-        overflow: hidden;
-        text-overflow: ellipsis;
-    }
-
-    /* Hide vertical line completely */
-    .timeline-line {
-        display: none !important;
-    }
-
-    /* Add horizontal connecting line between cards */
-    .timeline::before {
-        content: '';
-        position: absolute;
-        top: 60px;
-        left: 0;
-        right: 0;
-        height: 3px;
-        background: linear-gradient(90deg, #2d80b5 0%, #3aa0d2 50%, #2d80b5 100%);
-        z-index: 1;
-        border-radius: 2px;
-    }
-
-    .tick {
-        position: relative;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        margin-top: 8px;
-    }
-
-
-    /* Responsive adjustments */
-    @media (max-width: 992px) {
-        .main-box {
-            margin: 16px;
-        }
-
-        .tl-card {
-            min-width: 240px;
-            max-width: 260px;
-        }
-
-        .header-section {
-            padding: 15px 20px;
-        }
-    }
-
-    @media (max-width: 576px) {
-        .main-box {
-            padding: 15px;
-        }
-
-        .timeline-wrap {
-            padding: 24px 16px;
-        }
-
-        .timeline {
-            min-height: 220px !important;
-            gap: 16px;
-        }
-
-        .status-head {
-            flex-direction: column;
-            gap: 10px;
-        }
-
-        .tl-card {
-            min-width: 220px;
-            max-width: 240px;
-        }
-    }
-</style>
 @endpush
+
 @section('content')
 <div class="p-4 mt-4">
     <!-- Page Title -->
@@ -185,20 +23,19 @@
 
     <!-- Main Card for Search -->
     <div class="card shadow-sm mb-4 card-outline card-primary">
-        <div class="card-header card-header-custom bg-light">Track Applicant using Application Id/Mobile No./Aadhaar No.</div>
+        <div class="card-header card-header-custom bg-light">Track Applicant using Beneficiary Id/Mobile No./Aadhaar No.</div>
         <div class="card-body">
             <div id="loaderDiv"></div> <!-- Your loader div -->
 
-            
-                                        <input type="hidden" name="scheme_code" id="scheme_code" value="{{ $scheme_id }}">
-
+            <form method="post" id="publick_track_applicant" action="#" class="submit-once">
+                @csrf
                 <div class="row g-3 align-items-end">
                     <!-- Search Type Dropdown -->
                     <div class="col-md-3">
                         <label for="select_type" class="form-label fw-semibold">Search Using <span class="text-danger">*</span></label>
                         <select class="form-select" name="select_type" id="select_type">
                             <option value="">-- Select --</option>
-                            <option value="1">Application ID</option>
+                            <option value="1">Beneficiary ID</option>
                             <option value="2">Mobile Number</option>
                             <option value="3">Aadhaar Number</option>
                         </select>
@@ -213,7 +50,7 @@
                             name="applicant_id"
                             id="applicant_id"
                             class="form-control"
-                            placeholder="Enter Application ID"
+                            placeholder="Enter Beneficiary ID"
                             autocomplete="off" />
                         <div class="text-danger small mt-1" id="error_applicant_id"></div>
                     </div>
@@ -223,11 +60,9 @@
                         <label for="captcha" class="form-label fw-semibold">Captcha <span class="text-danger">*</span></label>
                         <div class="input-group gap-2">
                             <div class="captcha d-flex justify-content-center align-items-center gap-2">
-                                <span class="refereshrecapcha">{!! captcha_img('flat') !!}</span>
-                               <a href="javascript:void(0)" onclick="refreshCaptcha()">
-                                    <img  src="{{ asset('images/refresh1.png') }}" alt="Refresh Captcha" width="22" height="22">
-                                </a>
-                                    
+                                <span>{!! captcha_img('flat') !!}</span>
+                                <a href="#">
+                                    <img src="{{ asset('images/refresh1.png') }}" alt="Refresh Captcha" width="22" height="22">
                                 </a>
                             </div>
 
@@ -244,11 +79,14 @@
 
                     <!-- Search Button -->
                     <div class="col-md-3 d-flex justify-content-center">
-                        <button type="buttton" class="btn btn-primary shadow-sm px-4" id="searchbtn">
+                        <button type="submit" class="btn btn-primary shadow-sm px-4">
                             <i class="fa fa-search me-1"></i> Search
                         </button>
                     </div>
+
+
                 </div>
+
             </form>
         </div>
     </div>
