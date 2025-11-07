@@ -185,20 +185,19 @@
 
     <!-- Main Card for Search -->
     <div class="card shadow-sm mb-4 card-outline card-primary">
-        <div class="card-header card-header-custom bg-light">Track Applicant using Application Id/Mobile No./Aadhaar No.</div>
+        <div class="card-header card-header-custom bg-light">Track Applicant using Beneficiary Id/Mobile No./Aadhaar No.</div>
         <div class="card-body">
             <div id="loaderDiv"></div> <!-- Your loader div -->
 
-            
-                                        <input type="hidden" name="scheme_code" id="scheme_code" value="{{ $scheme_id }}">
-
+            <form method="post" id="publick_track_applicant" action="#" class="submit-once">
+                @csrf
                 <div class="row g-3 align-items-end">
                     <!-- Search Type Dropdown -->
                     <div class="col-md-3">
                         <label for="select_type" class="form-label fw-semibold">Search Using <span class="text-danger">*</span></label>
                         <select class="form-select" name="select_type" id="select_type">
                             <option value="">-- Select --</option>
-                            <option value="1">Application ID</option>
+                            <option value="1">Beneficiary ID</option>
                             <option value="2">Mobile Number</option>
                             <option value="3">Aadhaar Number</option>
                         </select>
@@ -213,7 +212,7 @@
                             name="applicant_id"
                             id="applicant_id"
                             class="form-control"
-                            placeholder="Enter Application ID"
+                            placeholder="Enter Beneficiary ID"
                             autocomplete="off" />
                         <div class="text-danger small mt-1" id="error_applicant_id"></div>
                     </div>
@@ -223,11 +222,9 @@
                         <label for="captcha" class="form-label fw-semibold">Captcha <span class="text-danger">*</span></label>
                         <div class="input-group gap-2">
                             <div class="captcha d-flex justify-content-center align-items-center gap-2">
-                                <span class="refereshrecapcha">{!! captcha_img('flat') !!}</span>
-                               <a href="javascript:void(0)" onclick="refreshCaptcha()">
-                                    <img  src="{{ asset('images/refresh1.png') }}" alt="Refresh Captcha" width="22" height="22">
-                                </a>
-                                    
+                                <span>{!! captcha_img('flat') !!}</span>
+                                <a href="#">
+                                    <img src="{{ asset('images/refresh1.png') }}" alt="Refresh Captcha" width="22" height="22">
                                 </a>
                             </div>
 
@@ -244,7 +241,7 @@
 
                     <!-- Search Button -->
                     <div class="col-md-3 d-flex justify-content-center">
-                        <button type="buttton" class="btn btn-primary shadow-sm px-4" id="searchbtn">
+                        <button type="submit" class="btn btn-primary shadow-sm px-4">
                             <i class="fa fa-search me-1"></i> Search
                         </button>
                     </div>
@@ -252,142 +249,164 @@
             </form>
         </div>
     </div>
-
-    <!-- @if(true) -->
-    <div id="ajaxData">
-        <div class="card shadow-sm mb-4 card-outline card-success">
-            <div class="card-header bg-light">List of Beneficiary</div>
-            <div class="card-body p-2">
-                <div class="table-responsive">
-                    <table id="example" class="table table-bordered table-striped" style="width:100%">
-                        <thead class="table-light">
-                            <tr>
-                                <th>Beneficiary ID</th>
-                                <th>Applicant Name</th>
-                                <th>Address</th>
-                                <th>Current Banking Information</th>
-                                <th>Current Status</th>
-                                <th>Payment Status</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {{-- Your PHP foreach loop for row_list --}}
-                            <tr>
-                                <td>9029906</td>
-                                <td>MADAN MOHAN KARMAKAR</td>
-                                <td>
-                                    District - PURBA BARDHAMAN<br>
-                                    Block/Municipality - KHANDAGHOSH<br>
-                                    Gp/Ward - GOPALBERA
-                                </td>
-                                <td>
-                                    Bank Name - PUNJAB NATIONAL BANK<br>
-                                    Branch - EKALAKSHMI<br>
-                                    A/c No - ************6363<br>
-                                    IFSC - PUNB00X52410
-                                </td>
-                                <td><span class="badge bg-success">Verified (Approval Pending)</span></td>
-                                <td>
-                                    <button type="button" {{-- Essential: type="button" to prevent form submission --}}
-                                        class="btn btn-info btn-sm open-payment-modal-btn">
-                                        <i class="fa fa-eye me-1"></i> View
-                                    </button>
-
-                                </td>
-                            </tr>
-                            {{-- End of PHP foreach --}}
-                            <!-- @if (false) {{-- If no records, show this --}} -->
-                            <!-- <tr>
-                                <td colspan="6" class="text-center">No Record Found</td>
-                            </tr> -->
-                            <!-- @endif -->
-                        </tbody>
-                    </table>
-                </div>
-            </div>
+    <!-- Application Status Section -->
+    <div class="card shadow-sm mb-4 card-outline card-primary">
+        <div class="card-header bg-light border-0">
+            <h5 class="card-title mb-0 text-primary fw-bold">Application Status</h5>
         </div>
-    </div>
-    @endif
-</div>
-<div class="modal fade" id="ben_payment_view_modal" tabindex="-1" aria-labelledby="paymentStatusModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-xl modal-dialog-scrollable">
-        <div class="modal-content">
-            <div class="modal-header bg-info text-white">
-                <h5 class="modal-title" id="paymentStatusModalLabel">View Payment Status</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <div class="card">
-                    <div class="card-header card-header-custom  card-outline card-primary">View Payment Status</div>
-                    <div class="card-body">
-                        <div class="row align-items-center mb-3">
-                            <div class="col-md-8">
-                                <label class="form-label mb-0">Which financial year you want to view payment status ?</label>
+        <div class="card-body p-0">
+            <div class="timeline-wrap">
+                <div class="timeline-scroller">
+                    <div class="timeline" id="timeline">
+                        <!-- cards -->
+                        <div class="tl-card">
+                            <div class="tl-date">25-08-2021 03:15:46</div>
+                            <div class="tl-text">
+                                Application Temporary Saved by DASPUR-II Block Development Officer (Operator: ******2688).
                             </div>
-                            <div class="col-md-4">
-                                <select class="form-select w-auto" name="select_financial_year" id="select_financial_year">
-                                    <option value="2025-2026" selected>2025-2026</option>
-                                    <option value="2024-2025">2024-2025</option>
-                                    <option value="2023-2024">2023-2024</option>
-                                    <option value="2022-2023">2022-2023</option>
-                                </select>
+                            <div class="tick">
+                                <svg width="40" height="40" viewBox="0 0 48 48">
+                                    <circle cx="24" cy="24" r="20" fill="#ffffff" stroke="#3aa0d2" stroke-width="4" />
+                                    <path d="M14 25.5l6 6 14-14" fill="none" stroke="#3aa0d2" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" />
+                                </svg>
                             </div>
                         </div>
-                        <hr />
-                        <div class="table-responsive">
-                            <table class="table table-bordered table-striped card-outline card-success">
-                                <thead class="table-light">
-                                    <tr>
-                                        <th>Beneficiary Id</th>
-                                        <th>Financial Year</th>
-                                        <th>Month</th>
-                                        <th>IFSC</th>
-                                        <th>Account No</th>
-                                        <th>Payment Status</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr>
-                                        <td>6139186</td>
-                                        <td>2025-2026</td>
-                                        <td>April</td>
-                                        <td>UCBA0RRBPBG</td>
-                                        <td>***********4094</td>
-                                        <td>Payment Success</td>
-                                    </tr>
-                                    <tr>
-                                        <td>6139186</td>
-                                        <td>2025-2026</td>
-                                        <td>May</td>
-                                        <td>UCBA0RRBPBG</td>
-                                        <td>***********4094</td>
-                                        <td>Payment Success</td>
-                                    </tr>
-                                </tbody>
-                                <!-- <tr>
-                                    <td colspan="6" class="text-center py-4">
-                                        <i class="fas fa-exclamation-circle text-info me-2"></i> no data found for this year
-                                    </td>
-                                </tr> -->
-                            </table>
+                        <div class="tl-card">
+                            <div class="tl-date">25-08-2021 03:18:36</div>
+                            <div class="tl-text">
+                                Application Final Submitted by DASPUR-II Block Development Officer (Operator: ******2688).
+                            </div>
+                            <div class="tick">
+                                <svg width="40" height="40" viewBox="0 0 48 48">
+                                    <circle cx="24" cy="24" r="20" fill="#ffffff" stroke="#3aa0d2" stroke-width="4" />
+                                    <path d="M14 25.5l6 6 14-14" fill="none" stroke="#3aa0d2" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" />
+                                </svg>
+                            </div>
+                        </div>
+                        <div class="tl-card">
+                            <div class="tl-date">29-08-2021 04:08:47</div>
+                            <div class="tl-text">
+                                Application Verified by DASPUR-II Block Development Officer (Verifier).
+                            </div>
+                            <div class="tick">
+                                <svg width="40" height="40" viewBox="0 0 48 48">
+                                    <circle cx="24" cy="24" r="20" fill="#ffffff" stroke="#3aa0d2" stroke-width="4" />
+                                    <path d="M14 25.5l6 6 14-14" fill="none" stroke="#3aa0d2" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" />
+                                </svg>
+                            </div>
+                        </div>
+                        <div class="tl-card">
+                            <div class="tl-date">29-08-2021 05:02:57</div>
+                            <div class="tl-text">
+                                Application Approved by MEDINIPUR WEST District Officer (Approver).
+                            </div>
+                            <div class="tick">
+                                <svg width="40" height="40" viewBox="0 0 48 48">
+                                    <circle cx="24" cy="24" r="20" fill="#ffffff" stroke="#3aa0d2" stroke-width="4" />
+                                    <path d="M14 25.5l6 6 14-14" fill="none" stroke="#3aa0d2" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" />
+                                </svg>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-            </div>
         </div>
     </div>
+    <hr>
+    <!-- Payment Status Section -->
+     <h4 class="text-center fw-bold text-success mb-3">Payment Status</h4>
+
+    <div class="accordion" id="paymentAccordion">
+            <div class="accordion-item">
+              <h2 class="accordion-header">
+                <button
+                  class="accordion-button fw-bold"
+                  type="button"
+                  data-bs-toggle="collapse"
+                  data-bs-target="#collapseOne"
+                  aria-expanded="true"
+                  aria-controls="collapseOne"
+                >
+                  Name – APARNA KARMAKAR, Beneficiary Id – 208789445,
+                  Application Id – 124458094
+                </button>
+              </h2>
+              <div
+                id="collapseOne"
+                class="accordion-collapse collapse show"
+                data-bs-parent="#paymentAccordion"
+              >
+                <div class="accordion-body">
+                  <div class="row mb-3 align-items-center">
+                    <div class="col-md-6">
+                      <label
+                        >Which financial year you want to view payment
+                        status?</label
+                      >
+                    </div>
+                    <div class="col-md-6">
+                      <select class="form-select w-auto d-inline-block">
+                        <option>2025-2026</option>
+                        <option>2024-2025</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <p class="fw-semibold text-success mb-1">
+                    Bank Account Status : Validation Success. Ready For Payment
+                  </p>
+                  <p class="fw-semibold text-success mb-1">
+                    Beneficiary Status : Active beneficiary
+                  </p>
+                  <p class="mb-3">
+                    Bank A/C No : 38xxxxxxxx758, IFSC : SBINxxxxx65
+                  </p>
+
+                  <div class="table-responsive">
+                    <table class="table table-bordered align-middle">
+                      <thead class="table-light">
+                        <tr>
+                          <th>Month</th>
+                          <th>Payment Status</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr>
+                          <td>January 2025</td>
+                          <td>Payment Success</td>
+                        </tr>
+                        <tr>
+                          <td>February 2025</td>
+                          <td>Payment Success</td>
+                        </tr>
+                        <tr>
+                          <td>March 2025</td>
+                          <td>Payment Success</td>
+                        </tr>
+                        <tr>
+                          <td>April 2025</td>
+                          <td>Payment Pending</td>
+                        </tr>
+                        <tr>
+                          <td>May 2025</td>
+                          <td>Payment Success</td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
 </div>
 
 @push('scripts')
 <script>
-$(document).ready(function() {
-    $('.open-payment-modal-btn').on('click', function() {
-        $('#ben_payment_view_modal').modal('show');
+    $(document).ready(function() {
+        $('.open-payment-modal-btn').on('click', function() {
+            $('#ben_payment_view_modal').modal('show');
+        });
     });
-});
 </script>
 @endpush
 @endsection
