@@ -1057,6 +1057,7 @@
       $('.sidebar-menu #lb-entry').addClass("active");
     }
     var sessiontimeoutmessage = '{{$sessiontimeoutmessage}}';
+    //alert(sessiontimeoutmessage);
     var ds_phase_text = '{{$ds_phase_text}}';
 
 
@@ -1660,7 +1661,7 @@
         "aadhar_no": $("#aadhar_no").val()
       });
       $.ajax({
-        type: 'post',
+        type: 'POST',
         url: '{{url("ajax_check_dup_aadhar")}}',
         dataType: 'json',
         data: data,
@@ -2374,11 +2375,6 @@
       $("#declaration").submit();
     });
 
-
-
-
-    /***************************************************************/
-  });
   $('#district').change(function() {
     if ($(this).val() != '') {
       $('#urban_code').val('');
@@ -2473,6 +2469,11 @@
 
     }
   });
+
+
+    /***************************************************************/
+  });
+
 
   function tab_highlight(tab_code) {
 
