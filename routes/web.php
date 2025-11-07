@@ -15,7 +15,8 @@ use App\Http\Controllers\{
     PensionformReportController,
     BeneficiaryListReportExcel,
     PensionformFaultyReportController,
-    casteManagementController
+    casteManagementController,
+    MasterDataController
 };
 Route::get('refresh-captcha', [CaptchaController::class, 'refreshCaptcha'])->name('refresh-captcha');
 Route::controller(AuthenticationController::class)->group(function () {
@@ -67,8 +68,6 @@ Route::controller(LbEntryController::class)->group(function () {
     Route::post('ajax_declaration_entry_wtSws', 'declarationEntry');
     Route::get('lb-entry-draft-edit', 'draftedit')->name('lb-entry-draft-edit');
     Route::post('verifyDatawtSws', 'forwardData');
-    
-
 });
 Route::controller(LakkhiBhandarWCDformController::class)->group(function () {
     Route::any('lb-applicant-list/{list_type}', 'applicantList');
@@ -110,6 +109,13 @@ Route::controller(casteManagementController::class)->group(function () {
     Route::get('lb-caste-revert-edit', 'revertedit')->name('lb-caste-revert-edit');
     Route::post('lb-caste-revert-edit-post', 'reverteditPost')->name('lb-caste-revert-edit-post');
     Route::get('caste-matched-report', 'casteMatchedReport')->name('caste-matched-report');
+});
+
+Route::controller(MasterDataController::class)->group(function () {
+    Route::post('masterDataAjax/getUrban', 'getUrban');
+    Route::post('masterDataAjax/getTaluka', 'getTaluka');
+    Route::post('masterDataAjax/getGp', 'getGp');
+    Route::post('masterDataAjax/getWard', 'getWard');
 });
 
 

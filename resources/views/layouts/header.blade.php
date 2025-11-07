@@ -1,4 +1,4 @@
-<nav class="main-header navbar navbar-expand navbar-light" style="background-color: #3771ae;">
+<nav class="main-header navbar navbar-expand navbar-light " style="background-color: #3771ae;">
     <!-- Left navbar links -->
     <ul class="navbar-nav">
         <li class="nav-item">
@@ -19,7 +19,7 @@
 
     <!-- Right navbar links -->
     <ul class="navbar-nav ml-auto">
-        <li class="nav-item d-flex align-items-center">
+        <li class="nav-item d-flex align-items-center mr-3">
             <i class="nav-icon fas fa-clock mr-1"></i>
             <span id="navbar-datetime" style="font-weight: 500;"></span>
         </li>
@@ -30,49 +30,42 @@
             </a>
         </li>
         <!-- Fullscreen Button -->
-        <li class="nav-item">
+        <li class="nav-item mt-1">
             <a class="nav-link" data-widget="fullscreen" href="#" role="button">
                 <i class="fas fa-expand-arrows-alt"></i>
             </a>
         </li>
-       <li class="nav-item">
-    <a href="#" class="nav-link" style="font-weight:500;"
-       onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
-        Logout
-    </a>
-
-    <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
-        @csrf
-    </form>
-</li>
-
 
         <!-- User Dropdown Menu -->
         <li class="nav-item dropdown user-menu">
-            <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">
+            <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
                 <img src="{{ asset('images/download.jpg') }}" class="user-image img-circle elevation-2"
                     alt="User Image">
-                <span class="d-none d-md-inline">{{ Auth::user()->designation_id }}</span>
+                <span class="d-none d-md-inline">{{ Auth::user()->username }}</span>
             </a>
-            <ul class="dropdown-menu dropdown-menu-lg dropdown-menu-right">
+
+            <!-- Bootstrap 5 uses <div> instead of <ul> -->
+            <div class="dropdown-menu dropdown-menu-lg dropdown-menu-end">
+
                 <!-- User image -->
-                <li class="user-header bg-primary">
-                    <img src="{{ asset('images/download.jpg') }}" class="img-circle elevation-2" alt="User Image">
-                    <p>
-                        Hello {{ Auth::user()->designation_id }}
-                    </p>
-                </li>
-                <!-- Menu Footer-->
-                <li class="user-footer">
-                    <div class="float-right">
-                        <a class="btn btn-info btn-flat btn-sm" href="#">Download User Manual</a>
-                        <a class="btn btn-danger btn-flat btn-sm" href="#"
-                            onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
-                            Logout
-                        </a>
-                    </div>
-                </li>
-            </ul>
+                <div class="user-header bg-primary text-center ">
+                    <img src="{{ asset('images/download.jpg') }}" class="img-circle elevation-2 w-25 mt-2"
+                        alt="User Image">
+
+                    <p>Hello {{ Auth::user()->username }}</p>
+                </div>
+
+                <!-- Footer -->
+                <div class="user-footer text-center">
+                    <a href="#" class="btn btn-info btn-flat btn-sm">Download User Manual</a>
+                    <form method="POST" action="{{ route('logout') }}" class="d-inline">
+                        @csrf
+                        <button type="submit" class="btn btn-danger btn-flat btn-sm">{{ __('Sign Out') }}</button>
+                    </form>
+                </div>
+            </div>
         </li>
+
+
     </ul>
 </nav>
