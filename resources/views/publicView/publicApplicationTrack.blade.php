@@ -45,6 +45,7 @@
         position: relative;
         align-items: flex-start;
         justify-content: center;
+        margin-bottom: 10px;
     }
 
     .tl-card {
