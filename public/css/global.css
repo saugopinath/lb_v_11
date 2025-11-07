@@ -1,0 +1,121 @@
+.nav-sidebar .nav-link {
+    display: flex;
+    align-items: center;
+    white-space: nowrap;
+    /* Prevent text wrapping */
+    overflow: hidden;
+    text-overflow: ellipsis;
+    /* Add ... for long names */
+    width: 100%;
+}
+
+.nav-sidebar .nav-link span,
+.nav-sidebar .nav-link p {
+    flex: 1;
+    /* Let text fill available width */
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Ensure hover fills full width */
+.nav-sidebar .nav-item > .nav-link:hover {
+    width: 100%;
+}
+
+/* Tooltip for full text on hover */
+.nav-sidebar .nav-link[title] {
+    position: relative;
+}
+
+.sidebar-dark-primary {
+    /* background: linear-gradient(180deg, #e71818 0%, #060613 100%) !important; */
+    background: linear-gradient(180deg, #010438 0%, #060613 100%) !important;
+    /* Top to bottom gradient */
+}
+
+/* Active menu item */
+.sidebar-dark-primary .nav-sidebar > .nav-item > .nav-link.active {
+    background: linear-gradient(180deg, #03346e 0%, #065084 100%) !important;
+    color: #fff !important;
+}
+
+/* Brand section */
+.sidebar-dark-primary .brand-link {
+    background: linear-gradient(90deg, #234c6a 0%, #065084 100%) !important;
+    /* Horizontal gradient */
+    color: #fff;
+}
+
+/* Hover on menu items */
+.sidebar-dark-primary .nav-sidebar > .nav-item > .nav-link:hover {
+    background: linear-gradient(180deg, #03346e 0%, #065084 100%) !important;
+    color: #fff;
+}
+
+.biswo-loader {
+    position: fixed; 
+    top: 0;
+    left: 0;
+    width: 100vw; 
+    height: 100vh; 
+    display: flex; 
+    align-items: center;
+    justify-content: center;
+    /* background-color: rgba(255, 255, 255, 0.8); soft overlay */
+    background-image: url("../../images/biswo_bangla_loader.png");
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 120px 120px; 
+    z-index: 999999; /* above all other elements */
+    animation: fade 1.5s ease-in-out infinite;
+}
+
+@keyframes fade {
+    0%,
+    100% {
+        opacity: 0;
+    }
+    50% {
+        opacity: 1;
+    }
+}
+
+.navbar .dropdown-menu {
+    z-index: 1050 !important;
+}
+
+.is-invalid {
+    border-color: #cc0000;
+    background-color: #ffff99;
+}
+
+.preloader1 {
+    position: fixed;
+    top: 40%;
+    left: 52%;
+    z-index: 999;
+    background: transparent !important;
+}
+
+.loadingDivModal {
+    position: absolute;
+    top: 0px;
+    right: 0px;
+    width: 100%;
+    height: 100%;
+    background-color: #fff;
+    background-image: url("images/ajaxgif.gif");
+    background-repeat: no-repeat;
+    background-position: center;
+    z-index: 10000000;
+    opacity: 0.4;
+    filter: alpha(opacity=40);
+    /* For IE8 and earlier */
+}
+
+#updateDiv {
+    border: 1px solid #d9d9d9;
+    padding: 8px;
+    box-shadow: 0 1px 1px rgb(0 0 0 / 10%);
+}
