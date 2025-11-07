@@ -244,15 +244,12 @@
                             <i class="fa fa-search me-1"></i> Search
                         </button>
                     </div>
-
-
                 </div>
-
             </form>
         </div>
     </div>
     <!-- Application Status Section -->
-    <div class="card mb-4 shadow-sm">
+    <div class="card shadow-sm mb-4 card-outline card-primary">
         <div class="card-header bg-light border-0">
             <h5 class="card-title mb-0 text-primary fw-bold">Application Status</h5>
         </div>
