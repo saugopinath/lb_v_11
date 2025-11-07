@@ -15,7 +15,8 @@ use App\Http\Controllers\{
     PensionformReportController,
     BeneficiaryListReportExcel,
     PensionformFaultyReportController,
-    casteManagementController
+    casteManagementController,
+    TrackApplicantController
 };
 Route::get('refresh-captcha', [CaptchaController::class, 'refreshCaptcha'])->name('refresh-captcha');
 Route::controller(AuthenticationController::class)->group(function () {
