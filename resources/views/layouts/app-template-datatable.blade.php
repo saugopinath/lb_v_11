@@ -17,4 +17,20 @@
     <script src="{{ asset('datatable/js/dataTables.buttons.min.js') }}"></script>
     <script src="{{ asset('datatable/js/buttons.html5.min.js') }}"></script>
     <script src="{{ asset('datatable/js/buttons.print.min.js') }}"></script>
+  <script>
+    (function ($) {
+      $(document).ready(function () {
+        $(document).off('click.bs.dropdown.data-api');
+        $(document).on('click', '.dropdown-toggle', function (e) {
+          e.stopPropagation();
+          $(this).dropdown('toggle');
+        });
+
+        const dropdowns = document.querySelectorAll('.dropdown-toggle');
+        dropdowns.forEach(function (el) {
+          new bootstrap.Dropdown(el);
+        });
+      });
+    })(jQuery);
+  </script>
 @endpush
