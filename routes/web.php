@@ -15,7 +15,8 @@ use App\Http\Controllers\{
     PensionformReportController,
     BeneficiaryListReportExcel,
     PensionformFaultyReportController,
-    casteManagementController
+    casteManagementController,
+    TrackApplicantController
 };
 Route::get('refresh-captcha', [CaptchaController::class, 'refreshCaptcha'])->name('refresh-captcha');
 Route::controller(AuthenticationController::class)->group(function () {
@@ -38,7 +39,10 @@ Route::controller(PolicyController::class)->group(function () {
     Route::get('/privacy-policy', 'privacy')->name('privacy-policy');
     Route::get('/hyperlink-policy', 'hyperlink')->name('hyperlink-policy');
     Route::get('/terms-policy', 'terms_condition')->name('terms-policy');
-    Route::get('/track-application', 'track_application_view')->name('track-application');
+   // Route::get('/track-application', 'track_application_view')->name('track-application');
+});
+Route::controller(TrackApplicantController::class)->group(function () {
+    Route::get('/track-applicant', 'applicantTrack')->name('track-applicant');
 });
 Route::controller(DashboardController::class)->group(function () {
     Route::get('dashboard', 'index')->middleware(['auth', 'verified'])->name('dashboard')->middleware('auth');
@@ -80,7 +84,7 @@ Route::controller(LegacyProcessController::class)->group(function () {
 });
 Route::controller(PensionCommonController::class)->group(function () {
     Route::any('applicant/track/', 'applicantTrack');
-    Route::get('ajaxApplicationTrack', 'ajaxApplicationTrack');
+    Route::get('ajaxApplicationTrack', 'ajaxApplicationTrack')->name('ajaxApplicationTrack');
     Route::get('getPaymentDetailsFinYearWiseInTrackApplication', 'getPaymentDetailsFinYearWiseInTrackApplication')->name('getPaymentDetailsFinYearWiseInTrackApplication');
 });
 Route::controller(PensionformReportController::class)->group(function () {

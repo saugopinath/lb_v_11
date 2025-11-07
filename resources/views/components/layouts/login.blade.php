@@ -273,7 +273,7 @@
                             </div>
 
                             <div class="text-center mt-4">
-                                <a href="{{route('track-application')}}" class="btn btn-info d-inline-flex align-items-center justify-content-center gap-2 px-4 py-2 rounded-pill shadow-sm fw-semibold" style="min-width: 230px;">
+                                <a href="{{route('track-applicant')}}" class="btn btn-info d-inline-flex align-items-center justify-content-center gap-2 px-4 py-2 rounded-pill shadow-sm fw-semibold" style="min-width: 230px;">
                                     <i class="fa fa-map-marker"></i>
                                     Track Applicant Status
                                 </a>

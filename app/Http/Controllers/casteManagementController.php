@@ -900,8 +900,8 @@ class casteManagementController extends Controller
         if (request()->ajax()) {
             $query = $query->where($condition);
             $serachvalue = $request->search['value'];
-            $limit = $request->input('length');
-            $offset = $request->input('start');
+            $limit = (int) $request->input('length', 10);
+            $offset = (int) $request->input('start', 0);
 
             $totalRecords = 0;
             $filterRecords = 0;
@@ -913,7 +913,7 @@ class casteManagementController extends Controller
                     'application_id', 'beneficiary_id', 'ben_name',  'mobile_no', 'ss_card_no', 'next_level_role_id_caste', 'rejected_cause', 'is_final'
 
                 ]);
-                 $filterRecords = count($data);
+                $filterRecords = $totalRecords;
             } else {
                 if (preg_match('/^[0-9]*$/', $serachvalue)) {
                     $query = $query->where(function ($query1) use ($serachvalue) {

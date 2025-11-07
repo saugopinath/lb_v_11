@@ -23,11 +23,12 @@
 
     <!-- Main Card for Search -->
     <div class="card shadow-sm mb-4 card-outline card-primary">
-        <div class="card-header card-header-custom bg-light">Track Applicant using Application Id/Mobile No./Aadhaar No.</div>
+        <div class="card-header card-header-custom bg-light">Track Applicant using Beneficiary Id/Mobile No./Aadhaar No.</div>
         <div class="card-body">
             <div id="loaderDiv"></div> <!-- Your loader div -->
 
-            
+            <form method="get" id="publick_track_applicant" action="#" class="submit-once">
+                @csrf
                                         <input type="hidden" name="scheme_code" id="scheme_code" value="{{ $scheme_id }}">
 
                 <div class="row g-3 align-items-end">
@@ -36,7 +37,7 @@
                         <label for="select_type" class="form-label fw-semibold">Search Using <span class="text-danger">*</span></label>
                         <select class="form-select" name="select_type" id="select_type">
                             <option value="">-- Select --</option>
-                            <option value="1">Application ID</option>
+                            <option value="1">Beneficiary ID</option>
                             <option value="2">Mobile Number</option>
                             <option value="3">Aadhaar Number</option>
                         </select>
@@ -51,7 +52,7 @@
                             name="applicant_id"
                             id="applicant_id"
                             class="form-control"
-                            placeholder="Enter Application ID"
+                            placeholder="Enter Beneficiary ID"
                             autocomplete="off" />
                         <div class="text-danger small mt-1" id="error_applicant_id"></div>
                     </div>
@@ -96,7 +97,58 @@
 
     <!-- @if(true) -->
     <div id="ajaxData">
-     </div>
+        <div class="card shadow-sm mb-4 card-outline card-success">
+            <div class="card-header bg-light">List of Beneficiary</div>
+            <div class="card-body p-2">
+                <div class="table-responsive">
+                    <table id="example" class="table table-bordered table-striped" style="width:100%">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Beneficiary ID</th>
+                                <th>Applicant Name</th>
+                                <th>Address</th>
+                                <th>Current Banking Information</th>
+                                <th>Current Status</th>
+                                <th>Payment Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {{-- Your PHP foreach loop for row_list --}}
+                            <tr>
+                                <td>9029906</td>
+                                <td>MADAN MOHAN KARMAKAR</td>
+                                <td>
+                                    District - PURBA BARDHAMAN<br>
+                                    Block/Municipality - KHANDAGHOSH<br>
+                                    Gp/Ward - GOPALBERA
+                                </td>
+                                <td>
+                                    Bank Name - PUNJAB NATIONAL BANK<br>
+                                    Branch - EKALAKSHMI<br>
+                                    A/c No - ************6363<br>
+                                    IFSC - PUNB00X52410
+                                </td>
+                                <td><span class="badge bg-success">Verified (Approval Pending)</span></td>
+                                <td>
+                                    <button type="button" {{-- Essential: type="button" to prevent form submission --}}
+                                        class="btn btn-info btn-sm open-payment-modal-btn">
+                                        <i class="fa fa-eye me-1"></i> View
+                                    </button>
+
+                                </td>
+                            </tr>
+                            {{-- End of PHP foreach --}}
+                            <!-- @if (false) {{-- If no records, show this --}} -->
+                            <!-- <tr>
+                                <td colspan="6" class="text-center">No Record Found</td>
+                            </tr> -->
+                            <!-- @endif -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
     @endif
 </div>
 <div class="modal fade" id="ben_payment_view_modal" tabindex="-1" aria-labelledby="paymentStatusModalLabel" aria-hidden="true">
@@ -128,7 +180,7 @@
                             <table class="table table-bordered table-striped card-outline card-success">
                                 <thead class="table-light">
                                     <tr>
-                                        <th>Application Id</th>
+                                        <th>Beneficiary Id</th>
                                         <th>Financial Year</th>
                                         <th>Month</th>
                                         <th>IFSC</th>
@@ -273,20 +325,20 @@
                                 _token: '{{ csrf_token() }}',
                             },
                             success: function(data) {
-                               //  console.log(data);
+                                 console.log(data);
                                 $('#loaderDiv').hide();
                                 $("#modal_data").html('');
                                 $("#ajaxData").html(data);
                                 $("#applicant_id").val('');
                                 $("#captcha").val('');
-                                refreshCaptcha();
+                                //refreshCaptcha();
                             },
                             error: function(ex) {
                                 $('#loaderDiv').hide();
                                 $("#modal_data").html('');
                                 $('#ajaxData').html('');
-                                alert('Timeout ..Please try again.');
-                                location.reload();
+                               // alert('Timeout ..Please try again.');
+                                //location.reload();
                             }
                         });
                     }

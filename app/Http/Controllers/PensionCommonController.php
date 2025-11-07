@@ -88,6 +88,7 @@ class PensionCommonController extends Controller
     }
     public function ajaxApplicationTrack(Request $request)
     {
+       // dd($request);
         $is_public = $request['is_public'];
         ini_set('max_execution_time', 300); //300 seconds = 5 minutes
         if($is_public==1){

@@ -78,7 +78,7 @@
                   <div class="form-group col-md-3" id="beneficiary_id_div">
                   <label for="beneficiary"><span id="search_text"> {{$fill_array['search_text']}}</span> <span class="text-danger">*</span></label>
                   <input type="text" name="ben_id" id="ben_id" class="form-control" 
-                  onkeypress="if ( isNaN(String.fromCharCode(event.keyCode) )) return false;" placeholder="Enter Beneficiary ID" value={{$fill_array['ben_id']}}>
+                   placeholder="Enter Beneficiary ID" value={{$fill_array['ben_id']}}>
                    <span style="font-size: 14px;" id="error_ben_id" class="text-danger"></span>
                 </div>
                   </div>
