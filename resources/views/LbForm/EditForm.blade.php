@@ -1110,7 +1110,10 @@
       if (status == 1) {
         if (max_tab_code == '') {
           tab_highlight(1);
-        } else
+        } else if(max_tab_code==5){
+          tab_highlight(1);
+        }
+        else
           tab_highlight(parseInt(max_tab_code) + 1);
       } else if (status == 2)
         tab_highlight(1);

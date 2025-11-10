@@ -1974,7 +1974,7 @@ class LbEntryController extends Controller
             
             $errormsg = Config::get('constants.errormsg');
 
-           // dd( $errormsg['sessiontimeOut']);
+           // dd( $status);
             return view('LbForm/EditForm', [
                 'row' => $rowArr_collection,
                 'application_id' => $application_id,
