@@ -132,8 +132,9 @@ class LakkhiBhandarWCDformController extends Controller
                 $serachvalue = '';
             $limit = intval($request->input('length'));
             $offset = intval($request->input('start'));
-            
-           // $data = array();
+            $totalRecords = 0;
+            $filterRecords = 0;
+            $data = array();
             $ds_phase = trim($request->ds_phase);
             $munc_id = trim($request->munc_id);
             $gp_ward_id = trim($request->gp_ward_id);
@@ -172,7 +173,7 @@ class LakkhiBhandarWCDformController extends Controller
                  '' . $personal_table . '.created_by_dist_code as created_by_dist_code', 
                  '' . $personal_table . '.application_id as application_id', 
                 'ben_fname',  'father_fname', 'father_mname', 'father_lname', 'mobile_no'
-                ])->toArray();
+                ]);
 
                 $filterRecords = $totalRecords;
                 //dump($limit);
@@ -193,7 +194,7 @@ class LakkhiBhandarWCDformController extends Controller
                     '' . $personal_table . '.application_id as application_id', 
                     'ben_fname',  'father_fname', 'father_mname', 'father_lname', 'mobile_no'
                     ]
-                    )->toArray();
+                    );
                     //$filterRecords = $totalRecords;
                 } else {
                     $query = $query->where(function ($query1) use ($serachvalue) {
@@ -206,15 +207,49 @@ class LakkhiBhandarWCDformController extends Controller
                     '' . $personal_table . '.application_id as application_id', 
                     'ben_fname',  'father_fname', 'father_mname', 'father_lname', 'mobile_no'
                         ]
-                    )->toArray();
+                    );
                     //$filterRecords = $totalRecords;
                 }
+                
                 $filterRecords = count($data);
             }
-            dump($data);
+            //dd($data);
             return datatables()->of($data)
-               
-               
+                ->setTotalRecords($totalRecords)
+                ->setFilteredRecords($filterRecords)
+                ->skipPaging()
+                ->addColumn('name', function ($data) {
+                    return trim($data->ben_fname);
+                })->addColumn('application_id', function ($data) {
+
+
+                    return $data->application_id;
+                })->addColumn('adharcardno', function ($data) {
+                    if (!empty($data->aadhar_no)) {
+                        return ($data->aadhar_no);
+                    } else
+                        return '';
+                })->addColumn('father_name', function ($data) {
+                    return $data->fathername;
+                })->addColumn('status', function ($data) {
+                    $status_msg = 'In-Progress';
+                    $status = '<span class="label label-warning">' . $status_msg . '</span>';
+                    return $status;
+                })->addColumn('Action', function ($data) {
+
+
+                   // $action = '<a href="lb-entry-draft-edit?application_id=' . $data->application_id . '" class="btn btn-sm btn-primary"><i class="glyphicon glyphicon-edit"></i> Edit</a>&nbsp;&nbsp;&nbsp;&nbsp<button value="' . $data->application_id . '" id="rej_' . $data->application_id . '" class="btn btn-danger btn-sm rej-btn" type="button">Reject</button>';
+
+                   $action = '<a href="/lb-entry-draft-edit?application_id=' . $data->application_id . '" class="btn btn-sm btn-primary"><i class="glyphicon glyphicon-edit"></i> Edit</a>&nbsp;&nbsp;&nbsp;&nbsp<button value="' . $data->application_id . '" id="rej_' . $data->application_id . '" class="btn btn-danger btn-sm rej-btn" type="button">Reject</button>';
+
+                    return $action;
+                })->addColumn('mobile_no', function ($data) {
+                    if (!empty($data->mobile_no)) {
+                        return ($data->mobile_no);
+                    } else
+                        return '';
+                })
+                ->rawColumns(['Action', 'id', 'name', 'status', 'mobile_no', 'application_id'])
                 ->make(true);
             
             
