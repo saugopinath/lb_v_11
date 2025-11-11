@@ -220,17 +220,13 @@
       dataTable = $('#example').DataTable({
         dom: 'Blfrtip',
         "paging": true,
-        "pageLength": 20,
+        "pageLength": 10,
         "lengthMenu": [
           [10, 20, 50, 80, 120],
           [10, 20, 50, 80, 120]
         ],
         "serverSide": true,
-        "deferRender": true,
         "processing": true,
-        "bRetrieve": true,
-        "ordering": false,
-        "searching": true,
         "language": {
           "processing": "Processing...",
           "emptyTable": "No data available in table",

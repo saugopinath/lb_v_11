@@ -247,9 +247,11 @@
                       </div>
                       <div class="form-group col-md-4">
                         <select class="form-control " name="entry_type" id="entry_type">
+                          
+                           
                           @if (!empty($application_id))
-                          @if($row->entry_type==1)
-                          <option value="1">Normal Form</option>
+                          @if($row->entry_type==1 || is_null($row->entry_type))
+                          <option value="1" selected>Normal Form</option>
                           @else
                           <option value="2" selected>Form through {{$ds_phase_text}} camp</option>
                           @endif
@@ -1065,9 +1067,7 @@
 
     var allow_normal_entry = {{$scheme_details -> allow_normal_entry}};
 
-    if (allow_ds_entry == 1) {
-      $("#entry_type").val(2);
-    }
+   
     if ($("#entry_type").val() == 2) {
       $(".duareSarkar").show();
     } else {

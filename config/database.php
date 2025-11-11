@@ -81,7 +81,6 @@ return [
 
         'pgsql' => [
             'driver' => 'pgsql',
-            'url' => env('DB_URL'),
             'host' => env('DB_HOST', '127.0.0.1'),
             'port' => env('DB_PORT', '5432'),
             'database' => env('DB_DATABASE', 'laravel'),
@@ -95,14 +94,16 @@ return [
         ],
         'pgsql_appread' => [
             'driver' => 'pgsql',
-            'host' => 'localhost',
+            'host' => env('DB_HOST', '127.0.0.1'),
             'port' => env('DB_PORT', '5432'),
-            'database' => env('DB_DATABASE', 'lb_main_prod'),
-            'username' => env('DB_USERNAME', 'postgres'),
-            'password' => env('DB_PASSWORD', '12345'),
-            'charset' => 'utf8',
+            'database' => env('DB_DATABASE', 'laravel'),
+            'username' => env('DB_USERNAME', 'root'),
+            'password' => env('DB_PASSWORD', ''),
+            'charset' => env('DB_CHARSET', 'utf8'),
             'prefix' => '',
-            'schema' => 'lb_scheme',
+            'prefix_indexes' => true,
+            'search_path' => 'public',
+            'sslmode' => 'prefer',
         ],
 
          'pgsql_mis' => [
@@ -159,7 +160,26 @@ return [
             'schema' => 'lb_scheme',
             'sslmode' => 'prefer',
         ],
-
+       'pgsql_payment' => [
+            'driver' => 'pgsql',
+            'host' => env('DB_HOST', '127.0.0.1'),
+            'port' => env('DB_PORT', '5432'),
+            'database' => 'lb_payment',
+            'username' => env('DB_USERNAME', 'postgres'),
+            'password' => env('DB_PASSWORD', '12345'),
+            'charset' => 'utf8',
+            'prefix' => '',
+        ],
+        'pgsql_payment_read' => [
+            'driver' => 'pgsql',
+            'host' => env('DB_HOST', '127.0.0.1'),
+            'port' => env('DB_PORT', '5432'),
+             'database' => 'lb_payment',
+            'username' => env('DB_USERNAME', 'postgres'),
+            'password' => env('DB_PASSWORD', '12345'),
+            'charset' => 'utf8',
+            'prefix' => '',
+        ],
         'sqlsrv' => [
             'driver' => 'sqlsrv',
             'url' => env('DB_URL'),

@@ -4,19 +4,19 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
-use App\Models\District;
-use App\Models\SubDistrict;
-use App\Models\Taluka;
+use App\District;
+use App\SubDistrict;
+use App\Taluka;
 use Redirect;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Config;
 use URL;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
-use App\Models\getModelFunc;
-use App\Models\DataSourceCommon;
+use App\getModelFunc;
+use App\DataSourceCommon;
 use App\Helpers\Helper;
-use App\Models\RejectRevertReason;
+use App\RejectRevertReason;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Validator;
 class PensionCommonController extends Controller
@@ -88,7 +88,6 @@ class PensionCommonController extends Controller
     }
     public function ajaxApplicationTrack(Request $request)
     {
-       // dd($request);
         $is_public = $request['is_public'];
         ini_set('max_execution_time', 300); //300 seconds = 5 minutes
         if($is_public==1){
@@ -315,30 +314,41 @@ class PensionCommonController extends Controller
 
             // Bank Account Number
             else if ($track_type == 5) {
-                $row_reject = $reject_model->select('application_id', 'rejected_cause', 'ben_fname', 'rejection_date')->where('bank_code', $applicant_id)->where($condition)->get();
-                if (!empty($row_reject) && count($row_reject) > 0) {
-                    $reject_found = 1;
-                    $in_app_id = array();
-                    if (count($row_reject) > 0) {
-                        foreach ($row_reject as $arr_p) {
-                            array_push($in_app_id, $arr_p->application_id);
+                $row_draft = DB::connection('pgsql_appread')->table($bankTableMainDraft)->select('application_id')->where('bank_code', $applicant_id)->where($condition)->get();
+                if ($row_draft->isEmpty()) {
+                    $row_reject = $reject_model->select('application_id', 'rejected_cause', 'ben_fname', 'rejection_date')->where('bank_code', $applicant_id)->where($condition)->get();
+                    if (!empty($row_reject) && count($row_reject) > 0) {
+                        $reject_found = 1;
+                        $in_app_id = array();
+                        if (count($row_reject) > 0) {
+                            foreach ($row_reject as $arr_p) {
+                                array_push($in_app_id, $arr_p->application_id);
+                            }
+                            $s_application_id_in = $in_app_id;
                         }
-                        $s_application_id_in = $in_app_id;
+                    } else {
+                        $whereCon .= " and bank_code='" . $applicant_id . "'";
+                        $query = "select application_id from $bankTableMainDraft  " . $whereCon . "
+                        UNION 
+                        select application_id from $bankTableMain " . $whereCon . "
+                        UNION 
+                        select application_id from $faultybankTableMainDraft " . $whereCon . "
+                        UNION 
+                        select application_id from $faultybankTableMain " . $whereCon . "";
+                    // dd($query);
+                        $s_result = DB::connection('pgsql_appread')->select($query);
+                        $in_app_id = array();
+                        if (count($s_result) > 0) {
+                            foreach ($s_result as $arr_p) {
+                                array_push($in_app_id, $arr_p->application_id);
+                            }
+                            $s_application_id_in = $in_app_id;
+                        }
                     }
                 } else {
-                    $whereCon .= " and bank_code='" . $applicant_id . "'";
-                    $query = "select application_id from $bankTableMainDraft  " . $whereCon . "
-                    UNION 
-                    select application_id from $bankTableMain " . $whereCon . "
-                    UNION 
-                    select application_id from $faultybankTableMainDraft " . $whereCon . "
-                    UNION 
-                    select application_id from $faultybankTableMain " . $whereCon . "";
-                // dd($query);
-                    $s_result = DB::connection('pgsql_appread')->select($query);
                     $in_app_id = array();
-                    if (count($s_result) > 0) {
-                        foreach ($s_result as $arr_p) {
+                    if (count($row_draft) > 0) {
+                        foreach ($row_draft as $arr_p) {
                             array_push($in_app_id, $arr_p->application_id);
                         }
                         $s_application_id_in = $in_app_id;
@@ -769,12 +779,12 @@ class PensionCommonController extends Controller
             $getModelFunc = new getModelFunc();
             $schemaname = $getModelFunc->getSchemaDetails($fin_year);
             if ($fin_year == '2021-2022') {
-                $schemaname = 'trx_mgmt_2122_archive';
+                $schemaname = 'payment';
             } else if ($fin_year == '2022-2023') {
-                $schemaname = 'trx_mgmt_2223';
+                $schemaname = 'payment';
             }else if ($fin_year == '2023-2024') {
                 $schemaname = $getModelFunc->getSchemaDetails($fin_year);
-               // dd($schemaname);
+               dd($schemaname);
             }
             $benStatusObj = DB::connection('pgsql_payment')->table($schemaname . '.ben_payment_details')->where('ben_id', $ben_id)->first();
             $paymentDetails = '';
@@ -790,6 +800,7 @@ class PensionCommonController extends Controller
                 $response = array('personalDetails' => $benIdObj, 'paymentDetails' => $paymentDetails);
             }
         } catch (\Exception $e) {
+            dd($e);
             $response = array(
                 'exception' => true,
                 'exception_message' => $e->getMessage(),
@@ -806,21 +817,37 @@ class PensionCommonController extends Controller
         $getModelFunc = new getModelFunc();
         $schemaname = $getModelFunc->getSchemaDetails($fin_year);
         if ($fin_year == '2021-2022') {
-            $schemaname = 'trx_mgmt_2122_archive';
+            $schemaname = 'payment';
         } else if ($fin_year == '2022-2023') {
-            $schemaname = 'trx_mgmt_2223';
+            $schemaname = 'payment';
         }else if ($fin_year == '2023-2024') {
             $schemaname = $getModelFunc->getSchemaDetails($fin_year);
         }
         $schemanameCur = $getModelFunc->getSchemaDetails();
         $benStatusObj = DB::connection('pgsql_payment')->table($schemaname . '.ben_payment_details')->where('ben_id', $ben_id)->first();
+        $benTransObj = DB::connection('pgsql_payment')->table($schemaname . '.ben_transaction_details')->where('fin_year', $fin_year)->where('ben_id', $ben_id)->first();
+        $failedBenStatusObj = DB::connection('pgsql_payment')->table('lb_main.failed_payment_details')->where('ben_id', $ben_id)->whereIn('edited_status', [0, 1])->first();
 
         $paymentDetails = '';
 
-        if (!empty($benStatusObj)) {
+        if (!empty($benStatusObj) && !empty($benTransObj)) {
             // New For Showing Validation Error (Date : 16/12/2021)
             $paymentDetails .= '<hr>';
             $paymentDetails .= '<h5 class="text-success"><b>Bank Account Status : ' . Config::get('globalconstants.acc_validated.' . $benStatusObj->acc_validated) . '</b></h5>';
+            // if ($benStatusObj->acc_validated == 3 && $failedBenStatusObj->failed_type == 1) {
+            //     $paymentDetails .= '<h5 class="text-warning"><b>Account validation failed, pending at Verifier end.<b></h5>';
+            // } elseif ($benStatusObj->acc_validated == 3 && $failedBenStatusObj->failed_type == 3) {
+            //     $paymentDetails .= '<h5 class="text-warning"><b>Name Validation Matching Score : '.$failedBenStatusObj->matching_score.'%<b></h5>';
+            // }
+            if ($benStatusObj->acc_validated == 3) {
+                if ($failedBenStatusObj->failed_type == 1 && $failedBenStatusObj->edited_status == 0) {
+                    $paymentDetails .= '<h5 class="text-warning"><b>Account validation failed, pending at Verifier end.<b></h5>';
+                } elseif ($failedBenStatusObj->failed_type == 3 && ($failedBenStatusObj->edited_status == 0 || $failedBenStatusObj->edited_status == 1)) {
+                    $paymentDetails .= '<h5 class="text-warning"><b>Name Validation Matching Score : '.$failedBenStatusObj->matching_score.'%<b></h5>';
+                } elseif ($failedBenStatusObj->failed_type == 1 && $failedBenStatusObj->edited_status == 1) {
+                    $paymentDetails .= '<h5 class="text-warning"><b>Account validation failed, pending at Approver end.<b></h5>';
+                }
+            }
             if ($benStatusObj->ben_status == 1) {
                 $paymentDetails .= '<h5 class="text-success"><b>Beneficiary Status : ' . Config::get('globalconstants.ben_status.' . $benStatusObj->ben_status) . '</b></h5>';
             }
@@ -894,9 +921,9 @@ class PensionCommonController extends Controller
                 $lot_column = $getMonthColumn['lot_column'];
                 $lot_type = $getMonthColumn['lot_type'];
                 // echo $benStatusObj->$lot_status;die();
-                if ($benStatusObj->$lot_status == 'G' || $benStatusObj->$lot_status == 'P' || $benStatusObj->$lot_status == 'S' || $benStatusObj->$lot_status == 'F' || $benStatusObj->$lot_status == 'H') {
-                    //$lot_no = $benStatusObj->$lot_column;
-                    $lotStatus = $benStatusObj->$lot_status;
+                if ($benTransObj->$lot_status == 'G' || $benTransObj->$lot_status == 'P' || $benTransObj->$lot_status == 'S' || $benTransObj->$lot_status == 'F' || $benTransObj->$lot_status == 'H') {
+                    //$lot_no = $benTransObj->$lot_column;
+                    $lotStatus = $benTransObj->$lot_status;
                     $lot_month = Config::get('constants.monthval.' . $count);
                     $paymentDetails .= '  
                         <tr>    

@@ -123,25 +123,21 @@ class LakkhiBhandarWCDformController extends Controller
         $reject_revert_reason = RejectRevertReason::where('status', true)->get();
         
         //$entry_allowed_main = BlkUrbanlEntryMapping::where('main_entry', true)->where('block_ulb_code',  $blockCode)->count();
-        if (request()->ajax()) {
-           
-           
+       
+       
             
             if (!empty($request->search['value']))
                 $serachvalue = trim($request->search['value']);
             else
                 $serachvalue = '';
-            $limit = $request->input('length');
-            $offset = $request->input('start');
-            $totalRecords = 0;
-            $filterRecords = 0;
-            $data = array();
+            $limit = intval($request->input('length'));
+            $offset = intval($request->input('start'));
+            
+           // $data = array();
             $ds_phase = trim($request->ds_phase);
             $munc_id = trim($request->munc_id);
             $gp_ward_id = trim($request->gp_ward_id);
-            if ($ds_phase!='') {
-                    $condition[$personal_table . ".ds_phase"] = $ds_phase;
-            }
+            
             if (!empty($munc_id)) {
                             $condition[$contact_table . ".block_ulb_code"] = $munc_id;
             }
@@ -150,6 +146,15 @@ class LakkhiBhandarWCDformController extends Controller
             }
             $query = $modelName->where($condition);
             $query = $query->leftjoin($contact_table, $contact_table . '.application_id', '=', $personal_table . '.application_id');
+            if ($ds_phase!='') {
+                if($ds_phase==0){  
+                 $query =$query->whereRaw(" (".$personal_table." .ds_phase IS NULL or ".$personal_table.".ds_phase=0) ");
+                }
+                else{
+                    $query =$query->whereRaw(" (".$personal_table.".ds_phase=".$ds_phase.") ");
+                    //$condition[$personal_table . ".ds_phase"] = intval($ds_phase);
+                }
+            }
             if($list_type==1){
              $data = $query->whereNull('next_level_role_id');
             }
@@ -159,6 +164,7 @@ class LakkhiBhandarWCDformController extends Controller
             if($list_type==3){
                 $data = $query->where('next_level_role_id',-50);
             }
+            
            
             if (empty($serachvalue)) {
                 $totalRecords = $query->count($personal_table . '.application_id');
@@ -166,28 +172,29 @@ class LakkhiBhandarWCDformController extends Controller
                  '' . $personal_table . '.created_by_dist_code as created_by_dist_code', 
                  '' . $personal_table . '.application_id as application_id', 
                 'ben_fname',  'father_fname', 'father_mname', 'father_lname', 'mobile_no'
-                ]);
+                ])->toArray();
 
-                $filterRecords = count($data);
+                $filterRecords = $totalRecords;
                 //dump($limit);
                 // dump($offset);
                 // dump($totalRecords);
                 // dump($filterRecords);
                 //dd($data->toArray());
             } else {
+                //dd($query->toSql());
                 if (is_numeric($serachvalue)) {
-                    $query = $query->where(function ($query1) use ($serachvalue) {
-                        $query1->where('application_id', $serachvalue)
-                            ->orWhere('mobile_no', $serachvalue);
+                    $query = $query->where(function ($query1) use ($serachvalue,$personal_table) {
+                        $query1->where($personal_table . '.application_id', $serachvalue);
                     });
-                    $totalRecords = $query->count('application_id');
+                    $totalRecords = $query->count($personal_table . '.application_id');
                     $data = $query->orderBy('ben_fname')->offset($offset)->limit($limit)->get(
                        [
                     '' . $personal_table . '.created_by_dist_code as created_by_dist_code', 
                     '' . $personal_table . '.application_id as application_id', 
                     'ben_fname',  'father_fname', 'father_mname', 'father_lname', 'mobile_no'
                     ]
-                    );
+                    )->toArray();
+                    //$filterRecords = $totalRecords;
                 } else {
                     $query = $query->where(function ($query1) use ($serachvalue) {
                         $query1->where('ben_fname', 'ilike', $serachvalue . '%');
@@ -199,49 +206,18 @@ class LakkhiBhandarWCDformController extends Controller
                     '' . $personal_table . '.application_id as application_id', 
                     'ben_fname',  'father_fname', 'father_mname', 'father_lname', 'mobile_no'
                         ]
-                    );
+                    )->toArray();
+                    //$filterRecords = $totalRecords;
                 }
                 $filterRecords = count($data);
             }
-
+            dump($data);
             return datatables()->of($data)
-                ->setTotalRecords($totalRecords)
-                ->setFilteredRecords($filterRecords)
-                ->skipPaging()
-                ->addColumn('name', function ($data) {
-                    return trim($data->ben_fname);
-                })->addColumn('application_id', function ($data) {
-
-
-                    return $data->application_id;
-                })->addColumn('adharcardno', function ($data) {
-                    if (!empty($data->aadhar_no)) {
-                        return ($data->aadhar_no);
-                    } else
-                        return '';
-                })->addColumn('father_name', function ($data) {
-                    return $data->fathername;
-                })->addColumn('status', function ($data) {
-                    $status_msg = 'In-Progress';
-                    $status = '<span class="label label-warning">' . $status_msg . '</span>';
-                    return $status;
-                })->addColumn('Action', function ($data) {
-
-
-                   // $action = '<a href="lb-entry-draft-edit?application_id=' . $data->application_id . '" class="btn btn-sm btn-primary"><i class="glyphicon glyphicon-edit"></i> Edit</a>&nbsp;&nbsp;&nbsp;&nbsp<button value="' . $data->application_id . '" id="rej_' . $data->application_id . '" class="btn btn-danger btn-sm rej-btn" type="button">Reject</button>';
-
-                   $action = '<a href="/lb-entry-draft-edit?application_id=' . $data->application_id . '" class="btn btn-sm btn-primary"><i class="glyphicon glyphicon-edit"></i> Edit</a>&nbsp;&nbsp;&nbsp;&nbsp<button value="' . $data->application_id . '" id="rej_' . $data->application_id . '" class="btn btn-danger btn-sm rej-btn" type="button">Reject</button>';
-
-                    return $action;
-                })->addColumn('mobile_no', function ($data) {
-                    if (!empty($data->mobile_no)) {
-                        return ($data->mobile_no);
-                    } else
-                        return '';
-                })
-                ->rawColumns(['Action', 'id', 'name', 'status', 'mobile_no', 'application_id'])
+               
+               
                 ->make(true);
-        }
+            
+            
         $errormsg = Config::get('constants.errormsg');
         return view(
             'LbAppList.appList',

@@ -44,6 +44,9 @@ Route::controller(PolicyController::class)->group(function () {
 });
 Route::controller(TrackApplicantController::class)->group(function () {
     Route::get('/track-applicant', 'applicantTrack')->name('track-applicant');
+    Route::get('ajaxApplicationTrack', 'ajaxApplicationTrack')->name('ajaxApplicationTrack');
+    Route::get('getPaymentDetailsFinYearWiseInTrackApplication', 'getFinYearWisePaymentDetailsInTrackApplication')->name('getPaymentDetailsFinYearWiseInTrackApplication');
+
 });
 Route::controller(DashboardController::class)->group(function () {
     Route::get('dashboard', 'index')->middleware(['auth', 'verified'])->name('dashboard')->middleware('auth');
@@ -83,8 +86,6 @@ Route::controller(LegacyProcessController::class)->group(function () {
 });
 Route::controller(PensionCommonController::class)->group(function () {
     Route::any('applicant/track/', 'applicantTrack');
-    Route::get('ajaxApplicationTrack', 'ajaxApplicationTrack')->name('ajaxApplicationTrack');
-    Route::get('getPaymentDetailsFinYearWiseInTrackApplication', 'getPaymentDetailsFinYearWiseInTrackApplication')->name('getPaymentDetailsFinYearWiseInTrackApplication');
 });
 Route::controller(PensionformReportController::class)->group(function () {
     Route::any('application-list-common', 'applicationStatusList');
