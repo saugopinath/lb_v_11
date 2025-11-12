@@ -177,7 +177,6 @@ class LakkhiBhandarWCDformController extends Controller
     }
 
     // filtered count (after search, before pagination)
-
     $filterRecords = (clone $query)->distinct()->count($personal_table . '.application_id');
 
     // fetch paginated data (select and alias columns explicitly)
@@ -194,7 +193,7 @@ class LakkhiBhandarWCDformController extends Controller
             $personal_table . '.mobile_no as mobile_no',
             $personal_table . '.aadhar_no as aadhar_no' // include if exists
         ]);
-// dd($data);
+
     // return via Yajra datatables (data is a Collection)
     return datatables()->of($data)
         ->setTotalRecords((int) $totalRecords)
