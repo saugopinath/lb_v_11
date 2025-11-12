@@ -12324,7 +12324,7 @@ div.dt-container div.dt-layout-table > div {
     }
 }
 div.dt-container {
-    display: flex;
+    /* display: flex; */
     justify-content: space-between; /* puts length on left, search on right */
     align-items: center;
     flex-wrap: wrap; /* allows wrapping on small screens */
