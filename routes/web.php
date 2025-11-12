@@ -78,6 +78,7 @@ Route::controller(LbEntryController::class)->group(function () {
 });
 Route::controller(LakkhiBhandarWCDformController::class)->group(function () {
     Route::any('lb-applicant-list/{list_type}', 'applicantList');
+    Route::any('lb-applicant-list-datatable/{list_type}', 'applicantListDatatable');
     Route::get('downaloadEncloser', 'viewimage');
     Route::post('partialReject', 'partialReject')->name('partialReject');
 });
