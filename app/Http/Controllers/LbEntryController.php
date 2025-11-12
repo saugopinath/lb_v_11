@@ -213,17 +213,18 @@ class LbEntryController extends Controller
             $return_msg = array("" . $return_text);
             return response()->json(['return_status' => $return_status, 'return_msg' => $return_msg]);
         }
-        if (isset($request->application_id)) {
+        //dd(isset($request->application_id));
+        if (isset($request->application_id) && trim($request->application_id)!='') {
             $application_id = $request->application_id;
             if (empty($application_id)) {
                 $return_status = 0;
-                $return_text = 'Application Id Not Found';
+                $return_text = 'Application Id1 Not Found';
                 $return_msg = array("" . $return_text);
                 return response()->json(['return_status' => $return_status, 'return_msg' => $return_msg]);
             }
             if (!ctype_digit($application_id)) {
                 $return_status = 0;
-                $return_text = 'Application Id Not Found';
+                $return_text = 'Application Id2 Not Found';
                 $return_msg = array("" . $return_text);
                 return response()->json(['return_status' => $return_status, 'return_msg' => $return_msg]);
             }
@@ -1658,7 +1659,8 @@ class LbEntryController extends Controller
         } else {
             $return_status = 0;
             $return_msg = $validator->errors()->all();
-            return redirect("/lb-entry-draft-edit?status=" . $request->status . "&application_id=" . $application_id . "&tab_code=encloser")->with('errors', $return_msg);
+            // use request value directly to avoid undefined variable when validation fails
+            return redirect("/lb-entry-draft-edit?status=" . $request->status . "&application_id=" . $request->application_id . "&tab_code=encloser")->with('errors', $return_msg);
         }
     }
    
@@ -1972,7 +1974,7 @@ class LbEntryController extends Controller
             
             $errormsg = Config::get('constants.errormsg');
 
-            //dd( $encloser_list);
+           // dd( $status);
             return view('LbForm/EditForm', [
                 'row' => $rowArr_collection,
                 'application_id' => $application_id,

@@ -256,7 +256,7 @@
                 <div class="col-md-2 col-sm-3 text-center">
                     <img src="images/lakshmir_bhandar.png"
                         alt="Logo"
-                        class="img-fluid w-75 rounded shadow-lg p-2 logo-hover-effect">
+                        class="img-fluid w-75 p-2 logo-hover-effect">
                 </div>
 
                 <div class="col-md-10 col-sm-9">
@@ -273,7 +273,7 @@
                             </div>
 
                             <div class="text-center mt-4">
-                                <a href="{{route('track-application')}}" class="btn btn-info d-inline-flex align-items-center justify-content-center gap-2 px-4 py-2 rounded-pill shadow-sm fw-semibold" style="min-width: 230px;">
+                                <a href="{{route('track-applicant')}}" class="btn btn-info d-inline-flex align-items-center justify-content-center gap-2 px-4 py-2 rounded-pill shadow-sm fw-semibold" style="min-width: 230px;">
                                     <i class="fa fa-map-marker"></i>
                                     Track Applicant Status
                                 </a>

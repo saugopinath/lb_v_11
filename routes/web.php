@@ -15,7 +15,9 @@ use App\Http\Controllers\{
     PensionformReportController,
     BeneficiaryListReportExcel,
     PensionformFaultyReportController,
-    casteManagementController
+    casteManagementController,
+    TrackApplicantController,
+    MasterDataController
 };
 Route::get('refresh-captcha', [CaptchaController::class, 'refreshCaptcha'])->name('refresh-captcha');
 Route::controller(AuthenticationController::class)->group(function () {
@@ -38,7 +40,13 @@ Route::controller(PolicyController::class)->group(function () {
     Route::get('/privacy-policy', 'privacy')->name('privacy-policy');
     Route::get('/hyperlink-policy', 'hyperlink')->name('hyperlink-policy');
     Route::get('/terms-policy', 'terms_condition')->name('terms-policy');
-    Route::get('/track-application', 'track_application_view')->name('track-application');
+   // Route::get('/track-application', 'track_application_view')->name('track-application');
+});
+Route::controller(TrackApplicantController::class)->group(function () {
+    Route::get('/track-applicant', 'applicantTrack')->name('track-applicant');
+    Route::get('ajaxApplicationTrack', 'ajaxApplicationTrack')->name('ajaxApplicationTrack');
+    Route::get('getPaymentDetailsFinYearWiseInTrackApplication', 'getFinYearWisePaymentDetailsInTrackApplication')->name('getPaymentDetailsFinYearWiseInTrackApplication');
+
 });
 Route::controller(DashboardController::class)->group(function () {
     Route::get('dashboard', 'index')->middleware(['auth', 'verified'])->name('dashboard')->middleware('auth');
@@ -67,11 +75,10 @@ Route::controller(LbEntryController::class)->group(function () {
     Route::post('ajax_declaration_entry_wtSws', 'declarationEntry');
     Route::get('lb-entry-draft-edit', 'draftedit')->name('lb-entry-draft-edit');
     Route::post('verifyDatawtSws', 'forwardData');
-    
-
 });
 Route::controller(LakkhiBhandarWCDformController::class)->group(function () {
     Route::any('lb-applicant-list/{list_type}', 'applicantList');
+    Route::any('lb-applicant-list-datatable/{list_type}', 'applicantListDatatable');
     Route::get('downaloadEncloser', 'viewimage');
     Route::post('partialReject', 'partialReject')->name('partialReject');
 });
@@ -80,8 +87,6 @@ Route::controller(LegacyProcessController::class)->group(function () {
 });
 Route::controller(PensionCommonController::class)->group(function () {
     Route::any('applicant/track/', 'applicantTrack');
-    Route::get('ajaxApplicationTrack', 'ajaxApplicationTrack');
-    Route::get('getPaymentDetailsFinYearWiseInTrackApplication', 'getPaymentDetailsFinYearWiseInTrackApplication')->name('getPaymentDetailsFinYearWiseInTrackApplication');
 });
 Route::controller(PensionformReportController::class)->group(function () {
     Route::any('application-list-common', 'applicationStatusList');
@@ -110,6 +115,13 @@ Route::controller(casteManagementController::class)->group(function () {
     Route::get('lb-caste-revert-edit', 'revertedit')->name('lb-caste-revert-edit');
     Route::post('lb-caste-revert-edit-post', 'reverteditPost')->name('lb-caste-revert-edit-post');
     Route::get('caste-matched-report', 'casteMatchedReport')->name('caste-matched-report');
+});
+
+Route::controller(MasterDataController::class)->group(function () {
+    Route::post('masterDataAjax/getUrban', 'getUrban');
+    Route::post('masterDataAjax/getTaluka', 'getTaluka');
+    Route::post('masterDataAjax/getGp', 'getGp');
+    Route::post('masterDataAjax/getWard', 'getWard');
 });
 
 

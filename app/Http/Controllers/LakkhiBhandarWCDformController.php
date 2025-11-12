@@ -96,6 +96,76 @@ class LakkhiBhandarWCDformController extends Controller
         if (!in_array($designation_id, array('Operator'))) {
             return redirect("/")->with('error', 'Not Allowed');
         }
+        $reject_revert_reason = RejectRevertReason::where('status', true)->get();
+        
+        $errormsg = Config::get('constants.errormsg');
+        if($list_type==1){
+         $report_type='Draft';
+         $condition["is_final"] = false;
+
+        }
+        if($list_type==2){
+          $report_type='Submitted';
+          $condition["is_final"] = true;
+        }
+        if($list_type==3){
+          $report_type='Reverted';
+          $condition["is_final"] = true;
+        }
+        return view(
+            'LbAppList.appList',
+            [
+                'sessiontimeoutmessage' => $errormsg['sessiontimeOut'],
+                'reject_revert_reason' => $reject_revert_reason,
+                'ds_phase_list' => $ds_phase_list,
+                'list_type' => $list_type,
+                'report_type' => $report_type,
+                'is_urban' => $is_urban,
+                'munc_list' => $munc_list,
+                'gp_list' => $gp_list,
+
+            ]
+        );
+       
+    }
+    public function applicantListDatatable(Request $request)
+    {
+        $scheme_id = $this->scheme_id;
+        $roleArray = $request->session()->get('role');
+        $designation_id = Auth::user()->designation_id;
+        $user_id = Auth::user()->id;
+        $is_active = 0;
+        $munc_list=collect([]);
+        $gp_list=collect([]);
+        foreach ($roleArray as $roleObj) {
+            if ($roleObj['scheme_id'] == $scheme_id) {
+                $is_active = 1;
+                $is_urban = $roleObj['is_urban'];
+                $distCode = $roleObj['district_code'];
+                if ($roleObj['is_urban'] == 1) {
+                    $blockCode = $roleObj['urban_body_code'];
+                    $munc_list=UrbanBody::where('sub_district_code',$blockCode)->get();
+                } else {
+                    $blockCode = $roleObj['taluka_code'];
+                    $gp_list=GP::where('block_code',$blockCode)->get();
+                }
+                break;
+            }
+        }
+        if ($is_active == 0 || empty($distCode)) {
+            return redirect("/")->with('error', 'User Disabled. ');
+        }
+        if (!in_array($designation_id, array('Operator'))) {
+            return redirect("/")->with('error', 'Not Allowed');
+        }
+       if(is_null($request->list_type)){
+          return redirect("/")->with('error', 'Undefine Report');
+        }
+        $list_type=$request->list_type;
+        if (!in_array($list_type, array(1, 2,3))) {
+         return redirect("/")->with('error', 'Undefine Report');
+        }
+        
         $modelName = new DataSourceCommon;
         $getModelFunc = new getModelFunc();
         $personal_table = $getModelFunc->getTable($distCode, $this->source_type, 1, 1);
@@ -123,25 +193,23 @@ class LakkhiBhandarWCDformController extends Controller
         $reject_revert_reason = RejectRevertReason::where('status', true)->get();
         
         //$entry_allowed_main = BlkUrbanlEntryMapping::where('main_entry', true)->where('block_ulb_code',  $blockCode)->count();
-        if (request()->ajax()) {
-           
-           
-            
+       
+       
+       
             if (!empty($request->search['value']))
                 $serachvalue = trim($request->search['value']);
             else
                 $serachvalue = '';
-            $limit = $request->input('length');
-            $offset = $request->input('start');
+            $limit = (int) $request->input('length',10);
+            $offset = (int) $request->input('start',);
+
             $totalRecords = 0;
             $filterRecords = 0;
             $data = array();
             $ds_phase = trim($request->ds_phase);
             $munc_id = trim($request->munc_id);
             $gp_ward_id = trim($request->gp_ward_id);
-            if ($ds_phase!='') {
-                    $condition[$personal_table . ".ds_phase"] = $ds_phase;
-            }
+            
             if (!empty($munc_id)) {
                             $condition[$contact_table . ".block_ulb_code"] = $munc_id;
             }
@@ -150,6 +218,15 @@ class LakkhiBhandarWCDformController extends Controller
             }
             $query = $modelName->where($condition);
             $query = $query->leftjoin($contact_table, $contact_table . '.application_id', '=', $personal_table . '.application_id');
+            if ($ds_phase!='') {
+                if($ds_phase==0){  
+                 $query =$query->whereRaw(" (".$personal_table." .ds_phase IS NULL or ".$personal_table.".ds_phase=0) ");
+                }
+                else{
+                    $query =$query->whereRaw(" (".$personal_table.".ds_phase=".$ds_phase.") ");
+                    //$condition[$personal_table . ".ds_phase"] = intval($ds_phase);
+                }
+            }
             if($list_type==1){
              $data = $query->whereNull('next_level_role_id');
             }
@@ -159,6 +236,7 @@ class LakkhiBhandarWCDformController extends Controller
             if($list_type==3){
                 $data = $query->where('next_level_role_id',-50);
             }
+            
            
             if (empty($serachvalue)) {
                 $totalRecords = $query->count($personal_table . '.application_id');
@@ -168,26 +246,27 @@ class LakkhiBhandarWCDformController extends Controller
                 'ben_fname',  'father_fname', 'father_mname', 'father_lname', 'mobile_no'
                 ]);
 
-                $filterRecords = count($data);
+                $filterRecords = $totalRecords;
                 //dump($limit);
                 // dump($offset);
                 // dump($totalRecords);
                 // dump($filterRecords);
                 //dd($data->toArray());
             } else {
+                //dd($query->toSql());
                 if (is_numeric($serachvalue)) {
-                    $query = $query->where(function ($query1) use ($serachvalue) {
-                        $query1->where('application_id', $serachvalue)
-                            ->orWhere('mobile_no', $serachvalue);
+                     $query = $query->where(function ($query1) use ($serachvalue,$personal_table) {
+                        $query1->where($personal_table . '.application_id',  $serachvalue);
                     });
-                    $totalRecords = $query->count('application_id');
-                    $data = $query->orderBy('ben_fname')->offset($offset)->limit($limit)->get(
+                    $totalRecords = $query->count($personal_table . '.application_id');
+                    $data = $query->offset($offset)->limit($limit)->get(
                        [
                     '' . $personal_table . '.created_by_dist_code as created_by_dist_code', 
                     '' . $personal_table . '.application_id as application_id', 
                     'ben_fname',  'father_fname', 'father_mname', 'father_lname', 'mobile_no'
                     ]
                     );
+                    //$filterRecords = $totalRecords;
                 } else {
                     $query = $query->where(function ($query1) use ($serachvalue) {
                         $query1->where('ben_fname', 'ilike', $serachvalue . '%');
@@ -200,14 +279,14 @@ class LakkhiBhandarWCDformController extends Controller
                     'ben_fname',  'father_fname', 'father_mname', 'father_lname', 'mobile_no'
                         ]
                     );
+                    //$filterRecords = $totalRecords;
                 }
+                
                 $filterRecords = count($data);
             }
-
-            return datatables()->of($data)
-                ->setTotalRecords($totalRecords)
-                ->setFilteredRecords($filterRecords)
-                ->skipPaging()
+            //dd($data->toArray());
+            $datatable=datatables()->of($data)
+               
                 ->addColumn('name', function ($data) {
                     return trim($data->ben_fname);
                 })->addColumn('application_id', function ($data) {
@@ -241,23 +320,12 @@ class LakkhiBhandarWCDformController extends Controller
                 })
                 ->rawColumns(['Action', 'id', 'name', 'status', 'mobile_no', 'application_id'])
                 ->make(true);
-        }
-        $errormsg = Config::get('constants.errormsg');
-        return view(
-            'LbAppList.appList',
-            [
-                'sessiontimeoutmessage' => $errormsg['sessiontimeOut'],
-                'reject_revert_reason' => $reject_revert_reason,
-                'ds_phase_list' => $ds_phase_list,
-                'list_type' => $list_type,
-                'report_type' => $report_type,
-                'is_urban' => $is_urban,
-                'munc_list' => $munc_list,
-                'gp_list' => $gp_list,
-
-            ]
-        );
+               // dump($data->toArray());
+                return $datatable;
+            
+       
     }
+
     function viewimage(Request $request)
     {
         $scheme_id = $this->scheme_id;

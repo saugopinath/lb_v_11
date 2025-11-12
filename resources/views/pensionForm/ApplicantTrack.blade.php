@@ -62,8 +62,8 @@
 
                 <!-- Search Section -->
                 <div class="row mb-4">
-                  <div class="col-md-12">
-                    <div class="form-row align-items-end">
+                <div class="col-md-12">
+                  <div class="form-row">
                     <input type="hidden" name="scheme_code" id="scheme_code" value="{{ $scheme_id }}">
                      <div class="form-group col-md-6">
                           <label class="">Search Using</label>
@@ -88,17 +88,13 @@
                                     onkeypress="if ( isNaN(String.fromCharCode(event.keyCode) )) return false;" />
                                 <span id="error_applicant_id" class="text-danger"></span>
                        </div>
-                       
-                      
-                       
-                        
                   </div>
-                   <div class="form-group col-md-3 mb-0">
-                        <button type="button" name="submit" value="Submit" class="btn btn-success table-action-btn" id="searchbtn">
-                          <i class="fas fa-search"></i> Search
-                        </button>
-                    </div>
                 </div>
+                <div class="form-group col-md-3 mb-0">
+                     <button type="button" name="submit" value="Submit" class="btn btn-success table-action-btn" id="searchbtn">
+                       <i class="fas fa-search"></i> Search
+                     </button>
+                 </div>
               </div>
                
              <div id="ajaxData"></div>

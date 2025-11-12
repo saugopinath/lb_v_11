@@ -205,7 +205,7 @@
               <button class="nav-link inactive_tab1" id="list_experience_details" type="button" role="tab"  aria-selected="false" onclick="return tab_highlight(4)"><b class="nav-text">Enclosure List (Self Attested)</b></button>
             </li>
             <li class="nav-item" role="presentation" id="id_5">
-              <button class="nav-link inactive_tab1" id="list_decl_details" type="button" role="tab" aria-controls="declaration" onclick="return tab_highlight(5)"><b class="nav-text">Self Declaration</b></button>
+              <button class="nav-link inactive_tab1" id="list_decl_details" type="button" role="tab" aria-controls="declaration"  onclick="return tab_highlight(5)"><b class="nav-text">Self Declaration</b></button>
             </li>
           </ul>
 
@@ -218,7 +218,7 @@
             </form>
 
             <!-- Personal Details Tab -->
-            <div class="tab-pane fade show active" id="personal_details" role="tabpanel" aria-labelledby="personal-tab">
+            <div class="tab-pane" id="personal_details" role="tabpanel" aria-labelledby="personal-tab">
               <div class="card card-info">
                 <div class="card-header">
                   <h4><b>Personal Details</b></h4>
@@ -247,9 +247,11 @@
                       </div>
                       <div class="form-group col-md-4">
                         <select class="form-control " name="entry_type" id="entry_type">
+                          
+                           
                           @if (!empty($application_id))
-                          @if($row->entry_type==1)
-                          <option value="1">Normal Form</option>
+                          @if($row->entry_type==1 || is_null($row->entry_type))
+                          <option value="1" selected>Normal Form</option>
                           @else
                           <option value="2" selected>Form through {{$ds_phase_text}} camp</option>
                           @endif
@@ -1057,6 +1059,7 @@
       $('.sidebar-menu #lb-entry').addClass("active");
     }
     var sessiontimeoutmessage = '{{$sessiontimeoutmessage}}';
+    //alert(sessiontimeoutmessage);
     var ds_phase_text = '{{$ds_phase_text}}';
 
 
@@ -1064,9 +1067,7 @@
 
     var allow_normal_entry = {{$scheme_details -> allow_normal_entry}};
 
-    if (allow_ds_entry == 1) {
-      $("#entry_type").val(2);
-    }
+   
     if ($("#entry_type").val() == 2) {
       $(".duareSarkar").show();
     } else {
@@ -1109,7 +1110,10 @@
       if (status == 1) {
         if (max_tab_code == '') {
           tab_highlight(1);
-        } else
+        } else if(max_tab_code==5){
+          tab_highlight(1);
+        }
+        else
           tab_highlight(parseInt(max_tab_code) + 1);
       } else if (status == 2)
         tab_highlight(1);
@@ -1660,7 +1664,7 @@
         "aadhar_no": $("#aadhar_no").val()
       });
       $.ajax({
-        type: 'post',
+        type: 'POST',
         url: '{{url("ajax_check_dup_aadhar")}}',
         dataType: 'json',
         data: data,
@@ -2374,11 +2378,6 @@
       $("#declaration").submit();
     });
 
-
-
-
-    /***************************************************************/
-  });
   $('#district').change(function() {
     if ($(this).val() != '') {
       $('#urban_code').val('');
@@ -2474,11 +2473,17 @@
     }
   });
 
+
+    /***************************************************************/
+  });
+
+
   function tab_highlight(tab_code) {
 
     var max_tab_code = $("#commonfield #max_tab_code").val();
-    //alert(tab_code+'_'+max_tab_code);
-    //alert(ff+'_'+tab_code);
+    // alert(tab_code+'_'+max_tab_code);
+    // alert(ff+'_'+tab_code);
+    // alert(tab_code);
 
     if (tab_code <= (parseInt(max_tab_code) + 1)) {
       $('#list_personal_details').removeClass('active');
@@ -2529,20 +2534,29 @@
       // alert(tab_code);
       if (parseInt(max_tab_code) >= 1) {
         $('#list_personal_details').removeClass('inactive_tab1');
+        $('#list_personal_details').addClass('active_tab2');
         $('#list_contact_details').removeClass('inactive_tab1');
         // alert(tab_code);
       }
       if (parseInt(max_tab_code) >= 2) {
         $('#list_bank_details').removeClass('inactive_tab1');
+        $('#list_bank_details').addClass('active_tab2');
       }
       if (parseInt(max_tab_code) >= 3) {
         $('#list_experience_details').removeClass('inactive_tab1');
+        $('#list_experience_details').addClass('active_tab2');
       }
       if (parseInt(max_tab_code) >= 4) {
         $('#list_decl_details').removeClass('inactive_tab1');
+        $('#list_decl_details').addClass('active_tab2');
       }
       if (parseInt(max_tab_code) >= 5) {
+        
         $('#list_decl_details').removeClass('inactive_tab1');
+        // $('#list_decl_details').removeClass('active_tab2');
+
+      // $('#personal_details').addClass('active');
+      $('#list_personal_details').addClass('active_tab2');
       }
     } else {
       return false;
@@ -2559,8 +2573,10 @@
       $('#list_personal_details').attr('data-toggle', 'tab');
       $('#id_1').addClass('active');
     } else {
-      $('#personal_details').removeClass('active');
+      // alert('ok');
       $('#id_1').removeClass('active');
+      $('#id_1').removeClass('inactive_tab1');
+      $('#list_personal_details').removeClass('active');
     }
   }
 
@@ -2569,9 +2585,10 @@
       $('#contact_details').addClass('active');
       $('#list_contact_details').addClass('active active_tab2');
       $('#list_contact_details').attr('href', '#contact_details');
-      // $('#list_contact_details').attr('data-toggle', 'tab');
+      $('#list_contact_details').attr('data-toggle', 'tab');
       $('#id_2').addClass('active');
     } else {
+      //  alert('ok1');
       $('#id_2').removeClass('active');
       $('#id_2').removeClass('inactive_tab1');
 
@@ -2582,39 +2599,42 @@
   function bankTabActiveInactive(cur_tab_code, status) {
     if (status == 1) {
       $('#bank_details').addClass('active');
-      $('#list_bank_details').addClass('active active_tab1');
+      $('#list_bank_details').addClass('active active_tab2');
       $('#list_bank_details').attr('href', '#bank_details');
       $('#list_bank_details').attr('data-toggle', 'tab');
       $('#id_3').addClass('active');
     } else {
-      $('#id_3').removeClass('active');
-      $('#bank_details').removeClass('active');
+       $('#id_3').removeClass('active');
+      $('#id_3').removeClass('inactive_tab1');
+      $('#list_bank_details').removeClass('active');
     }
   }
 
   function encolserTabActiveInactive(cur_tab_code, status) {
     if (status == 1) {
       $('#experience_details').addClass('active');
-      $('#list_experience_details').addClass('active active_tab1');
+      $('#list_experience_details').addClass('active active_tab2');
       $('#list_experience_details').attr('href', '#experience_details');
       $('#list_experience_details').attr('data-toggle', 'tab');
       $('#id_4').addClass('active');
     } else {
-      $('#experience_details').removeClass('active in');
       $('#id_4').removeClass('active');
+      $('#id_4').removeClass('inactive_tab1');
+      $('#list_experience_details').removeClass('active');
     }
   }
 
   function declarationTabActiveInactive(cur_tab_code, status) {
     if (status == 1) {
       $('#decl_details').addClass('active');
-      $('#list_decl_details').addClass('active active_tab1');
+      $('#list_decl_details').addClass('active active_tab2');
       $('#list_decl_details').attr('href', '#decl_details');
       $('#list_decl_details').attr('data-toggle', 'tab');
       $('#id_5').addClass('active');
     } else {
       $('#id_5').removeClass('active');
-      $('#decl_details').removeClass('active');
+      $('#id_5').removeClass('inactive_tab1');
+      $('#list_decl_details').removeClass('active');
     }
   }
 
