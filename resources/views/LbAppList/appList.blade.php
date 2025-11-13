@@ -260,7 +260,9 @@
         },
         "columns": [{
             "data": "application_id",
-            "className": "text-center"
+            "className": "text-center",
+            "searchable": false
+
           },
           {
             "data": "name",
@@ -269,7 +271,8 @@
           },
           {
             "data": "mobile_no",
-            "className": "text-center"
+            "className": "text-center",
+            "searchable": false
           },
             {
             "data": "father_name",

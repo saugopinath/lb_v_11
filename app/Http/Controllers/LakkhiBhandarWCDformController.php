@@ -154,8 +154,8 @@ class LakkhiBhandarWCDformController extends Controller
             if (!empty($gp_ward_id)) {
                 $query->where($contact_table . ".gp_ward_code", $gp_ward_id);
             }
-
-            // ✅ 3. Wrap with Yajra v12 DataTables (NO manual offset/limit/count)
+// dd($query->toSql());
+            // Yajra v12 DataTables (NO manual offset/limit/count)
             return DataTables::eloquent($query)
                 ->filter(function ($q) use ($searchValue, $personal_table) {
                     if ($searchValue == '') {
@@ -173,20 +173,25 @@ class LakkhiBhandarWCDformController extends Controller
                     //         $sub->where("{$personal_table}.ben_fname", 'ilike', $sv . '%');
                     //     });
                     // }
+
+                    
                     if (is_numeric($searchValue)) {
                         
-                        $q->where(function ($q) use ($personal_table, $searchValue) {
+                       $q->where(function ($q) use ($personal_table, $searchValue) {
                             // Cast columns to TEXT and compare as string to avoid integer overflow
                             $q->whereRaw("CAST({$personal_table}.application_id AS TEXT) = ?", [$searchValue])
                                 ->orWhereRaw("CAST({$personal_table}.mobile_no AS TEXT) = ?", [$searchValue]);
                         });
+                        // dd($q->tosql());
                     } else {
                         // dd('kii');
-                        $q->orWhere(function ($q) use ($personal_table, $searchValue) {
+                        $q->Where(function ($q) use ($personal_table, $searchValue) {
                             $q->orWhere($personal_table . '.ben_fname', 'ilike', $searchValue . '%');
                         });
+                        return $q;
                         // dd($q->tosql());
                     }
+                    // dd($q->tosql());
                 }, true)
                 ->addColumn('name', fn($r) => trim($r->ben_fname ?? ''))
                 ->addColumn('father_name', fn($r) => trim($r->father_fname ?? ''))
