@@ -17,7 +17,8 @@ use App\Http\Controllers\{
     PensionformFaultyReportController,
     casteManagementController,
     TrackApplicantController,
-    MasterDataController
+    MasterDataController,
+    DeactivatedBeneficiaryController
 };
 Route::get('refresh-captcha', [CaptchaController::class, 'refreshCaptcha'])->name('refresh-captcha');
 Route::controller(AuthenticationController::class)->group(function () {
@@ -81,6 +82,7 @@ Route::controller(LakkhiBhandarWCDformController::class)->group(function () {
     Route::any('lb-applicant-list-datatable/{list_type}', 'applicantListDatatable');
     Route::get('downaloadEncloser', 'viewimage');
     Route::post('partialReject', 'partialReject')->name('partialReject');
+    //Route::any('application-list-common', 'applicationStatusList');
 });
 Route::controller(LegacyProcessController::class)->group(function () {
     Route::any('legacy/getBankDetails', 'getBankDetails');
@@ -92,7 +94,7 @@ Route::controller(PensionformReportController::class)->group(function () {
     Route::any('application-list-common', 'applicationStatusList');
 });
 Route::controller(BeneficiaryListReportExcel::class)->group(function () {
-    Route::any('applicationListExcel', 'generate_excel')->name('applicationListExcel');
+    Route::any('applicationListExcel', 'download_excel')->name('applicationListExcel');
 });
 Route::controller(PensionformFaultyReportController::class)->group(function () {
     Route::any('application-list-common-faulty', 'applicationStatusList');
@@ -123,6 +125,13 @@ Route::controller(MasterDataController::class)->group(function () {
     Route::post('masterDataAjax/getGp', 'getGp');
     Route::post('masterDataAjax/getWard', 'getWard');
 });
-
+Route::controller(DeactivatedBeneficiaryController::class)->group(function () {
+    Route::any('deacivated-list', 'listReport');
+    Route::post('deacivated-list-Excel', 'generate_excel');
+});
+Route::controller(StopBeneficiaryController::class)->group(function () {
+    Route::any('stop-list', 'listReport');
+    Route::post('stop-list-Excel', 'generate_excel');
+});
 
 

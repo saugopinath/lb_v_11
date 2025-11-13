@@ -19,8 +19,6 @@
     <div class="col-12 mt-4">
       <form method="post" id="register_form"  class="submit-once">
         {{ csrf_field() }}
-       <input type="hidden" name="list_type" id="list_type" value="{{$list_type}}" />
-        <input type="hidden" name="district_code" id="district_code" value="{{$district_code}}"/>
 
 
         <div class="tab-content" style="margin-top:16px;">
@@ -28,7 +26,7 @@
             <!-- Card with your design -->
             <div class="card" id="res_div">
               <div class="card-header card-header-custom">
-                <h4 class="card-title mb-0"><b>{{$report_type}}</b></h4>
+                <h4 class="card-title mb-0"><b>{{$report_type_name}}</b></h4>
               </div>
               <div class="card-body" style="padding: 20px;">
                 <!-- Alert Messages -->
@@ -70,60 +68,96 @@
                 <div class="row mb-4">
                   <div class="col-md-12">
                     <div class="form-row align-items-end">
-                    
-                     <div class="form-group col-md-3">
-                          <label class="">Duare Sarkar Phase</label>
-                          <select class="form-control" name="ds_phase" id="ds_phase" >
+                    <div class="form-group col-md-3">
+                          <label class="">Rejection Type</label>
+                          <select class="form-control" name="report_type" id="report_type" tabindex="70">
                           <option value="">--All--</option>
-                          @foreach($ds_phase_list as $ds_row)
-                            <option value="{{$ds_row->phase_code}}">{{$ds_row->phase_des}}</option>
-                          @endforeach 
-                           <option value="">Normal Entry</option>
+                          <option value="R">Name Validation Rejection</option>
+                          <option value="D">Deactivated</option>
+
                           </select>
-                          <span id="error_ds_phase" class="text-danger"></span>
+                          <span id="error_report_type" class="text-danger"></span>
+                     </div>
+                     @if(count($ds_phase_list)>0)
+                  <div class="form-group col-md-3">
+                                  <label class="">Duare Sarkar Phase</label>
+                                  <select class="form-control" name="ds_phase" id="ds_phase" tabindex="70">
+                                  <option value="">--All--</option>
+                                  @foreach($ds_phase_list as $key=>$val)
+                                    <option value="{{$key}}">{{$val}}</option>
+                                  @endforeach 
+                                  </select>
+                                  <span id="error_ds_phase" class="text-danger"></span>
                       </div>
-                      @if($is_rural_visible)
+                      @else
+                      <input type="hidden" name="ds_phase" id="ds_phase" value=""/>
+
+                    @endif
+                     @if($is_rural_visible)
                       <div class="form-group col-md-3">
-                          <label class="">Rural/Urban</label>
-                          <select class="form-control" name="rural_urbanid" id="rural_urbanid" >
-                          <option value="">--All--</option>
-                            @foreach (Config::get('constants.rural_urban') as $key=>$value)
-                                        <option value="{{$key}}"> {{$value}}</option>
-                            @endforeach
+                      <label class="control-label">Rural/Urban </label>
+                      <select name="rural_urbanid" id="rural_urbanid" class="form-control">
+                                                  <option value="">-----All----</option>
+                                                  @foreach (Config::get('constants.rural_urban') as $key=>$value)
+                                                  <option value="{{$key}}"> {{$value}}</option>
+                                                  @endforeach
                           </select>
-                          <span id="error_rural_urbanid" class="text-danger"></span>
-                       </div>
-                       @else
-                       <input type="hidden" name="rural_urbanid" id="rural_urbanid" value="{{$is_urban}}"/>
-                       @endif
-                       @if($block_munc_visible)
-                       <div class="form-group col-md-3">
-                          <label class="" id="blk_munc_txt">{{$block_munc_text}}</label>
-                          <select class="form-control" name="block_ulb_code" id="block_ulb_code" >
-                          <option value="">--All--</option>
-                          @if(count($block_munc_list)>0)
-                          @foreach($block_munc_list as $block_munc_item)
-                            <option value="{{$block_munc_item->code}}">{{trim($block_munc_item->name)}}</option>
-                          @endforeach 
-                          @endif
-                          </select>
-                          <span id="error_block_ulb_code" class="text-danger"></span>
-                       </div>
+
+                        </div>
                         @else
-                       <input type="hidden" name="block_ulb_code" id="block_ulb_code" value="{{$block_ulb_code}}"/>
-                       @endif
-                       <div class="form-group col-md-3">
-                          <label class="" id="gp_ward_txt">{{$gp_ward_text}}</label>
-                          <select class="form-control" name="gp_ward_code" id="gp_ward_code">
-                         <option value="">--All--</option>
-                          @if(count($gp_ward_list)>0)
-                          @foreach($gp_ward_list as $gp_ward_item)
-                            <option value="{{$gp_ward_item->code}}">{{trim($gp_ward_item->name)}}</option>
-                          @endforeach 
-                          @endif
-                          </select>
-                          <span id="error_gp_ward_code" class="text-danger"></span>
-                       </div>
+                        <input type="hidden" name="rural_urbanid" id="rural_urbanid" value="{{$is_urban}}"/>
+                    @endif
+                    @if($urban_visible)
+                      <div class="form-group col-md-3">
+                                            <label class="control-label" id="blk_sub_txt">Block/Subdivision</label>
+                                            <select name="urban_body_code" id="urban_body_code" class="form-control">
+                                                <option value="">-----All----</option>
+
+                      </select>
+
+                    </div>
+                    @else
+                                  <input type="hidden" name="urban_body_code" id="urban_body_code" value="{{$urban_body_code}}"/>
+
+                    @endif
+                     @if($munc_visible)
+              @if($mappingLevel=='District')
+              </div>
+              <div class="row" style="margin-bottom:1%">
+              @endif
+						<div class="form-group col-md-3" id="municipality_div">
+                                    <label class="control-label">Municipality</label>
+                                    <select name="block_ulb_code" id="block_ulb_code" class="form-control">
+                                        <option value="">-----All----</option>
+                                        @if(count($muncList)>0){
+                                        @foreach ($muncList as $muncArr)
+                                        <option value="{{$muncArr->urban_body_code}}">{{trim($muncArr->urban_body_name)}}</option>
+                                        @endforeach
+                                        }
+                                        @endif
+
+              </select>
+
+            </div>
+             @endif
+                      @if($gp_ward_visible)
+             <div class="form-group col-md-3" id="gp_ward_div">
+                <label class="" id="gp_ward_txt">GP/Ward</label>
+                
+                <select name="gp_ward_code" id="gp_ward_code" class="form-control" tabindex="17" >
+                  <option value="">--All --</option>
+                  @if(count($gpwardList)>0){
+                                        @foreach ($gpwardList as $gp_ward_arr)
+                                        <option value="{{$gp_ward_arr->gram_panchyat_code}}">{{trim($gp_ward_arr->gram_panchyat_name)}}</option>
+                                        @endforeach
+                                        }
+                  @endif
+                   
+                </select>
+                  <span id="error_gp_ward_code" class="text-danger"></span>
+             
+             </div>
+              @endif
                     
                       
                   </div>
@@ -135,23 +169,25 @@
                 </div>
               </div>
               </form>
-                <form action="/applicationListExcel" method="get" id="formexcel">
-                <input type="hidden" name="_token" id="token" value="{{ csrf_token() }}">
-                <input type="hidden" name="list_type" id="list_type" value="{{$list_type}}">
-                <input type="hidden" name="designation_id" id="designation_id" value="{{$designation_id}}">
-                <input type="submit" name="submit" id="excel" class="btn btn-info" value="Export All Data to Excel"/>
-              </form>  
+          @if($download_excel==1)
+          <form action="deacivated-list-Excel" method="post" id="excel_form">
+          <input type="hidden" name="_token" id="token" value="{{ csrf_token() }}">
+           <input type="submit" name="submit" class="btn btn-info" id="excel-download" value="Export All Data to Excel"/>
+          </form>  
+          @endif      
                 <!-- DataTable Section -->
                 <div class="table-container">
                   <div class="table-responsive">
                     <table id="example" class="display data-table" cellspacing="0" width="100%">
                       <thead class="table-header-spacing">
                         <tr role="row">
-                          <th style="text-align: center">Application Id</th>
+                           <th style="text-align: center">Application ID</th>
                           <th style="text-align: center">Applicant Name</th>
-                          <th style="text-align: center">Mobile Number</th>
                           <th style="text-align: center">Father's Name</th>
-                          <th style="text-align: center">Action</th>
+                          <th style="text-align: center">Block/Municipality</th>
+                          <th style="text-align: center">GP/Ward</th>
+                          <th style="text-align: center">Rejection Type</th>
+                          <th style="text-align: center">Rejection Details</th> 
                         </tr>
                       </thead>
                       <tbody style="font-size: 14px;">
@@ -169,43 +205,7 @@
   </div>
 </div>
 
-<!-- Reject Modal -->
-<div id="modalReject" class="modal fade" tabindex="-1" role="dialog">
-  <div class="modal-dialog modal-dialog-centered" role="document">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title">Reject Application</h5>
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
-        </button>
-      </div>
-      <form method="POST" action="{{ route('partialReject')}}" name="faultyReject" id="faultyReject">
-        <input type="hidden" name="_token" value="{{ csrf_token() }}">
-        <input type="hidden" id="application_id" name="application_id" />
-          <input type="hidden" name="list_type" id="list_type" value="{{$list_type}}" />
-        <div class="modal-body">
-          <p>Do you really want to Reject the application (<span id="application_text_approve"></span>)?</p>
-          <div class="form-group">
-            <label class="required-field" for="reject_cause">Select Reject Cause</label>
-            <select name="reject_cause" id="reject_cause" class="form-control">
-              <option value="">--Select--</option>
-              @foreach($reject_revert_reason as $r_arr)
-              <option value="{{$r_arr->id}}">{{$r_arr->reason}}</option>
-              @endforeach
-            </select>
-          </div>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-          <button type="submit" class="btn btn-danger modal-submitapprove table-action-btn">Reject</button>
-          <button type="button" id="submittingapprove" class="btn btn-success" disabled style="display:none;">
-            Submitting please wait...
-          </button>
-        </div>
-      </form>
-    </div>
-  </div>
-</div>
+
 
 @endsection
 
@@ -222,17 +222,11 @@
     var sessiontimeoutmessage = '{{$sessiontimeoutmessage}}';
     var base_url = '{{ url("/") }}'; 
     var dataTable;
-    var list_type = '{{$list_type}}';
     $("#submitting, #ImportListMsg, .ImportLoader, #submittingapprove").hide();
 
-    $('#modalReject .close').on('click', function() {
-      $('#modalReject').modal('hide');
-    });
+ 
 
-    $(document).on('click', '#modalReject .btn-secondary[data-dismiss="modal"]', function(e) {
-      e.preventDefault();
-      $('#modalReject').modal('hide');
-    });
+  
     $('#rural_urbanid').change(function() {
        var rural_urbanid=$(this).val();
        if(rural_urbanid!=''){
@@ -356,35 +350,10 @@
 $('#search_sws').click(function() {
       initializeDataTable();
 });
-  $('#excel').click(function(){
-     var designation_id=$('#designation_id').val();
-     var formsubmit=0;
-       //alert('ok');
-      $('#formexcel').append('<input type="hidden" name="ds_phase" id="ds_phase" value=' + $('#ds_phase').val() + '>');
-      $('#formexcel').append('<input type="hidden"  name="rural_urbanid" id="rural_urbanid" value=' + $('#rural_urbanid').val() + '>');
-      $('#formexcel').append('<input type="hidden"  name="block_ulb_code" id="block_ulb_code" value=' + $('#block_ulb_code').val() + '>');
-      $('#formexcel').append('<input type="hidden" name="gp_ward_code" id="gp_ward_code" value=' + $('#gp_ward_code').val() + '>');
-      if(designation_id=='Approver' || designation_id=='Delegated Approver'){
-         var block_ulb_code=$('#block_ulb_code').val();
-        if(block_ulb_code!=''){
-          formsubmit=1;
-        }
-        else{
-           alert('Please Select Block or Municiaplity First');
-           $("#block_ulb_code").focus();
-           return false;
-        }
-      }
-      else{
-        formsubmit=1;
-      }
-      if(formsubmit){
-      $('#formexcel').submit();
-      }
-      else{
-        return false;
-      }
-      //alert('ok');
+  $('#excel-download').click(function(){
+      $('#excel_form').append('<input type="hidden" name="report_type" id="report_type" value="'+report_type+'">');
+      $("#excel_form").submit();
+     
  });     
 function initializeDataTable() {
       if ($.fn.DataTable.isDataTable('#example')) {
@@ -412,14 +381,18 @@ function initializeDataTable() {
         },
         "ajax": {
         
-          "url": "{{ URL('lb-applicant-list/'.$list_type )}}",
+          "url": "{{ URL('deacivated-list')}}",
           "type": "GET",
           "data": function(d) {
-            d.ds_phase = $("#ds_phase").val();
-            d.rural_urbanid = $("#rural_urbanid").val();
+            d.report_type =$('#report_type').val(),
+            d.ds_phase =$('#ds_phase').val(),
+            d.district_code= "{{ $district_code }}",
+            d.rural_urbanid =$('#rural_urbanid').val(),
+            d.urban_body_code=$('#urban_body_code').val(),
             d.block_ulb_code= $('#block_ulb_code').val(),
             d.gp_ward_code= $('#gp_ward_code').val(),
-            d._token = "{{csrf_token()}}";
+            d._token= "{{csrf_token()}}",
+            d.scheme = "{{ $scheme }}"
           },
           "error": function(xhr, error, thrown) {
             console.error("DataTables AJAX error:", thrown);
@@ -431,33 +404,17 @@ function initializeDataTable() {
             }
           }
         },
-        "columns": [{
-            "data": "application_id",
-            "className": "text-center",
-            "searchable": false
-
-          },
-          {
-            "data": "name",
-            "className": "text-center",
-            "searchable": true
-          },
-          {
-            "data": "mobile_no",
-            "className": "text-center",
-            "searchable": false
-          },
-            {
-            "data": "father_name",
-            "className": "text-center"
-          },
-          {
-            "data": "Action",
-            "className": "text-center",
-            "orderable": false,
-            "searchable": false
-          }
-        ],
+        "columns": [
+          
+           { "data": "application_id" },
+           { "data": "ben_fname" },
+           { "data": "father_name" },
+           { "data": "block_ulb_name" },
+           { "data": "gp_ward_name" },
+           { "data": "rejected_type" },
+           { "data": "rejected_by" }
+           	 
+          ], 
        
     });  
   }
