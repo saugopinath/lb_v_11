@@ -53,7 +53,7 @@ overflow: visible !important;
 }
 </style>
 
-@extends('../layouts.app-template-datatable_new')
+@extends('../layouts.app-template-datatable')
 @section('content')
 
 <div class="content-wrapper">

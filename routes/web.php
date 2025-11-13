@@ -5,6 +5,7 @@ use App\Http\Controllers\{
     FAQController,
     PolicyController,
     AuthenticationController,
+    BankDetailsEditBandhanBankController,
     UserManualController,
     DashboardController,
     CaptchaController,
@@ -15,7 +16,8 @@ use App\Http\Controllers\{
     PensionformReportController,
     BeneficiaryListReportExcel,
     PensionformFaultyReportController,
-    casteManagementController
+    casteManagementController,
+    UpdateBankDetailsController
 };
 Route::get('refresh-captcha', [CaptchaController::class, 'refreshCaptcha'])->name('refresh-captcha');
 Route::controller(AuthenticationController::class)->group(function () {
@@ -77,6 +79,7 @@ Route::controller(LakkhiBhandarWCDformController::class)->group(function () {
 });
 Route::controller(LegacyProcessController::class)->group(function () {
     Route::any('legacy/getBankDetails', 'getBankDetails');
+    Route::post('bankIfsc','bankIfsc')->name('bankIfsc');
 });
 Route::controller(PensionCommonController::class)->group(function () {
     Route::any('applicant/track/', 'applicantTrack');
@@ -112,5 +115,42 @@ Route::controller(casteManagementController::class)->group(function () {
     Route::get('caste-matched-report', 'casteMatchedReport')->name('caste-matched-report');
 });
 
+
+
+Route::controller(BankDetailsEditBandhanBankController::class)->group(function () {
+    Route::get('failed-bank-details-edit', 'index')->name('failed-bank-details-edit');
+    Route::post('linelisting-bank-edit', 'getData')->name('linelisting-bank-edit');
+    Route::post('editBankDetails', 'editBankDetails')->name('editBankDetails');
+    Route::post('updateBankDetails', 'updateBankDetails')->name('updateBankDetails');
+    Route::get('rectified-bank-details-edit', 'verified')->name('rectified-bank-details-edit');
+    Route::post('completedBankValidationVerified', 'completedBankValidationVerified')->name('completedBankValidationVerified');
+    Route::post('completedBankValidationApproved', 'completedBankValidationApproved')->name('completedBankValidationApproved');
+    Route::post('ajaxViewPassbook', 'ajaxViewPassbook')->name('ajaxViewPassbook');
+    Route::post('getBankFailedexcel', 'getBankFailedexcel')->name('getBankFailedexcel');
+});
+
+
+// Update Bank Details for Approved Beneficiary
+// Route::get('bank-details-update', 'UpdateBankDetailsController@index')->name('bank-details-update');
+// Route::post('getLineListBankEdit', 'UpdateBankDetailsController@getLineListBankEdit')->name('getLineListBankEdit');
+// Route::post('getBenDataForBankUpdate', 'UpdateBankDetailsController@getBenDataForBankUpdate')->name('getBenDataForBankUpdate');
+// Route::post('updateApprovedBenBankDetails', 'UpdateBankDetailsController@updateApprovedBenBankDetails')->name('updateApprovedBenBankDetails');
+// Route::post('updateApprovedBenMobileNumber', 'UpdateBankDetailsController@updateApprovedBenMobileNumber')->name('updateApprovedBenMobileNumber');
+Route::controller(UpdateBankDetailsController::class)->group(function () {
+    Route::get('bank-details-update', 'index')->name('bank-details-update');
+    Route::post('getLineListBankEdit', 'getLineListBankEdit')->name('getLineListBankEdit');
+    Route::post('getBenDataForBankUpdate', 'getBenDataForBankUpdate')->name('getBenDataForBankUpdate');
+    Route::post('updateApprovedBenBankDetails', 'updateApprovedBenBankDetails')->name('updateApprovedBenBankDetails');
+    Route::post('updateApprovedBenMobileNumber', 'updateApprovedBenMobileNumber')->name('updateApprovedBenMobileNumber');
+});
+
+
+// De-activated Beneficiary
+Route::get('de-activate-beneficiary', 'DeactivatedBeneficiaryController@index')->name('de-active-beneficiary');
+Route::post('get-linelisting-deactive', 'DeactivatedBeneficiaryController@getData')->name('get-linelisting-deactive');
+Route::post('getBeneficiaryPersonalData', 'DeactivatedBeneficiaryController@getBeneficiaryPersonalData')->name('getBeneficiaryPersonalData');
+Route::post('updateStopPaymentFinal', 'DeactivatedBeneficiaryController@updateStopPaymentFinal')->name('updateStopPaymentFinal');
+Route::get('de-activated-list', 'DeactivatedBeneficiaryController@deActivatedReport')->name('de-activated-list');
+Route::post('getDeActivatedBenDataList', 'DeactivatedBeneficiaryController@getDeActivatedBenDataList')->name('getDeActivatedBenDataList');
 
 
