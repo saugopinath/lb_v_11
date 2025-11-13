@@ -7,8 +7,23 @@
     padding: 15px 20px;
     border-bottom: 1px solid rgba(0, 0, 0, 0.1);
   }
-  
-  
+
+  #example_wrapper {
+    width: 100% !important;
+  }
+  /* Ensure proper DataTable layout */
+  .dt-container {
+    /* display: block !important; */
+    width: 100% !important;
+  }
+  .dt-layout-table {
+    display: block !important;
+    width: 100% !important;
+  }
+  /* Remove any flex classes that might break the layout */
+  .dt-container.d-flex {
+    display: block !important;
+  }
 </style>
 @extends('layouts.app-template-datatable')
 @section('content')
@@ -16,9 +31,9 @@
 <div class="container-fluid">
   <div class="row">
     <div class="col-12 mt-4">
-      <form method="post" id="register_form"  class="submit-once">
+      <form method="post" id="register_form" class="submit-once">
         {{ csrf_field() }}
-       <input type="hidden" name="list_type" id="list_type" value="{{$list_type}}" />
+        <input type="hidden" name="list_type" id="list_type" value="{{$list_type}}" />
 
         <div class="tab-content" style="margin-top:16px;">
           <div class="tab-pane active" id="personal_details">
@@ -67,62 +82,68 @@
                 <div class="row mb-4">
                   <div class="col-md-12">
                     <div class="form-row align-items-end">
-                    
-                     <div class="form-group col-md-3">
-                          <label class="">Duare Sarkar Phase</label>
-                          <select class="form-control" name="ds_phase" id="ds_phase" >
+
+                      <div class="form-group col-md-3">
+                        <label class="">Duare Sarkar Phase</label>
+                        <select class="form-control" name="ds_phase" id="ds_phase">
                           <option value="">--All--</option>
                           @foreach($ds_phase_list as $ds_row)
-                            <option value="{{$ds_row->phase_code}}">{{$ds_row->phase_des}}</option>
-                          @endforeach 
-                           <option value="">Normal Entry</option>
-                          </select>
-                          <span id="error_ds_phase" class="text-danger"></span>
+                          <option value="{{$ds_row->phase_code}}">{{$ds_row->phase_des}}</option>
+                          @endforeach
+                          <option value="">Normal Entry</option>
+                        </select>
+                        <span id="error_ds_phase" class="text-danger"></span>
                       </div>
-                       @if($is_urban==1)
-                       <div class="form-group col-md-3">
-                          <label class="">Municipality</label>
-                          <select class="form-control" name="munc_id" id="munc_id" >
+                      @if($is_urban==1)
+                      <div class="form-group col-md-3">
+                        <label class="">Municipality</label>
+                        <select class="form-control" name="munc_id" id="munc_id">
                           <option value="">--All--</option>
                           @foreach($munc_list as $munc_item)
-                            <option value="{{$munc_item->urban_body_code}}">{{trim($munc_item->urban_body_name)}}</option>
-                          @endforeach 
-                          </select>
-                          <span id="error_munc_id" class="text-danger"></span>
-                       </div>
-                       <div class="form-group col-md-3">
-                          <label class="">Ward</label>
-                          <select class="form-control" name="gp_ward_id" id="gp_ward_id">
-                         <option value="">--All--</option>
-                          </select>
-                          <span id="error_gp_ward_id" class="text-danger"></span>
-                       </div>
-                       @endif
-                       @if($is_urban==2)
-                       <div class="form-group col-md-3">
-                          <label class="">GP</label>
-                          <select class="form-control" name="gp_ward_id" id="gp_ward_id" >
+                          <option value="{{$munc_item->urban_body_code}}">{{trim($munc_item->urban_body_name)}}</option>
+                          @endforeach
+                        </select>
+                        <span id="error_munc_id" class="text-danger"></span>
+                      </div>
+                      <div class="form-group col-md-3">
+                        <label class="">Ward</label>
+                        <select class="form-control" name="gp_ward_id" id="gp_ward_id">
+                          <option value="">--All--</option>
+                        </select>
+                        <span id="error_gp_ward_id" class="text-danger"></span>
+                      </div>
+                      @endif
+                      @if($is_urban==2)
+                      <div class="form-group col-md-3">
+                        <label class="">GP</label>
+                        <select class="form-control" name="gp_ward_id" id="gp_ward_id">
                           <option value="">--All--</option>
                           @foreach($gp_list as $gp_item)
-                            <option value="{{$gp_item->gram_panchyat_code}}">{{trim($gp_item->gram_panchyat_name)}}</option>
-                          @endforeach 
-                          </select>
-                          <span id="error_gp_ward_id" class="text-danger"></span>
-                         </div>
-                         @endif
-                  </div>
-                   <div class="form-group col-md-3 mb-0">
-                        <button type="button" name="submit" value="Submit" class="btn btn-success table-action-btn" id="search_sws">
-                          <i class="fas fa-search"></i> Search
-                        </button>
+                          <option value="{{$gp_item->gram_panchyat_code}}">{{trim($gp_item->gram_panchyat_name)}}</option>
+                          @endforeach
+                        </select>
+                        <span id="error_gp_ward_id" class="text-danger"></span>
+                      </div>
+                      @endif
                     </div>
+                    <div class="form-group col-md-3 mb-0">
+                      <button type="button" name="submit" value="Submit" class="btn btn-success table-action-btn" id="search_sws">
+                        <i class="fas fa-search"></i> Search
+                      </button>
+                    </div>
+                  </div>
                 </div>
-              </div>
-               
+
                 <!-- DataTable Section -->
                 <div class="table-container">
                   <div class="table-responsive">
+                    <!-- <div class="flex">
+                      <div class="flex"></div>
+                      <div class="flex"></div>
+                      <div class="flex"></div>
+                    </div> -->
                     <table id="example" class="display data-table" cellspacing="0" width="100%">
+
                       <thead class="table-header-spacing">
                         <tr role="row">
                           <th style="text-align: center">Application Id</th>
@@ -160,7 +181,7 @@
       <form method="POST" action="{{ route('partialReject')}}" name="faultyReject" id="faultyReject">
         <input type="hidden" name="_token" value="{{ csrf_token() }}">
         <input type="hidden" id="application_id" name="application_id" />
-          <input type="hidden" name="list_type" id="list_type" value="{{$list_type}}" />
+        <input type="hidden" name="list_type" id="list_type" value="{{$list_type}}" />
         <div class="modal-body">
           <p>Do you really want to Reject the application (<span id="application_text_approve"></span>)?</p>
           <div class="form-group">
@@ -199,7 +220,7 @@
 
     // Variables
     var sessiontimeoutmessage = '{{$sessiontimeoutmessage}}';
-    var base_url = '{{ url("/") }}'; 
+    var base_url = '{{ url("/") }}';
     var dataTable;
     var list_type = '{{$list_type}}';
     $("#submitting, #ImportListMsg, .ImportLoader, #submittingapprove").hide();
@@ -220,7 +241,7 @@
       }
 
       dataTable = $('#example').DataTable({
-        // dom: 'Blfrtip',
+        dom: 'Blfrtip',
         "paging": true,
         "pageLength": 20,
         "lengthMenu": [
@@ -239,14 +260,14 @@
           "zeroRecords": "No matching records found"
         },
         "ajax": {
-        
+
           "url": "{{ URL('lb-applicant-list/'.$list_type )}}",
           "type": "GET",
           "data": function(d) {
             d.ds_phase = $("#ds_phase").val();
-            d.munc_id= $('#munc_id').val(),
-            d.gp_ward_id= $('#gp_ward_id').val(),
-            d._token = "{{csrf_token()}}";
+            d.munc_id = $('#munc_id').val(),
+              d.gp_ward_id = $('#gp_ward_id').val(),
+              d._token = "{{csrf_token()}}";
           },
           "error": function(xhr, error, thrown) {
             console.error("DataTables AJAX error:", thrown);
@@ -274,7 +295,7 @@
             "className": "text-center",
             "searchable": false
           },
-            {
+          {
             "data": "father_name",
             "className": "text-center"
           },
@@ -285,47 +306,47 @@
             "searchable": false
           }
         ],
-        // "buttons": [{
-        //     extend: 'pdf',
-        //     footer: true,
-        //     exportOptions: {
-        //       columns: [0, 1, 2, 3]
-        //     },
-        //     className: 'table-action-btn'
-        //   },
-        //   {
-        //     extend: 'print',
-        //     footer: true,
-        //     exportOptions: {
-        //       columns: [0, 1, 2, 3]
-        //     },
-        //     className: 'table-action-btn'
-        //   },
-        //   {
-        //     extend: 'excel',
-        //     footer: true,
-        //     exportOptions: {
-        //       columns: [0, 1, 2, 3]
-        //     },
-        //     className: 'table-action-btn'
-        //   },
-        //   {
-        //     extend: 'copy',
-        //     footer: true,
-        //     exportOptions: {
-        //       columns: [0, 1, 2, 3]
-        //     },
-        //     className: 'table-action-btn'
-        //   },
-        //   {
-        //     extend: 'csv',
-        //     footer: true,
-        //     exportOptions: {
-        //       columns: [0, 1, 2, 3]
-        //     },
-        //     className: 'table-action-btn'
-        //   }
-        // ]
+        "buttons": [{
+            extend: 'pdf',
+            footer: true,
+            exportOptions: {
+              columns: [0, 1, 2, 3]
+            },
+            className: 'table-action-btn'
+          },
+          {
+            extend: 'print',
+            footer: true,
+            exportOptions: {
+              columns: [0, 1, 2, 3]
+            },
+            className: 'table-action-btn'
+          },
+          {
+            extend: 'excel',
+            footer: true,
+            exportOptions: {
+              columns: [0, 1, 2, 3]
+            },
+            className: 'table-action-btn'
+          },
+          {
+            extend: 'copy',
+            footer: true,
+            exportOptions: {
+              columns: [0, 1, 2, 3]
+            },
+            className: 'table-action-btn'
+          },
+          {
+            extend: 'csv',
+            footer: true,
+            exportOptions: {
+              columns: [0, 1, 2, 3]
+            },
+            className: 'table-action-btn'
+          }
+        ]
       });
     }
 
@@ -335,20 +356,19 @@
       dataTable.ajax.reload();
     });
     $('#munc_id').change(function() {
-      var muncid=$(this).val();
-      if(muncid!=''){
-          var htmlOption='<option value="">--All--</option>';
-          $.each(ulb_wards, function (key, value) {
-                if(value.urban_body_code==muncid){
-                    htmlOption+='<option value="'+value.id+'">'+value.text+'</option>';
-                }
-            });
+      var muncid = $(this).val();
+      if (muncid != '') {
+        var htmlOption = '<option value="">--All--</option>';
+        $.each(ulb_wards, function(key, value) {
+          if (value.urban_body_code == muncid) {
+            htmlOption += '<option value="' + value.id + '">' + value.text + '</option>';
+          }
+        });
         $('#ward_id').html(htmlOption);
+      } else {
+        $('#ward_id').html('<option value="">--All --</option>');
       }
-      else{
-         $('#ward_id').html('<option value="">--All --</option>');
-      }
-    
+
     });
     $(document).on('click', '.rej-btn', function() {
       var benid = $(this).val();

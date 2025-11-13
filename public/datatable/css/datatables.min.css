@@ -12324,8 +12324,9 @@ div.dt-container div.dt-layout-table > div {
     }
 }
 div.dt-container {
-    /* display: flex; */
-    justify-content: space-between; /* puts length on left, search on right */
+    display: flex;
+    justify-content: space-between;
+     /* puts length on left, search on right */
     align-items: center;
     flex-wrap: wrap; /* allows wrapping on small screens */
     margin-bottom: 1em;
@@ -12437,8 +12438,9 @@ table.dataTable.table-sm > thead > tr td.dt-type-numeric span.dt-column-order {
 div.dt-scroll-head table.table-bordered {
     border-bottom-width: 0;
 }
+/* //new */
 div.table-responsive > div.dt-container > div.row {
-    margin: 0;
+    margin-left: auto;
 }
 div.table-responsive
     > div.dt-container
@@ -12645,7 +12647,7 @@ div.dataTables_wrapper {
     position: relative;
 }
 div.dt-buttons {
-    position: initial;
+    position: relative;
     margin-left: 1em;
     gap: 0.5em;
 }
