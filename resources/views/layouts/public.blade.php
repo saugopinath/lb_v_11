@@ -211,15 +211,22 @@
 <body>
 
     <header class="header-section">
+         <!-- <div class="container-fluid px-4">
+         <div class="row align-items-center"> -->
+            <!-- Left Logo -->
+            <!-- <div class="col-md-2 col-sm-3 d-flex justify-content-start align-items-center">
+                <img src="{{ asset('images/lakshmir_bhandar.png') }}" alt="Logo"
+                    class="img-fluid logo-hover-effect" style="max-height: 70px;">
+            </div> -->
         <div class="container">
             <div class="row align-items-center">
                 <!-- Left Logo -->
-                <div class="col-md-2 col-sm-3 text-center">
+                <div class="col-md-2 col-sm-3 d-flex justify-content-start align-items-center">
                     <img src="{{ asset('images/lakshmir_bhandar.png') }}" alt="Logo"
                         class="img-fluid w-50 logo-hover-effect">
                 </div>
                 <div class="col-md-10 col-sm-9">
-                    <div class="row gx-4"> 
+                    <div class="row gx-4">
                         <div class="col-md-6 mt-4">
                             <div class="paschimbanga_sarkar">
                                 <h2>পশ্চিমবঙ্গ সরকার</h2>
