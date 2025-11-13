@@ -5,6 +5,7 @@ use App\Http\Controllers\{
     FAQController,
     PolicyController,
     AuthenticationController,
+    BasicAuthController,
     UserManualController,
     DashboardController,
     CaptchaController,
@@ -17,7 +18,8 @@ use App\Http\Controllers\{
     PensionformFaultyReportController,
     casteManagementController,
     TrackApplicantController,
-    MasterDataController
+    MasterDataController,
+    jnmpController,
 };
 Route::get('refresh-captcha', [CaptchaController::class, 'refreshCaptcha'])->name('refresh-captcha');
 Route::controller(AuthenticationController::class)->group(function () {
@@ -123,6 +125,33 @@ Route::controller(MasterDataController::class)->group(function () {
     Route::post('masterDataAjax/getGp', 'getGp');
     Route::post('masterDataAjax/getWard', 'getWard');
 });
+
+Route::controller(BasicAuthController::class)->group(function () {
+    Route::get('jnmp-fetch-callback-api', 'index')->name('jnmp-fetch-callback-api');
+    Route::post('jnmpDataMarkasDeathInLB', 'jnmpDataMarkasDeathInLB')->name('jnmpDataMarkasDeathInLB');
+    Route::post('totalJnmp', 'totalJnmp')->name('totalJnmp');
+    Route::post('jnmpInsertData', 'getData')->name('jnmpInsertData');
+    Route::post('jnmpDataCallbackDetails', 'detailsCallBack')->name('jnmpDataCallbackDetails');
+    Route::get('jnmpMarkedProcess', 'jnmpMarkedProcess')->name('jnmpMarkedProcess');
+});
+
+
+Route::controller(jnmpController::class)->group(function () {
+    // Janma Mrityu Integration
+    Route::get('jnmp-data', 'index')->name('jnmp-data');
+    Route::post('getJnmpData', 'getJnmpData')->name('getJnmpData');
+    Route::post('modalDataView', 'modalDataView')->name('modalDataView');
+    Route::post('activeJnmpBeneficiary', 'activeBeneficiary')->name('activeJnmpBeneficiary');
+    Route::post('generateExcel', 'generateExcel')->name('generateExcel');
+
+    // JNMP List at HOD
+    Route::get('jnmp-marked-data', 'jnmpMarkedDataAtHOD')->name('jnmp-marked-data');
+    Route::post('jnmpMarkedData', 'jnmpMarkedData')->name('jnmpMarkedData');
+    Route::post('generateJnmpDataHodExcel', 'generateJnmpDataHodExcel')->name('generateJnmpDataHodExcel');
+});
+
+
+
 
 
 

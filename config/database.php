@@ -94,20 +94,18 @@ return [
         ],
         'pgsql_appread' => [
             'driver' => 'pgsql',
-            'host' => env('DB_HOST', '127.0.0.1'),
+            'host' => '127.0.0.1',
             'port' => env('DB_PORT', '5432'),
-            'database' => env('DB_DATABASE', 'laravel'),
-            'username' => env('DB_USERNAME', 'root'),
-            'password' => env('DB_PASSWORD', ''),
-            'charset' => env('DB_CHARSET', 'utf8'),
+            'database' => 'lb_db_v11',
+            'username' => env('DB_USERNAME', 'postgres'),
+            'password' => env('DB_PASSWORD', 'root'),
+            'charset' => 'utf8',
             'prefix' => '',
-            'prefix_indexes' => true,
-            'search_path' => 'public',
-            'sslmode' => 'prefer',
+            'schema' => 'lb_scheme',
         ],
 
-         'pgsql_mis' => [
-           'driver' => 'pgsql',
+        'pgsql_mis' => [
+            'driver' => 'pgsql',
             'url' => env('DB_URL'),
             'host' => env('DB_HOST', '127.0.0.1'),
             'port' => env('DB_PORT', '5432'),
@@ -120,12 +118,12 @@ return [
             'search_path' => 'public',
             'sslmode' => 'prefer',
         ],
-         'pgsql_encread' => [
+        'pgsql_encread' => [
             'driver' => 'pgsql',
             'url' => env('DB_URL'),
             'host' => 'localhost',
             'port' => env('DB_PORT', '5432'),
-             'database' => env('DB_DATABASE', 'laravel'),
+            'database' => env('DB_DATABASE', 'laravel'),
             'username' => env('DB_USERNAME', 'postgres'),
             'password' => env('DB_PASSWORD', '12345'),
             'charset' => env('DB_CHARSET', 'utf8'),
@@ -134,7 +132,7 @@ return [
             // 'search_path' => 'public',
             'sslmode' => 'prefer',
         ],
-         'pgsql_ifsc' => [
+        'pgsql_ifsc' => [
             'driver' => 'pgsql',
             'host' => env('DB_HOST', '127.0.0.1'),
             'port' => env('DB_PORT', '5432'),
@@ -145,14 +143,25 @@ return [
             'prefix' => '',
             'schema' => 'ifsc',
         ],
+        'pgsql_appwrite' => [
+            'driver' => 'pgsql',
+            'host' => '127.0.0.1',
+            'port' => env('DB_PORT', '5432'),
+            'database' => 'lb_db_v11',
+            'username' => env('DB_USERNAME', 'postgres'),
+            'password' => env('DB_PASSWORD', 'root'),
+            'charset' => 'utf8',
+            'prefix' => '',
+            'schema' => 'jnmp',
+        ],
         'pgsql_encwrite' => [
-          'driver' => 'pgsql',
+            'driver' => 'pgsql',
             'url' => env('DB_URL'),
             'host' => env('DB_HOST', '127.0.0.1'),
             'port' => env('DB_PORT', '5432'),
-            'database' => env('DB_DATABASE', 'lb_image_prod'),
+            'database' => 'lakshmir_bhandar_doc',
             'username' => env('DB_USERNAME', 'postgres'),
-            'password' => env('DB_PASSWORD', '12345'),
+            'password' => env('DB_PASSWORD', 'root'),
             'charset' => env('DB_CHARSET', 'utf8'),
             'prefix' => '',
             'prefix_indexes' => true,
@@ -160,21 +169,22 @@ return [
             'schema' => 'lb_scheme',
             'sslmode' => 'prefer',
         ],
-       'pgsql_payment' => [
+        'pgsql_payment' => [
             'driver' => 'pgsql',
-            'host' => env('DB_HOST', '127.0.0.1'),
+            'host' => '127.0.0.1',
             'port' => env('DB_PORT', '5432'),
-            'database' => 'lb_payment',
+            'database' => 'lb_payment_db_v11',
             'username' => env('DB_USERNAME', 'postgres'),
-            'password' => env('DB_PASSWORD', '12345'),
+            'password' => env('DB_PASSWORD', 'root'),
             'charset' => 'utf8',
             'prefix' => '',
+            // 'schema' => 'lb_main',
         ],
         'pgsql_payment_read' => [
             'driver' => 'pgsql',
             'host' => env('DB_HOST', '127.0.0.1'),
             'port' => env('DB_PORT', '5432'),
-             'database' => 'lb_payment',
+            'database' => 'lb_payment',
             'username' => env('DB_USERNAME', 'postgres'),
             'password' => env('DB_PASSWORD', '12345'),
             'charset' => 'utf8',
@@ -230,7 +240,7 @@ return [
 
         'options' => [
             'cluster' => env('REDIS_CLUSTER', 'redis'),
-            'prefix' => env('REDIS_PREFIX', Str::slug(env('APP_NAME', 'laravel'), '_').'_database_'),
+            'prefix' => env('REDIS_PREFIX', Str::slug(env('APP_NAME', 'laravel'), '_') . '_database_'),
         ],
 
         'default' => [

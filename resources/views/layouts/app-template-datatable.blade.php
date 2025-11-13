@@ -8,6 +8,9 @@
     <link href="{{ asset('datatable/css/dataTables.bootstrap.min.css') }}" rel="stylesheet" type="text/css" />
     <link href="{{ asset('datatable/css/datatables.min.css') }}" rel="stylesheet" type="text/css" />
     <link href="{{ asset('css/YajradatatableCustom.css') }}" rel="stylesheet" type="text/css" />
+    <link href="{{ asset('css/bootstrap-datepicker.min.css') }}" rel="stylesheet" type="text/css" />
+    <link href="{{ asset('css/adminlte.min.css') }}" rel="stylesheet" type="text/css" />
+     <link rel="stylesheet" href="{{ asset('css/sweetalert2.min.css') }}" type="text/css" />
 @endpush
 
 <!-- Push datatable JS to library-scripts stack -->
@@ -17,20 +20,25 @@
     <script src="{{ asset('datatable/js/dataTables.buttons.min.js') }}"></script>
     <script src="{{ asset('datatable/js/buttons.html5.min.js') }}"></script>
     <script src="{{ asset('datatable/js/buttons.print.min.js') }}"></script>
-  <script>
-    (function ($) {
-      $(document).ready(function () {
-        $(document).off('click.bs.dropdown.data-api');
-        $(document).on('click', '.dropdown-toggle', function (e) {
-          e.stopPropagation();
-          $(this).dropdown('toggle');
-        });
+    <script src="{{ asset('js/master-data-v2.js') }}"></script>
+    <script src="{{ asset('js/bootstrap-datepicker.min.js') }}"></script>
+    <script src="{{ asset('js/bootstrap-datepicker.min.js') }}"></script>
+    <script src="{{ asset('js/sweetalert2.all.min.js') }}"></script>
 
-        const dropdowns = document.querySelectorAll('.dropdown-toggle');
-        dropdowns.forEach(function (el) {
-          new bootstrap.Dropdown(el);
-        });
-      });
-    })(jQuery);
-  </script>
+    <script>
+        (function ($) {
+            $(document).ready(function () {
+                $(document).off('click.bs.dropdown.data-api');
+                $(document).on('click', '.dropdown-toggle', function (e) {
+                    e.stopPropagation();
+                    $(this).dropdown('toggle');
+                });
+
+                const dropdowns = document.querySelectorAll('.dropdown-toggle');
+                dropdowns.forEach(function (el) {
+                    new bootstrap.Dropdown(el);
+                });
+            });
+        })(jQuery);
+    </script>
 @endpush
