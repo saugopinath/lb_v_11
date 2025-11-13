@@ -8,21 +8,21 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Session;
-use App\User;
-use App\Configduty;
-use App\getModelFunc;
-use App\District;
-use App\UrbanBody;
-use App\Assembly;
-use App\Taluka;
-use App\Ward;
-use App\GP;
-use App\SchemeDocMap;
-use App\DocumentType;
+use App\Models\User;
+use App\Models\Configduty;
+use App\Models\getModelFunc;
+use App\Models\District;
+use App\Models\UrbanBody;
+use App\Models\Assembly;
+use App\Models\Taluka;
+use App\Models\Ward;
+use App\Models\GP;
+use App\Models\SchemeDocMap;
+use App\Models\DocumentType;
 use Illuminate\Support\Facades\Validator;
 use App\Helpers\Helper;
-use App\DataSourceCommon;
-use App\BankDetails;
+use App\Models\DataSourceCommon;
+use App\Models\BankDetails;
 use Monolog\Handler\IFTTTHandler;
 use App\Helpers\DupCheck;
 class UpdateBankDetailsController extends Controller
@@ -140,7 +140,7 @@ class UpdateBankDetailsController extends Controller
                   </select>
                 </div>
                 <div align="center" style="margin-top:5px;">
-                  <button class="btn btn-info btn-block btn-sm" name="ben_edit" class="ben_edit" value="' . $data->beneficiary_id . '" onclick="editFunction(' . $data->beneficiary_id . ');"><i class="fa fa-edit"></i> Edit</button>
+                  <button type="button" class="btn btn-info btn-block btn-sm" name="ben_edit" class="ben_edit" value="' . $data->beneficiary_id . '" onclick="editFunction(' . $data->beneficiary_id . ');"><i class="fa fa-edit"></i> Edit</button>
                 </div>';
                 } elseif ($benStatus->ben_status == -97) {
                   $action = '<h5><label class="label label-danger">Bank A/c & IFSC Duplicate, please De-duplicate Bank Acc.</label></h5>';
@@ -209,7 +209,7 @@ class UpdateBankDetailsController extends Controller
   */
   public function getBenDataForBankUpdate(Request $request)
   {
-
+// dd($request->all());
     $statuscode = 200;
     $response = [];
     if (!$request->ajax()) {
@@ -235,7 +235,7 @@ class UpdateBankDetailsController extends Controller
       $branch_name = $bankDetails->branch_name;
       $bank_code = $bankDetails->bank_code;
       $application_id = $personalDetails->application_id;
-
+// dd($personalDetails->tosql());
       $response = array(
         'personaldata' => $personalDetails,
         'ben_name' => $ben_name,
@@ -251,6 +251,7 @@ class UpdateBankDetailsController extends Controller
         'ben_id' => $ben_id,
         'application_id' => $application_id
       );
+      // dd($response);
     } catch (\Exception $e) {
       $response = array(
         'exception' => true,
@@ -277,14 +278,18 @@ class UpdateBankDetailsController extends Controller
     }
     try {
       // DB::beginTransaction();
+      // dd('here');
       DB::connection('pgsql_appwrite')->beginTransaction();
       DB::connection('pgsql_payment')->beginTransaction();
       DB::connection('pgsql_encwrite')->beginTransaction();
       $this->validateInput($request);
+      // dd('ok');
       $getModelFunc = new getModelFunc();
+      // dd($getModelFunc);
       $schemaname = $getModelFunc->getSchemaDetails();
       $pension_details_encloser1 = new DataSourceCommon;
       $pension_details_encloser2 = new DataSourceCommon;
+      // dd('here');
       $Table = $getModelFunc->getTable('', '', 6, 1);
       $Table2 = $getModelFunc->getTableFaulty('', '', 6, 1);
       $pension_details_encloser1->setConnection('pgsql_encwrite');
@@ -314,7 +319,7 @@ class UpdateBankDetailsController extends Controller
       //   ->table($schemaname . '.ben_payment_details')
       //   ->whereRaw("trim(last_ifsc)=trim("."'".$new_bank_ifsc."'".")")->whereRaw("trim(last_accno)=trim("."'".$new_bank_account_number."'".")")
       //   ->whereIn('ben_status', [1,-97])->count('ben_id');
-
+// dd('ok');
       $duplicate_row = DB::connection('pgsql_appwrite')->select("select count(1) as cnt from lb_scheme.duplicate_bank_view where trim(bank_code)='" . $new_bank_account_number . "' and trim(bank_ifsc)='" . $new_bank_ifsc . "'");
       $benPaymentDuplicateAcCount = $duplicate_row[0]->cnt;
       $is_update_happens = 0;
@@ -373,15 +378,26 @@ class UpdateBankDetailsController extends Controller
         );
       } else {
         // dd('ELSE');
-        $benPaymentObj = DB::connection('pgsql_payment')->table($schemaname . '.ben_payment_details')->where('ben_id', $beneficiary_id)->first();
+        $benPaymentObj = DB::connection('pgsql_payment')->table( 'payment.ben_payment_details')->where('ben_id', $beneficiary_id)->first();
+//        $query = DB::connection('pgsql_payment')
+//     ->table($schemaname . '.ben_payment_details')
+//     ->where('ben_id', $beneficiary_id);
+
+// dd($query->toSql(), $query->getBindings());
         $is_update_happens = 0;
         $acc_validate = $benPaymentObj->acc_validated;
         $ben_status = $benPaymentObj->ben_status;
+        // dump($benPaymentObj);
+        // dump($acc_validate);
+        // dump($ben_status);
+        // dump($benPaymentObj->payment_process);
+        // dd(DB::connection('pgsql_payment')->getQueryLog());
 
         if (
           $benPaymentObj->payment_process == 0 &&
           ($acc_validate == '0' || $acc_validate == '2' || $acc_validate == '6' || $acc_validate == '3' || $acc_validate == '4') && $ben_status == 1
         ) {
+          // dd('okk');
           // $is_update_happens = 1;
           $bank_details = BankDetails::where('is_active', 1)->where('ifsc', $new_bank_ifsc)->get(['bank', 'branch'])->first();
           // dd(!empty($bank_details));
@@ -923,7 +939,7 @@ class UpdateBankDetailsController extends Controller
       // if ($beneficiary_id == 215348967) {
       //   dd($e);
       // }
-      // dd($e);
+      dd($e);
       // DB::rollback();
       DB::connection('pgsql_appwrite')->rollback();
       DB::connection('pgsql_payment')->rollback();

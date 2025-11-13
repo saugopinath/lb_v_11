@@ -1,4 +1,4 @@
-<style type="text/css">
+<style>
   .required-field::after {
     content: "*";
     color: red;
@@ -11,7 +11,7 @@
 
   .preloader1 {
     position: fixed;
-    top:40%;
+    top: 40%;
     left: 52%;
     z-index: 999;
   }
@@ -20,537 +20,473 @@
     background: transparent !important;
   }
 
-  .panel-heading {
-    padding: 0;
-    border: 0;
-  }
-
-  .panel-title>a,
-  .panel-title>a:active {
-    display: block;
-    padding: 5px;
-    color: #555;
-    font-size: 12px;
+  .card-header-custom {
+    font-size: 16px;
+    background: linear-gradient(to right, #c9d6ff, #e2e2e2);
     font-weight: bold;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    word-spacing: 3px;
-    text-decoration: none;
+    font-style: italic;
+    padding: 15px 20px;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
   }
 
-  .panel-heading a:before {
-    font-family: 'Glyphicons Halflings';
-    content: "\e114";
-    float: right;
-    transition: all 0.5s;
-  }
-
-  .panel-heading.active a:before {
-    -webkit-transform: rotate(180deg);
-    -moz-transform: rotate(180deg);
-    transform: rotate(180deg);
-  }
-
-  #enCloserTable tbody tr td {
-    padding: 10px 10px 10px 10px;
-  }
-
-  .modal-open {
-    overflow: visible !important;
-  }
   .required:after {
-      color: #d9534f;
-      content:'*';
-      font-weight: bold;
-      margin-left: 5px;
-      float:right;
-      margin-top: 5px;
+    color: #d9534f;
+    content: '*';
+    font-weight: bold;
+    margin-left: 5px;
+    float: right;
+    margin-top: 5px;
   }
-  .loadingDivModal{
-  position:absolute;
-  top:0px;
-  right:0px;
-  width:100%;
-  height:100%;
-  background-color:#fff;
-  background-image:url('images/ajaxgif.gif');
-  background-repeat:no-repeat;
-  background-position:center;
-  z-index:10000000;
-  opacity: 0.4;
-  filter: alpha(opacity=40); /* For IE8 and earlier */
-}
+
+  .loadingDivModal {
+    position: absolute;
+    top: 0px;
+    right: 0px;
+    width: 100%;
+    height: 100%;
+    background-color: #fff;
+    background-image: url('images/ajaxgif.gif');
+    background-repeat: no-repeat;
+    background-position: center;
+    z-index: 10000000;
+    opacity: 0.4;
+    filter: alpha(opacity=40);
+  }
+
   .disabledcontent {
     pointer-events: none;
     opacity: 0.4;
+  }
+
+  .table-action-btn {
+    margin: 2px;
   }
 </style>
 
 @extends('layouts.app-template-datatable')
 @section('content')
-
-<div class="content-wrapper">
-  <!-- Content Header (Page header) -->
-  <section class="content-header">
-    <h1>
-      Update Bank Details For Approved Beneficiary
-    </h1>
-
-  </section>
-  <section class="content">
-    <div class="box box-default" id="full-content">
-      <div class="box-body">
-        <div class="panel panel-default">
-          <div class="panel-heading"><span id="panel-icon">Enter Beneficiary Details Here</div>
-          <div class="panel-body" style="padding: 5px;">
-            <div class="row">
-              @if ( ($message = Session::get('success')))
-              <div class="alert alert-success alert-block">
-                <button type="button" class="close" data-dismiss="alert">×</button>
-                <strong>{{ $message }}</strong>
-
-              </div>
-              @endif
-              @if(count($errors) > 0)
-              <div class="alert alert-danger alert-block">
-                <ul>
-                  @foreach($errors->all() as $error)
-                  <li><strong> {{ $error }}</strong></li>
-                  @endforeach
-                </ul>
-              </div>
-              @endif
+<!-- Main content -->
+<div class="container-fluid">
+  <div class="row">
+    <div class="col-12 mt-4">
+      <div class="tab-content" style="margin-top:16px;">
+        <div class="tab-pane active" id="personal_details">
+          <!-- Card with AdminLTE3 design -->
+          <div class="card" id="res_div">
+            <div class="card-header card-header-custom">
+              <h4 class="card-title mb-0"><b>Update Bank Details For Approved Beneficiary</b></h4>
             </div>
-            <div class="row">
-              <div class="col-md-12">
-                <div class="form-group col-md-3">
-                  <label for="select_type">Search Using <span class="text-danger">*</span></label>
-                  <select class="form-control select2" name="select_type" id="select_type">
-                      <option value="">--- Select ---</option>
-                       @foreach(Config::get('globalconstants.search_payment_status') as $key=> $search_type)
-                          <option value="{{$key}}">{{$search_type}}</option>
-                       @endforeach
-                  </select>
+            <div class="card-body" style="padding: 20px;">
+              <!-- Alert Messages -->
+              <div class="alert-section">
+                @if ( ($message = Session::get('success')))
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                  <strong>{{ $message }}</strong>
+                  <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                 </div>
-                <div class="form-group col-md-3" id="beneficiary_id_div" style="display: none;">
-                  <label for="beneficiary">Beneficiary ID <span class="text-danger">*</span></label>
-                  <input type="text" name="ben_id" id="ben_id" class="form-control" onkeypress="if ( isNaN(String.fromCharCode(event.keyCode) )) return false;" placeholder="Enter Beneficiary ID">
+                @endif
+
+                @if(count($errors) > 0)
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                  <ul class="mb-0">
+                    @foreach($errors->all() as $error)
+                    <li><strong>{{ $error }}</strong></li>
+                    @endforeach
+                  </ul>
+                  <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                 </div>
-                <div class="form-group col-md-3" id="application_id_div" style="display: none;">
-                  <label for="application">Application ID <span class="text-danger">*</span></label>
-                  <input type="text" name="app_id" id="app_id" class="form-control" onkeypress="if ( isNaN(String.fromCharCode(event.keyCode) )) return false;" placeholder="Enter Application ID">
-                </div>
-                <div class="form-group col-md-3" id="sasthyasathi_card_div" style="display: none;">
-                  <label for="sasthasathi">Sasthasathi Card <span class="text-danger">*</span></label>
-                  <input type="text" name="ss_card" id="ss_card" class="form-control" onkeypress="if ( isNaN(String.fromCharCode(event.keyCode) )) return false;" placeholder="Enter Sasthyasathi Card Number">
-                </div>
-                <div class="form-group col-md-2" style="margin: 23px;">
-                  <button class="btn btn-success" id="submit_btn" disabled><i class="fa fa-search"></i> Search</button>
+                @endif
+
+                <div class="alert alert-danger print-error-msg" style="display:none;" id="errorDivMain">
+                  <button type="button" class="btn-close" aria-label="Close" onclick="closeError('errorDivMain')"></button>
+                  <ul class="mb-0"></ul>
                 </div>
               </div>
-            </div>
 
-          </div>
-        </div>
+              <!-- Search Section -->
+              <div class="row mb-4">
+                <div class="col-md-12">
+                  <div class="row align-items-end">
+                    <div class="col-md-3 mb-3">
+                      <label for="select_type" class="form-label required-field">Search Using</label>
+                      <select class="form-select" name="select_type" id="select_type">
+                        <option value="">--- Select ---</option>
+                        @foreach(Config::get('globalconstants.search_payment_status') as $key=> $search_type)
+                        <option value="{{$key}}">{{$search_type}}</option>
+                        @endforeach
+                      </select>
+                    </div>
+                    
+                    <div class="col-md-3 mb-3" id="beneficiary_id_div" style="display: none;">
+                      <label for="ben_id" class="form-label required-field">Beneficiary ID</label>
+                      <input type="text" name="ben_id" id="ben_id" class="form-control" onkeypress="if ( isNaN(String.fromCharCode(event.keyCode) )) return false;" placeholder="Enter Beneficiary ID">
+                    </div>
+                    
+                    <div class="col-md-3 mb-3" id="application_id_div" style="display: none;">
+                      <label for="app_id" class="form-label required-field">Application ID</label>
+                      <input type="text" name="app_id" id="app_id" class="form-control" onkeypress="if ( isNaN(String.fromCharCode(event.keyCode) )) return false;" placeholder="Enter Application ID">
+                    </div>
+                    
+                    <div class="col-md-3 mb-3" id="sasthyasathi_card_div" style="display: none;">
+                      <label for="ss_card" class="form-label required-field">Sasthasathi Card</label>
+                      <input type="text" name="ss_card" id="ss_card" class="form-control" onkeypress="if ( isNaN(String.fromCharCode(event.keyCode) )) return false;" placeholder="Enter Sasthyasathi Card Number">
+                    </div>
+                    
+                    <div class="col-md-2 mb-3">
+                      <button class="btn btn-success table-action-btn" id="submit_btn" disabled>
+                        <i class="fas fa-search"></i> Search
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
 
-        <div class="panel panel-default" id="listing_div" style="display: none;">
-          <div class="panel-heading" id="panel_head">List of beneficiaries
-          </div>
-          <div class="panel-body" style="padding: 5px; font-size: 14px;">
-            <div id="loadingDiv">
-            </div>
-            <div class="table-responsive">
-              <table id="example" class="display" cellspacing="0" width="100%">
-                <thead style="font-size: 12px;">
-                  {{-- <th>Serial No</th> --}}
-                  <th>Beneficiary ID</th>
-                  <th>Beneficiary Name</th>
-                  <th>Swasthya Sathi Card No. </th>
-                  <th>Application Id</th>
-                  <th>Address</th>
-                  <th>Banking Information</th>
-                  <th width="20%">Action</th>
-                </thead>
-                <tbody style="font-size: 14px;"></tbody>
-              </table>
+              <!-- DataTable Section -->
+              <div class="table-container" id="listing_div" style="display: none;">
+                <div class="card">
+                  <div class="card-header card-header-custom">
+                    <h5 class="card-title">List of beneficiaries</h5>
+                  </div>
+                  <div class="card-body">
+                    <div id="loadingDiv" class="text-center">
+                      <div class="spinner-border" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                      </div>
+                    </div>
+                    <div class="table-responsive">
+                      <table id="example" class="data-table" style="width:100%">
+                        <thead>
+                          <tr>
+                            <th style="width:15%">Application Id</th>
+                            <th style="width:15%">Beneficiary ID</th>
+                            <th style="width:20%">Beneficiary Name</th>
+                            <th style="width:15%">Swasthya Sathi Card No.</th>
+                            <th style="width:20%">Address</th>
+                            <th style="width:15%">Banking Information</th>
+                            <th style="width:20%">Action</th>
+                          </tr>
+                        </thead>
+                        <tbody style="font-size: 14px;"></tbody>
+                      </table>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
       </div>
     </div>
-
-    <!-- Update Bank Details Modal -->
-    <div class="modal fade bd-example-modal-lg ben_bank_modal" tabindex="-1" role="dialog"
-      aria-labelledby="myLargeModalLabel" aria-hidden="true">
-      <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-          <div class="modal-header singleInfo">
-            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-              <span aria-hidden="true">&times;</span>
-            </button>
-            <h4 class="modal-title">Update Bank Details For Approved Beneficiary</h4>
-          </div>
-          <div class="modal-body ">
-            <div class="loadingDivModal">
-            </div>
-          <input type="hidden" id="benId" name="benId" value="">
-          <input type="hidden" id="application_id" name="application_id" value="">
-          <input type="hidden" id="old_bank_ifsc" name="old_bank_ifsc" value="">
-          <input type="hidden" id="old_bank_accno" name="old_bank_accno" value="">
-            <div class="panel-group singleInfo" role="tablist" aria-multiselectable="true">
-              <div class="panel panel-default">
-                <div class="panel-heading active" role="tab" id="personal">
-                  <h5 class="panel-title">
-                    <a role="button" data-toggle="collapse" data-parent="#accordion" href="#collapsePersonal" aria-expanded="true" aria-controls="collapsePersonal">Personal Details <span class="applicant_id_modal"></span></a> 
-                  </h5> 
-                </div> 
-                <div id="collapsePersonal" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="personal">  
-                  <div class="panel-body" style="padding: 5px;">
-                    <table class="table table-bordered table-condensed table-striped" style="font-size: 14px;">  
-                    <tbody>
-                      <tr>
-                        <th scope="row" width="20%">Swasthya Sathi Card No.</th>
-                        <td id='sws_card_txt' width="30%"></td>
-                        <th scope="row" width="20%">Mobile No.</th>         
-                        <td id="mobile_no" width="30%"></td>
-                      </tr>
-                      <tr>       
-                        <th scope="row" width="20%">Name</th>
-                        <td id='ben_fullname' width="30%"></td>
-                        <th scope="row" width="20%">Gender</th>         
-                        <td id="gender" width="30%"></td>
-                      </tr>
-                      <tr>
-                        <th scope="row" width="20%">DOB</th>         
-                        <td id="dob" width="30%"></td> 
-                        <th scope="row" width="20%">Age</th>         
-                        <td id="ben_age" width="30%"></td>         
-                      </tr>
-                      <tr>
-                        <th scope="row" width="20%">Caste:</th>
-                        <td id="caste" width="30%"></td>
-                        <th scope="row" class="caste" width="20%">SC/ST Certificate No.</th>
-                        <td id="caste_certificate_no" class="caste" width="30%"></td>
-                      </tr> 
-                    </tbody>
-                    </table>
-                  </div>
-                </div> 
-              </div>
-            </div>
-
-            <div class="panel-group singleInfo">
-              <div class="panel panel-default">
-                <div class="panel-heading" role="tab" id="contact">
-                  <h4 class="panel-title">
-                    <a role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseBank" aria-expanded="true" aria-controls="collapseBank">Update Bank Details</a> </h4>
-                </div>
-                <div id="collapseBank" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="banks">
-                  <div class="panel-body">
-                    <p style="font-size: 12px;font-weight: bold; text-align:center;">All (<span style="color:firebrick"> * </span>) marks filled are mandatory</p>
-                    <table class="table table-bordered table-responsive" style="width:100%">
-                      <tbody>
-                        <tr>
-                          <th scope="row" class="required" style="font-size: 14px;">Bank Branch Name</th>
-                          <td id="branch_text"><input type="text" value="" name="branch_name" id="branch_name" readonly>
-                          <span style="font-size: 14px;" id="error_bank_branch" class="text-danger"></span></td>
-                          <th scope="row" class="required" style="font-size: 14px;">Bank IFSC Code</th>
-                          <td id="bank_ifsc_text"><input type="text" value="" name="bank_ifsc" onkeyup="this.value = this.value.toUpperCase();" id="bank_ifsc">
-                          <img src="{{ asset('images/ajaxgif.gif') }}" width="60px" id="ifsc_loader" style="display: none;">
-                          <span style="font-size: 14px;" id="error_bank_ifsc_code" class="text-danger"></span></td>  
-                        </tr>
-                        <tr>
-                          <th scope="row" class="required" style="font-size: 14px;">Bank Name</th>
-                          <td id="bank_text"><input type="text" value="" name="bank_name" maxlength="200" id="bank_name" readonly>
-                          <span style="font-size: 14px;" id="error_name_of_bank" class="text-danger"></span></td>
-                          <th scope="row" class="required" style="font-size: 14px;">Bank Account Number</th>
-                          <td id="bank_acc_text"> <input type="password" value="" name="bank_account_number" maxlength='20' id="bank_account_number">
-                          <span style="font-size: 14px;" id="error_bank_account_number" class="text-danger"></span></td>
-                        </tr>
-                        <tr>
-                          <th scope="row" class="required" style="font-size: 14px;">Confirm Bank Account Number</th>
-                          <td colspan="3"><input type="text" name="confirm_bank_account_number" maxlength="20" id="confirm_bank_account_number" value="" class="form-control" style="border-radius: 3px; border: 1px solid #737373;">
-                          <span style="font-size: 14px;" id="error_confirm_bank_account_number" class="text-danger"></span></td>
-                        </tr>
-                        <!-- Document Update Section -->
-                        <tr>
-                          <th scope="row" class="required" style="font-size: 14px;">Upload Bank Passbook</th>
-                          <td id="bank_passbook_text"> 
-                            <input type="file"  name="upload_bank_passbook" accept=".jpg,.jpeg,.png,.pdf" id="upload_bank_passbook" value="">
-                            <span style="font-size: 14px;" id="error_file" class="text-danger"></span>
-                          </td>
-                          <th scope="row" style="font-size: 14px;">Copy Of Passbook</th>
-                          <td  scope="row" class="encView">&nbsp;&nbsp;&nbsp;<a class="btn btn-xs btn-primary" href="javascript:void(0);" onclick="View_encolser_modal('Copy of Bank Pass book','10',1)">View</a></td>
-                        </tr>
-                        <tr>
-                          <th scope="row" class="required" style="font-size: 14px;">Remarks</th>
-                          <td colspan="3"><input type="text" name="remarks" maxlength="100" id="remarks" class="form-control" value="" style="border-radius: 3px; border: 1px solid #737373;">
-                          <span style="font-size: 14px;" id="error_remarks" class="text-danger"></span></td>
-                        </tr>
-                      </tbody>
-                    </table>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div align="center">
-              <button type="button"  class="btn btn-success btn-lg btnUpdate">Update</button>
-            </div>
-          </div>
-          {{-- <div class="modal-footer" style="text-align: center">
-            
-          </div> --}}
-
-        </div>
-      </div>
-    </div>
-
-    <!-- Update Mobile Number Modal -->
-    <div class="modal fade bd-example-modal-lg ben_mobile_modal" tabindex="-1" role="dialog"
-      aria-labelledby="myLargeModalLabel" aria-hidden="true">
-      <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-          <div class="modal-header singleInfo">
-            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-              <span aria-hidden="true">&times;</span>
-            </button>
-            <h4 class="modal-title">Update Mobile Number For Approved Beneficiary</h4>
-          </div>
-          <div class="modal-body ">
-            <div class="loadingDivModal">
-            </div>
-          <input type="hidden" id="mobileBenId" name="mobileBenId" value="">
-          <input type="hidden" id="mobileAppId" name="mobileAppId" value="">
-          <input type="hidden" id="oldMobileNumber" name="oldMobileNumber" value="">
-            <div class="panel-group singleInfo" role="tablist" aria-multiselectable="true">
-              <div class="panel panel-default">
-                <div class="panel-heading active" role="tab" id="personal">
-                  <h5 class="panel-title">
-                    <a role="button" data-toggle="collapse" data-parent="#accordion" href="#collapsePersonalMobile" aria-expanded="true" aria-controls="collapsePersonalMobile">Personal Details <span class="applicant_id_modal"></span></a> 
-                  </h5> 
-                </div> 
-                <div id="collapsePersonalMobile" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="personal">  
-                  <div class="panel-body" style="padding: 5px;">
-                    <table class="table table-bordered table-condensed table-striped" style="font-size: 14px;">  
-                    <tbody>
-                      <tr>
-                        <th scope="row" width="20%">Swasthya Sathi Card No.</th>
-                        <td id='sws_card_txt_MU' width="30%"></td>
-                        <th scope="row" width="20%">Mobile No.</th>         
-                        <td id="mobile_no_MU" width="30%"></td>
-                      </tr>
-                      <tr>       
-                        <th scope="row" width="20%">Name</th>
-                        <td id='ben_fullname_MU' width="30%"></td>
-                        <th scope="row" width="20%">Gender</th>         
-                        <td id="gender_MU" width="30%"></td>
-                      </tr>
-                      <tr>
-                        <th scope="row" width="20%">DOB</th>         
-                        <td id="dob_MU" width="30%"></td> 
-                        <th scope="row" width="20%">Age</th>         
-                        <td id="ben_age_MU" width="30%"></td>         
-                      </tr>
-                      <tr>
-                        <th scope="row" width="20%">Caste:</th>
-                        <td id="caste_MU" width="30%"></td>
-                        <th scope="row" class="caste" width="20%">SC/ST Certificate No.</th>
-                        <td id="caste_certificate_no_MU" class="caste" width="30%"></td>
-                      </tr> 
-                    </tbody>
-                    </table>
-                  </div>
-                </div> 
-              </div>
-            </div>
-
-            <div class="panel-group singleInfo">
-              <div class="panel panel-default">
-                <div class="panel-heading" role="tab" id="contact">
-                  <h4 class="panel-title">
-                    <a role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseMobile" aria-expanded="true" aria-controls="collapseMobile">Update Mobile Number</a> </h4>
-                </div>
-                <div id="collapseMobile" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="banks">
-                  <div class="panel-body">
-                    <p style="font-size: 12px;font-weight: bold; text-align:center;">All (<span style="color:firebrick"> * </span>) marks filled are mandatory</p>
-                    <table class="table table-bordered table-responsive" style="width:100%">
-                      <tbody>
-                        <tr>
-                          <th scope="row" class="required" style="font-size: 14px;">Mobile Number</th>
-                          <td id="bank_passbook_text"> 
-                            <input type="text"  name="updateMobileNo" id="updateMobileNo" value="" maxlength="10" onkeypress="if ( isNaN(String.fromCharCode(event.keyCode) )) return false;">
-                            <span style="font-size: 14px;" id="error_update_mobile_no" class="text-danger"></span>
-                          </td>
-                        </tr>
-                        <tr>
-                          <th scope="row" class="required" style="font-size: 14px;">Remarks</th>
-                          <td><input type="text" name="updateMobileRemarks" maxlength="100" id="updateMobileRemarks" class="form-control" value="" style="border-radius: 3px; border: 1px solid #737373;">
-                          <span style="font-size: 14px;" id="error_mobile_no_remarks" class="text-danger"></span></td>
-                        </tr>
-                      </tbody>
-                    </table>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div align="center">
-              <button type="button"  class="btn btn-success btn-lg" id="btnUpdateMobileNo">Update</button>
-            </div>
-          </div>
-          {{-- <div class="modal-footer" style="text-align: center">
-            
-          </div> --}}
-
-        </div>
-      </div>
-    </div>
-
-    <div class="modal encolser_modal" id="encolser_modal"  role="dialog">
-      <div class="modal-dialog" role="document">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title" id="encolser_name">Modal title</h5>
-            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-              <span aria-hidden="true">&times;</span>
-            </button>
-          </div>
-          <div id="encolser_content">  </div>
-         
-          <div class="modal-footer"  style="text-align: center">
-            <button type="button"  class="btn btn-success modalEncloseClose" >Close</button>
-     
-              
-               <!-- </form>  -->
-           </div> 
-        </div>
-      </div>
-    </div>
-
-  </section>
+  </div>
 </div>
 
+<!-- Update Bank Details Modal -->
+<div class="modal fade" id="benBankModal" tabindex="-1" role="dialog" aria-labelledby="benBankModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Update Bank Details For Approved Beneficiary</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div class="loadingDivModal"></div>
+        <input type="hidden" id="benId" name="benId" value="">
+        <input type="hidden" id="application_id" name="application_id" value="">
+        <input type="hidden" id="old_bank_ifsc" name="old_bank_ifsc" value="">
+        <input type="hidden" id="old_bank_accno" name="old_bank_accno" value="">
+
+        <!-- Personal Details Accordion -->
+        <div class="card mb-3">
+          <div class="card-header">
+            <h6 class="card-title mb-0">
+              <a href="#collapsePersonal" data-bs-toggle="collapse">Personal Details <span class="applicant_id_modal"></span></a>
+            </h6>
+          </div>
+          <div id="collapsePersonal" class="collapse show">
+            <div class="card-body">
+              <div class="table-responsive">
+                <table class="table table-bordered table-striped">
+                  <tbody>
+                    <tr>
+                      <th width="20%">Swasthya Sathi Card No.</th>
+                      <td id='sws_card_txt' width="30%"></td>
+                      <th width="20%">Mobile No.</th>
+                      <td id="mobile_no" width="30%"></td>
+                    </tr>
+                    <tr>
+                      <th>Name</th>
+                      <td id='ben_fullname'></td>
+                      <th>Gender</th>
+                      <td id="gender"></td>
+                    </tr>
+                    <tr>
+                      <th>DOB</th>
+                      <td id="dob"></td>
+                      <th>Age</th>
+                      <td id="ben_age"></td>
+                    </tr>
+                    <tr>
+                      <th>Caste:</th>
+                      <td id="caste"></td>
+                      <th class="caste">SC/ST Certificate No.</th>
+                      <td id="caste_certificate_no" class="caste"></td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Bank Details Accordion -->
+        <div class="card">
+          <div class="card-header">
+            <h6 class="card-title mb-0">
+              <a href="#collapseBank" data-bs-toggle="collapse">Update Bank Details</a>
+            </h6>
+          </div>
+          <div id="collapseBank" class="collapse show">
+            <div class="card-body">
+              <p class="text-center text-danger mb-3"><small>All (<span class="text-danger">*</span>) marks are mandatory</small></p>
+              <div class="row">
+                <div class="col-md-6 mb-3">
+                  <label class="form-label required">Bank Branch Name</label>
+                  <input type="text" name="branch_name" id="branch_name" class="form-control" readonly>
+                  <span id="error_bank_branch" class="text-danger small"></span>
+                </div>
+                <div class="col-md-6 mb-3">
+                  <label class="form-label required">Bank IFSC Code</label>
+                  <div class="input-group">
+                    <input type="text" name="bank_ifsc" id="bank_ifsc" class="form-control" onkeyup="this.value = this.value.toUpperCase();">
+                    <div class="spinner-border spinner-border-sm" id="ifsc_loader" style="display: none;" role="status"></div>
+                  </div>
+                  <span id="error_bank_ifsc_code" class="text-danger small"></span>
+                </div>
+                <div class="col-md-6 mb-3">
+                  <label class="form-label required">Bank Name</label>
+                  <input type="text" name="bank_name" id="bank_name" class="form-control" readonly>
+                  <span id="error_name_of_bank" class="text-danger small"></span>
+                </div>
+                <div class="col-md-6 mb-3">
+                  <label class="form-label required">Bank Account Number</label>
+                  <input type="password" name="bank_account_number" id="bank_account_number" class="form-control" maxlength="20">
+                  <span id="error_bank_account_number" class="text-danger small"></span>
+                </div>
+                <div class="col-12 mb-3">
+                  <label class="form-label required">Confirm Bank Account Number</label>
+                  <input type="text" name="confirm_bank_account_number" id="confirm_bank_account_number" class="form-control" maxlength="20">
+                  <span id="error_confirm_bank_account_number" class="text-danger small"></span>
+                </div>
+                <div class="col-md-6 mb-3">
+                  <label class="form-label required">Upload Bank Passbook</label>
+                  <input type="file" name="upload_bank_passbook" id="upload_bank_passbook" class="form-control" accept=".jpg,.jpeg,.png,.pdf">
+                  <span id="error_file" class="text-danger small"></span>
+                </div>
+                <div class="col-md-6 mb-3">
+                  <label class="form-label">Copy Of Passbook</label>
+                  <div>
+                    <button type="button" class="btn btn-primary btn-sm" onclick="View_encolser_modal('Copy of Bank Pass book','10',1)">View</button>
+                  </div>
+                </div>
+                <div class="col-12 mb-3">
+                  <label class="form-label required">Remarks</label>
+                  <input type="text" name="remarks" id="remarks" class="form-control" maxlength="100">
+                  <span id="error_remarks" class="text-danger small"></span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="text-center mt-3">
+          <button type="button" class="btn btn-success btn-lg btnUpdate">Update</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Update Mobile Number Modal -->
+<div class="modal fade" id="benMobileModal" tabindex="-1" role="dialog" aria-labelledby="benMobileModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Update Mobile Number For Approved Beneficiary</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div class="loadingDivModal"></div>
+        <input type="hidden" id="mobileBenId" name="mobileBenId" value="">
+        <input type="hidden" id="mobileAppId" name="mobileAppId" value="">
+        <input type="hidden" id="oldMobileNumber" name="oldMobileNumber" value="">
+
+        <!-- Personal Details Accordion -->
+        <div class="card mb-3">
+          <div class="card-header">
+            <h6 class="card-title mb-0">
+              <a href="#collapsePersonalMobile" data-bs-toggle="collapse">Personal Details <span class="applicant_id_modal"></span></a>
+            </h6>
+          </div>
+          <div id="collapsePersonalMobile" class="collapse show">
+            <div class="card-body">
+              <div class="table-responsive">
+                <table class="table table-bordered table-striped">
+                  <tbody>
+                    <tr>
+                      <th width="20%">Swasthya Sathi Card No.</th>
+                      <td id='sws_card_txt_MU' width="30%"></td>
+                      <th width="20%">Mobile No.</th>
+                      <td id="mobile_no_MU" width="30%"></td>
+                    </tr>
+                    <tr>
+                      <th>Name</th>
+                      <td id='ben_fullname_MU'></td>
+                      <th>Gender</th>
+                      <td id="gender_MU"></td>
+                    </tr>
+                    <tr>
+                      <th>DOB</th>
+                      <td id="dob_MU"></td>
+                      <th>Age</th>
+                      <td id="ben_age_MU"></td>
+                    </tr>
+                    <tr>
+                      <th>Caste:</th>
+                      <td id="caste_MU"></td>
+                      <th class="caste">SC/ST Certificate No.</th>
+                      <td id="caste_certificate_no_MU" class="caste"></td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Mobile Number Update Section -->
+        <div class="card">
+          <div class="card-header">
+            <h6 class="card-title mb-0">
+              <a href="#collapseMobile" data-bs-toggle="collapse">Update Mobile Number</a>
+            </h6>
+          </div>
+          <div id="collapseMobile" class="collapse show">
+            <div class="card-body">
+              <p class="text-center text-danger mb-3"><small>All (<span class="text-danger">*</span>) marks are mandatory</small></p>
+              <div class="row">
+                <div class="col-md-6 mb-3">
+                  <label class="form-label required">Mobile Number</label>
+                  <input type="text" name="updateMobileNo" id="updateMobileNo" class="form-control" maxlength="10" onkeypress="if ( isNaN(String.fromCharCode(event.keyCode) )) return false;">
+                  <span id="error_update_mobile_no" class="text-danger small"></span>
+                </div>
+                <div class="col-md-6 mb-3">
+                  <label class="form-label required">Remarks</label>
+                  <input type="text" name="updateMobileRemarks" id="updateMobileRemarks" class="form-control" maxlength="100">
+                  <span id="error_mobile_no_remarks" class="text-danger small"></span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="text-center mt-3">
+          <button type="button" class="btn btn-success btn-lg" id="btnUpdateMobileNo">Update</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Encloser Modal -->
+<div class="modal fade" id="encolserModal" tabindex="-1" role="dialog" aria-labelledby="encolserModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="encolser_name">Modal title</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body" id="encolser_content"></div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-success" data-bs-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
 
 @endsection
-@section('script')
-<script src="{{ URL::asset('js/master-data-v2.js') }}"></script>
+
+@push('scripts')
 <script>
-  $(document).ready(function() {   
-    $('#loadingDiv').hide();
+  $(document).ready(function() {
+    // Sidebar menu activation
     $('.sidebar-menu li').removeClass('active');
-    $('.sidebar-menu #updateBankDetails').addClass("active"); 
-    // $('.sidebar-menu #accValTrFailed').addClass("active");
+    $('.sidebar-menu #updateBankDetails').addClass("active");
+    
+    $('#loadingDiv').hide();
     $('#submit_btn').removeAttr('disabled');
+
+    // Search type change handler
     $('#select_type').change(function(){
       var select_type = $('#select_type').val();
+      $('#beneficiary_id_div, #application_id_div, #sasthyasathi_card_div').hide();
+      
       if (select_type == 'B') {
         $('#beneficiary_id_div').show();
-        $('#application_id_div').hide();
-        $('#sasthyasathi_card_div').hide();
-        $('#app_id').val('').trigger('change');
-        $('#ss_card').val('').trigger('change');
-      }
-      else if(select_type == 'A') {
-        $('#beneficiary_id_div').hide();
+      } else if(select_type == 'A') {
         $('#application_id_div').show();
-        $('#sasthyasathi_card_div').hide();
-        $('#ben_id').val('').trigger('change');
-        $('#ss_card').val('').trigger('change');
-      }
-      else if (select_type == 'S') {
-        $('#beneficiary_id_div').hide();
-        $('#application_id_div').hide();
+      } else if (select_type == 'S') {
         $('#sasthyasathi_card_div').show();
-        $('#ben_id').val('').trigger('change');
-        $('#app_id').val('').trigger('change');
       }
-      else{
-        $('#beneficiary_id_div').hide();
-        $('#application_id_div').hide();
-        $('#sasthyasathi_card_div').hide();
-        $('#ben_id').val('').trigger('change');
-        $('#app_id').val('').trigger('change');
-        $('#ss_card').val('').trigger('change');
-      }
+      
+      // Clear other fields
+      $('#ben_id, #app_id, #ss_card').val('');
     });
 
-    var ajaxData = '';
+    // Search button click handler
     $('#submit_btn').click(function(){
       var select_type = $('#select_type').val();
       var beneficiary_id = $('#ben_id').val();
       var application_id = $('#app_id').val();
       var ss_card_no = $('#ss_card').val();
-      if (select_type == 'B') {
-        if (beneficiary_id == '') {
-          $.alert({
-            title: 'Alert!!',
-            content: 'Please Enter Beneficiary Id'
-          });
-        }
-        else {
-          var ajaxData = {
-            'beneficiary_id': beneficiary_id,
-            'application_id': application_id,
-            'ss_card_no': ss_card_no,
-            _token:"{{csrf_token()}}"
-          }
-          loadDataTable(ajaxData);
-        }
+      
+      let errorMessage = '';
+      
+      if (select_type == 'B' && beneficiary_id == '') {
+        errorMessage = 'Please Enter Beneficiary Id';
+      } else if(select_type == 'A' && application_id == '') {
+        errorMessage = 'Please Enter Application Id';
+      } else if (select_type == 'S' && ss_card_no == '') {
+        errorMessage = 'Please Enter Sasthyasathi Card Number';
+      } else if (!select_type) {
+        errorMessage = 'Please select search type';
       }
-      else if(select_type == 'A') {
-        if (application_id == '') {
-          $.alert({
-            title: 'Alert!!',
-            content: 'Please Enter Application Id'
-          });
-        }
-        else {
-          var ajaxData = {
-            'beneficiary_id': beneficiary_id,
-            'application_id': application_id,
-            'ss_card_no': ss_card_no,
-            _token:"{{csrf_token()}}"
-          }
-          loadDataTable(ajaxData);
-        }
+      
+      if (errorMessage) {
+        showAlert('Alert!!', errorMessage, 'warning');
+        return;
       }
-      else if (select_type == 'S') {
-        if (ss_card_no == '') {
-          $.alert({
-            title: 'Alert!!',
-            content: 'Please Enter Sasthyasathi Card Number'
-          });
-        }
-        else {
-          var ajaxData = {
-            'beneficiary_id': beneficiary_id,
-            'application_id': application_id,
-            'ss_card_no': ss_card_no,
-            _token:"{{csrf_token()}}"
-          }
-          loadDataTable(ajaxData);
-        }
-      }
-      else{
-        $.alert({
-          title: 'Alert!!',
-          content: 'All fields are required'
-        });
-      }
+      
+      var ajaxData = {
+        'beneficiary_id': beneficiary_id,
+        'application_id': application_id,
+        'ss_card_no': ss_card_no,
+        _token: "{{csrf_token()}}"
+      };
+      
+      loadDataTable(ajaxData);
     });
 
-    $('.modalEncloseClose').click(function(){
-      $('.encolser_modal').modal('hide');
-    });
-
+    // IFSC Code validation
     $('#bank_ifsc').blur(function(){
-      $ifsc_data = $.trim($('#bank_ifsc').val());
-      $ifscRGEX = /^[a-z]{4}0[a-z0-9]{6}$/i;
-      if($ifscRGEX.test($ifsc_data))
-      {
-        $('#bank_ifsc').removeClass('has-error');
+      var $ifsc_data = $.trim($('#bank_ifsc').val());
+      var $ifscRGEX = /^[a-z]{4}0[a-z0-9]{6}$/i;
+      
+      if($ifscRGEX.test($ifsc_data)) {
+        $('#bank_ifsc').removeClass('is-invalid');
         $('#error_bank_ifsc_code').text('');
         $('#ifsc_loader').show();
         $('.btnUpdate').attr('disabled',true);
+        
         $.ajax({
           type: 'POST',
           url: "{{ route('bankIfsc') }}",
@@ -560,358 +496,68 @@
           },
           success: function (data) {
             $('#ifsc_loader').hide();
-            $('.btnUpdate').removeAttr('disabled',true);
-            if(data.status==2){
-              $.confirm({
-                    title: 'IFSC Not Found!',
-                    type:'blue',
-                    icon: 'fa fa-info',
-                    content: 'This ' + $ifsc_data+' IFSC is not registered in our system.',
-                    
+            $('.btnUpdate').removeAttr('disabled');
             
-                });
-                $('#bank_ifsc').val('');
-                return false;
-            }
-            else{
+            if(data.status == 2){
+              showAlert('IFSC Not Found!', 'This ' + $ifsc_data + ' IFSC is not registered in our system.', 'info');
+              $('#bank_ifsc').val('');
+              return false;
+            } else {
               $('#bank_name').val(data.bank_details.bank);
-            $('#branch_name').val(data.bank_details.branch);
+              $('#branch_name').val(data.bank_details.branch);
             }
-          
-           
           },
           error: function (ex) {
             $('#ifsc_loader').hide();
             $('#error_bank_ifsc_code').text('Data fetch error');
-            $('#bank_ifsc').addClass('has-error');
+            $('#bank_ifsc').addClass('is-invalid');
           }
         });
-
-      }else{
+      } else {
         $('#error_bank_ifsc_code').text('IFSC format invalid please check the code');
-        $('#bank_ifsc').addClass('has-error');
+        $('#bank_ifsc').addClass('is-invalid');
       }
     });
 
+    // File upload validation
     $('#upload_bank_passbook').change(function(){
-      var card_file=document.getElementById("upload_bank_passbook");
-      if(card_file.value!="")
-      {
-        var attachment;
-        attachment = card_file.files[0];
-        // console.log(attachment.type)
+      var card_file = document.getElementById("upload_bank_passbook");
+      if(card_file.value != "") {
+        var attachment = card_file.files[0];
         var type = attachment.type;
-        if(attachment.size>512000)
-        {
-          document.getElementById("error_file").innerHTML="<i class='fa fa-warning'></i> Unaccepted document file size. Max size 500 KB. Please try again";
+        
+        if(attachment.size > 512000) {
+          $('#error_file').html("<i class='fas fa-exclamation-triangle'></i> Unaccepted document file size. Max size 500 KB. Please try again");
           $('#upload_bank_passbook').val('');
           return false;
-        }
-        else if (type != 'image/jpeg' && type != 'image/png' && type != 'application/pdf') {
-          document.getElementById("error_file").innerHTML="<i class='fa fa-warning'></i> Unaccepted document file format. Only jpeg,jpg,png and pdf. Please try again";
+        } else if (type != 'image/jpeg' && type != 'image/png' && type != 'application/pdf') {
+          $('#error_file').html("<i class='fas fa-exclamation-triangle'></i> Unaccepted document file format. Only jpeg,jpg,png and pdf. Please try again");
           $('#upload_bank_passbook').val('');
           return false;
-        }
-        else{
-          $('#file_upload_btn').show();
-          document.getElementById("error_file").innerHTML="";
+        } else {
+          $('#error_file').html("");
         }
       }
     });
-    $( "#bank_account_number,#confirm_bank_account_number" ).on( "copy cut paste drop", function() {
-        return false;
+
+    // Prevent copy, cut, paste on account number fields
+    $("#bank_account_number, #confirm_bank_account_number").on("copy cut paste drop", function() {
+      return false;
     });
-    
-    // -------------------- Final Approve Section-------------------------- //
-    $(document).on('click', '.btnUpdate', function() { 
-      var error_name_of_bank =''; 
-      var error_bank_branch =''; 
-      var error_bank_account_number =''; 
-      var error_bank_ifsc_code ='';
-      var error_remarks = '';
-      var error_file = ''; 
 
-      if($.trim($('#bank_name').val()).length == 0)
-      {
-       error_name_of_bank = 'Name of Bank is required';
-       $('#error_name_of_bank').text(error_name_of_bank);
-       $('#bank_name').addClass('has-error');
-      }
-      else
-      {
-       error_name_of_bank = '';
-       $('#error_name_of_bank').text(error_name_of_bank);
-       $('#bank_name').removeClass('has-error');
-      }
-
-      if($.trim($('#branch_name').val()).length == 0)
-      {
-       error_bank_branch = 'Bank Branch is required';
-       $('#error_bank_branch').text(error_bank_branch);
-       $('#branch_name').addClass('has-error');
-      }
-      else
-      {
-       error_bank_branch = '';
-       $('#error_bank_branch').text(error_bank_branch);
-       $('#branch_name').removeClass('has-error');
-      }
-
-      if($.trim($('#bank_account_number').val()).length == 0)
-      {
-       error_bank_account_number = 'Bank Account Number is required';
-       $('#error_bank_account_number').text(error_bank_account_number);
-       $('#bank_account_number').addClass('has-error');
-      }
-      else
-      {
-       error_bank_account_number = '';
-       $('#error_bank_account_number').text(error_bank_account_number);
-       $('#bank_account_number').removeClass('has-error');
-      }
-      if($.trim($('#confirm_bank_account_number').val()).length == 0)
-      {
-        error_confirm_bank_account_number = 'Bank Account Number is required';
-        $('#error_confirm_bank_account_number').text(error_confirm_bank_account_number);
-        $('#confirm_bank_account_number').addClass('has-error');
-      }
-      else
-      {
-        error_confirm_bank_account_number = '';
-        $('#error_confirm_bank_account_number').text(error_confirm_bank_account_number);
-        $('#confirm_bank_account_number').removeClass('has-error');
-      }
-      if($.trim($('#bank_ifsc').val()).length == 0)
-      {
-       error_bank_ifsc_code = 'IFS Code is required';
-       $('#error_bank_ifsc_code').text(error_bank_ifsc_code);
-       $('#bank_ifsc').addClass('has-error');
-      }
-      else
-      {
-       error_bank_ifsc_code = '';
-       $('#error_bank_ifsc_code').text(error_bank_ifsc_code);
-       $('#bank_ifsc').removeClass('has-error');
-      }
-
-      $ifsc_data = $.trim($('#bank_ifsc').val());
-      $ifscRGEX = /^[a-z]{4}0[a-z0-9]{6}$/i;
-      if($ifscRGEX.test($ifsc_data))
-      {
-        error_bank_ifsc_code = '';
-        $('#error_bank_ifsc_code').text(error_bank_ifsc_code);
-        $('#bank_ifsc').removeClass('has-error');
-      }
-      else{
-        error_bank_ifsc_code = 'Please check IFS Code format';
-        $('#error_bank_ifsc_code').text(error_bank_ifsc_code);
-        $('#bank_ifsc').addClass('has-error');    
-      }
-
-      if($.trim($('#remarks').val()).length == 0)
-      {
-       error_remarks = 'Please add some remarks';
-       $('#error_remarks').text(error_remarks);
-       $('#remarks').addClass('has-error');
-      }
-      else
-      {
-       error_remarks = '';
-       $('#error_remarks').text(error_remarks);
-       $('#remarks').removeClass('has-error');
-      }
-
-      if($('#upload_bank_passbook')[0].files.length == 0)
-      {
-       error_file = 'Please add bank passbook copy';
-       $('#error_file').text(error_file);
-       $('#upload_bank_passbook').addClass('has-error');
-      }
-      else
-      {
-       error_file = '';
-       $('#error_file').text(error_file);
-       $('#upload_bank_passbook').removeClass('has-error');
-      }
-    // Check Bank Account Number with Confirm Bank Account Number
-    if($.trim($('#bank_account_number').val()) != $.trim($('#confirm_bank_account_number').val()))
-    {
-      error_confirm_bank_account_number = 'Confirm Bank Account Number not Match with Bank Account Number';
-      $('#error_confirm_bank_account_number').text(error_confirm_bank_account_number);
-      $('#confirm_bank_account_number').addClass('has-error');
-    }
-    else
-    {
-      error_confirm_bank_account_number = '';
-      $('#error_confirm_bank_account_number').text(error_confirm_bank_account_number);
-      $('#confirm_bank_account_number').removeClass('has-error');
-    }
-      if(error_name_of_bank !='' || error_bank_branch !=''||  error_bank_account_number !='' || error_bank_ifsc_code !='' || error_remarks != '' || error_confirm_bank_account_number != '') { 
-        return false;
-      }
-      else {
-        var old_bank_ifsc=$('#old_bank_ifsc').val();
-        var old_bank_accno=$('#old_bank_accno').val();
-   
-        var bank_ifsc=$('#bank_ifsc').val();
-        var bank_account_number=$('#bank_account_number').val();
-        var upload_bank_passbook = $('#upload_bank_passbook')[0].files;
-        //&& upload_bank_passbook.length==0
-        // if((bank_account_number == old_bank_accno) && (bank_ifsc == old_bank_ifsc)) {
-        //   $.confirm({
-        //     title: 'Alert!',
-        //     type:'red',
-        //     icon: 'fa fa-warning',
-        //     content:'Account number and ifsc same as previous one',
-        //   });
-        //   return false;
-        // }
-
-        var bank_name=$('#bank_name').val();
-        var branch_name=$('#branch_name').val();
-        var remarks=$('#remarks').val();
-        var benId=$('#benId').val();
-        var token =  '{{csrf_token()}}'; 
-        var fd= new  FormData();
-        fd.append('benId', benId);
-        fd.append('bank_ifsc', bank_ifsc);
-        fd.append('bank_name', bank_name);
-        fd.append('bank_account_number', bank_account_number);
-        fd.append('branch_name', branch_name);
-        fd.append('upload_bank_passbook', upload_bank_passbook[0]);
-        fd.append('_token', token);
-        fd.append('old_bank_ifsc',old_bank_ifsc);
-        fd.append('old_bank_accno',old_bank_accno);
-        fd.append('remarks',remarks);
-        $('.loadingDivModal').show();
-        $('.btnUpdate').attr('disabled',true);
-        $.ajax({
-          type: 'post',
-          url: "{{route('updateApprovedBenBankDetails')}}",
-          data: fd,
-          processData: false,
-          contentType: false,
-          dataType: 'json',
-          success: function (response) {
-            $('.loadingDivModal').hide();
-            $.confirm({
-              title: response.title,
-              type:response.type,
-              icon: response.icon,
-              content:response.msg,
-              buttons: {
-                Ok: function(){
-                  $('.btnUpdate').removeAttr('disabled',true);
-                  $('.ben_bank_modal').modal('hide');
-                  $('#listing_div').hide();
-                  $('#select_type').val('').trigger('change');
-                  $("html, body").animate({ scrollTop: 0 }, "slow");
-                }
-              }
-            });
-          },
-          complete: function(){
-          //  $('.btnUpdate').removeAttr('disabled',true);
-          },
-          error: function (jqXHR, textStatus, errorThrown) {
-            $('.btnUpdate').removeAttr('disabled',true);
-            $('.loadingDivModal').hide();
-            ajax_error(jqXHR, textStatus, errorThrown) 
-          }
-        });
+    // Bank details update
+    $(document).on('click', '.btnUpdate', function() {
+      if(validateBankForm()) {
+        submitBankUpdate();
       }
     });
-    // -------------------- Final Approve Section --------------------------//
 
-    // Mobile Number Update Section
-    $(document).on('click', '#btnUpdateMobileNo', function() { 
-      var error_update_mobile_no =''; 
-      var error_mobile_no_remarks = '';
-
-      if($.trim($('#updateMobileNo').val()).length == 0)
-      {
-       error_update_mobile_no = 'Mobile number is required';
-       $('#error_update_mobile_no').text(error_update_mobile_no);
-       $('#updateMobileNo').addClass('has-error');
-      }
-      else
-      {
-       error_update_mobile_no = '';
-       $('#error_update_mobile_no').text(error_update_mobile_no);
-       $('#updateMobileNo').removeClass('has-error');
-      }
-
-      if($.trim($('#updateMobileRemarks').val()).length == 0)
-      {
-       error_mobile_no_remarks = 'Please add some remarks';
-       $('#error_mobile_no_remarks').text(error_mobile_no_remarks);
-       $('#updateMobileRemarks').addClass('has-error');
-      }
-      else
-      {
-       error_mobile_no_remarks = '';
-       $('#error_mobile_no_remarks').text(error_mobile_no_remarks);
-       $('#updateMobileRemarks').removeClass('has-error');
-      }
-  
-      if(error_update_mobile_no !='' || error_mobile_no_remarks !='') { 
-        return false;
-      }
-      else {
-        var old_mobile_no = $('#oldMobileNumber').val();
-        var new_mobile_no = $('#updateMobileNo').val();
-        var mobile_no_remarks = $('#updateMobileRemarks').val();
-        if (old_mobile_no == new_mobile_no) {
-          $.confirm({
-            title: 'Alert!',
-            type:'red',
-            icon: 'fa fa-warning',
-            content:'Your entered mobile number same as previous one.',
-          });
-          return false;
-        }
-        else {
-          // alert('OK');
-          var mobileAppId = $('#mobileAppId').val();
-          var mobileBenId = $('#mobileBenId').val();
-          $('.loadingDivModal').show();
-          $('#btnUpdateMobileNo').attr('disabled',true);
-          $.ajax({
-            type: 'post',
-            url: "{{route('updateApprovedBenMobileNumber')}}",
-            data: { _token:'{{csrf_token()}}', benId:mobileBenId, appId:mobileAppId, newMobileNo:new_mobile_no, remarks:mobile_no_remarks },
-            dataType: 'json',
-            success: function (response) {
-              $('.loadingDivModal').hide();
-              $.confirm({
-                title: response.title,
-                type:response.type,
-                icon: response.icon,
-                content:response.msg,
-                buttons: {
-                  Ok: function(){
-                    $('#btnUpdateMobileNo').removeAttr('disabled',true);
-                    $('.ben_mobile_modal').modal('hide');
-                    $('#listing_div').hide();
-                    $('#select_type').val('').trigger('change');
-                    $("html, body").animate({ scrollTop: 0 }, "slow");
-                  }
-                }
-              });
-            },
-            complete: function(){
-            //  $('.btnUpdate').removeAttr('disabled',true);
-            },
-            error: function (jqXHR, textStatus, errorThrown) {
-              $('#btnUpdateMobileNo').removeAttr('disabled',true);
-              $('.loadingDivModal').hide();
-              ajax_error(jqXHR, textStatus, errorThrown) 
-            }
-          });
-        }
+    // Mobile number update
+    $(document).on('click', '#btnUpdateMobileNo', function() {
+      if(validateMobileForm()) {
+        submitMobileUpdate();
       }
     });
-    // End Mobile Number Updae
   });
 
   function loadDataTable(ajaxData) {
@@ -919,27 +565,28 @@
     $('#listing_div').show();
     $('#submit_btn').attr('disabled',true);
 
-    if ( $.fn.DataTable.isDataTable('#example') ) {
+    if ($.fn.DataTable.isDataTable('#example')) {
       $('#example').DataTable().destroy();
     }
-    var dataTable = $('#example').DataTable( {
-      dom: 'Blfrtip',
+    
+    var dataTable = $('#example').DataTable({
+      dom: "Bfrtip",
       "scrollX": true,
-      "paging": false,
-      "searchable": false,
-      "ordering":false,
-      "bFilter": false,
-      "bInfo": false,
-      "pageLength":20,
-      'lengthMenu': [[10, 20, 30, 50,100], [10, 20, 30, 50,100]],
+      "paging": true,
+      "searching": true,
+      "ordering": true,
+      "info": true,
+      "pageLength": 20,
+      "lengthMenu": [[10, 20, 30, 50, 100], [10, 20, 30, 50, 100]],
       "serverSide": true,
-      "processing":true,
+      "processing": true,
       "bRetrieve": true,
-      "oLanguage": {
-        // "sProcessing": '<div class="preloader1" align="center"><img src="images/ZKZg.gif" width="150px"></div>'
+      "language": {
+        "processing": "Processing...",
+        "emptyTable": "No data available in table",
+        "zeroRecords": "No matching records found"
       },
-      "ajax": 
-      {
+      "ajax": {
         url: "{{ url('getLineListBankEdit') }}",
         type: "post",
         data: ajaxData,
@@ -949,170 +596,371 @@
           ajax_error(jqXHR, textStatus, errorThrown);
         }
       },
-      "initComplete":function(){
+      "initComplete": function(){
         $('#loadingDiv').hide();
         $('#submit_btn').removeAttr('disabled');
-        //console.log('Data rendered successfully');
       },
       "columns": [
-        // { "data": "DT_RowIndex" },
+          { "data": "application_id" },
         { "data": "beneficiary_id" },
         { "data": "name" },
         { "data": "ss_card_no" },
-        { "data": "application_id" },
         { "data": "address" },
         { "data": "bank_info" },
-        { "data": "action" },
+        { 
+          "data": "action",
+          "className": "text-center",
+          "orderable": false,
+          "searchable": false
+        }
       ],
-
       "buttons": [
-        // 'pdf','excel'
-      ],
+        {
+          extend: 'pdf',
+          className: 'btn btn-secondary table-action-btn',
+          exportOptions: {
+            columns: [0, 1, 2, 3, 4, 5]
+          }
+        },
+        {
+          extend: 'excel',
+          className: 'btn btn-success table-action-btn',
+          exportOptions: {
+            columns: [0, 1, 2, 3, 4, 5]
+          }
+        },
+        {
+          extend: 'print',
+          className: 'btn btn-info table-action-btn',
+          exportOptions: {
+            columns: [0, 1, 2, 3, 4, 5]
+          }
+        }
+      ]
     });
   }
-  function editFunction(beneficiary_id) {
-    var select_item = $('#select_item_update_'+beneficiary_id).val();
-    if (select_item == '') {
-      $.alert({
-        title: 'Alert!!',
-        type: 'red',
-        icon: 'fa fa-warning',
-        content: 'Please select option which one do you want to edit'
-      });
+
+  function validateBankForm() {
+    let isValid = true;
+    
+    // Reset errors
+    $('.text-danger').text('');
+    $('.form-control').removeClass('is-invalid');
+    
+    const fields = [
+      { id: '#bank_name', errorId: '#error_name_of_bank', message: 'Name of Bank is required' },
+      { id: '#branch_name', errorId: '#error_bank_branch', message: 'Bank Branch is required' },
+      { id: '#bank_account_number', errorId: '#error_bank_account_number', message: 'Bank Account Number is required' },
+      { id: '#confirm_bank_account_number', errorId: '#error_confirm_bank_account_number', message: 'Confirm Bank Account Number is required' },
+      { id: '#bank_ifsc', errorId: '#error_bank_ifsc_code', message: 'IFS Code is required' },
+      { id: '#remarks', errorId: '#error_remarks', message: 'Please add some remarks' }
+    ];
+    
+    fields.forEach(field => {
+      if ($.trim($(field.id).val()).length == 0) {
+        $(field.errorId).text(field.message);
+        $(field.id).addClass('is-invalid');
+        isValid = false;
+      }
+    });
+    
+    // File validation
+    if ($('#upload_bank_passbook')[0].files.length == 0) {
+      $('#error_file').text('Please add bank passbook copy');
+      $('#upload_bank_passbook').addClass('is-invalid');
+      isValid = false;
     }
-    else if(select_item == 'bank') {
-      $('#loadingDiv').show();
-      $('.loadingDivModal').show();
-
-      $.ajax({
-        type: 'post',
-        url: "{{route('getBenDataForBankUpdate')}}",
-        data: {_token:'{{csrf_token()}}', benid:beneficiary_id},
-        dataType: 'json',
-        success: function (response) {
-          // console.log(JSON.stringify(response));
-          $('.loadingDivModal').hide();
-          $('#loadingDiv').hide();
-          $('#sws_card_txt').text(response.personaldata.ss_card_no);
-          var mname=response.personaldata.ben_mname;
-          if (!(mname)) { var mname='' }
-          var lname=response.personaldata.ben_lname;
-          if (!(lname)) { var lname='' }
-          $('#ben_fullname').text(response.personaldata.ben_fname+' '+mname+' '+lname);
-          $('#mobile_no').text(response.personaldata.mobile_no);
-          $('#gender').text(response.personaldata.gender);
-          $('#dob').text(response.dob);
-          $('#ben_age').text(response.personaldata.age_ason_01012021);
-          $('#caste').text(response.personaldata.caste);
-          if(response.personaldata.caste=='SC' || response.personaldata.caste=='ST'){
-            $('#caste_certificate_no').text(response.personaldata.caste_certificate_no);
-            $('.caste').show();
-          }
-          else{
-            $('.caste').hide();
-          }
-
-          $('.applicant_id_modal').html('(Beneficiary ID - '+response.personaldata.beneficiary_id+' , Application ID - '+response.personaldata.application_id+')');
-          $('#application_id').val(response.personaldata.application_id);
-          $('#benId').val(response.personaldata.beneficiary_id);
-          $('#bank_ifsc').val(response.bank_ifsc);
-          $('#bank_name').val(response.bank_name);
-          $('#branch_name').val(response.branch_name);
-          $('#bank_account_number').val(response.bank_code);
-          $('#confirm_bank_account_number').val(response.bank_code);
-          $('#old_bank_ifsc').val(response.bank_ifsc)
-          $('#old_bank_accno').val(response.bank_code)
-          $('#upload_bank_passbook').val('');
-          $('#remarks').val('');
-          $('.ben_bank_modal').modal('show');
-        },
-
-        error: function (jqXHR, textStatus, errorThrown) {
-          $('.loadingDivModal').hide();
-          $('#loadingDiv').hide();
-          $('.ben_bank_modal').modal('hide');
-          ajax_error(jqXHR, textStatus, errorThrown);
-        }
-      });
-      // $('.ben_bank_modal').modal('show');
+    
+    // IFSC format validation
+    const ifsc_data = $.trim($('#bank_ifsc').val());
+    const ifscRGEX = /^[a-z]{4}0[a-z0-9]{6}$/i;
+    if (!ifscRGEX.test(ifsc_data)) {
+      $('#error_bank_ifsc_code').text('Please check IFS Code format');
+      $('#bank_ifsc').addClass('is-invalid');
+      isValid = false;
     }
-    else if (select_item == 'mobile') {
-      $('#loadingDiv').show();
-      $('.loadingDivModal').show();
-      $.ajax({
-        type: 'post',
-        url: "{{route('getBenDataForBankUpdate')}}",
-        data: {_token:'{{csrf_token()}}', benid:beneficiary_id},
-        dataType: 'json',
-        success: function (response) {
-          console.log(JSON.stringify(response));
-          $('.loadingDivModal').hide();
-          $('#loadingDiv').hide();
-          $('#sws_card_txt_MU').text(response.personaldata.ss_card_no);
-          var mname=response.personaldata.ben_mname;
-          if (!(mname)) { var mname='' }
-          var lname=response.personaldata.ben_lname;
-          if (!(lname)) { var lname='' }
-          $('#ben_fullname_MU').text(response.personaldata.ben_fname+' '+mname+' '+lname);
-          $('#mobile_no_MU').text(response.personaldata.mobile_no);
-          $('#gender_MU').text(response.personaldata.gender);
-          $('#dob_MU').text(response.dob);
-          $('#ben_age_MU').text(response.personaldata.age_ason_01012021);
-          $('#caste_MU').text(response.personaldata.caste);
-          if(response.personaldata.caste=='SC' || response.personaldata.caste=='ST'){
-            $('#caste_certificate_no_MU').text(response.personaldata.caste_certificate_no);
-            $('.caste').show();
-          }
-          else{
-            $('.caste').hide();
-          }
-          $('.applicant_id_modal').html('(Beneficiary ID - '+response.personaldata.beneficiary_id+' , Application ID - '+response.personaldata.application_id+')');
-          $('#oldMobileNumber').val(response.personaldata.mobile_no);
-          $('#updateMobileNo').val(response.personaldata.mobile_no);
-          $('#mobileAppId').val(response.personaldata.application_id);
-          $('#mobileBenId').val(response.personaldata.beneficiary_id);
-          $('.ben_mobile_modal').modal('show');
-        },
-
-        error: function (jqXHR, textStatus, errorThrown) {
-          $('.loadingDivModal').hide();
-          $('#loadingDiv').hide();
-          $('.ben_mobile_modal').modal('hide');
-          ajax_error(jqXHR, textStatus, errorThrown);
-        }
-      });
+    
+    // Account number match validation
+    if ($.trim($('#bank_account_number').val()) != $.trim($('#confirm_bank_account_number').val())) {
+      $('#error_confirm_bank_account_number').text('Confirm Bank Account Number does not match with Bank Account Number');
+      $('#confirm_bank_account_number').addClass('is-invalid');
+      isValid = false;
     }
+    
+    return isValid;
   }
-  function View_encolser_modal(doc_name,doc_type,is_profile_pic){
-    var application_id=$('#application_id').val();
-    var benId=$('#benId').val();
-    $('#encolser_name').html('');
-    $('#encolser_content').html('');
-    $('#encolser_name').html(doc_name+'('+benId+')');
-    $('#encolser_content').html('<img   width="50px" height="50px" src="images/ZKZg.gif"/>');
+
+  function validateMobileForm() {
+    let isValid = true;
+    
+    // Reset errors
+    $('#error_update_mobile_no, #error_mobile_no_remarks').text('');
+    $('#updateMobileNo, #updateMobileRemarks').removeClass('is-invalid');
+    
+    if ($.trim($('#updateMobileNo').val()).length == 0) {
+      $('#error_update_mobile_no').text('Mobile number is required');
+      $('#updateMobileNo').addClass('is-invalid');
+      isValid = false;
+    }
+    
+    if ($.trim($('#updateMobileRemarks').val()).length == 0) {
+      $('#error_mobile_no_remarks').text('Please add some remarks');
+      $('#updateMobileRemarks').addClass('is-invalid');
+      isValid = false;
+    }
+    
+    return isValid;
+  }
+
+  function submitBankUpdate() {
+    const formData = new FormData();
+    formData.append('benId', $('#benId').val());
+    formData.append('bank_ifsc', $('#bank_ifsc').val());
+    formData.append('bank_name', $('#bank_name').val());
+    formData.append('bank_account_number', $('#bank_account_number').val());
+    formData.append('branch_name', $('#branch_name').val());
+    formData.append('upload_bank_passbook', $('#upload_bank_passbook')[0].files[0]);
+    formData.append('_token', '{{ csrf_token() }}');
+    formData.append('old_bank_ifsc', $('#old_bank_ifsc').val());
+    formData.append('old_bank_accno', $('#old_bank_accno').val());
+    formData.append('remarks', $('#remarks').val());
+    
     $('.loadingDivModal').show();
     $('.btnUpdate').attr('disabled',true);
+    
+    $.ajax({
+      type: 'post',
+      url: "{{route('updateApprovedBenBankDetails')}}",
+      data: formData,
+      processData: false,
+      contentType: false,
+      dataType: 'json',
+      success: function (response) {
+        $('.loadingDivModal').hide();
+        showAlert(response.title, response.msg, response.type, function(){
+          $('.btnUpdate').removeAttr('disabled');
+          $('#benBankModal').modal('hide');
+          $('#listing_div').hide();
+          $('#select_type').val('').trigger('change');
+          $("html, body").animate({ scrollTop: 0 }, "slow");
+        });
+      },
+      error: function (jqXHR, textStatus, errorThrown) {
+        $('.btnUpdate').removeAttr('disabled');
+        $('.loadingDivModal').hide();
+        ajax_error(jqXHR, textStatus, errorThrown);
+      }
+    });
+  }
+
+  function submitMobileUpdate() {
+    const old_mobile_no = $('#oldMobileNumber').val();
+    const new_mobile_no = $('#updateMobileNo').val();
+    
+    if (old_mobile_no == new_mobile_no) {
+      showAlert('Alert!', 'Your entered mobile number is the same as the previous one.', 'warning');
+      return;
+    }
+    
+    $('.loadingDivModal').show();
+    $('#btnUpdateMobileNo').attr('disabled',true);
+    
+    $.ajax({
+      type: 'post',
+      url: "{{route('updateApprovedBenMobileNumber')}}",
+      data: {
+        _token: '{{csrf_token()}}',
+        benId: $('#mobileBenId').val(),
+        appId: $('#mobileAppId').val(),
+        newMobileNo: new_mobile_no,
+        remarks: $('#updateMobileRemarks').val()
+      },
+      dataType: 'json',
+      success: function (response) {
+        $('.loadingDivModal').hide();
+        showAlert(response.title, response.msg, response.type, function(){
+          $('#btnUpdateMobileNo').removeAttr('disabled');
+          $('#benMobileModal').modal('hide');
+          $('#listing_div').hide();
+          $('#select_type').val('').trigger('change');
+          $("html, body").animate({ scrollTop: 0 }, "slow");
+        });
+      },
+      error: function (jqXHR, textStatus, errorThrown) {
+        $('#btnUpdateMobileNo').removeAttr('disabled');
+        $('.loadingDivModal').hide();
+        ajax_error(jqXHR, textStatus, errorThrown);
+      }
+    });
+  }
+
+  function editFunction(beneficiary_id) {
+    const select_item = $('#select_item_update_' + beneficiary_id).val();
+    
+    if (!select_item) {
+      showAlert('Alert!!', 'Please select option which one do you want to edit', 'warning');
+      return;
+    }
+    
+    $('#loadingDiv').show();
+    $('.loadingDivModal').show();
+
+    $.ajax({
+      type: 'post',
+      url: "{{route('getBenDataForBankUpdate')}}",
+      data: {_token: '{{csrf_token()}}', benid: beneficiary_id},
+      dataType: 'json',
+      success: function (response) {
+        $('.loadingDivModal').hide();
+        $('#loadingDiv').hide();
+        
+        if(select_item == 'bank') {
+          populateBankModal(response);
+          $('#benBankModal').modal('show');
+        } else if (select_item == 'mobile') {
+          populateMobileModal(response);
+          $('#benMobileModal').modal('show');
+        }
+      },
+      error: function (jqXHR, textStatus, errorThrown) {
+        $('.loadingDivModal').hide();
+        $('#loadingDiv').hide();
+        ajax_error(jqXHR, textStatus, errorThrown);
+      }
+    });
+  }
+
+  function populateBankModal(response) {
+    // console.log(response);
+    $('#sws_card_txt').text(response.personaldata.ss_card_no);
+    const mname = response.personaldata.ben_mname || '';
+    const lname = response.personaldata.ben_lname || '';
+    $('#ben_fullname').text(response.personaldata.ben_fname + ' ' + mname + ' ' + lname);
+    $('#mobile_no').text(response.personaldata.mobile_no);
+    $('#gender').text(response.personaldata.gender);
+    $('#dob').text(response.dob);
+    $('#ben_age').text(response.personaldata.age_ason_01012021);
+    $('#caste').text(response.personaldata.caste);
+    
+    if(response.personaldata.caste == 'SC' || response.personaldata.caste == 'ST') {
+      $('#caste_certificate_no').text(response.personaldata.caste_certificate_no);
+      $('.caste').show();
+    } else {
+      $('.caste').hide();
+    }
+
+    $('.applicant_id_modal').html('(Beneficiary ID - ' + response.personaldata.beneficiary_id + ' , Application ID - ' + response.personaldata.application_id + ')');
+    $('#application_id').val(response.personaldata.application_id);
+    $('#benId').val(response.personaldata.beneficiary_id);
+    $('#bank_ifsc').val(response.bank_ifsc);
+    $('#bank_name').val(response.bank_name);
+    $('#branch_name').val(response.branch_name);
+    $('#bank_account_number').val(response.bank_code);
+    $('#confirm_bank_account_number').val(response.bank_code);
+    $('#old_bank_ifsc').val(response.bank_ifsc);
+    $('#old_bank_accno').val(response.bank_code);
+    $('#upload_bank_passbook').val('');
+    $('#remarks').val('');
+  }
+
+  function populateMobileModal(response) {
+    $('#sws_card_txt_MU').text(response.personaldata.ss_card_no);
+    const mname = response.personaldata.ben_mname || '';
+    const lname = response.personaldata.ben_lname || '';
+    $('#ben_fullname_MU').text(response.personaldata.ben_fname + ' ' + mname + ' ' + lname);
+    $('#mobile_no_MU').text(response.personaldata.mobile_no);
+    $('#gender_MU').text(response.personaldata.gender);
+    $('#dob_MU').text(response.dob);
+    $('#ben_age_MU').text(response.personaldata.age_ason_01012021);
+    $('#caste_MU').text(response.personaldata.caste);
+    
+    if(response.personaldata.caste == 'SC' || response.personaldata.caste == 'ST') {
+      $('#caste_certificate_no_MU').text(response.personaldata.caste_certificate_no);
+      $('.caste').show();
+    } else {
+      $('.caste').hide();
+    }
+
+    $('.applicant_id_modal').html('(Beneficiary ID - ' + response.personaldata.beneficiary_id + ' , Application ID - ' + response.personaldata.application_id + ')');
+    $('#oldMobileNumber').val(response.personaldata.mobile_no);
+    $('#updateMobileNo').val(response.personaldata.mobile_no);
+    $('#mobileAppId').val(response.personaldata.application_id);
+    $('#mobileBenId').val(response.personaldata.beneficiary_id);
+  }
+
+  function View_encolser_modal(doc_name, doc_type, is_profile_pic) {
+    const application_id = $('#application_id').val();
+    const benId = $('#benId').val();
+    
+    $('#encolser_name').html(doc_name + '(' + benId + ')');
+    $('#encolser_content').html('<div class="text-center"><div class="spinner-border" role="status"><span class="visually-hidden">Loading...</span></div></div>');
+    
+    $('.loadingDivModal').show();
+    $('.btnUpdate').attr('disabled',true);
+    
     $.ajax({
       url: "{{ route('ajaxViewPassbook') }}",
       type: "POST",
-       data: {
-       doc_type: doc_type,
-       is_profile_pic: is_profile_pic,
-       application_id: application_id,
-       _token: '{{ csrf_token() }}',
-       },
-      }).done(function( data, textStatus, jqXHR ) {
-        $('.btnUpdate').removeAttr('disabled',true);
-        $('.loadingDivModal').hide();
-      $('#encolser_content').html('');
+      data: {
+        doc_type: doc_type,
+        is_profile_pic: is_profile_pic,
+        application_id: application_id,
+        _token: '{{ csrf_token() }}',
+      },
+    }).done(function(data, textStatus, jqXHR) {
+      $('.btnUpdate').removeAttr('disabled');
+      $('.loadingDivModal').hide();
       $('#encolser_content').html(data);
-      $("#encolser_modal").modal();
-      }).fail(function( jqXHR, textStatus, errorThrown ) {
-        $('#encolser_content').html('');
-        $('.btnUpdate').removeAttr('disabled',true);
-        $('.loadingDivModal').hide();
-        ajax_error(jqXHR, textStatus, errorThrown)
+      $('#encolserModal').modal('show');
+    }).fail(function(jqXHR, textStatus, errorThrown) {
+      $('.btnUpdate').removeAttr('disabled');
+      $('.loadingDivModal').hide();
+      $('#encolser_content').html('<div class="alert alert-danger">Error loading document</div>');
+      ajax_error(jqXHR, textStatus, errorThrown);
+    });
+  }
+
+  function showAlert(title, message, type, callback = null) {
+    // Using Bootstrap alert (you can replace with SweetAlert or other if preferred)
+    const alertClass = type === 'warning' ? 'alert-warning' : 
+                      type === 'success' ? 'alert-success' : 
+                      type === 'info' ? 'alert-info' : 'alert-danger';
+    
+    const alertHtml = `
+      <div class="alert ${alertClass} alert-dismissible fade show" role="alert">
+        <strong>${title}</strong> ${message}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+      </div>
+    `;
+    
+    $('.alert-section').prepend(alertHtml);
+    
+    if (callback && typeof callback === 'function') {
+      setTimeout(callback, 3000);
+    }
+  }
+
+  function closeError(divId) {
+    $('#' + divId).hide();
+  }
+
+  function printMsg(msg, msgtype, divid) {
+    $("#" + divid).find("ul").html('');
+    $("#" + divid).css('display', 'block');
+    
+    if (msgtype == '0') {
+      $("#" + divid).removeClass('alert-success').addClass('alert-warning');
+    } else {
+      $("#" + divid).removeClass('alert-warning').addClass('alert-success');
+    }
+
+    if (Array.isArray(msg)) {
+      $.each(msg, function(key, value) {
+        $("#" + divid).find("ul").append('<li>' + value + '</li>');
       });
+    } else {
+      $("#" + divid).find("ul").append('<li>' + msg + '</li>');
+    }
   }
 </script>
-@stop
+@endpush
