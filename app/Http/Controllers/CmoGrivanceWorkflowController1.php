@@ -14,7 +14,7 @@ use Illuminate\Support\Facades\DB;
 use Validator;
 use DateTime;
 use Config;
-use App\Configduty;
+use App\Models\Configduty;
 use Maatwebsite\Excel\Facades\Excel;
 use App\DataSourceCommon;
 

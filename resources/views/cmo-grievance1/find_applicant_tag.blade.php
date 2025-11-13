@@ -37,270 +37,190 @@
     box-shadow: 0 1px 1px rgb(0 0 0 / 10%);
   }
 
- .btnJb {
-  margin: 0 10px;
-}
+  .btnJb {
+    margin: 0 10px;
+  }
 
-.btn-group-wrapper {
-  display: flex;
-  justify-content: center;
-  flex-wrap: wrap;
-  margin-top: 10px;
-}
-
+  .btn-group-wrapper {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-top: 10px;
+  }
 </style>
-@extends('layouts.app-template-datatable_new')
+@extends('layouts.app-template-datatable')
 @section('content')
-  <div class="content-wrapper">
-    <section class="content-header">
-    <h1>
-      CMO Grievance ATR Details
-    </h1>
-    <ol class="breadcrumb">
-      <i class="fa fa-clock-o"></i> Date : <span style="font-size: 12px; font-weight: bold;"><span
-        class='date-part'></span>&nbsp;&nbsp;<span class='time-part'></span></span>
-    </ol>
-    </section>
-    <section class="content">
-    <div class="box box-default">
-      <div class="box-body">
-      @if (($message = Session::get('success')))
-      <div class="alert alert-success alert-block">
-      <button type="button" class="close" data-dismiss="alert">×</button>
-      <strong>{{ $message }} </strong>
+<section class="content-header">
+  <div class="d-flex justify-content-between align-items-center">
+    <h1>CMO Grievance ATR Details</h1>
+  </div>
+</section>
+
+<section class="content">
+  <div class="card card-outline card-default">
+    <div class="card-body">
+
+      {{-- ================== ALERT MESSAGES ================== --}}
+      @if ($message = Session::get('success'))
+      <div class="alert alert-success alert-dismissible fade show" role="alert">
+        <strong>{{ $message }}</strong>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
       </div>
-    @endif
-      @if (($message = Session::get('message')))
-      <div class="alert alert-danger alert-block">
-      <button type="button" class="close" data-dismiss="alert">×</button>
-      <strong>{{ $message }}</strong>
+      @endif
+      @if ($message = Session::get('message'))
+      <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        <strong>{{ $message }}</strong>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
       </div>
-    @endif
-      @if (($message = Session::get('msg1')))
-      <div class="alert alert-danger alert-block">
-      <button type="button" class="close" data-dismiss="alert">×</button>
-      <strong>{{ $message }}</strong>
+      @endif
+      @if ($message = Session::get('msg1'))
+      <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        <strong>{{ $message }}</strong>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
       </div>
-    @endif
+      @endif
+
+      {{-- ================== BACK BUTTON ================== --}}
       @if($mapLevel == 'Department')
       <a href="{{ url('cmo-grievance-hod1') }}">
-      <img width="50px;" style="pull-left" src="{{ asset("images/back.png") }}" alt="Back" /></a>
-    @endif
+        <img width="50px" src="{{ asset('images/back.png') }}" alt="Back" />
+      </a>
+      @endif
       @if($mapLevel == 'DistrictApprover')
       <a href="{{ url('cmo-grievance-workflow1') }}">
-      <img width="50px;" style="pull-left" src="{{ asset("images/back.png") }}" alt="Back" /></a>
-    @endif
+        <img width="50px" src="{{ asset('images/back.png') }}" alt="Back" />
+      </a>
+      @endif
+
       <div id="loadingDiv"></div>
-      <div class="panel panel-default">
-        <div class="panel-heading" style="font-size: 15px; font-weight: bold; font-style: italic; padding: 5px 15px;">
-        <span id="panel-icon">Grievance Details
-        </div>
-        <div class="panel-body" style="padding: 5px;">
-        <div class="row">
-          <div class="col-md-12">
 
+      {{-- ================== GRIEVANCE DETAILS ================== --}}
+      <div class="card card-outline card-primary mb-4">
+        <div class="card-header py-2">
+          <h5 class="card-title fw-bold fst-italic mb-0">Grievance Details</h5>
+        </div>
+        <div class="card-body p-3">
+          <div class="row mb-2">
+            <div class="col-md-3"><strong>Grievance ID:</strong> <span>{{ $grievance_id }}</span></div>
+            <div class="col-md-3"><strong>Grievance No:</strong> <span>{{ $atr_details->grievance_no }}</span></div>
+            <div class="col-md-3"><strong>Caller Name:</strong> <span>{{ $atr_details->applicant_name }}</span></div>
+          </div>
+
+          <div class="row mb-2">
+            <div class="col-md-3"><strong>Caller Mobile No:</strong> <span>{{ $atr_details->pri_cont_no }}</span></div>
+            <div class="col-md-3"><strong>Age:</strong> <span>{{ $atr_details->applicant_age }} years</span></div>
+          </div>
+
+          <div class="row mb-2">
+            <div class="col-md-12"><strong>Address:</strong> <span>{{ $atr_details->applicant_address }}</span></div>
+          </div>
           <div class="row">
-            <div class="col-md-12" style="margin-bottom: 10px;">
-            <div class="col-md-3">
-              <strong>Grievance ID : </strong>
-              <span style="font-size: 14px;">{{$grievance_id}}</span>
-            </div>
-            <div class="col-md-3">
-              <strong>Grievance No : </strong>
-              <span style="font-size: 14px;">{{$atr_details->grievance_no}}</span>
-            </div>
-            <div class="col-md-3">
-              <strong>Caller Name : </strong>
-              <span style="font-size: 14px;">{{$atr_details->applicant_name}}</span>
-            </div>
-
-
-            </div>
-            <div class="col-md-12" style="margin-bottom: 10px;">
-            <div class="col-md-3">
-              <strong>Caller Mobile No. : </strong>
-              <span style="font-size: 14px;">{{$atr_details->pri_cont_no}}</span>
-            </div>
-            <div class="col-md-3">
-              <strong>Age : </strong>
-              <span style="font-size: 14px;">{{$atr_details->applicant_age}} years</span>
-            </div>
-            </div>
-            <div class="col-md-12" style="margin-bottom: 10px;">
-            <div class="col-md-12">
-              <strong>Address : </strong>
-              <span style="font-size: 14px;">{{$atr_details->applicant_address}}</span>
-            </div>
-            </div>
-            <div class="col-md-12" style="margin-bottom: 10px;">
-            <div class="col-md-12">
-              <strong>Description : </strong>
-              <span style="font-size: 14px;">{{$atr_details->grievance_description}}</span>
-            </div>
-            </div>
+            <div class="col-md-12"><strong>Description:</strong> <span>{{ $atr_details->grievance_description }}</span></div>
           </div>
-          </div>
-        </div>
         </div>
       </div>
-      <div class="panel panel-default">
-        <div class="panel-heading" style="font-size: 15px; font-weight: bold; font-style: italic; padding: 5px 15px;">
-        <span id="panel-icon">ATR Type Details
-        </div>
-        <div class="panel-body" style="padding: 5px;">
-        <div class="row">
-          <div class="col-md-12">
 
+      {{-- ================== ATR TYPE DETAILS ================== --}}
+      <div class="card card-outline card-info mb-4">
+        <div class="card-header py-2">
+          <h5 class="card-title fw-bold fst-italic mb-0">ATR Type Details</h5>
+        </div>
+        <div class="card-body p-3">
           <div class="row">
-
-
-            <div class="col-md-12" style="margin-bottom: 10px;">
-            <div class="col-md-12">
-              <strong>ATR Type : </strong>
-              <span style="font-size: 14px;">{{$atr_details->atr_desc}}</span>
+            <div class="col-md-12 mb-2">
+              <strong>ATR Type:</strong> <span>{{ $atr_details->atr_desc }}</span>
             </div>
             <div class="col-md-12">
-              <strong>Remarks : </strong>
-              <span style="font-size: 14px;">{{trim($atr_details->remarks)}}</span>
-            </div>
+              <strong>Remarks:</strong> <span>{{ trim($atr_details->remarks) }}</span>
             </div>
           </div>
-          </div>
-        </div>
         </div>
       </div>
+
+      {{-- ================== APPLICANT DETAILS ================== --}}
       @if(!is_null($atr_details->lb_application_id))
-      <div class="panel panel-default">
-      <div class="panel-heading" style="font-size: 15px; font-weight: bold; font-style: italic; padding: 5px 15px;">
-      <span id="panel-icon">Applicant Details
-      </div>
-      <div class="panel-body" style="padding: 5px;">
-
-
-      <div class="col-md-12" style="margin-bottom: 10px;">
-        <div class="col-md-3">
-        <strong>Application Id : </strong>
-        <span style="font-size: 14px;">{{$ben_tag_details->application_id}}</span>
+      <div class="card card-outline card-secondary mb-4">
+        <div class="card-header py-2">
+          <h5 class="card-title fw-bold fst-italic mb-0">Applicant Details</h5>
         </div>
-        <div class="col-md-3">
-        <strong>Name : </strong>
-        <span style="font-size: 14px;">{{trim($ben_tag_details->ben_fname)}}</span>
-        </div>
-        <div class="col-md-3">
-        <strong>Mobile Number : </strong>
-        <span style="font-size: 14px;">{{$ben_tag_details->mobile_no}}</span>
-        </div>
+        <div class="card-body p-3">
+          <div class="row mb-2">
+            <div class="col-md-3"><strong>Application Id:</strong> <span>{{ $ben_tag_details->application_id }}</span></div>
+            <div class="col-md-3"><strong>Name:</strong> <span>{{ trim($ben_tag_details->ben_fname) }}</span></div>
+            <div class="col-md-3"><strong>Mobile Number:</strong> <span>{{ $ben_tag_details->mobile_no }}</span></div>
+          </div>
 
+          <div class="row mb-2">
+            <div class="col-md-3"><strong>Date of Birth:</strong> <span>{{ date('d/m/Y', strtotime($ben_tag_details->dob)) }}</span></div>
+            <div class="col-md-3"><strong>Father's Name:</strong>
+              <span>{{ trim($ben_tag_details->father_fname) }} {{ trim($ben_tag_details->father_mname) }} {{ trim($ben_tag_details->father_lname) }}</span>
+            </div>
+          </div>
 
-      </div>
-      <div class="col-md-12" style="margin-bottom: 10px;">
-        <div class="col-md-3">
-        <strong>Date of Birth : </strong>
-        <span style="font-size: 14px;">{{date('d/m/Y', strtotime($ben_tag_details->dob)) }}</span>
-        </div>
-        <div class="col-md-3">
-        <strong>Father's Name : </strong>
-        <span style="font-size: 14px;">{{trim($ben_tag_details->father_fname)}}
-        {{trim($ben_tag_details->father_mname)}} {{trim($ben_tag_details->father_lname)}}</span>
+          <div class="row mb-2">
+            <div class="col-md-3"><strong>Block/Municipality/Corp:</strong> <span>{{ trim($ben_contact_details->block_ulb_name) }}</span></div>
+            <div class="col-md-3"><strong>GP/Ward No:</strong> <span>{{ trim($ben_contact_details->gp_ward_name) }}</span></div>
+          </div>
+
+          <div class="row">
+            <div class="col-md-3"><strong>Bank Name:</strong> <span>{{ trim($ben_bank_details->bank_name) }}</span></div>
+            <div class="col-md-3"><strong>Bank Branch Name:</strong> <span>{{ trim($ben_bank_details->branch_name) }}</span></div>
+            <div class="col-md-3"><strong>Bank Account No:</strong> <span>{{ trim($ben_bank_details->bank_code) }}</span></div>
+            <div class="col-md-3"><strong>IFS Code:</strong> <span>{{ trim($ben_bank_details->bank_ifsc) }}</span></div>
+          </div>
         </div>
       </div>
+      @endif
 
-      <div class="col-md-12" style="margin-bottom: 10px;">
-
-        <div class="col-md-3">
-        <strong>Block/Municipality/Corp : </strong>
-        <span style="font-size: 14px;">{{trim($ben_contact_details->block_ulb_name)}}</span>
-        </div>
-        <div class="col-md-3">
-        <strong>GP/Ward No : </strong>
-        <span style="font-size: 14px;">{{trim($ben_contact_details->gp_ward_name)}}</span>
-        </div>
-      </div>
-
-
-      <div class="col-md-12" style="margin-bottom: 10px;">
-        <div class="col-md-3">
-        <strong>Bank Name : </strong>
-        <span style="font-size: 14px;">{{trim($ben_bank_details->bank_name)}}</span>
-        </div>
-        <div class="col-md-3">
-        <strong>Bank Branch Name : </strong>
-        <span style="font-size: 14px;">{{trim($ben_bank_details->branch_name)}}</span>
-        </div>
-        <div class="col-md-3">
-        <strong>Bank Account No : </strong>
-        <span style="font-size: 14px;">{{trim($ben_bank_details->bank_code)}}</span>
-        </div>
-        <div class="col-md-3">
-        <strong>IFS Code : </strong>
-        <span style="font-size: 14px;">{{trim($ben_bank_details->bank_ifsc)}}</span>
-        </div>
-
-      </div>
-
-
-      </div>
-      </div>
-    @endif
-
-      </div>
-
-
+      {{-- ================== APPROVAL / REVERT / PUSH BUTTONS ================== --}}
       @if($mapLevel == 'DistrictApprover')
- <div class="row text-center">
-  <div class="col-md-6 col-md-offset-3 mx-auto">
-    <div class="btn-group-wrapper">
-      <!-- Approve Form -->
-      <form method="post" action="{{ route('cmo_grivance_approve1') }}" id="grivance_approval_form" class="btnJb">
-        {{ csrf_field() }}
-        <input type="hidden" name="grivance_id" value="{{ $grievance_id }}">
-        <button type="button" class="btn btn-success" id="confirm_yes">Approve</button>
-        <button style="display:none;" type="button" id="submittingapprove" class="btn btn-info btn-lg" disabled>
-          Submitting please wait
-        </button>
-      </form>
+      <div class="row text-center">
+        <div class="col-md-6 mx-auto">
+          <div class="d-flex justify-content-center flex-wrap gap-3">
+            <!-- Approve Form -->
+            <form method="post" action="{{ route('cmo_grivance_approve1') }}" id="grivance_approval_form" class="d-inline">
+              @csrf
+              <input type="hidden" name="grivance_id" value="{{ $grievance_id }}">
+              <button type="button" class="btn btn-success" id="confirm_yes">Approve</button>
+              <button style="display:none;" type="button" id="submittingapprove" class="btn btn-info btn-lg" disabled>
+                Submitting please wait
+              </button>
+            </form>
 
-      <!-- Revert Form -->
-      <form method="post" action="{{ route('cmo_grivance_revert1') }}" id="grivance_approval_form_revert" class="btnJb">
-        {{ csrf_field() }}
-        <input type="hidden" name="grivance_id" value="{{ $grievance_id }}">
-        <button type="button" class="btn btn-danger" id="confirm_revert">Revert</button>
-        <button style="display:none;" type="button" id="submittingapprove_revert" class="btn btn-info btn-lg" disabled>
-          Submitting please wait
-        </button>
-      </form>
-    </div>
-  </div>
-</div>
-
-
-
-
-    @elseif($mapLevel == 'Department')
-      <div class="row">
-      <center>
-      <button type="button" class="btn btn-success" id="verifyReject">Push To CMO</button>
-      <button style="display:none;" type="button" id="submittingapprove" class="btn btn-info btn-lg" disabled>
-      Submitting please wait
-      </button>
-      </center>
-    @endif
-
+            <!-- Revert Form -->
+            <form method="post" action="{{ route('cmo_grivance_revert1') }}" id="grivance_approval_form_revert" class="d-inline">
+              @csrf
+              <input type="hidden" name="grivance_id" value="{{ $grievance_id }}">
+              <button type="button" class="btn btn-danger" id="confirm_revert">Revert</button>
+              <button style="display:none;" type="button" id="submittingapprove_revert" class="btn btn-info btn-lg" disabled>
+                Submitting please wait
+              </button>
+            </form>
+          </div>
+        </div>
       </div>
 
+      @elseif($mapLevel == 'Department')
+      <div class="row text-center">
+        <div class="col-md-12">
+          <button type="button" class="btn btn-success" id="verifyReject">Push To CMO</button>
+          <button style="display:none;" type="button" id="submittingapprove" class="btn btn-info btn-lg" disabled>
+            Submitting please wait
+          </button>
+        </div>
+      </div>
+      @endif
+
     </div>
-    </section>
   </div>
+</section>
 @endsection
-<script src="{{ asset("/bower_components/AdminLTE/plugins/jQuery/jquery-2.2.3.min.js") }}"></script>
+
+@push('scripts')
 <script src="{{ URL::asset('js/master-data-v2.js') }}"></script>
 <script>
-  $(document).ready(function () {
-    var interval = setInterval(function () {
-      var momentNow = moment();
-      $('.date-part').html(momentNow.format('DD-MMMM-YYYY'));
-      $('.time-part').html(momentNow.format('hh:mm:ss A'));
-    }, 100);
+  $(document).ready(function() {
+    ;
 
     // $('#search_level').hide();
     $('#loadingDiv').hide();
@@ -326,7 +246,7 @@
     var error_input_value = '';
 
 
-    $('#confirm_yes').on('click', function () {
+    $('#confirm_yes').on('click', function() {
       var y_no = confirm('Are You Sure?');
       if (y_no) {
         $("#confirm_yes").hide();
@@ -335,7 +255,7 @@
       }
     });
 
-    $('#confirm_revert').on('click', function () {
+    $('#confirm_revert').on('click', function() {
       var y_no = confirm('Are You Sure. You want to Revert?');
       if (y_no) {
         $("#confirm_revert").hide();
@@ -344,7 +264,7 @@
       }
     });
 
-    $(document).on('click', '#verifyReject', function () {
+    $(document).on('click', '#verifyReject', function() {
       var is_bulk = $('#is_bulk').val();
       var applicantId = $('#applicantId').val();
       var grivance_id = $('#grivance_id').val();
@@ -357,7 +277,7 @@
           icon: 'fa fa-warning',
           content: '<strong>Are you sure to proceed?</strong>',
           buttons: {
-            Ok: function () {
+            Ok: function() {
               $("#submitting").show();
               $("#verifyReject").hide();
               var id = $('#id').val();
@@ -367,11 +287,11 @@
                 url: "{{ url('cmo-grievance-hod-post1') }}",
                 data: {
                   is_bulk: 0,
-                  applicantId: {{ $grievance_id }},
-                  grivance_id: {{ $grievance_id }},
+                  applicantId: '{{ $grievance_id }}',
+                  grivance_id: '{{ $grievance_id }}',
                   _token: '{{ csrf_token() }}',
                 },
-                success: function (data) {
+                success: function(data) {
                   // console.log(data);
                   //   console.log(JSON.stringify(data));
                   // dataTable.ajax.reload();
@@ -386,16 +306,17 @@
                       icon: 'fa fa-check',
                       content: data.msg,
                       buttons: {
-                        Ok: function () {
+                        Ok: function() {
                           window.location.href = 'cmo-grievance-hod1';
                           $("#submitting").hide();
                           $("#verifyReject").show();
-                          $("html, body").animate({ scrollTop: 0 }, "slow");
+                          $("html, body").animate({
+                            scrollTop: 0
+                          }, "slow");
                         }
                       }
                     });
-                  }
-                  else {
+                  } else {
                     $("#submitting").hide();
                     $("#verifyReject").show();
                     $('.ben_view_modal').modal('hide');
@@ -408,14 +329,14 @@
                     });
                   }
                 },
-                error: function (jqXHR, textStatus, errorThrown) {
+                error: function(jqXHR, textStatus, errorThrown) {
                   $.confirm({
                     title: 'Error',
                     type: 'red',
                     icon: 'fa fa-warning',
                     content: 'Something went wrong in the approval!!',
                     buttons: {
-                      Ok: function () {
+                      Ok: function() {
                         // $("#verifyReject").show();
                         //  $("#submitting").hide();
                         location.reload();
@@ -425,7 +346,7 @@
                 }
               });
             },
-            Cancel: function () {
+            Cancel: function() {
 
             },
           }
@@ -435,5 +356,5 @@
 
 
   });
-
 </script>
+@endpush

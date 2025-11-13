@@ -271,11 +271,6 @@
 <script src="{{ URL::asset('js/master-data-v2.js') }}"></script>
 <script>
     $(document).ready(function() {
-        var interval = setInterval(function() {
-            var momentNow = moment();
-            $('.date-part').html(momentNow.format('DD-MMMM-YYYY'));
-            $('.time-part').html(momentNow.format('hh:mm:ss A'));
-        }, 100);
 
         // $('#search_level').hide();
         $('#loadingDiv').hide();
