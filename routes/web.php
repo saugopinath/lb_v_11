@@ -17,8 +17,10 @@ use App\Http\Controllers\{
     PensionformFaultyReportController,
     casteManagementController,
     TrackApplicantController,
-    MasterDataController
+    MasterDataController,
+    CmoGrivanceWorkflowController1
 };
+
 Route::get('refresh-captcha', [CaptchaController::class, 'refreshCaptcha'])->name('refresh-captcha');
 Route::controller(AuthenticationController::class)->group(function () {
     Route::get('/', 'login')->name('login');
@@ -40,13 +42,12 @@ Route::controller(PolicyController::class)->group(function () {
     Route::get('/privacy-policy', 'privacy')->name('privacy-policy');
     Route::get('/hyperlink-policy', 'hyperlink')->name('hyperlink-policy');
     Route::get('/terms-policy', 'terms_condition')->name('terms-policy');
-   // Route::get('/track-application', 'track_application_view')->name('track-application');
+    // Route::get('/track-application', 'track_application_view')->name('track-application');
 });
 Route::controller(TrackApplicantController::class)->group(function () {
     Route::get('/track-applicant', 'applicantTrack')->name('track-applicant');
     Route::get('ajaxApplicationTrack', 'ajaxApplicationTrack')->name('ajaxApplicationTrack');
     Route::get('getPaymentDetailsFinYearWiseInTrackApplication', 'getFinYearWisePaymentDetailsInTrackApplication')->name('getPaymentDetailsFinYearWiseInTrackApplication');
-
 });
 Route::controller(DashboardController::class)->group(function () {
     Route::get('dashboard', 'index')->middleware(['auth', 'verified'])->name('dashboard')->middleware('auth');
@@ -126,3 +127,49 @@ Route::controller(MasterDataController::class)->group(function () {
 
 
 
+
+
+
+
+// -----------------
+
+// ----------------
+
+
+
+
+
+
+
+Route::controller(CmoGrivanceWorkflowController1::class)->group(function () {
+    Route::get('cmo-grievance-workflow1', 'index')->name('cmo-grievance-workflow1');
+    Route::post('cmo-grievance-linelisting1', 'listing')->name('cmo-grievance-linelisting1');
+    Route::post('cmo-grievance-find1', 'find')->name('cmo-grievance-find1');
+    Route::post('cmo-grievance-redress1', 'redress')->name('cmo-grievance-redress1');
+    Route::post('cmo-grievance-transfar1', 'transfar')->name('cmo-grievance-transfar1');
+    Route::post('cmo-grievance-process-post1', 'processPost')->name('cmo-grievance-process-post1');
+    Route::post('cmo-grievance-benLising1', 'benlisting')->name('cmo-grievance-benLising1');
+    Route::post('cmo-sent-to-operator1', 'sendOperator')->name('cmo-sent-to-operator1');
+    Route::get('cmo-grievance-entry-list1', 'opListCmo')->name('cmo-grievance-entry-list1');
+    Route::get('cmo-op_entryList1', 'cmoEntryList')->name('cmo-op_entryList1');
+    Route::post('cmo-grievance-applicant-tag1', 'applicanttagdetails')->name('cmo-grievance-applicant-tag1');
+    Route::post('cmo_grivance_approve1', 'approve')->name('cmo_grivance_approve1');
+    Route::post('cmo_grivance_revert1', 'revert')->name('cmo_grivance_revert1');
+
+    // CMO HOD
+    Route::get('cmo-grievance-hod1', 'hodIndex')->name('cmo-grievance-hod1');
+    Route::post('cmo-grievance-hod-listing1', 'hodList')->name('cmo-grievance-hod-listing1');
+    Route::post('cmo-grievance-hod-view1', 'hodView')->name('cmo-grievance-hod-view1');
+    Route::post('cmo-grievance-hod-post1', 'sendBackToCmo')->name('cmo-grievance-hod-post1');
+    Route::post('cmo-grievance-hod-revert1', 'hodRevert')->name('cmo-grievance-hod-revert1');
+
+    // CMO MIS Report
+    Route::get('cmo-mis-report1', 'cmoMisReport')->name('cmo-mis-report1');
+    Route::post('get-mis-report1', 'getMisReport')->name('get-mis-report1');
+
+    // Map & Municipality related
+    Route::any('cmo-mapbosget', 'mapbosget')->name('cmo-mapbosget');
+    Route::any('cmo-getblksublist', 'getblksublist')->name('cmo-getblksublist');
+    Route::any('cmo-getMunicipalityList', 'getMunicipalityList')->name('cmo-getMunicipalityList');
+    Route::any('cmo-mapbospost', 'mapbospost')->name('cmo-mapbospost');
+});
