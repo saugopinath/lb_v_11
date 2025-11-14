@@ -39,7 +39,7 @@
 </style>
 @extends('layouts.app-template-datatable')
 @section('content')
-    <section class="content">
+<section class="content">
     <div class="card card-outline card-default">
         <div class="card-body">
             <div id="loadingDiv"></div>
@@ -56,22 +56,22 @@
                         <div class="col-md-12">
                             {{-- Success/Error Messages --}}
                             @if ($message = Session::get('success'))
-                                <div class="alert alert-success alert-dismissible fade show" role="alert">
-                                    <strong>{{ $message }}</strong>
-                                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                                </div>
+                            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                                <strong>{{ $message }}</strong>
+                                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                            </div>
                             @endif
                             @if ($message = Session::get('message'))
-                                <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                                    <strong>{{ $message }}</strong>
-                                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                                </div>
+                            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                                <strong>{{ $message }}</strong>
+                                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                            </div>
                             @endif
                             @if ($message = Session::get('msg1'))
-                                <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                                    <strong>{{ $message }}</strong>
-                                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                                </div>
+                            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                                <strong>{{ $message }}</strong>
+                                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                            </div>
                             @endif
 
                             {{-- Details Rows --}}
@@ -132,9 +132,9 @@
                             <select class="form-select" name="atr_type" id="atr_type" {{ isset($row->atr_type) ? 'disabled' : '' }}>
                                 <option value="">-----ATR Type----</option>
                                 @foreach ($atr as $atrs)
-                                    <option value="{{ $atrs->atn_id }}" {{ (isset($row) && $row->atr_type == $atrs->atn_id) ? 'selected' : '' }}>
-                                        {{ $atrs->atr_desc }}
-                                    </option>
+                                <option value="{{ $atrs->atn_id }}" {{ (isset($row) && $row->atr_type == $atrs->atn_id) ? 'selected' : '' }}>
+                                    {{ $atrs->atr_desc }}
+                                </option>
                                 @endforeach
                             </select>
                             <span class="text-danger" id="error_atr_type"></span>
@@ -145,7 +145,7 @@
                             <select class="form-select" name="district" id="district">
                                 <option value="">-----Select District----</option>
                                 @foreach ($districtList as $districtLists)
-                                    <option value="{{ $districtLists->district_code }}">{{ $districtLists->district_name }}</option>
+                                <option value="{{ $districtLists->district_code }}">{{ $districtLists->district_name }}</option>
                                 @endforeach
                             </select>
                             <span class="text-danger" id="error_district"></span>
@@ -156,7 +156,7 @@
                             <select class="form-select" name="urban_code" id="urban_code">
                                 <option value="">-----Select Rural/Urban----</option>
                                 @foreach (Config::get('constants.rural_urban') as $key=>$value)
-                                    <option value="{{ $key }}">{{ $value }}</option>
+                                <option value="{{ $key }}">{{ $value }}</option>
                                 @endforeach
                             </select>
                             <span class="text-danger" id="error_urban_code"></span>
@@ -175,17 +175,19 @@
                             <textarea class="form-control" id="remarks" name="remarks" rows="3"
                                 oninput="this.value = this.value.replace(/[^a-zA-Z0-9 ]/g, '')"
                                 {{ (isset($row) && $row->atr_type == '002') ? 'disabled' : '' }}>
-                                {{ isset($row->atr_type) && $row->atr_type == '002' ? $row->remarks : '' }}
+                            {{ isset($row->atr_type) && $row->atr_type == '002' ? $row->remarks : '' }}
                             </textarea>
                             <span class="text-danger" id="error_remarks"></span>
                             @if (isset($row->atr_type) && $row->atr_type == '002')
-                                <input type="hidden" name="remarks" value="{{ $row->remarks }}">
+                            <input type="hidden" name="remarks" value="{{ $row->remarks }}">
                             @endif
                         </div>
 
                         <input type="hidden" name="grievance_id" id="grievance_id" value="{{ $grievance_id }}">
                         <input type="hidden" name="grievance_mobile_no" id="grievance_mobile_no" value="{{ $grievance_mobile_no }}">
-
+                        <input type="hidden" name="grievance_mobile_no" id="grievance_mobile_no" value="{{ $grievance_mobile_no }}">
+                        <input type="hidden" name="grievance_id" id="grievance_id" value={{$grievance_id}}>
+                        <input type="hidden" name="grievance_mobile" id="grievance_mobile" value={{$grievance_mobile_no}}>
                         <div class="text-center mt-3">
                             <button class="btn btn-info" name="map_applicant" id="map_applicant" type="button">
                                 <i class="fas fa-map-marker-alt me-1"></i> Map Applicant
@@ -211,7 +213,7 @@
                 <div class="card-body p-3">
                     <div class="text-center mb-3">
                         <label class="fw-semibold d-block mb-2">Please select which one do you want to Search?</label>
-                        <div class="d-inline-flex flex-wrap gap-3 justify-content-center">
+                        <div class="d-inline-flex flex-wrap gap-4 justify-content-center">
                             <label class="form-check-label"><input class="form-check-input process_type_radio" type="radio" name="process_type" value="1"> Application ID</label>
                             <label class="form-check-label"><input class="form-check-input process_type_radio" type="radio" name="process_type" value="5"> Beneficiary Name</label>
                             <label class="form-check-label"><input class="form-check-input process_type_radio" type="radio" name="process_type" value="2"> Mobile Number</label>
@@ -222,7 +224,7 @@
 
                     <div class="text-center mb-3" id="search_level">
                         <label id="input_label" class="fw-semibold"></label>
-                        <input class="form-control d-inline-block w-auto text-center bg-light border-secondary" value="" name="input_value" id="input_value" style="font-size:16px;">
+                        <input class="form-control d-inline-block w-auto bg-light border-secondary" value="" name="input_value" id="input_value" style="font-size:16px;">
                         <span id="error_input_value" class="text-danger ms-2"></span>
                         <button class="btn btn-info btn-sm ms-2" id="search_btn" type="button">
                             <i class="fas fa-search"></i> Search
@@ -263,7 +265,7 @@
                 </div>
             </div>
         </div>
-    </div> 
+    </div>
 </section>
 
 @endsection
@@ -354,107 +356,142 @@
             $("#input_label").text(label_text);
         });
 
+        // Map backend type/icon to SweetAlert2 compatible icon
+        function mapIcon(type) {
+            switch (type) {
+                case 'red':
+                case 'fa fa-warning':
+                    return 'warning';
+                case 'green':
+                    return 'success';
+                case 'blue':
+                    return 'info';
+                case 'error':
+                    return 'error';
+                default:
+                    return 'info';
+            }
+        }
+
         $(document).on('click', '#redress', function() {
-            if ($.trim($('#atr_type').val()).length == 0) {
+            let error_atr_type = '';
+            let error_remarks = '';
+
+            // Validation
+            if ($.trim($('#atr_type').val()) === '') {
                 error_atr_type = 'ATR Type is required';
                 $('#error_atr_type').text(error_atr_type);
                 $('#atr_type').addClass('has-error');
             } else {
-                error_atr_type = '';
-                $('#error_atr_type').text(error_atr_type);
+                $('#error_atr_type').text('');
                 $('#atr_type').removeClass('has-error');
             }
-            if ($.trim($('#remarks').val()).length == 0) {
+
+            if ($.trim($('#remarks').val()) === '') {
                 error_remarks = 'Remarks is required';
                 $('#error_remarks').text(error_remarks);
                 $('#remarks').addClass('has-error');
             } else {
-                error_remarks = '';
-                $('#error_remarks').text(error_remarks);
+                $('#error_remarks').text('');
                 $('#remarks').removeClass('has-error');
             }
 
-            if (error_atr_type != '' || error_remarks != '') {
-                return false;
-            } else {
-                $.confirm({
-                    title: 'Confirm!',
-                    type: 'red',
-                    icon: 'fa fa-warning',
-                    content: '<strong>Are you want to redressed the grievance?</strong>',
-                    buttons: {
-                        confirm: function() {
-                            $('#loadingDiv').show();
-                            $.ajax({
-                                type: 'post',
-                                url: "{{ route('cmo-grievance-redress1') }}",
-                                data: {
-                                    grievance_mobile_no: $('#grievance_mobile').val(),
-                                    grievance_id: $('#grievance_id').val(),
-                                    atr_type: $('#atr_type').val(),
-                                    remarks: $('#remarks').val(),
-                                    _token: '{{ csrf_token() }}'
-                                },
-                                success: function(response) {
-                                    $('.loadingDivModal').hide();
-                                    if (response.status == 1) {
-                                        $('#modalUpdateatr').modal('hide');
-                                        $('#res_div').hide();
-                                        $("html, body").animate({
-                                            scrollTop: 0
-                                        }, "slow");
-                                        $.confirm({
-                                            title: response.title,
-                                            type: response.type,
-                                            icon: response.icon,
-                                            content: response.msg,
-                                            buttons: {
-                                                Confirm: {
-                                                    text: 'Ok',
-                                                    btnClass: 'btn-green',
-                                                    keys: ['enter', 'shift'],
-                                                    action: function() {
-                                                        window.location.href = "cmo-grievance-workflow1";
-                                                    }
-                                                },
-                                                // cancel: function() {}
-                                            }
-                                        });
+            if (error_atr_type || error_remarks) return false;
 
-
-                                    } else {
-                                        var html = '';
-                                        html += '<ul>';
-                                        if (Array.isArray(response.msg)) {
-                                            $.each(response.msg, function(key, value) {
-                                                html += '<li>' + value + '</li>';
-                                            });
-                                        } else {
-                                            html = '<li>' + response.msg + '</li>';
-                                        }
-                                        html += '<ul>';
-                                        $.alert({
-                                            title: response.title,
-                                            type: response.type,
-                                            icon: response.icon,
-                                            content: html
-                                        });
-                                    }
-                                },
-                                complete: function() {},
-                                error: function(jqXHR, textStatus, errorThrown) {
-                                    $('#loadingDiv').hide();
-                                    ajax_error(jqXHR, textStatus, errorThrown);
-                                }
-                            });
+            // Confirmation
+            Swal.fire({
+                title: 'Warning!',
+                text: 'Are you sure you want to redress the grievance?',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Yes, redress it!'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $('#loadingDiv').show();
+                    $.ajax({
+                        type: 'post',
+                        url: "{{ route('cmo-grievance-redress1') }}",
+                        data: {
+                            grievance_mobile_no: $('#grievance_mobile').val(),
+                            grievance_id: $('#grievance_id').val(),
+                            atr_type: $('#atr_type').val(),
+                            remarks: $('#remarks').val(),
+                            _token: '{{ csrf_token() }}'
                         },
-                        cancel: function() {}
-                    }
-                });
-            }
+                        success: function(response) {
+                            $('#loadingDiv').hide();
+
+                            // Map icon
+                            const swalIcon = mapIcon(response.type);
+
+                            if (response.status == 1) {
+                                $('#modalUpdateatr').modal('hide');
+                                $('#res_div').hide();
+                                $("html, body").animate({
+                                    scrollTop: 0
+                                }, "slow");
+
+                                Swal.fire({
+                                    title: response.title || 'Success',
+                                    text: response.msg || 'Redress successful!',
+                                    icon: swalIcon,
+                                    confirmButtonText: 'Ok',
+                                    allowOutsideClick: false
+                                }).then(() => {
+                                    window.location.href = "cmo-grievance-workflow1";
+                                });
+
+                            } else {
+                                // Display errors (single or multiple)
+                                let html = '';
+                                if (Array.isArray(response.msg)) {
+                                    html = '<ul style="text-align: left;">';
+                                    $.each(response.msg, function(_, value) {
+                                        html += '<li>' + value + '</li>';
+                                    });
+                                    html += '</ul>';
+                                } else {
+                                    html = response.msg || 'Something went wrong!';
+                                }
+
+                                Swal.fire({
+                                    title: response.title || 'Warning!',
+                                    html: html,
+                                    icon: swalIcon,
+                                    confirmButtonText: 'Ok'
+                                });
+                            }
+                        },
+                        error: function(jqXHR, textStatus, errorThrown) {
+                            $('#loadingDiv').hide();
+
+                            // Get detailed exception info if available
+                            let message = 'Something went wrong during the request.';
+                            if (jqXHR.responseJSON && jqXHR.responseJSON.msg) {
+                                message = jqXHR.responseJSON.msg;
+                            } else if (jqXHR.responseText) {
+                                message = jqXHR.responseText;
+                            }
+
+                            Swal.fire({
+                                title: 'Exception!',
+                                html: '<pre style="text-align:left;">' + message + '</pre>',
+                                icon: 'error',
+                                confirmButtonText: 'Ok'
+                            });
+
+                            console.error('AJAX Exception:', textStatus, errorThrown, jqXHR);
+                        }
+                    });
+                }
+            });
         });
 
+
         $(document).on('click', '#send_another_block', function() {
+            // Validation
             if ($.trim($('#atr_type').val()).length == 0) {
                 error_atr_type = 'ATR Type is required';
                 $('#error_atr_type').text(error_atr_type);
@@ -464,6 +501,7 @@
                 $('#error_atr_type').text(error_atr_type);
                 $('#atr_type').removeClass('has-error');
             }
+
             if ($.trim($('#district').val()).length == 0) {
                 error_district = 'District is required';
                 $('#error_district').text(error_district);
@@ -471,6 +509,7 @@
                 error_district = '';
                 $('#error_district').text(error_district);
             }
+
             if ($.trim($('#urban_code').val()).length == 0) {
                 error_urban_code = 'Rural/Urban is required';
                 $('#error_urban_code').text(error_urban_code);
@@ -478,6 +517,7 @@
                 error_urban_code = '';
                 $('#error_urban_code').text(error_urban_code);
             }
+
             if ($.trim($('#block').val()).length == 0) {
                 error_block = 'Block/Subdiv is required';
                 $('#error_block').text(error_block);
@@ -485,6 +525,7 @@
                 error_block = '';
                 $('#error_block').text(error_block);
             }
+
             if ($.trim($('#remarks').val()).length == 0) {
                 error_remarks = 'Remarks is required';
                 $('#error_remarks').text(error_remarks);
@@ -494,89 +535,82 @@
                 $('#error_remarks').text(error_remarks);
                 $('#remarks').removeClass('has-error');
             }
+
             if (error_atr_type != '' || error_district != '' || error_urban_code != '' || error_block != '' || error_remarks != '') {
                 return false;
             } else {
                 var block_subdiv_text = $('#block option:selected').text();
-                $.confirm({
+
+                Swal.fire({
                     title: 'Confirm!',
-                    type: 'orange',
-                    icon: 'fa fa-warning',
-                    content: '<strong>Are you want to send the grievance to block/Subdivision: ' + block_subdiv_text + '?</strong>',
-                    buttons: {
-                        confirm: function() {
-                            $('#loadingDiv').show();
-                            $.ajax({
-                                type: 'post',
-                                url: "{{ route('cmo-grievance-transfar1') }}",
-                                data: {
-                                    grievance_mobile_no: $('#grievance_mobile').val(),
-                                    grievance_id: $('#grievance_id').val(),
-                                    atr_type: $('#atr_type').val(),
-                                    remarks: $('#remarks').val(),
-                                    district: $('#district').val(),
-                                    rural_urban: $('#urban_code').val(),
-                                    block: $('#block').val(),
-                                    _token: '{{ csrf_token() }}'
-                                },
-                                success: function(response) {
-                                    $('.loadingDivModal').hide();
-                                    if (response.status == 1) {
-                                        $('#modalUpdateatr').modal('hide');
-                                        $('#res_div').hide();
-                                        $("html, body").animate({
-                                            scrollTop: 0
-                                        }, "slow");
-                                        $.confirm({
-                                            title: response.title,
-                                            type: response.type,
-                                            icon: response.icon,
-                                            content: response.msg,
-                                            buttons: {
-                                                Confirm: {
-                                                    text: 'Ok',
-                                                    btnClass: 'btn-green',
-                                                    keys: ['enter', 'shift'],
-                                                    action: function() {
-                                                        window.location.href = "cmo-grievance-workflow1";
-                                                    }
-                                                },
-                                                // cancel: function() {}
-                                            }
+                    text: `Are you sure you want to send the grievance to block/Subdivision: ${block_subdiv_text}?`,
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonText: 'Yes, Send!',
+                    cancelButtonText: 'Cancel'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        $('#loadingDiv').show();
+                        $.ajax({
+                            type: 'post',
+                            url: "{{ route('cmo-grievance-transfar1') }}",
+                            data: {
+                                grievance_mobile_no: $('#grievance_mobile').val(),
+                                grievance_id: $('#grievance_id').val(),
+                                atr_type: $('#atr_type').val(),
+                                remarks: $('#remarks').val(),
+                                district: $('#district').val(),
+                                rural_urban: $('#urban_code').val(),
+                                block: $('#block').val(),
+                                _token: '{{ csrf_token() }}'
+                            },
+                            success: function(response) {
+                                const swalIcon = mapIcon(response.type);
+                                $('.loadingDivModal').hide();
+                                if (response.status == 1) {
+                                    $('#modalUpdateatr').modal('hide');
+                                    $('#res_div').hide();
+                                    $("html, body").animate({
+                                        scrollTop: 0
+                                    }, "slow");
+
+                                    Swal.fire({
+                                        title: response.title,
+                                        text: response.msg,
+                                        icon: swalIcon,
+                                        confirmButtonText: 'Ok'
+                                    }).then(() => {
+                                        window.location.href = "cmo-grievance-workflow1";
+                                    });
+
+                                } else {
+                                    var html = '<ul>';
+                                    if (Array.isArray(response.msg)) {
+                                        $.each(response.msg, function(key, value) {
+                                            html += '<li>' + value + '</li>';
                                         });
-
-
                                     } else {
-                                        var html = '';
-                                        html += '<ul>';
-                                        if (Array.isArray(response.msg)) {
-                                            $.each(response.msg, function(key, value) {
-                                                html += '<li>' + value + '</li>';
-                                            });
-                                        } else {
-                                            html = '<li>' + response.msg + '</li>';
-                                        }
-                                        html += '<ul>';
-                                        $.alert({
-                                            title: response.title,
-                                            type: response.type,
-                                            icon: response.icon,
-                                            content: html
-                                        });
+                                        html += '<li>' + response.msg + '</li>';
                                     }
-                                },
-                                complete: function() {},
-                                error: function(jqXHR, textStatus, errorThrown) {
-                                    $('#loadingDiv').hide();
-                                    ajax_error(jqXHR, textStatus, errorThrown);
+                                    html += '</ul>';
+
+                                    Swal.fire({
+                                        title: response.title,
+                                        html: html,
+                                        icon: swalIcon
+                                    });
                                 }
-                            });
-                        },
-                        cancel: function() {}
+                            },
+                            error: function(jqXHR, textStatus, errorThrown) {
+                                $('#loadingDiv').hide();
+                                ajax_error(jqXHR, textStatus, errorThrown);
+                            }
+                        });
                     }
                 });
             }
         });
+
 
 
         $(document).on('click', '.process_applicant', function() {
@@ -702,72 +736,67 @@
         });
 
         $(document).on('click', '#send_to_operator', function() {
-            $.confirm({
+            Swal.fire({
                 title: 'Confirm!',
-                type: 'orange',
-                icon: 'fa fa-warning',
-                content: '<strong>Are you want to send grievance details to the Operator end?</strong>',
-                buttons: {
-                    confirm: function() {
-                        $('#loadingDiv').show();
-                        $.ajax({
-                            type: 'post',
-                            url: "{{ route('cmo-sent-to-operator1') }}",
-                            data: {
-                                scheme_id: $('#scheme_id').val(),
-                                grievance_mobile_no: $('#grievance_mobile').val(),
-                                grievance_id: $('#grievance_id').val(),
-                                atr_type: $('#atr_type').val(),
-                                remarks: $('#remarks').val(),
-                                _token: '{{ csrf_token() }}'
-                            },
-                            success: function(response) {
-                                $('#loadingDiv').hide();
-                                // console.log(response);
-                                if (response.status == 1) {
-                                    $.confirm({
-                                        title: response.title,
-                                        type: response.type,
-                                        icon: response.icon,
-                                        content: response.msg,
-                                        buttons: {
-                                            Confirm: {
-                                                text: 'Ok',
-                                                btnClass: 'btn-green',
-                                                keys: ['enter', 'shift'],
-                                                action: function() {
-                                                    window.location.href = "cmo-grievance-workflow1?scheme_id=" + $('#scheme_id').val() + "&type=1";
-                                                }
-                                            },
-                                            // cancel: function() {}
-                                        }
-                                    });
-                                    $('#res_div').hide();
-                                    $('#select_type').val('').trigger('change');
-                                    $('#scheme_type').val('').trigger('change');
-                                    $("html, body").animate({
-                                        scrollTop: 0
-                                    }, "slow");
-                                } else {
-                                    $.alert({
-                                        title: response.title,
-                                        type: response.type,
-                                        icon: response.icon,
-                                        content: response.msg
-                                    });
-                                }
-                            },
-                            complete: function() {},
-                            error: function(jqXHR, textStatus, errorThrown) {
-                                $('#loadingDiv').hide();
-                                ajax_error(jqXHR, textStatus, errorThrown);
+                text: 'Are you sure you want to send grievance details to the Operator end?',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Yes, Send!',
+                cancelButtonText: 'Cancel'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $('#loadingDiv').show();
+                    $.ajax({
+                        type: 'post',
+                        url: "{{ route('cmo-sent-to-operator1') }}",
+                        data: {
+                            scheme_id: $('#scheme_id').val(),
+                            grievance_mobile_no: $('#grievance_mobile').val(),
+                            grievance_id: $('#grievance_id').val(),
+                            atr_type: $('#atr_type').val(),
+                            remarks: $('#remarks').val(),
+                            _token: '{{ csrf_token() }}'
+                        },
+                        success: function(response) {
+                            const swalIcon = mapIcon(response.type);
+                            $('#loadingDiv').hide();
+
+                            if (response.status == 1) {
+                                Swal.fire({
+                                    title: response.title,
+                                    text: response.msg,
+                                    icon: swalIcon,
+                                    confirmButtonText: 'Ok',
+                                    customClass: {
+                                        confirmButton: 'btn btn-success' // optional, similar to btn-green
+                                    }
+                                }).then(() => {
+                                    window.location.href = "cmo-grievance-workflow1?scheme_id=" + $('#scheme_id').val() + "&type=1";
+                                });
+
+                                $('#res_div').hide();
+                                $('#select_type').val('').trigger('change');
+                                $('#scheme_type').val('').trigger('change');
+                                $("html, body").animate({
+                                    scrollTop: 0
+                                }, "slow");
+                            } else {
+                                Swal.fire({
+                                    title: response.title,
+                                    html: response.msg,
+                                    icon: swalIcon
+                                });
                             }
-                        });
-                    },
-                    cancel: function() {}
+                        },
+                        error: function(jqXHR, textStatus, errorThrown) {
+                            $('#loadingDiv').hide();
+                            ajax_error(jqXHR, textStatus, errorThrown);
+                        }
+                    });
                 }
             });
         });
+
         if ($('#atr_type').val() == '002') {
             $('#map_applicant').show();
         } else {

@@ -381,12 +381,14 @@ class CmoGrivanceWorkflowController1 extends Controller
                 $updateDetails['redressed_date'] = date('Y-m-d H:i:s');
                 $updateDetails['remarks'] = $remarks;
                 // dd($updateDetails);
+                // dd($grievance_id, $grievance_mobile_no);
                 $is_update = DB::table('cmo.cmo_sm_data')
                     ->where('grievance_id', $grievance_id)
                     ->where('pri_cont_no', $grievance_mobile_no)
                     ->where('is_processed', 0)
                     ->where('is_redressed', 0)
                     ->update($updateDetails);
+                    // dd($is_update);
                 if ($is_update) {
                     DB::commit();
                     $response = [
