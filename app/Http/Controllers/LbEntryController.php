@@ -2397,11 +2397,7 @@ class LbEntryController extends Controller
             }
             DB::commit();
         } catch (\Exception $e) {
-            if($id==136477130){
-                 dd($e);
-
-            }
-            //dd($e);
+           
             $return_status = 0;
             $return_msg = $errormsg['roolback'];
             //$return_msg = $e;

@@ -69,7 +69,7 @@ Route::controller(LbEntryController::class)->group(function () {
     Route::post('ajax_check_dup_aadhar', 'checkDupaadhaar');
     Route::get('getAge', 'ajaxgetage');
     Route::post('ajax_aadhar_entry_wtSws', 'aadharEntry');
-    Route::get('ajax_personal_entry_wtSws', 'personalEntry');
+    Route::post('ajax_personal_entry_wtSws', 'personalEntry');
     Route::post('ajax_contact_entry_wtSws', 'contactEntry');
     Route::post('ajax_bank_entry_wtSws', 'bankEntry');
     Route::post('ajax_encloser_entry_wtSws', 'encloserEntry');

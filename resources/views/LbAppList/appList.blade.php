@@ -413,7 +413,7 @@ function initializeDataTable() {
         "ajax": {
         
           "url": "{{ URL('lb-applicant-list/'.$list_type )}}",
-          "type": "GET",
+          "type": "POST",
           "data": function(d) {
             d.ds_phase = $("#ds_phase").val();
             d.rural_urbanid = $("#rural_urbanid").val();
@@ -425,7 +425,7 @@ function initializeDataTable() {
             console.error("DataTables AJAX error:", thrown);
             if (xhr.status === 401 || xhr.status === 419) {
               alert(sessiontimeoutmessage);
-              // window.location.href = base_url;
+               window.location.href = base_url;
             } else {
               alert("An error occurred while loading data: " + thrown);
             }

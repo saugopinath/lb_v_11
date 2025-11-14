@@ -1566,7 +1566,7 @@
           "application_id": $("#commonfield #application_id").val()
         }) + "&" + $("#personal_form").serialize();
         $.ajax({
-          type: 'get',
+          type: 'post',
           url: '{{ url("ajax_personal_entry_wtSws") }}',
           dataType: 'json',
           data: data,
