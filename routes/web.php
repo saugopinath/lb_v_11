@@ -19,7 +19,8 @@ use App\Http\Controllers\{
     TrackApplicantController,
     MasterDataController,
     DeactivatedBeneficiaryController,
-    StopBeneficiaryController
+    StopBeneficiaryController,
+    CmoGrivanceWorkflowController1
 };
 Route::get('refresh-captcha', [CaptchaController::class, 'refreshCaptcha'])->name('refresh-captcha');
 Route::controller(AuthenticationController::class)->group(function () {
@@ -144,6 +145,13 @@ Route::controller(BeneficiaryCommonController::class)->group(function () {
   Route::post('getBankApproved', 'getBankApproved')->name('getBankApproved');
   Route::post('getInvestigatorApproved', 'getInvestigatorApproved')->name('getInvestigatorApproved');
 });
+
+Route::controller(CmoGrivanceWorkflowController1::class)->group(function () {
+   Route::get('cmo-grievance-entry-list1', 'opListCmo')->name('cmo-grievance-entry-list1');
+   Route::get('cmo-op_entryList1', 'cmoEntryList')->name('cmo-op_entryList1');
+});
+
+
 
 
 
