@@ -103,7 +103,17 @@ return [
             'prefix' => '',
             'schema' => 'lb_scheme',
         ],
-
+        'pgsql_master' => [
+            'driver' => 'pgsql',
+            'host' => '127.0.0.1',
+            'port' => '5432',
+            'database' => 'lb_payment_db_v11',
+            'username' => 'postgres',
+            'password' => 'root',
+            'charset' => 'utf8',
+            'prefix' => '',
+            'schema' => 'master_mgmt'
+        ],
         'pgsql_mis' => [
             'driver' => 'pgsql',
             'url' => env('DB_URL'),

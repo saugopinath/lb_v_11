@@ -23,6 +23,7 @@ use App\Http\Controllers\{
     DeactivatedBeneficiaryController,
     DsMisReportController,
     FinancialAssistancePaybleController,
+    LotReportController,
 };
 
 Route::get('refresh-captcha', [CaptchaController::class, 'refreshCaptcha'])->name('refresh-captcha');
@@ -171,21 +172,36 @@ Route::controller(DsMisReportController::class)->group(function () {
 
 // Financial Assistance Payble As On current Date
 
-// Month wise payment report
-Route::get('monthwise-payment-report', 'LotReportController@getMonthWisePayReport')->name('monthwise-payment-report');
-Route::post('totalMonthwisePaymentReport', 'LotReportController@totalMonthwisePaymentReport')->name('totalMonthwisePaymentReport');
+Route::controller(LotReportController::class)->group(function () {
+    // Month wise payment report
+    Route::get('monthwise-payment-report', 'getMonthWisePayReport')->name('monthwise-payment-report');
+    Route::post('totalMonthwisePaymentReport', 'totalMonthwisePaymentReport')->name('totalMonthwisePaymentReport');
+    // Route::get('financial-assistance-payable', 'lotGeneratedPendingIndex')->name('financial-assistance-payable');
+    // Route::post('lotGeneratedPendingAmountReport', 'lotGeneratedPendingAmountReport')->name('lotGeneratedPendingAmountReport');
+    Route::post('paymentlotGeneratedPendingAmountReport', 'paymentlotGeneratedPendingAmountReport')->name('paymentlotGeneratedPendingAmountReport');
+    // Route::get('select-financial-year-payment-assistance', 'selectFinancialYearForPaymentAssistance')->name('select-financial-year-payment-assistance');
+    Route::get('previous-financial-assistance-payable', 'previousFinancialAssistancePayable')->name('previous-financial-assistance-payable');
+    Route::post('getPreviousFinancialAssistancePayable', 'getPreviousFinancialAssistancePayable')->name('getPreviousFinancialAssistancePayable');
 
-// Financial Assistance Payble As On current Date
-Route::get('select-financial-year-payment-assistance', 'FinancialAssistancePaybleController@selectFinancialYearForPaymentAssistance')->name('select-financial-year-payment-assistance');
-Route::get('financial-assistance-payable', 'FinancialAssistancePaybleController@lotGeneratedPendingIndex')->name('financial-assistance-payable');
-Route::post('lotGeneratedPendingAmountReport', 'FinancialAssistancePaybleController@lotGeneratedPendingAmountReport')->name('lotGeneratedPendingAmountReport');
-// Route::get('financial-assistance-payable', 'LotReportController@lotGeneratedPendingIndex')->name('financial-assistance-payable');
-// Route::post('lotGeneratedPendingAmountReport', 'LotReportController@lotGeneratedPendingAmountReport')->name('lotGeneratedPendingAmountReport');
-Route::post('paymentlotGeneratedPendingAmountReport', 'LotReportController@paymentlotGeneratedPendingAmountReport')->name('paymentlotGeneratedPendingAmountReport');
-// Route::get('select-financial-year-payment-assistance', 'LotReportController@selectFinancialYearForPaymentAssistance')->name('select-financial-year-payment-assistance');
-Route::get('previous-financial-assistance-payable', 'LotReportController@previousFinancialAssistancePayable')->name('previous-financial-assistance-payable');
-Route::post('getPreviousFinancialAssistancePayable', 'LotReportController@getPreviousFinancialAssistancePayable')->name('getPreviousFinancialAssistancePayable');
+    // Monthly Disbursement Report Based on the Lot Pushed date to the Bank
+    Route::get('monthly-disbursement', 'monthlyDisbursementIndex')->name('monthly-disbursement');
+    Route::post('monthly-disbursement-report', 'monthlyDisbursement')->name('monthly-disbursement-report');
 
-// Monthly Disbursement Report Based on the Lot Pushed date to the Bank
-Route::get('monthly-disbursement', 'LotReportController@monthlyDisbursementIndex')->name('monthly-disbursement');
-Route::post('monthly-disbursement-report', 'LotReportController@monthlyDisbursement')->name('monthly-disbursement-report');
+    //HOD Report
+    Route::any('report-validation-lot', 'reportValidationLot')->name('report-validation-lot');
+    Route::any('report-payment-lot', 'reportPaymentLot')->name('report-payment-lot');
+    Route::any('report-name-mismatch-validation-list', 'getNameMismatchValidationList')->name('getNameMismatchValidationList');
+    Route::post('getNameMismatchExcelList', 'getNameMismatchExcelList')->name('getNameMismatchExcelList');
+    Route::any('datewise-lot-report', 'reportDatewiseLot')->name('reportDatewiseLot');
+
+    // Legacy Validation Report
+    Route::get('legacy-validation-report', 'legacyValidationReport')->name('legacy-validation-report');
+    Route::post('legacyValidationLotReport', 'legacyValidationLotReport')->name('legacyValidationLotReport');
+});
+
+Route::controller(FinancialAssistancePaybleController::class)->group(function () {
+    // Financial Assistance Payble As On current Date
+    Route::get('select-financial-year-payment-assistance', 'selectFinancialYearForPaymentAssistance')->name('select-financial-year-payment-assistance');
+    Route::get('financial-assistance-payable', 'lotGeneratedPendingIndex')->name('financial-assistance-payable');
+    Route::post('lotGeneratedPendingAmountReport', 'lotGeneratedPendingAmountReport')->name('lotGeneratedPendingAmountReport');
+});

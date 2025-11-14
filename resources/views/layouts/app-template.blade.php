@@ -66,7 +66,7 @@
 
     <!-- STACK 4: Page-Specific Scripts (js from page-level templates) -->
     @stack('scripts')
-    
+
     <script>
         $(document).ready(function() {
             function updateDateTime() {
