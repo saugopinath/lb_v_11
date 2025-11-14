@@ -374,7 +374,7 @@ $('#reset').click(function(){
         "ajax": 
         {
 			url: "{{ url('lb-caste-application-list') }}",
-			type: "POST",
+			type: "GET",
         data:function(d){
           d.ds_phase =$('#ds_phase').val(),
           d.district_code= "{{ $district_code }}",
@@ -387,7 +387,7 @@ $('#reset').click(function(){
 			  },
         error: function (ex) { 
                   alert(sessiontimeoutmessage);
-                  window.location.href=base_url;  
+                 // window.location.href=base_url;  
                  //console.log(ex);
       }
 		  } ,

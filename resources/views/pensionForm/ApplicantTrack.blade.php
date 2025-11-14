@@ -282,7 +282,6 @@
                         <select class="form-control" name="select_type" id="select_type">
                           <option value="">--Select--</option>
                           <option value="1">Application Id</option>
-                          <option value="2">Beneficiary Id</option>
                           <option value="3">Mobile Number</option>
                           <option value="4">Aadhar Card Number</option>
                           <option value="5">Bank Account Number</option>
@@ -315,65 +314,21 @@
           </div>
         </div>
       </form>
-
+       <div class="alert alert-danger" role="alert" id="error_msg_div" style="display:none;"></div>
       <div class="status-section">
-        <div class="card shadow-sm mb-4 card-outline card-primary">
+        <div class="card shadow-sm mb-4 card-outline card-primary" id="ajaxData" style="display:none;">
           <div class="card-header card-header-custom border-0">
-            <h5 class="card-title mb-0">Application Status</h5>
+            <h5 class="card-title mb-0 text-primary fw-bold">Application Status(Name - <span id="span_ben_name"></span> , Beneficiary Id- <span class="span_ben_id"></span> , Application Id -<span id="span_app_id"></span> )</h5>
           </div>
           <div class="card-body p-0">
             <div class="timeline-wrap">
               <div class="timeline-scroller">
                 <div class="timeline" id="timeline">
                   <!-- cards -->
-                  <div class="tl-card">
-                    <div class="tl-date">25-08-2021 03:15:46</div>
-                    <div class="tl-text">
-                      Application Temporary Saved by DASPUR-II Block Development Officer (Operator: ******2688).
-                    </div>
-                    <div class="tick">
-                      <svg width="40" height="40" viewBox="0 0 48 48">
-                        <circle cx="24" cy="24" r="20" fill="#ffffff" stroke="#3aa0d2" stroke-width="4" />
-                        <path d="M14 25.5l6 6 14-14" fill="none" stroke="#3aa0d2" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" />
-                      </svg>
-                    </div>
-                  </div>
-                  <div class="tl-card">
-                    <div class="tl-date">25-08-2021 03:18:36</div>
-                    <div class="tl-text">
-                      Application Final Submitted by DASPUR-II Block Development Officer (Operator: ******2688).
-                    </div>
-                    <div class="tick">
-                      <svg width="40" height="40" viewBox="0 0 48 48">
-                        <circle cx="24" cy="24" r="20" fill="#ffffff" stroke="#3aa0d2" stroke-width="4" />
-                        <path d="M14 25.5l6 6 14-14" fill="none" stroke="#3aa0d2" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" />
-                      </svg>
-                    </div>
-                  </div>
-                  <div class="tl-card">
-                    <div class="tl-date">29-08-2021 04:08:47</div>
-                    <div class="tl-text">
-                      Application Verified by DASPUR-II Block Development Officer (Verifier).
-                    </div>
-                    <div class="tick">
-                      <svg width="40" height="40" viewBox="0 0 48 48">
-                        <circle cx="24" cy="24" r="20" fill="#ffffff" stroke="#3aa0d2" stroke-width="4" />
-                        <path d="M14 25.5l6 6 14-14" fill="none" stroke="#3aa0d2" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" />
-                      </svg>
-                    </div>
-                  </div>
-                  <div class="tl-card">
-                    <div class="tl-date">29-08-2021 05:02:57</div>
-                    <div class="tl-text">
-                      Application Approved by MEDINIPUR WEST District Officer (Approver).
-                    </div>
-                    <div class="tick">
-                      <svg width="40" height="40" viewBox="0 0 48 48">
-                        <circle cx="24" cy="24" r="20" fill="#ffffff" stroke="#3aa0d2" stroke-width="4" />
-                        <path d="M14 25.5l6 6 14-14" fill="none" stroke="#3aa0d2" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" />
-                      </svg>
-                    </div>
-                  </div>
+                 
+                 
+                 
+                 
                 </div>
               </div>
             </div>
@@ -384,20 +339,13 @@
       <hr>
 
       <!-- Payment Status Section -->
-      <h4 class="text-center fw-bold text-success mb-3">Payment Status</h4>
+     <h4 class="text-center fw-bold text-success mb-3 paymentStatusDiv" style="display:none;">Payment Status (Beneficiary Id- <span class="span_ben_id"></span>)</h4>
+     <div class="alert alert-danger" role="alert" id="payment_error_msg_div" style="display:none;"></div>
 
-      <div class="accordion mb-3" id="paymentAccordion">
-        <div class="accordion-item">
+<div class="accordion paymentStatusDiv" id="paymentAccordion" style="display:none;">
+          <div class="accordion-item">
           <h2 class="accordion-header">
-            <button
-              class="accordion-button fw-bold"
-              type="button"
-              data-target="#collapseOne"
-              aria-expanded="false"
-              aria-controls="collapseOne">
-              Name – APARNA KARMAKAR, Beneficiary Id – 208789445,
-              Application Id – 124458094
-            </button>
+         
           </h2>
           <div
             id="collapseOne"
@@ -410,24 +358,34 @@
                     status?</label>
                 </div>
                 <div class="col-md-6">
-                  <select class="form-select w-auto d-inline-block" id="fin_year_select_example">
-                    <option value="2025-2026">2025-2026</option>
-                    <option value="2024-2025">2024-2025</option>
-                  </select>
+                    <select class="form-select w-auto d-inline-block"  onchange="changeFinancialYear(this.value)" id="fin_year">
+                            <?php
+                                                            foreach (Config::get('constants.fin_year') as $key => $fin_year) {
+                                                                //echo $fin_year;
+                                                                if ($key == $currentFinYear) {
+                                                                    $selected = 'selected';
+                                                                } else {
+                                                                    $selected = '';
+                                                                }
+                                                                echo '<option value="' . $key . '" ' . $selected . '>' . $fin_year . '</option>';
+                                                            }
+
+                                                            ?>
+                      </select>
                 </div>
               </div>
 
-              <p class="fw-semibold mb-1">
-                Bank Account Status : <span class="text-success">Validation Success. Ready For Payment</span>
+              <p class="fw-semibold text-success mb-1">
+                    Bank Account Status :<span id="span_ben_status_msg"></span>
               </p>
-              <p class="fw-semibold mb-1">
-                Beneficiary Status : <span class="text-success">Active beneficiary</span>
+              <p class="fw-semibold text-success mb-1">
+                    Beneficiary Status : <span id="span_bank_acc_validation_msg"></span>
               </p>
-              <p class="mb-1">
-                Bank A/C No : 38xxxxxxxx758, IFSC : SBINxxxxx65
+              <p class="mb-3">
+                    Bank A/C No : <span id="span_bank_account_no"></span>, IFSC : <span id="span_bank_ifsc"></span>
               </p>
               <div class="table-responsive">
-                <table class="table table-bordered align-middle">
+                <table class="table table-bordered align-middle" id="div_payment_list">
                   <thead class="table-light">
                     <tr>
                       <th>Month</th>
@@ -435,26 +393,8 @@
                     </tr>
                   </thead>
                   <tbody>
-                    <tr>
-                      <td>January 2025</td>
-                      <td>Payment Success</td>
-                    </tr>
-                    <tr>
-                      <td>February 2025</td>
-                      <td>Payment Success</td>
-                    </tr>
-                    <tr>
-                      <td>March 2025</td>
-                      <td>Payment Success</td>
-                    </tr>
-                    <tr>
-                      <td>April 2025</td>
-                      <td>Payment Pending</td>
-                    </tr>
-                    <tr>
-                      <td>May 2025</td>
-                      <td>Payment Success</td>
-                    </tr>
+                   
+                   
                   </tbody>
                 </table>
               </div>
@@ -470,176 +410,230 @@
 @endsection
 
 @push('scripts')
-<script type="text/javascript">
-  $(document).ready(function() {
+ <script type="text/javascript">
+        $(document).ready(function() {
+            $('#loaderDiv').hide();
 
-    // === existing init & search logic ===
-    $('#loaderDiv').hide();
-    $('.sidebar-menu li').removeClass('active');
-    $('.sidebar-menu #lk-main').addClass("active");
-    $('.sidebar-menu #appplicantTrack').addClass("active");
+            $('#input_val_div').hide();
+            $('#search_msg').html('');
+            $('#select_type').change(function() {
+                $('#search_msg').html('');
+                if ($('#select_type').val() != "") {
+                    $('#input_val_div').show();
+                    $('#applicant_id').val('');
+                    var selectedVal = $("#select_type option:selected").text();
+                    $('#selectValueName').text(selectedVal);
+                    $("#applicant_id").attr("placeholder", "Enter " + selectedVal);
+                    $('#error_applicant_id').text('');
+                } else {
+                    $('#input_val_div').hide();
+                }
+            });
 
-    var sessiontimeoutmessage = '{{ $sessiontimeoutmessage ?? '' }}';
-    var base_url = '{{ url('/') }}';
+            var sessiontimeoutmessage = '{{ $sessiontimeoutmessage }}';
+            var base_url = '{{ url('/') }}';
+            var PleaseSelectScheme = '@lang('lang.PleaseSelectScheme')';
+            var PleaseEnterApplicationId = '@lang('lang.PleaseEnterApplicationId')';
 
-    var PleaseSelectScheme = '@lang('lang.PleaseSelectScheme')';
-    var PleaseEnterApplicationId = '@lang('lang.PleaseEnterApplicationId')';
+            var error_select_type = '';
+            var error_applicant_id = '';
+            var error_captcha = '';
+            $("#searchbtn").click(function() {
+                if ($.trim($('#select_type').val()).length == 0) {
+                    error_select_type = 'This field is required';
+                    $('#error_select_type').text(error_select_type);
+                } else {
+                    error_select_type = '';
+                    $('#error_select_type').text(error_select_type);
+                }
 
-    $('#input_val_div').hide();
-    $('#search_msg').html('');
+                if ($.trim($('#applicant_id').val()).length == 0) {
+                    error_applicant_id = 'This field is required';
+                    $('#error_applicant_id').text(error_applicant_id);
+                } else {
+                    error_applicant_id = '';
+                    $('#error_applicant_id').text(error_applicant_id);
+                }
 
-    $('#select_type').change(function() {
-      $('#search_msg').html('');
-      if ($('#select_type').val() != "") {
-        $('#input_val_div').show();
-        $('#applicant_id').val('');
-        var selectedVal = $("#select_type option:selected").text();
-        $('#selectValueName').text(selectedVal);
-        $("#applicant_id").attr("placeholder", "Enter " + selectedVal);
-        $('#error_applicant_id').text('');
-      } else {
-        $('#input_val_div').hide();
-      }
-    });
+               
 
-    var error_select_type = '';
-    var error_applicant_id = '';
-    $("#searchbtn").click(function() {
-      if ($.trim($('#select_type').val()).length == 0) {
-        error_select_type = 'Track filter is required';
-        $('#error_select_type').text(error_select_type);
-      } else {
-        error_select_type = '';
-        $('#error_select_type').text(error_select_type);
-      }
+                if (error_select_type == '' && error_applicant_id == '') {
+                   // $("#ajaxData").html('');
+                    $('#resultDivPaymentStatus').hide();
+                    var scheme_code = $("#scheme_code").val();
+                    var applicant_id = $("#applicant_id").val();
+                    var captcha = $("#captcha").val();
+                    var scheme_type = $('#select_type').val();
+                    //console.log(application_type); 
+                    var status1 = status2 = status3 = 0;
+                    if (scheme_code == '' || typeof(scheme_code) === "undefined" || scheme_code === null) {
+                        $('#error_scheme_code').text(PleaseSelectScheme);
+                        status1 = 0;
+                    } else {
+                        $('#error_scheme_code').text('');
+                        status1 = 1;
+                    }
+                    if (applicant_id == '' || typeof(applicant_id) === "undefined" || applicant_id ===
+                        null) {
+                        $('#error_applicant_id').text(PleaseEnterApplicationId);
+                        status1 = 0;
+                    } else {
+                        $('#error_application_type').text('');
+                        status2 = 1;
+                    }
+                    //alert(status1);  alert(status2);
+                    if (status1 && status2) {
+                        var url = '{{ url('ajaxApplicationTrack') }}';
+                        //$('#ajaxData').html('');
+                        $('#loaderDiv').show();
+                        $("#span_ben_name").text('');
+                        $(".span_ben_id").text('');
+                        $("#span_app_id").text('');
+                        $("#ben_id_hidden").val('');
+                        $.ajax({
+                            type: 'get',
+                            dataType: 'json',
+                            url: url,
+                            data: {
+                                is_public: 1,
+                                captcha: captcha,
+                                scheme_code: scheme_code,
+                                applicant_id: applicant_id,
+                                trackType: scheme_type,
+                                _token: '{{ csrf_token() }}',
+                            },
+                            success: function(data) {
+                               
+                                 if (data.return_status) {
+                                     $('#error_msg_div').hide();
+                                        $("#ajaxData").show();
+                                        $("#span_ben_name").text(data.ben_name);
+                                        $(".span_ben_id").text(data.beneficiary_id);
+                                        $("#span_app_id").text(data.f_application_id);
+                                        $("#ben_id_hidden").val(data.beneficiary_id);
 
-      if ($.trim($('#applicant_id').val()).length == 0) {
-        error_applicant_id = 'This field is required';
-        $('#error_applicant_id').text(error_applicant_id);
-      } else {
-        error_applicant_id = '';
-        $('#error_applicant_id').text(error_applicant_id);
-      }
+                                         $('#timeline').empty();
+                                        if(data.accept_reject_info.length>0){
+                                             
+                                            $accept_reject_info_data = '';
+                                            $.each(data.accept_reject_info, function(i, item) {
+                                            console.log(i);
+                                             $("#timeline").append('<div class="tl-card"><div class="tl-date">'+item.created_at+'</div><div class="tl-text">'+item.action_description+' by '+item.location_description+' '+item.mapping_level+' ('+item.role_description+': '+item.mobile_no+').</div><div class="tick"><svg width="40" height="40" viewBox="0 0 48 48"> <circle cx="24" cy="24" r="20" fill="#ffffff" stroke="#3aa0d2" stroke-width="4" /><path d="M14 25.5l6 6 14-14" fill="none" stroke="#3aa0d2" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></svg></div></div>');
+                                            });
+                                        }
+                                        $('#loaderDiv').hide();
+                                        $("#modal_data").html('');
+                                        //$("#ajaxData").html(data);
+                                        $("#applicant_id").val('');
+                                        $("#captcha").val('');
+                                        refreshCaptcha();
+                                        // $(".paymentStatusDiv").show();
+                                         var fin_year = $("#fin_year").val();
+                                        changeFinancialYear(fin_year);
+                                 }else {
+                                    $('#error_msg_div').show();
+                                    $('#error_msg_div').html(data.return_msg);
+                                 }
+                                // console.log(data);
+                               
+                            },
+                            error: function(ex) {
+                                $('#loaderDiv').hide();
+                                $("#modal_data").html('');
+                                //$('#ajaxData').html('');
+                                ////alert('Timeout ..Please try again.');
+                               // location.reload();
+                            }
+                        });
+                    }
+                } else {
+                    return false;
+                }
+            });
 
-      if (error_select_type == '' && error_applicant_id == '') {
+        });
 
-        $('#resultDivPaymentStatus').hide();
-        var scheme_code = $("#scheme_code").val();
-        var applicant_id = $("#applicant_id").val();
-        var scheme_type = $('#select_type').val();
+        //------------------Beneficiary Payment Status Section------------------
 
-        var selectedValueUsing = $("#select_type option:selected").text();
-        $('#search_msg').html('Search using with ' + selectedValueUsing + ' - ' + applicant_id);
 
-        var status1 = status2 = status3 = 0;
-        if (scheme_code == '' || typeof(scheme_code) === "undefined" || scheme_code === null) {
-          $('#error_scheme_code').text(PleaseSelectScheme);
-          status1 = 0;
-        } else {
-          $('#error_scheme_code').text('');
-          status1 = 1;
+        //########Change Financial Year########//
+        function changeFinancialYear(fin_year) {
+             var sessiontimeoutmessage = '{{ $sessiontimeoutmessage }}';
+             //$(".paymentStatusDiv").hide();
+              $("#span_ben_status_msg").text('');
+              $("#span_bank_acc_validation_msg").text('');
+              $("#span_bank_account_no").text('');
+              $("#span_bank_ifsc").text('');
+              var base_url = '{{ url('/') }}';
+              $('#loaderDiv').show();
+              var finYear = fin_year;
+              var ben_id = $('#ben_id_hidden').val();
+             
+            $.ajax({
+                type: "GET",
+                url: "{{ route('getPaymentDetailsFinYearWiseInTrackApplication') }}",
+                data: {
+                    _token: '{{ csrf_token() }}',
+                    ben_id: ben_id,
+                    fin_year: finYear
+                },
+                success: function(data) {
+                  
+                    $('#loaderDiv').hide();
+                   if (data.return_status) {
+                      $(".paymentStatusDiv").show();
+                      $("#span_ben_status_msg").text(data.ben_status_msg);
+                      $("#span_bank_acc_validation_msg").text(data.bank_acc_validation_msg);
+                      $("#span_bank_account_no").text(data.bank_account_no);
+                      $("#span_bank_ifsc").text(data.bank_ifsc);
+                      if(data.payment_data.length>0){
+                                             $('#div_payment_list tbody').empty();
+                                            $payment_data_data = '';
+                                            $.each(data.payment_data, function(i, item) {
+                                            //console.log(i);
+                                             $("#div_payment_list tbody").append('<tr><td>'+item.Month+'</td><td>'+item.PaymentStatus+'</td></tr>');
+                                            });
+                     }
+                   }
+                   else{
+                       $('#payment_error_msg_div').show();
+                       $('#payment_error_msg_div').html(data.return_msg);
+                   }
+                },
+                error: function(jqXHR, textStatus, errorThrown) {
+                    $('#loaderDiv').hide();
+                    $('.ben_view_modal').modal('hide');
+                    // ajax_error(jqXHR, textStatus, errorThrown);
+                  
+                }
+            });
+
         }
-        if (applicant_id == '' || typeof(applicant_id) === "undefined" || applicant_id === null) {
-          $('#error_applicant_id').text(PleaseEnterApplicationId);
-          status1 = 0;
-        } else {
-          $('#error_application_type').text('');
-          status2 = 1;
+
+        function refreshCaptcha() {
+
+            $.ajax({
+                url: '{{ url('refresh-captcha') }}',
+                type: 'get',
+                dataType: 'html',
+                success: function(json) {
+                    $('#captcha-container').html(json);
+                },
+                error: function(data) {
+                    alert('Try Again.');
+                }
+            });
         }
-
-        if (status1 && status2) {
-          var url = '{{ url('ajaxApplicationTrack') }}';
-          var role_code = $('#role_code').val();
-          $('#ajaxData').html('');
-          $('#loaderDiv').show();
-          $.ajax({
-            type: 'GET',
-            url: url,
-            data: {
-              is_public: 0,
-              scheme_code: scheme_code,
-              applicant_id: applicant_id,
-              trackType: scheme_type,
-              _token: '{{ csrf_token() }}',
-            },
-            success: function(data) {
-              $('#loaderDiv').hide();
-              $("#modal_data").html('');
-              $("#ajaxData").html(data);
-            },
-            error: function(ex) {
-              $('#loaderDiv').hide();
-              $("#modal_data").html('');
-              $('#ajaxData').html('');
-              alert('Timeout ..Please try again.');
-            }
-          });
+   
+        function printDiv(divName) {
+            var printContents = document.getElementById(divName).innerHTML;
+            var originalContents = document.body.innerHTML;
+            document.body.innerHTML = printContents;
+            window.print();
+            document.body.innerHTML = originalContents;
         }
-      } else {
-        return false;
-      }
-    });
+   
 
-    // ------------------ Beneficiary Payment Status Section ------------------
-
-    // Change Financial Year (example function)
-    function changeFinancialYear(fin_year, beneficiary_id) {
-      $('#loaderDiv').show();
-      var finYear = fin_year;
-      $.ajax({
-        type: "POST",
-        url: "{{ route('getPaymentDetailsFinYearWiseInTrackApplication') }}",
-        data: {
-          _token: '{{ csrf_token() }}',
-          ben_id: beneficiary_id,
-          fin_year: finYear
-        },
-        success: function(response) {
-          $('#loaderDiv').hide();
-          $('#payment_details_' + response.personalDetails.ben_id).html('');
-          $('#payment_details_' + response.personalDetails.ben_id).html(response.paymentDetails);
-        },
-        error: function(jqXHR, textStatus, errorThrown) {
-          $('#loaderDiv').hide();
-          $('.ben_view_modal').modal('hide');
-          $.alert({
-            title: 'Error!!',
-            type: 'red',
-            icon: 'fa fa-warning',
-            content: sessiontimeoutmessage,
-          });
-        }
-      });
-    }
-
-    // Expose function if needed elsewhere
-    window.changeFinancialYear = changeFinancialYear;
-
-    // ====== Accordion click behaviour (using data-target attribute) ======
-   $(function() {
-
-    // Helper: find buttons that control a collapse pane (by id)
-    function buttonsForPaneId(paneId) {
-        return $('[data-target="#' + paneId + '"], [data-bs-target="#' + paneId + '"], [aria-controls="' + paneId + '"]');
-    }
-
-    // Initialize each accordion on page load
-    $('#paymentAccordion .accordion-collapse').each(function() {
-        const $pane = $(this);
-        const paneId = this.id;
-
-        // ensure aria/collapsed state matches visibility / .show class
-        const isShown = $pane.hasClass('show') || $pane.is(':visible');
-        const $buttons = buttonsForPaneId(paneId);
-
-        if (isShown) {
-            $pane.show().addClass('show');
-            $buttons.removeClass('collapsed').attr('aria-expanded', 'true');
-        } else {
-            $pane.hide().removeClass('show');
-            $buttons.addClass('collapsed').attr('aria-expanded', 'false');
-        }
-    });
 
     // Delegated click handler for accordion toggle
     $('#paymentAccordion').on('click', '.accordion-button', function(e) {
@@ -692,8 +686,6 @@
         }
     });
 
-});
 
-  }); // end document ready
 </script>
 @endpush

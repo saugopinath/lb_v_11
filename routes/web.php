@@ -18,7 +18,8 @@ use App\Http\Controllers\{
     casteManagementController,
     TrackApplicantController,
     MasterDataController,
-    DeactivatedBeneficiaryController
+    DeactivatedBeneficiaryController,
+    StopBeneficiaryController
 };
 Route::get('refresh-captcha', [CaptchaController::class, 'refreshCaptcha'])->name('refresh-captcha');
 Route::controller(AuthenticationController::class)->group(function () {
@@ -82,6 +83,8 @@ Route::controller(LakkhiBhandarWCDformController::class)->group(function () {
     Route::any('lb-applicant-list-datatable/{list_type}', 'applicantListDatatable');
     Route::get('downaloadEncloser', 'viewimage');
     Route::post('partialReject', 'partialReject')->name('partialReject');
+    Route::any('application-details-read-only', 'applicantreadonlyview')->name('application-details-read-only');
+
     //Route::any('application-list-common', 'applicationStatusList');
 });
 Route::controller(LegacyProcessController::class)->group(function () {
@@ -89,6 +92,7 @@ Route::controller(LegacyProcessController::class)->group(function () {
 });
 Route::controller(PensionCommonController::class)->group(function () {
     Route::any('applicant/track/', 'applicantTrack');
+    
 });
 Route::controller(PensionformReportController::class)->group(function () {
     Route::any('application-list-common', 'applicationStatusList');
@@ -133,5 +137,13 @@ Route::controller(StopBeneficiaryController::class)->group(function () {
     Route::any('stop-list', 'listReport');
     Route::post('stop-list-Excel', 'generate_excel');
 });
+Route::controller(BeneficiaryCommonController::class)->group(function () {
+  Route::post('getPersonalApproved', 'getPersonalApproved')->name('getPersonalApproved');
+  Route::post('getAadhaarApproved', 'getAadhaarApproved')->name('getAadhaarApproved');
+  Route::post('getContactApproved', 'getContactApproved')->name('getContactApproved');
+  Route::post('getBankApproved', 'getBankApproved')->name('getBankApproved');
+  Route::post('getInvestigatorApproved', 'getInvestigatorApproved')->name('getInvestigatorApproved');
+});
+
 
 

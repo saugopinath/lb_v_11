@@ -53,7 +53,7 @@ overflow: visible !important;
 }
 </style>
 
-@extends('../layouts.app-template-datatable_new')
+@extends('layouts.app-template-datatable')
 @section('content')
 
 <div class="content-wrapper">
@@ -578,7 +578,7 @@ $(document).ready(function() {
           "ajax": 
           {
             url: "{{ url('workflowCaste') }}",
-            type: "post",
+            type: "get",
             data:function(d){
                  d.gp_code= $("#gp_code").val(),
                  d.caste_category= $("#caste_category").val(),

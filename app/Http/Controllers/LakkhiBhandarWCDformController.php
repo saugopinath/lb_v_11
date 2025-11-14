@@ -506,4 +506,294 @@ class LakkhiBhandarWCDformController extends Controller
             return redirect("/" . $url)->with('error', $errormsg['roolback']);
         }
     }
+    public function applicantreadonlyview(Request $request)
+    {
+        $district_list =  District::select(
+            'id',
+            'district_code',
+            'district_name',
+            'rch_district_code',
+            'is_revenue_district',
+            'state_code',
+            'district_status'
+        )->get();
+        $user_id = Auth::user()->id;
+        //dd($request->toArray());
+        $application_id = $request->application_id;
+        $ben_id = $request->ben_id;
+        $designation_id = Auth::user()->designation_id;
+        $scheme_id = $this->scheme_id;
+        $row = array();
+        $is_active = 0;
+        $roleArray = $request->session()->get('role');
+        foreach ($roleArray as $roleObj) {
+            if ($roleObj['scheme_id'] == $scheme_id) {
+                $is_active = 1;
+                $mapping_level = $roleObj['mapping_level'];
+                $distCode = $roleObj['district_code'];
+                $is_urban = $roleObj['is_urban'];
+                if ($roleObj['is_urban'] == 1) {
+                    $blockCode = $roleObj['urban_body_code'];
+                } else {
+                    $blockCode = $roleObj['taluka_code'];
+                }
+                break;
+            }
+        }
+        if ($is_active == 0 || empty($distCode)) {
+            return redirect("/")->with('error', 'User Disabled');
+        }
+        if (empty($application_id)) {
+            return redirect("/")->with('error', 'Applicant ID Not Pass');
+        }
+        if (!empty($request->is_draft)) {
+            $is_draft = 1;
+        } else {
+            $is_draft = NULL;
+        }
+        $getModelFunc = new getModelFunc();
+        if ($request->is_reject == 1) {
+            // dd('ok');
+            $DraftPersonalTable = new DataSourceCommon;
+            $Table = $getModelFunc->getTable($distCode, $this->source_type, 10);
+            $DraftPersonalTable->setConnection('pgsql_appread');
+
+            $DraftPersonalTable->setTable('' . $Table);
+            $PersonalnData = $DraftPersonalTable->where('application_id', $application_id)->first();
+            // dd($PersonalnData);
+            if (empty($PersonalnData)) {
+                return redirect("/")->with('error', 'Applicant ID Not Valid');
+            }
+            $reject_row = RejectRevertReason::where('id', $PersonalnData->rejected_cause)->first();
+        } else {
+            //dd('ok');
+            if ($is_draft == 2) {
+                $DraftPersonalTable = new DataSourceCommon;
+                $Table = $getModelFunc->getTable($distCode, $this->source_type, 10);
+                $DraftPersonalTable->setConnection('pgsql_appread');
+
+                $DraftPersonalTable->setTable('' . $Table);
+                $PersonalnData = $DraftPersonalTable->where('application_id', $application_id);
+            } else {
+                $DraftPersonalTable = new DataSourceCommon;
+                $Table = $getModelFunc->getTable($distCode, $this->source_type, 1,  $is_draft);
+                $DraftPersonalTable->setConnection('pgsql_appread');
+
+                $DraftPersonalTable->setTable('' . $Table);
+                $PersonalnData = $DraftPersonalTable->where('application_id', $application_id);
+                if ($is_draft == 1) {
+                    $PersonalnData = $PersonalnData->where('is_final', TRUE);
+                }
+                $PersonalnData = $PersonalnData->first();
+                if (empty($PersonalnData)) {
+                    return redirect("/")->with('error', 'Applicant ID Not Valid1');
+                }
+            }
+        }
+        $row = collect([]);
+        $row->sws_card_no = $PersonalnData->ss_card_no;
+        $row->duare_sarkar_registration_no = $PersonalnData->duare_sarkar_registration_no;
+        $row->duare_sarkar_date = $PersonalnData->duare_sarkar_date;
+        $row->gender = $PersonalnData->gender;
+        $row->application_id = $application_id;
+        $row->ben_fname = $PersonalnData->ben_fname;
+        $row->ben_mname = $PersonalnData->ben_mname;
+        $row->ben_lname = $PersonalnData->ben_lname;
+        $row->father_fname = $PersonalnData->father_fname;
+        $row->father_mname = $PersonalnData->father_mname;
+        $row->father_lname = $PersonalnData->father_lname;
+        $row->mother_fname = $PersonalnData->mother_fname;
+        $row->mother_mname = $PersonalnData->mother_mname;
+        $row->mother_lname = $PersonalnData->mother_lname;
+        $row->dob = $PersonalnData->dob;
+        if (!empty($PersonalnData->dob)) {
+            $row->ben_age = $this->ageCalculate($PersonalnData->dob);
+        }
+        //$row->ben_age = $PersonalnData->age_ason_01012021;
+        $row->caste = $PersonalnData->caste;
+        $row->caste_certificate_no = $PersonalnData->caste_certificate_no;
+        $row->marital_status = $PersonalnData->marital_status;
+        $row->spouse_fname = $PersonalnData->spouse_fname;
+        $row->spouse_mname = $PersonalnData->spouse_mname;
+        $row->spouse_lname = $PersonalnData->spouse_lname;
+        $row->mobile_no = $PersonalnData->mobile_no;
+        $row->aadhar_no = $PersonalnData->aadhar_no;
+        $row->email = $PersonalnData->email;
+        $row->next_level_role_id = $PersonalnData->next_level_role_id;
+        $row->comments = $PersonalnData->comments;
+        if ($request->is_reject == 1) {
+            $row->dist_code = $PersonalnData->dist_code;
+            $row->rural_urban_id = $PersonalnData->rural_urban_id;
+            $row->police_station = $PersonalnData->police_station;
+            $row->block_ulb_code = $PersonalnData->block_ulb_code;
+            $row->block_ulb_name = $PersonalnData->block_ulb_name;
+            $row->gp_ward_code = $PersonalnData->gp_ward_code;
+            $row->gp_ward_name = $PersonalnData->gp_ward_name;
+            $row->village_town_city = $PersonalnData->village_town_city;
+            $row->house_premise_no = $PersonalnData->house_premise_no;
+            $row->post_office = $PersonalnData->post_office;
+            $row->pincode = $PersonalnData->pincode;
+            $row->residency_period = $PersonalnData->residency_period;
+            $row->email = $PersonalnData->email;
+            $row->rejected_cause =  $reject_row->reason;
+        } else {
+            $DraftContactTable = new DataSourceCommon;
+            $Table = $getModelFunc->getTable($distCode, $this->source_type, 3,  $is_draft);
+            $DraftContactTable->setConnection('pgsql_appread');
+
+            $DraftContactTable->setTable('' . $Table);
+            $contactData = $DraftContactTable->select('dist_code', 'block_ulb_code', 'block_ulb_name', 'gp_ward_code', 'gp_ward_name', 'police_station', 'village_town_city', 'house_premise_no', 'post_office', 'residency_period',  'pincode', 'rural_urban_id')->where('application_id', $application_id)->first();
+            $row->dist_code = $contactData->dist_code;
+            $row->rural_urban_id = $contactData->rural_urban_id;
+            $row->police_station = $contactData->police_station;
+            $row->block_ulb_code = $contactData->block_ulb_code;
+            $row->block_ulb_name = $contactData->block_ulb_name;
+            $row->gp_ward_code = $contactData->gp_ward_code;
+            $row->gp_ward_name = $contactData->gp_ward_name;
+            $row->village_town_city = $contactData->village_town_city;
+            $row->house_premise_no = $contactData->house_premise_no;
+            $row->post_office = $contactData->post_office;
+            $row->pincode = $contactData->pincode;
+            $row->residency_period = $contactData->residency_period;
+        }
+        if ($request->is_reject == 1) {
+            $row->bank_name = $PersonalnData->bank_name;
+            $row->branch_name = $PersonalnData->branch_name;
+            $row->bank_ifsc = $PersonalnData->bank_ifsc;
+            $row->bank_code = $PersonalnData->bank_code;
+        } else {
+            $DraftBankTable = new DataSourceCommon;
+            $Table = $getModelFunc->getTable($distCode, $this->source_type, 4,  $is_draft);
+            $DraftBankTable->setConnection('pgsql_appread');
+
+            $DraftBankTable->setTable('' . $Table);
+            $bankData = $DraftBankTable->select('bank_code', 'bank_name', 'branch_name', 'bank_ifsc')->where('application_id', $application_id)->first();
+            $row->bank_name = $bankData->bank_name;
+            $row->branch_name = $bankData->branch_name;
+            $row->bank_ifsc = $bankData->bank_ifsc;
+            $row->bank_code = $bankData->bank_code;
+        }
+        $DraftPfImageTable = new DataSourceCommon;
+        $Table = $getModelFunc->getTable($distCode, $this->source_type, 5,  $is_draft);
+        $DraftPfImageTable->setConnection('pgsql_encread');
+        $DraftPfImageTable->setTable('' . $Table);
+        $DraftEncloserTable = new DataSourceCommon;
+        $Table = $getModelFunc->getTable($distCode, $this->source_type, 6,  $is_draft);
+        $DraftEncloserTable->setConnection('pgsql_encread');
+        $DraftEncloserTable->setTable('' . $Table);
+        $doc_profile = DocumentType::select('id')->where('is_profile_pic', TRUE)->first();
+        $profileImagedata = $DraftPfImageTable->where('image_type', $doc_profile->id)->where('application_id', $application_id)->first();
+        $encolserdata = $DraftEncloserTable->select('document_type')->where('application_id', $application_id)->get()->pluck('document_type');
+
+        $districts = $district_list;
+        if ($request->is_reject == 1) {
+            $district_row = $district_list->where('district_code', $PersonalnData->dist_code)->first();
+            if (trim($PersonalnData->rural_urban_id == 1)) {
+                $block_munc_row = Urbanbody::where('urban_body_code', $row->block_ulb_code)->first();
+                $block_mun_name = trim($block_munc_row->urban_body_name);
+                $gp_ward_row = Ward::where('urban_body_ward_code', $row->gp_ward_code)->first();
+                $gp_ward_name = trim($gp_ward_row->urban_body_ward_name);
+            } else {
+                $block_munc_row = Taluka::where('block_code', $row->block_ulb_code)->first();
+                $block_mun_name = trim($block_munc_row->block_name);
+                $gp_ward_row = GP::where('gram_panchyat_code', $row->gp_ward_code)->first();
+                $gp_ward_name = trim($gp_ward_row->gram_panchyat_name);
+            }
+        } else {
+            $district_row = $district_list->where('district_code', $contactData->dist_code)->first();
+            if (trim($contactData->rural_urban_id == 1)) {
+                $block_munc_row = Urbanbody::where('urban_body_code', $row->block_ulb_code)->first();
+                $block_mun_name = trim($block_munc_row->urban_body_name);
+                $gp_ward_row = Ward::where('urban_body_ward_code', $row->gp_ward_code)->first();
+                $gp_ward_name = trim($gp_ward_row->urban_body_ward_name);
+            } else {
+                $block_munc_row = Taluka::where('block_code', $row->block_ulb_code)->first();
+                $block_mun_name = trim($block_munc_row->block_name);
+                $gp_ward_row = GP::where('gram_panchyat_code', $row->gp_ward_code)->first();
+                $gp_ward_name = trim($gp_ward_row->gram_panchyat_name);
+            }
+            if ($PersonalnData->next_level_role_id == -50) {
+                if (!empty($PersonalnData->rejected_cause)) {
+                    $reject_row = RejectRevertReason::where('id', $PersonalnData->rejected_cause)->first();
+                    $row->rejected_cause =  $reject_row->reason;
+                } else {
+                    $row->rejected_cause =  '';
+                }
+            }
+        }
+        $row->dist_name = trim($district_row->district_name);
+
+        $row->block_ulb_name = $block_mun_name;
+        $row->gp_ward_name = $gp_ward_name;
+        $row->fotter_text = '';
+        $doc_id_list = SchemeDocMap::select('doc_list_man', 'doc_list_opt', 'doc_list_man_group')->where('scheme_code', $scheme_id)->first();
+
+        if (!empty($doc_id_list->doc_list_man))
+            $doc_list_man = DocumentType::get()->whereIn("id", json_decode($doc_id_list->doc_list_man));
+        else
+            $doc_list_man = collect([]);
+        if (!empty($doc_id_list->doc_list_opt))
+            $doc_list_opt = DocumentType::get()->whereIn("id", json_decode($doc_id_list->doc_list_opt));
+        else
+            $doc_list_opt = collect([]);
+
+
+        $doc_id_list = SchemeDocMap::select('doc_list_man', 'doc_list_opt', 'doc_list_man_group')->where('scheme_code', $scheme_id)->first()->toArray();
+        // dd($doc_id_list['doc_list_man']);
+        if (isset($doc_id_list['doc_list_man']) && $doc_id_list['doc_list_man'] != 'null') {
+            // dd($doc_id_list);
+            $doc_list_man = DocumentType::select('id', 'is_profile_pic', 'doc_size_kb', 'doc_name', 'doc_type', 'doucument_group')->whereIn("id", json_decode($doc_id_list['doc_list_man']))->get()->toArray();
+        } else
+            $doc_list_man = array();
+        if (isset($doc_id_list['doc_list_opt']) && $doc_id_list['doc_list_opt'] != 'null') {
+            $doc_list_opt = DocumentType::select('id',  'is_profile_pic', 'doc_size_kb', 'doc_name', 'doc_type', 'doucument_group')->whereIn("id", json_decode($doc_id_list['doc_list_opt']))->get()->toArray();
+        } else
+            $doc_list_opt = array();
+        if (count($doc_list_man) > 0 || count($doc_list_opt) > 0) {
+            $doc_list = array_merge($doc_list_man, $doc_list_opt);
+        } else {
+            $doc_list = array();
+        }
+        $encloser_list = array();
+        $i = 0;
+        // dd($doc_list);
+        if (count($doc_list) > 0) {
+            foreach ($doc_list as $doc) {
+
+
+                if ($doc['is_profile_pic']) {
+
+                    if (!empty($profileImagedata->application_id)) {
+                        $encloser_list[$i]['id'] = $doc['id'];
+                        $encloser_list[$i]['is_profile_pic'] = $doc['is_profile_pic'];
+
+                        $encloser_list[$i]['doc_name'] = $doc['doc_name'];
+                        $encloser_list[$i]['can_download'] = 1;
+                        $i++;
+                    }
+                } else {
+
+                    if (in_array($doc['id'], $encolserdata->toArray())) {
+                        $encloser_list[$i]['id'] = $doc['id'];
+                        $encloser_list[$i]['is_profile_pic'] = $doc['is_profile_pic'];
+                        $encloser_list[$i]['doc_name'] = $doc['doc_name'];
+                        $i++;
+                    }
+                }
+            }
+        }
+        //dd($encloser_list);
+        $errormsg = Config::get('constants.errormsg');
+        if (!empty($row->dob)) {
+            $row->ben_age = $this->ageCalculate($row->dob);
+        }
+        return view('LokkhiBhandarWCD/pension_view_details_read_only', [
+            'designation_id' => $designation_id, 'application_id' => $application_id, 'row' => $row,  'districts' => $districts, 'scheme_id' => $scheme_id, 'doc_list_man' => $doc_list_man, 'doc_list_opt' => $doc_list_opt,
+            'encloser_list' => $encloser_list,
+            'is_draft' => $is_draft,
+            'ben_id' => $ben_id,
+            'is_reject' => $request->is_reject,
+            'sessiontimeoutmessage' => $errormsg['sessiontimeOut']
+        ]);
+    }
 }

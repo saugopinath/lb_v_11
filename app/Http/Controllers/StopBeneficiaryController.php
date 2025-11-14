@@ -8,22 +8,22 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Session;
-use App\User;
-use App\Configduty;
-use App\getModelFunc;
-use App\District;
-use App\UrbanBody;
-use App\Assembly;
-use App\Taluka;
-use App\Ward;
-use App\GP;
-use App\SchemeDocMap;
-use App\DocumentType;
+use App\Models\User;
+use App\Models\Configduty;
+use App\Models\getModelFunc;
+use App\Models\District;
+use App\Models\UrbanBody;
+use App\Models\Assembly;
+use App\Models\Taluka;
+use App\Models\Ward;
+use App\Models\GP;
+use App\Models\SchemeDocMap;
+use App\Models\DocumentType;
 use App\Helpers\Helper;
-use App\DataSourceCommon;
-use App\DsPhase;
-use App\RejectRevertReason;
-use App\Scheme;
+use App\Models\DataSourceCommon;
+use App\Models\DsPhase;
+use App\Models\RejectRevertReason;
+use App\Models\Scheme;
 use Carbon\Carbon;
 
 class StopBeneficiaryController extends Controller
@@ -155,858 +155,534 @@ class StopBeneficiaryController extends Controller
           // $condition[edited_status"] = $district_code;
           if ($report_type == 1 || $report_type == 2) {
             $Table = 'lb_main.failed_payment_details';
+
+
+            $condition = [];
+
             if (!empty($request->ds_phase)) {
               $condition["ds_phase"] = $request->ds_phase;
             }
+
             if (!empty($district_code)) {
               $condition[$Table . ".dist_code"] = $district_code;
             }
+
             if (!empty($is_urban)) {
-              // $condition[$contact_table . ".rural_urban_id"] = $is_urban;
-              if ($is_urban == 2) {
-                if (!empty($urban_body_code)) {
-                  //$condition["rural_urban_id"] = 2;
-                  $condition[$Table . ".local_body_code"] = $urban_body_code;
-                }
+              if ($is_urban == 2 && !empty($urban_body_code)) {
+                $condition[$Table . ".local_body_code"] = $urban_body_code;
               }
-              //'Urban'
-              if ($is_urban == 1) {
-                if (!empty($urban_body_code)) {
-                  //$condition["rural_urban_id"] = 1;
-                  $condition[$Table . ".local_body_code"] = $urban_body_code;
-                }
-                // if (!empty($block_ulb_code)) {
-                //   $condition[$Table . ".block_ulb_code"] = $block_ulb_code;
-                // }
+
+              if ($is_urban == 1 && !empty($urban_body_code)) {
+                $condition[$Table . ".local_body_code"] = $urban_body_code;
               }
             }
+
             if (!empty($gp_ward_code)) {
               $condition[$Table . ".gp_ward_code"] = $gp_ward_code;
             }
+
             if ($report_type == 1) {
               $condition[$Table . ".failed_type"] = 1;
             } else if ($report_type == 2) {
               $condition[$Table . ".failed_type"] = 2;
             }
+
+
             $modelName->setConnection('pgsql_payment');
-            $modelName->setTable('' . $Table);
+            $modelName->setTable($Table);
+
             $schemaname = $getModelFunc->getSchemaDetails();
             $paymenttable = $schemaname . '.ben_payment_details';
-            $serachvalue = $request->search['value'];
-            $limit = $request->input('length');
-            $offset = $request->input('start');
+            $search = $request->search['value'];
 
-            $totalRecords = 0;
-            $filterRecords = 0;
-            $data = array();
-            $query = $modelName->where($condition)->whereIn('edited_status', [0, 1])->where($paymenttable . ".ben_status", 1);
-            $query = $query->join($paymenttable, $paymenttable . '.ben_id', '=', $Table . '.ben_id');
-            $query = $query->leftjoin($blocktable, $blocktable . '.block_code', '=', $paymenttable . '.block_ulb_code');
-            $query = $query->leftjoin($munctable, $munctable . '.urban_body_code', '=', $paymenttable . '.block_ulb_code');
-            $query = $query->leftjoin($gptable, $gptable . '.gram_panchyat_code', '=', $paymenttable . '.gp_ward_code');
-            $query = $query->leftjoin($wardtable, $wardtable . '.urban_body_ward_code', '=', $paymenttable . '.gp_ward_code');
-            if (empty($serachvalue)) {
-              $totalRecords = $query->count($Table . '.ben_id');
-              // dd($query);
-              $data = $query->orderBy($paymenttable . '.ben_name')->orderBy('gp_ward_code')->offset($offset)->limit($limit)->get(
-                [
-                  '' . $paymenttable . '.application_id as application_id',
-                  '' . $paymenttable . '.ben_name as ben_name',
-                  '' . $paymenttable . '.mobile_no as mobile_no',
-                  '' . $paymenttable . '.last_accno as bank_code',
-                  '' . $paymenttable . '.last_ifsc as bank_ifsc',
-                  '' . $paymenttable . '.rural_urban_id as rural_urban_id',
-                  '' . $paymenttable . '.gp_ward_code as gp_ward_code',
-                  '' . $paymenttable . '.block_ulb_code as block_ulb_code',
-                  '' . $paymenttable . '.gp_ward_code as gp_ward_code',
-                  '' . $Table . '.edited_status as edited_status',
-                  '' . $Table . '.failed_type as failed_type',
-                  '' . $Table . '.created_at as lot_created_at',
-                  '' . $Table . '.lot_month as lot_month',
-                  '' . $blocktable . '.block_name as block_name',
-                  '' . $munctable . '.urban_body_name as munc_name',
-                  '' . $gptable . '.gram_panchyat_name as gp_name',
-                  '' . $wardtable . '.urban_body_ward_name as ward_name'
 
-                ]
-              );
-              // dd($data);
-            } else {
-              if (preg_match('/^[0-9]*$/', $serachvalue)) {
-                $query = $query->where(function ($query1) use ($serachvalue, $paymenttable) {
-                  if (strlen($serachvalue) < 10) {
-                    $query1->where($paymenttable . '.application_id', $serachvalue);
-                  } else if (strlen($serachvalue) == 10) {
-                    $query1->where($paymenttable . '.mobile_no', $serachvalue);
+            $query = $modelName->where($condition)
+              ->whereIn('edited_status', [0, 1])
+              ->where($paymenttable . ".ben_status", 1)
+              ->join($paymenttable, $paymenttable . '.ben_id', '=', $Table . '.ben_id')
+              ->leftjoin($blocktable, $blocktable . '.block_code', '=', $paymenttable . '.block_ulb_code')
+              ->leftjoin($munctable, $munctable . '.urban_body_code', '=', $paymenttable . '.block_ulb_code')
+              ->leftjoin($gptable, $gptable . '.gram_panchyat_code', '=', $paymenttable . '.gp_ward_code')
+              ->leftjoin($wardtable, $wardtable . '.urban_body_ward_code', '=', $paymenttable . '.gp_ward_code')
+              ->select([
+                $paymenttable . '.application_id',
+                $paymenttable . '.ben_name',
+                $paymenttable . '.mobile_no',
+                $paymenttable . '.last_accno as bank_code',
+                $paymenttable . '.last_ifsc as bank_ifsc',
+                $paymenttable . '.rural_urban_id',
+                $paymenttable . '.gp_ward_code',
+                $paymenttable . '.block_ulb_code',
+                $Table . '.edited_status',
+                $Table . '.failed_type',
+                $Table . '.created_at as lot_created_at',
+                $Table . '.lot_month',
+                $blocktable . '.block_name',
+                $munctable . '.urban_body_name as munc_name',
+                $gptable . '.gram_panchyat_name as gp_name',
+                $wardtable . '.urban_body_ward_name as ward_name',
+              ]);
+
+
+         $search = trim($search);
+
+            if (!empty($search)) {
+
+              // Numeric search
+              if (preg_match('/^[0-9]+$/', $search)) {
+
+                $query = $query->where(function ($query1) use ($search, $paymenttable) {
+                  if (strlen($search) < 10) {
+                    $query1->where($paymenttable . '.application_id', $search);
+                  } else if (strlen($search) == 10) {
+                    $query1->where($paymenttable . '.mobile_no', $search);
                   }
                 });
-                $totalRecords = $query->count($Table . '.application_id');
-                $data = $query->orderBy($paymenttable . '.ben_name')->orderBy('gp_ward_code')->offset($offset)->limit($limit)->get(
-                  [
-                    '' . $paymenttable . '.application_id as application_id',
-                    '' . $paymenttable . '.ben_name as ben_name',
-                    '' . $paymenttable . '.mobile_no as mobile_no',
-                    '' . $paymenttable . '.last_accno as bank_code',
-                    '' . $paymenttable . '.last_ifsc as bank_ifsc',
-                    '' . $paymenttable . '.rural_urban_id as rural_urban_id',
-                    '' . $paymenttable . '.block_ulb_code as block_ulb_code',
-                    '' . $paymenttable . '.gp_ward_code as gp_ward_code',
-                    '' . $Table . '.edited_status as edited_status',
-                    '' . $Table . '.failed_type as failed_type',
-                    '' . $Table . '.created_at as lot_created_at',
-                    '' . $Table . '.lot_month as lot_month',
-                    '' . $blocktable . '.block_name as block_name',
-                    '' . $munctable . '.urban_body_name as munc_name',
-                    '' . $gptable . '.gram_panchyat_name as gp_name',
-                    '' . $wardtable . '.urban_body_ward_name as ward_name'
-                  ]
-                );
+
               } else {
-                $query = $query->where(function ($query1) use ($serachvalue) {
-                  $query1->where('ben_name', 'like', $serachvalue . '%');
+                // Name search
+                $query = $query->where(function ($query1) use ($search, $paymenttable) {
+                  $query1->where($paymenttable . 'ben_name', 'like', $search . '%');
                 });
-                $totalRecords = $query->count($Table . '.ben_id');
-                $data = $query->orderBy($paymenttable . '.ben_name')->orderBy('gp_ward_code')->offset($offset)->limit($limit)->get(
-                  [
-                    '' . $paymenttable . '.application_id as application_id',
-                    '' . $paymenttable . '.ben_name as ben_name',
-                    '' . $paymenttable . '.mobile_no as mobile_no',
-                    '' . $paymenttable . '.last_accno as bank_code',
-                    '' . $paymenttable . '.last_ifsc as bank_ifsc',
-                    '' . $paymenttable . '.rural_urban_id as rural_urban_id',
-                    '' . $paymenttable . '.block_ulb_code as block_ulb_code',
-                    '' . $paymenttable . '.gp_ward_code as gp_ward_code',
-                    '' . $Table . '.edited_status as edited_status',
-                    '' . $Table . '.failed_type as failed_type',
-                    '' . $Table . '.created_at as lot_created_at',
-                    '' . $Table . '.lot_month as lot_month',
-                    '' . $blocktable . '.block_name as block_name',
-                    '' . $munctable . '.urban_body_name as munc_name',
-                    '' . $gptable . '.gram_panchyat_name as gp_name',
-                    '' . $wardtable . '.urban_body_ward_name as ward_name'
-                  ]
-                );
               }
-              $filterRecords = count($data);
             }
           } else if ($report_type == 3) {
-            
             $Table = 'lb_main.ben_payment_details_bank_code_dup';
             $modelName->setConnection('pgsql_payment');
-            $modelName->setTable('' . $Table);
+            $modelName->setTable($Table);
+
             $schemaname = $getModelFunc->getSchemaDetails();
             $paymenttable = $schemaname . '.ben_payment_details';
+
+            $condition = [];
+
+
             if (!empty($request->ds_phase)) {
               $condition[$paymenttable . ".ds_phase"] = $request->ds_phase;
             }
+
             if (!empty($district_code)) {
-              //$condition[$paymenttable . ".dist_code"] = $district_code;
               $condition[$Table . ".dist_code"] = $district_code;
             }
+
             if (!empty($is_urban)) {
-              // $condition[$contact_table . ".rural_urban_id"] = $is_urban;
-              if ($is_urban == 2) {
-                if (!empty($urban_body_code)) {
-                  //$condition["rural_urban_id"] = 2;
-                  $condition[$Table . ".local_body_code"] = $urban_body_code;
-                }
+              if ($is_urban == 2 && !empty($urban_body_code)) {
+                $condition[$Table . ".local_body_code"] = $urban_body_code;
               }
-              //'Urban'
-              if ($is_urban == 1) {
-                if (!empty($urban_body_code)) {
-                  //$condition["rural_urban_id"] = 1;
-                  $condition[$Table . ".local_body_code"] = $urban_body_code;
-                }
-                if (!empty($block_ulb_code)) {
-                  $condition[$Table . ".block_ulb_code"] = $block_ulb_code;
-                }
+              if ($is_urban == 1 && !empty($urban_body_code)) {
+                $condition[$Table . ".local_body_code"] = $urban_body_code;
+              }
+              if ($is_urban == 1 && !empty($block_ulb_code)) {
+                $condition[$Table . ".block_ulb_code"] = $block_ulb_code;
               }
             }
+
             if (!empty($gp_ward_code)) {
               $condition[$Table . ".gp_ward_code"] = $gp_ward_code;
             }
 
+            $search = $request->search['value'];
 
-            $serachvalue = $request->search['value'];
-            $limit = $request->input('length');
-            $offset = $request->input('start');
 
-            $totalRecords = 0;
-            $filterRecords = 0;
-            $data = array();
-            $query = $modelName->where($condition)->where($paymenttable . ".ben_status", -97);
-            $query = $query->join($paymenttable, $paymenttable . '.ben_id', '=', $Table . '.ben_id');
-            $query = $query->leftjoin($blocktable, $blocktable . '.block_code', '=', $paymenttable . '.block_ulb_code');
-            $query = $query->leftjoin($munctable, $munctable . '.urban_body_code', '=', $paymenttable . '.block_ulb_code');
-            $query = $query->leftjoin($gptable, $gptable . '.gram_panchyat_code', '=', $paymenttable . '.gp_ward_code');
-            $query = $query->leftjoin($wardtable, $wardtable . '.urban_body_ward_code', '=', $paymenttable . '.gp_ward_code');
-            if (empty($serachvalue)) {
-              $totalRecords = $query->count($Table . '.ben_id');
-              // dd($query);
-              $data = $query->orderBy($paymenttable . '.ben_name')->orderBy('gp_ward_code')->offset($offset)->limit($limit)->get(
-                [
-                  '' . $paymenttable . '.application_id as application_id',
-                  '' . $paymenttable . '.ben_name as ben_name',
-                  '' . $paymenttable . '.mobile_no as mobile_no',
-                  '' . $paymenttable . '.last_accno as bank_code',
-                  '' . $paymenttable . '.last_ifsc as bank_ifsc',
-                  '' . $paymenttable . '.rural_urban_id as rural_urban_id',
-                  '' . $paymenttable . '.gp_ward_code as gp_ward_code',
-                  '' . $paymenttable . '.block_ulb_code as block_ulb_code',
-                  '' . $paymenttable . '.gp_ward_code as gp_ward_code',
-                  '' . $blocktable . '.block_name as block_name',
-                  '' . $munctable . '.urban_body_name as munc_name',
-                  '' . $gptable . '.gram_panchyat_name as gp_name',
-                  '' . $wardtable . '.urban_body_ward_name as ward_name'
+            $query = $modelName->where($condition)
+              ->where($paymenttable . ".ben_status", -97)
+              ->join($paymenttable, $paymenttable . '.ben_id', '=', $Table . '.ben_id')
+              ->leftjoin($blocktable, $blocktable . '.block_code', '=', $paymenttable . '.block_ulb_code')
+              ->leftjoin($munctable, $munctable . '.urban_body_code', '=', $paymenttable . '.block_ulb_code')
+              ->leftjoin($gptable, $gptable . '.gram_panchyat_code', '=', $paymenttable . '.gp_ward_code')
+              ->leftjoin($wardtable, $wardtable . '.urban_body_ward_code', '=', $paymenttable . '.gp_ward_code')
+              ->select([
+                $paymenttable . '.application_id',
+                $paymenttable . '.ben_name',
+                $paymenttable . '.mobile_no',
+                $paymenttable . '.last_accno as bank_code',
+                $paymenttable . '.last_ifsc as bank_ifsc',
+                $paymenttable . '.rural_urban_id',
+                $paymenttable . '.gp_ward_code',
+                $paymenttable . '.block_ulb_code',
+                $blocktable . '.block_name',
+                $munctable . '.urban_body_name as munc_name',
+                $gptable . '.gram_panchyat_name as gp_name',
+                $wardtable . '.urban_body_ward_name as ward_name'
+              ]);
 
-                ]
-              );
-              // dd($data);
-            } else {
-              if (preg_match('/^[0-9]*$/', $serachvalue)) {
-                $query = $query->where(function ($query1) use ($serachvalue, $paymenttable) {
-                  if (strlen($serachvalue) < 10) {
-                    $query1->where($paymenttable . '.application_id', $serachvalue);
-                  } else if (strlen($serachvalue) == 10) {
-                    $query1->where($paymenttable . '.mobile_no', $serachvalue);
+
+            if (!empty($search)) {
+
+              if (preg_match('/^[0-9]*$/', $search)) {
+
+                $query->where(function ($q) use ($search, $paymenttable) {
+                  if (strlen($search) < 10) {
+                    $q->where($paymenttable . '.application_id', $search);
+                  } elseif (strlen($search) == 10) {
+                    $q->where($paymenttable . '.mobile_no', $search);
                   }
                 });
-                $totalRecords = $query->count($Table . '.application_id');
-                $data = $query->orderBy($paymenttable . '.ben_name')->orderBy('gp_ward_code')->offset($offset)->limit($limit)->get(
-                  [
 
-                    '' . $paymenttable . '.application_id as application_id',
-                    '' . $paymenttable . '.ben_name as ben_name',
-                    '' . $paymenttable . '.mobile_no as mobile_no',
-                    '' . $paymenttable . '.last_accno as bank_code',
-                    '' . $paymenttable . '.last_ifsc as bank_ifsc',
-                    '' . $paymenttable . '.rural_urban_id as rural_urban_id',
-                    '' . $paymenttable . '.gp_ward_code as gp_ward_code',
-                    '' . $paymenttable . '.block_ulb_code as block_ulb_code',
-                    '' . $paymenttable . '.gp_ward_code as gp_ward_code',
-                    '' . $blocktable . '.block_name as block_name',
-                    '' . $munctable . '.urban_body_name as munc_name',
-                    '' . $gptable . '.gram_panchyat_name as gp_name',
-                    '' . $wardtable . '.urban_body_ward_name as ward_name'
-                  ]
-                );
               } else {
-                $query = $query->where(function ($query1) use ($serachvalue) {
-                  $query1->where('ben_name', 'like', $serachvalue . '%');
-                });
-                $totalRecords = $query->count($Table . '.ben_id');
-                $data = $query->orderBy($paymenttable . '.ben_name')->orderBy('gp_ward_code')->offset($offset)->limit($limit)->get(
-                  [
-
-                    '' . $paymenttable . '.application_id as application_id',
-                    '' . $paymenttable . '.ben_name as ben_name',
-                    '' . $paymenttable . '.mobile_no as mobile_no',
-                    '' . $paymenttable . '.last_accno as bank_code',
-                    '' . $paymenttable . '.last_ifsc as bank_ifsc',
-                    '' . $paymenttable . '.rural_urban_id as rural_urban_id',
-                    '' . $paymenttable . '.gp_ward_code as gp_ward_code',
-                    '' . $paymenttable . '.block_ulb_code as block_ulb_code',
-                    '' . $paymenttable . '.gp_ward_code as gp_ward_code',
-                    '' . $blocktable . '.block_name as block_name',
-                    '' . $munctable . '.urban_body_name as munc_name',
-                    '' . $gptable . '.gram_panchyat_name as gp_name',
-                    '' . $wardtable . '.urban_body_ward_name as ward_name'
-                  ]
-                );
+                $query->where($paymenttable . '.ben_name', 'like', $search . '%');
               }
-              $filterRecords = count($data);
             }
+
           } else if ($report_type == 4) {
             $schemaname = $getModelFunc->getSchemaDetails();
             $paymenttable = $schemaname . '.ben_payment_details';
+
             $modelName->setConnection('pgsql_payment');
-            $modelName->setTable('' . $paymenttable);
+            $modelName->setTable($paymenttable);
+
+            $condition = [];
+
+
             if (!empty($request->ds_phase)) {
               $condition[$paymenttable . ".ds_phase"] = $request->ds_phase;
             }
+
             if (!empty($district_code)) {
-              //$condition[$paymenttable . ".dist_code"] = $district_code;
               $condition[$paymenttable . ".dist_code"] = $district_code;
             }
+
             if (!empty($is_urban)) {
-              // $condition[$contact_table . ".rural_urban_id"] = $is_urban;
-              if ($is_urban == 2) {
-                if (!empty($urban_body_code)) {
-                  //$condition["rural_urban_id"] = 2;
-                  $condition[$paymenttable . ".local_body_code"] = $urban_body_code;
-                }
+              if ($is_urban == 2 && !empty($urban_body_code)) {
+                $condition[$paymenttable . ".local_body_code"] = $urban_body_code;
               }
-              //'Urban'
-              if ($is_urban == 1) {
-                if (!empty($urban_body_code)) {
-                  //$condition["rural_urban_id"] = 1;
-                  $condition[$paymenttable . ".local_body_code"] = $urban_body_code;
-                }
-                if (!empty($block_ulb_code)) {
-                  $condition[$paymenttable . ".block_ulb_code"] = $block_ulb_code;
-                }
+              if ($is_urban == 1 && !empty($urban_body_code)) {
+                $condition[$paymenttable . ".local_body_code"] = $urban_body_code;
+              }
+              if ($is_urban == 1 && !empty($block_ulb_code)) {
+                $condition[$paymenttable . ".block_ulb_code"] = $block_ulb_code;
               }
             }
+
             if (!empty($gp_ward_code)) {
               $condition[$paymenttable . ".gp_ward_code"] = $gp_ward_code;
             }
 
+            $search = $request->search['value'];
 
-            $serachvalue = $request->search['value'];
-            $limit = $request->input('length');
-            $offset = $request->input('start');
 
-            $totalRecords = 0;
-            $filterRecords = 0;
-            $data = array();
-            $query = $modelName->where($condition)->where($paymenttable . ".ben_status", 0);
-            $query = $query->leftjoin($blocktable, $blocktable . '.block_code', '=', $paymenttable . '.block_ulb_code');
-            $query = $query->leftjoin($munctable, $munctable . '.urban_body_code', '=', $paymenttable . '.block_ulb_code');
-            $query = $query->leftjoin($gptable, $gptable . '.gram_panchyat_code', '=', $paymenttable . '.gp_ward_code');
-            $query = $query->leftjoin($wardtable, $wardtable . '.urban_body_ward_code', '=', $paymenttable . '.gp_ward_code');
-            if (empty($serachvalue)) {
-              $totalRecords = $query->count($paymenttable . '.ben_id');
-              // dd($query);
-              $data = $query->orderBy($paymenttable . '.ben_name')->orderBy('gp_ward_code')->offset($offset)->limit($limit)->get(
-                [
-                  '' . $paymenttable . '.application_id as application_id',
-                  '' . $paymenttable . '.ben_name as ben_name',
-                  '' . $paymenttable . '.mobile_no as mobile_no',
-                  '' . $paymenttable . '.last_accno as bank_code',
-                  '' . $paymenttable . '.last_ifsc as bank_ifsc',
-                  '' . $paymenttable . '.rural_urban_id as rural_urban_id',
-                  '' . $paymenttable . '.gp_ward_code as gp_ward_code',
-                  '' . $paymenttable . '.block_ulb_code as block_ulb_code',
-                  '' . $paymenttable . '.gp_ward_code as gp_ward_code',
-                  '' . $blocktable . '.block_name as block_name',
-                  '' . $munctable . '.urban_body_name as munc_name',
-                  '' . $gptable . '.gram_panchyat_name as gp_name',
-                  '' . $wardtable . '.urban_body_ward_name as ward_name'
+            $query = $modelName
+              ->where($condition)
+              ->where($paymenttable . ".ben_status", 0)
+              ->leftjoin($blocktable, $blocktable . '.block_code', '=', $paymenttable . '.block_ulb_code')
+              ->leftjoin($munctable, $munctable . '.urban_body_code', '=', $paymenttable . '.block_ulb_code')
+              ->leftjoin($gptable, $gptable . '.gram_panchyat_code', '=', $paymenttable . '.gp_ward_code')
+              ->leftjoin($wardtable, $wardtable . '.urban_body_ward_code', '=', $paymenttable . '.gp_ward_code')
+              ->select([
+                $paymenttable . '.application_id',
+                $paymenttable . '.ben_name',
+                $paymenttable . '.mobile_no',
+                $paymenttable . '.last_accno as bank_code',
+                $paymenttable . '.last_ifsc as bank_ifsc',
+                $paymenttable . '.rural_urban_id',
+                $paymenttable . '.gp_ward_code',
+                $paymenttable . '.block_ulb_code',
+                $blocktable . '.block_name',
+                $munctable . '.urban_body_name as munc_name',
+                $gptable . '.gram_panchyat_name as gp_name',
+                $wardtable . '.urban_body_ward_name as ward_name'
+              ]);
 
-                ]
-              );
-              // dd($data);
-            } else {
-              if (preg_match('/^[0-9]*$/', $serachvalue)) {
-                $query = $query->where(function ($query1) use ($serachvalue, $paymenttable) {
-                  if (strlen($serachvalue) < 10) {
-                    $query1->where($paymenttable . '.application_id', $serachvalue);
-                  } else if (strlen($serachvalue) == 10) {
-                    $query1->where($paymenttable . '.mobile_no', $serachvalue);
+
+            if (!empty($search)) {
+
+              if (preg_match('/^[0-9]*$/', $search)) {
+
+                $query->where(function ($q) use ($search, $paymenttable) {
+                  if (strlen($search) < 10) {
+                    $q->where($paymenttable . '.application_id', $search);
+                  } elseif (strlen($search) == 10) {
+                    $q->where($paymenttable . '.mobile_no', $search);
                   }
                 });
-                $totalRecords = $query->count($paymenttable . '.application_id');
-                $data = $query->orderBy($paymenttable . '.ben_name')->orderBy('gp_ward_code')->offset($offset)->limit($limit)->get(
-                  [
 
-                    '' . $paymenttable . '.application_id as application_id',
-                    '' . $paymenttable . '.ben_name as ben_name',
-                    '' . $paymenttable . '.mobile_no as mobile_no',
-                    '' . $paymenttable . '.last_accno as bank_code',
-                    '' . $paymenttable . '.last_ifsc as bank_ifsc',
-                    '' . $paymenttable . '.rural_urban_id as rural_urban_id',
-                    '' . $paymenttable . '.gp_ward_code as gp_ward_code',
-                    '' . $paymenttable . '.block_ulb_code as block_ulb_code',
-                    '' . $paymenttable . '.gp_ward_code as gp_ward_code',
-                    '' . $blocktable . '.block_name as block_name',
-                    '' . $munctable . '.urban_body_name as munc_name',
-                    '' . $gptable . '.gram_panchyat_name as gp_name',
-                    '' . $wardtable . '.urban_body_ward_name as ward_name'
-                  ]
-                );
               } else {
-                $query = $query->where(function ($query1) use ($serachvalue) {
-                  $query1->where('ben_name', 'like', $serachvalue . '%');
-                });
-                $totalRecords = $query->count($paymenttable . '.ben_id');
-                $data = $query->orderBy($paymenttable . '.ben_name')->orderBy('gp_ward_code')->offset($offset)->limit($limit)->get(
-                  [
-
-                    '' . $paymenttable . '.application_id as application_id',
-                    '' . $paymenttable . '.ben_name as ben_name',
-                    '' . $paymenttable . '.mobile_no as mobile_no',
-                    '' . $paymenttable . '.last_accno as bank_code',
-                    '' . $paymenttable . '.last_ifsc as bank_ifsc',
-                    '' . $paymenttable . '.rural_urban_id as rural_urban_id',
-                    '' . $paymenttable . '.gp_ward_code as gp_ward_code',
-                    '' . $paymenttable . '.block_ulb_code as block_ulb_code',
-                    '' . $paymenttable . '.gp_ward_code as gp_ward_code',
-                    '' . $blocktable . '.block_name as block_name',
-                    '' . $munctable . '.urban_body_name as munc_name',
-                    '' . $gptable . '.gram_panchyat_name as gp_name',
-                    '' . $wardtable . '.urban_body_ward_name as ward_name'
-                  ]
-                );
+                $query->where($paymenttable . '.ben_name', 'like', $search . '%');
               }
-              $filterRecords = count($data);
             }
+
           } else if ($report_type == 5) {
             $paymenttable = 'lb_scheme.ben_caste_modification_track';
+
             $modelName->setConnection('pgsql_appread');
-            $modelName->setTable('' . $paymenttable);
+            $modelName->setTable($paymenttable);
+
+            $condition = [];
             if (!empty($request->ds_phase)) {
               $condition[$paymenttable . ".ds_phase"] = $request->ds_phase;
             }
+
             if (!empty($district_code)) {
-              //$condition[$paymenttable . ".dist_code"] = $district_code;
               $condition[$paymenttable . ".created_by_dist_code"] = $district_code;
             }
+
             if (!empty($is_urban)) {
-              // $condition[$contact_table . ".rural_urban_id"] = $is_urban;
-              if ($is_urban == 2) {
-                if (!empty($urban_body_code)) {
-                  //$condition["rural_urban_id"] = 2;
-                  $condition[$paymenttable . ".created_by_local_body_code"] = $urban_body_code;
-                }
+              if ($is_urban == 2 && !empty($urban_body_code)) {
+                $condition[$paymenttable . ".created_by_local_body_code"] = $urban_body_code;
               }
-              //'Urban'
-              if ($is_urban == 1) {
-                if (!empty($urban_body_code)) {
-                  //$condition["rural_urban_id"] = 1;
-                  $condition[$paymenttable . ".created_by_local_body_code"] = $urban_body_code;
-                }
-                if (!empty($block_ulb_code)) {
-                  $condition[$paymenttable . ".block_ulb_code"] = $block_ulb_code;
-                }
+
+              if ($is_urban == 1 && !empty($urban_body_code)) {
+                $condition[$paymenttable . ".created_by_local_body_code"] = $urban_body_code;
+              }
+
+              if ($is_urban == 1 && !empty($block_ulb_code)) {
+                $condition[$paymenttable . ".block_ulb_code"] = $block_ulb_code;
               }
             }
+
             if (!empty($gp_ward_code)) {
               $condition[$paymenttable . ".gp_ward_code"] = $gp_ward_code;
             }
 
+            $search = $request->search['value'];
+            $query = $modelName
+              ->where($condition)
+              ->whereraw("(next_level_role_id_caste IS NULL or next_level_role_id_caste>0 or next_level_role_id_caste=-50)")
+              ->select([
+                $paymenttable . '.application_id',
+                $paymenttable . '.ben_name',
+                $paymenttable . '.mobile_no',
+                $paymenttable . '.rural_urban_id',
+                $paymenttable . '.block_ulb_code',
+                $paymenttable . '.block_ulb_name as block_name',
+                $paymenttable . '.block_ulb_name as munc_name',
+                $paymenttable . '.gp_ward_code',
+                $paymenttable . '.gp_ward_name as gp_name',
+                $paymenttable . '.gp_ward_name as ward_name',
+                $paymenttable . '.next_level_role_id_caste'
+              ]);
 
-            $serachvalue = $request->search['value'];
-            $limit = $request->input('length');
-            $offset = $request->input('start');
+            if (!empty($search)) {
 
-            $totalRecords = 0;
-            $filterRecords = 0;
-            $data = array();
-            $query = $modelName->where($condition)->whereraw("(next_level_role_id_caste IS NULL or next_level_role_id_caste>0 or next_level_role_id_caste=-50)");
-            if (empty($serachvalue)) {
-              $totalRecords = $query->count($paymenttable . '.beneficiary_id');
-              // dd($query);
-              $data = $query->orderBy($paymenttable . '.ben_name')->orderBy('gp_ward_code')->offset($offset)->limit($limit)->get(
-                [
-                  '' . $paymenttable . '.application_id as application_id',
-                  '' . $paymenttable . '.ben_name as ben_name',
-                  '' . $paymenttable . '.mobile_no as mobile_no',
-                  '' . $paymenttable . '.rural_urban_id as rural_urban_id',
-                  '' . $paymenttable . '.block_ulb_code as block_ulb_code',
-                  '' . $paymenttable . '.block_ulb_name as block_name',
-                  '' . $paymenttable . '.block_ulb_name as munc_name',
-                  '' . $paymenttable . '.gp_ward_code as gp_ward_code',
-                  '' . $paymenttable . '.gp_ward_name as gp_name',
-                  '' . $paymenttable . '.gp_ward_name as ward_name',
-                  '' . $paymenttable . '.next_level_role_id_caste as next_level_role_id_caste'
+              if (preg_match('/^[0-9]*$/', $search)) {
 
-                ]
-              );
-              // dd($data);
-            } else {
-              if (preg_match('/^[0-9]*$/', $serachvalue)) {
-                $query = $query->where(function ($query1) use ($serachvalue, $paymenttable) {
-                  if (strlen($serachvalue) < 10) {
-                    $query1->where($paymenttable . '.application_id', $serachvalue);
-                  } else if (strlen($serachvalue) == 10) {
-                    $query1->where($paymenttable . '.mobile_no', $serachvalue);
+                $query->where(function ($q) use ($search, $paymenttable) {
+                  if (strlen($search) < 10) {
+                    $q->where($paymenttable . '.application_id', $search);
+                  } elseif (strlen($search) == 10) {
+                    $q->where($paymenttable . '.mobile_no', $search);
                   }
                 });
-                $totalRecords = $query->count($paymenttable . '.beneficiary_id');
-                $data = $query->orderBy($paymenttable . '.ben_name')->orderBy('gp_ward_code')->offset($offset)->limit($limit)->get(
-                  [
 
-                    '' . $paymenttable . '.application_id as application_id',
-                    '' . $paymenttable . '.ben_name as ben_name',
-                    '' . $paymenttable . '.mobile_no as mobile_no',
-                    '' . $paymenttable . '.rural_urban_id as rural_urban_id',
-                    '' . $paymenttable . '.block_ulb_code as block_ulb_code',
-                    '' . $paymenttable . '.block_ulb_name as block_name',
-                    '' . $paymenttable . '.block_ulb_name as munc_name',
-                    '' . $paymenttable . '.gp_ward_code as gp_ward_code',
-                    '' . $paymenttable . '.gp_ward_name as gp_name',
-                    '' . $paymenttable . '.gp_ward_name as ward_name',
-                    '' . $paymenttable . '.next_level_role_id_caste as next_level_role_id_caste'
-                  ]
-                );
               } else {
-                $query = $query->where(function ($query1) use ($serachvalue) {
-                  $query1->where('ben_name', 'like', $serachvalue . '%');
-                });
-                $totalRecords = $query->count($paymenttable . '.beneficiary_id');
-                $data = $query->orderBy($paymenttable . '.ben_name')->orderBy('gp_ward_code')->offset($offset)->limit($limit)->get(
-                  [
-
-                    '' . $paymenttable . '.application_id as application_id',
-                    '' . $paymenttable . '.ben_name as ben_name',
-                    '' . $paymenttable . '.mobile_no as mobile_no',
-                    '' . $paymenttable . '.rural_urban_id as rural_urban_id',
-                    '' . $paymenttable . '.block_ulb_code as block_ulb_code',
-                    '' . $paymenttable . '.block_ulb_name as block_name',
-                    '' . $paymenttable . '.block_ulb_name as munc_name',
-                    '' . $paymenttable . '.gp_ward_code as gp_ward_code',
-                    '' . $paymenttable . '.gp_ward_name as gp_name',
-                    '' . $paymenttable . '.gp_ward_name as ward_name',
-                    '' . $paymenttable . '.next_level_role_id_caste as next_level_role_id_caste'
-                  ]
-                );
+                $query->where($paymenttable . '.ben_name', 'like', $search . '%');
               }
-              $filterRecords = count($data);
             }
           } else if ($report_type == 6) {
             $paymenttable = 'lb_scheme.ben_reject_details';
+
             $modelName->setConnection('pgsql_appread');
-            $modelName->setTable('' . $paymenttable);
+            $modelName->setTable($paymenttable);
+
+            $condition = [];
             if (!empty($request->ds_phase)) {
               $condition[$paymenttable . ".ds_phase"] = $request->ds_phase;
             }
+
             if (!empty($district_code)) {
-              //$condition[$paymenttable . ".dist_code"] = $district_code;
               $condition[$paymenttable . ".created_by_dist_code"] = $district_code;
             }
+
             if (!empty($is_urban)) {
-              // $condition[$contact_table . ".rural_urban_id"] = $is_urban;
-              if ($is_urban == 2) {
-                if (!empty($urban_body_code)) {
-                  //$condition["rural_urban_id"] = 2;
-                  $condition[$paymenttable . ".created_by_local_body_code"] = $urban_body_code;
-                }
+
+              if ($is_urban == 2 && !empty($urban_body_code)) {
+                $condition[$paymenttable . ".created_by_local_body_code"] = $urban_body_code;
               }
-              //'Urban'
-              if ($is_urban == 1) {
-                if (!empty($urban_body_code)) {
-                  //$condition["rural_urban_id"] = 1;
-                  $condition[$paymenttable . ".created_by_local_body_code"] = $urban_body_code;
-                }
-                if (!empty($block_ulb_code)) {
-                  $condition[$paymenttable . ".block_ulb_code"] = $block_ulb_code;
-                }
+
+              if ($is_urban == 1 && !empty($urban_body_code)) {
+                $condition[$paymenttable . ".created_by_local_body_code"] = $urban_body_code;
+              }
+
+              if ($is_urban == 1 && !empty($block_ulb_code)) {
+                $condition[$paymenttable . ".block_ulb_code"] = $block_ulb_code;
               }
             }
+
             if (!empty($gp_ward_code)) {
               $condition[$paymenttable . ".gp_ward_code"] = $gp_ward_code;
             }
 
+            $search = $request->search['value'];
+            $query = $modelName
+              ->where($condition)
+              ->where("next_level_role_id", -99)
+              ->select([
+                $paymenttable . '.application_id',
+                $paymenttable . '.ben_fname as ben_name',
+                $paymenttable . '.mobile_no',
+                $paymenttable . '.rural_urban_id',
+                $paymenttable . '.block_ulb_code',
+                $paymenttable . '.block_ulb_name as block_name',
+                $paymenttable . '.block_ulb_name as munc_name',
+                $paymenttable . '.gp_ward_code',
+                $paymenttable . '.gp_ward_name as gp_name',
+                $paymenttable . '.gp_ward_name as ward_name',
+                $paymenttable . '.next_level_role_id'
+              ]);
 
-            $serachvalue = $request->search['value'];
-            $limit = $request->input('length');
-            $offset = $request->input('start');
+            if (!empty($search)) {
 
-            $totalRecords = 0;
-            $filterRecords = 0;
-            $data = array();
-            $query = $modelName->where($condition)->where("next_level_role_id", -99);
-            if (empty($serachvalue)) {
-              $totalRecords = $query->count($paymenttable . '.application_id');
-              // dd($query);
-              $data = $query->orderBy($paymenttable . '.ben_fname')->orderBy('gp_ward_code')->offset($offset)->limit($limit)->get(
-                [
-                  '' . $paymenttable . '.application_id as application_id',
-                  '' . $paymenttable . '.ben_fname as ben_name',
-                  '' . $paymenttable . '.mobile_no as mobile_no',
-                  '' . $paymenttable . '.rural_urban_id as rural_urban_id',
-                  '' . $paymenttable . '.block_ulb_code as block_ulb_code',
-                  '' . $paymenttable . '.block_ulb_name as block_name',
-                  '' . $paymenttable . '.block_ulb_name as munc_name',
-                  '' . $paymenttable . '.gp_ward_code as gp_ward_code',
-                  '' . $paymenttable . '.gp_ward_name as gp_name',
-                  '' . $paymenttable . '.gp_ward_name as ward_name',
-                  '' . $paymenttable . '.next_level_role_id as next_level_role_id'
+              if (preg_match('/^[0-9]*$/', $search)) {
 
-                ]
-              );
-              // dd($data);
-            } else {
-              if (preg_match('/^[0-9]*$/', $serachvalue)) {
-                $query = $query->where(function ($query1) use ($serachvalue, $paymenttable) {
-                  if (strlen($serachvalue) < 10) {
-                    $query1->where($paymenttable . '.application_id', $serachvalue);
-                  } else if (strlen($serachvalue) == 10) {
-                    $query1->where($paymenttable . '.mobile_no', $serachvalue);
+                $query->where(function ($q) use ($search, $paymenttable) {
+
+                  if (strlen($search) < 10) {
+                    $q->where($paymenttable . '.application_id', $search);
+                  } elseif (strlen($search) == 10) {
+                    $q->where($paymenttable . '.mobile_no', $search);
                   }
                 });
-                $totalRecords = $query->count($paymenttable . '.beneficiary_id');
-                $data = $query->orderBy($paymenttable . '.ben_fname')->orderBy('gp_ward_code')->offset($offset)->limit($limit)->get(
-                  [
 
-                    '' . $paymenttable . '.application_id as application_id',
-                    '' . $paymenttable . '.ben_fname as ben_name',
-                    '' . $paymenttable . '.mobile_no as mobile_no',
-                    '' . $paymenttable . '.rural_urban_id as rural_urban_id',
-                    '' . $paymenttable . '.block_ulb_code as block_ulb_code',
-                    '' . $paymenttable . '.block_ulb_name as block_name',
-                    '' . $paymenttable . '.block_ulb_name as munc_name',
-                    '' . $paymenttable . '.gp_ward_code as gp_ward_code',
-                    '' . $paymenttable . '.gp_ward_name as gp_name',
-                    '' . $paymenttable . '.gp_ward_name as ward_name',
-                    '' . $paymenttable . '.next_level_role_id as next_level_role_id'
-                  ]
-                );
               } else {
-                $query = $query->where(function ($query1) use ($serachvalue) {
-                  $query1->where('ben_fname', 'like', $serachvalue . '%');
-                });
-                $totalRecords = $query->count($paymenttable . '.beneficiary_id');
-                $data = $query->orderBy($paymenttable . '.ben_fname')->orderBy('gp_ward_code')->offset($offset)->limit($limit)->get(
-                  [
-
-                    '' . $paymenttable . '.application_id as application_id',
-                    '' . $paymenttable . '.ben_fname as ben_name',
-                    '' . $paymenttable . '.mobile_no as mobile_no',
-                    '' . $paymenttable . '.rural_urban_id as rural_urban_id',
-                    '' . $paymenttable . '.block_ulb_code as block_ulb_code',
-                    '' . $paymenttable . '.block_ulb_name as block_name',
-                    '' . $paymenttable . '.block_ulb_name as munc_name',
-                    '' . $paymenttable . '.gp_ward_code as gp_ward_code',
-                    '' . $paymenttable . '.gp_ward_name as gp_name',
-                    '' . $paymenttable . '.gp_ward_name as ward_name',
-                    '' . $paymenttable . '.next_level_role_id as next_level_role_id'
-                  ]
-                );
+                $query->where($paymenttable . '.ben_fname', 'like', $search . '%');
               }
-              $filterRecords = count($data);
             }
+
           } else if ($report_type == 7) {
             $paymenttable = 'lb_scheme.ben_reject_details';
+
             $modelName->setConnection('pgsql_appread');
-            $modelName->setTable('' . $paymenttable);
+            $modelName->setTable($paymenttable);
+
+            $condition = [];
+
             if (!empty($request->ds_phase)) {
               $condition[$paymenttable . ".ds_phase"] = $request->ds_phase;
             }
+
             if (!empty($district_code)) {
-              //$condition[$paymenttable . ".dist_code"] = $district_code;
               $condition[$paymenttable . ".created_by_dist_code"] = $district_code;
             }
+
             if (!empty($is_urban)) {
-              // $condition[$contact_table . ".rural_urban_id"] = $is_urban;
-              if ($is_urban == 2) {
-                if (!empty($urban_body_code)) {
-                  //$condition["rural_urban_id"] = 2;
-                  $condition[$paymenttable . ".created_by_local_body_code"] = $urban_body_code;
-                }
+
+              if ($is_urban == 2 && !empty($urban_body_code)) {
+                $condition[$paymenttable . ".created_by_local_body_code"] = $urban_body_code;
               }
-              //'Urban'
-              if ($is_urban == 1) {
-                if (!empty($urban_body_code)) {
-                  //$condition["rural_urban_id"] = 1;
-                  $condition[$paymenttable . ".created_by_local_body_code"] = $urban_body_code;
-                }
-                if (!empty($block_ulb_code)) {
-                  $condition[$paymenttable . ".block_ulb_code"] = $block_ulb_code;
-                }
+
+              if ($is_urban == 1 && !empty($urban_body_code)) {
+                $condition[$paymenttable . ".created_by_local_body_code"] = $urban_body_code;
+              }
+
+              if ($is_urban == 1 && !empty($block_ulb_code)) {
+                $condition[$paymenttable . ".block_ulb_code"] = $block_ulb_code;
               }
             }
+
             if (!empty($gp_ward_code)) {
               $condition[$paymenttable . ".gp_ward_code"] = $gp_ward_code;
             }
 
+            $search = $request->search['value'];
 
-            $serachvalue = $request->search['value'];
-            $limit = $request->input('length');
-            $offset = $request->input('start');
+            $query = $modelName
+              ->where($condition)
+              ->where("next_level_role_id", -400)
+              ->select([
+                $paymenttable . '.application_id',
+                $paymenttable . '.ben_fname as ben_name',
+                $paymenttable . '.mobile_no',
+                $paymenttable . '.rural_urban_id',
+                $paymenttable . '.block_ulb_code',
+                $paymenttable . '.block_ulb_name as block_name',
+                $paymenttable . '.block_ulb_name as munc_name',
+                $paymenttable . '.gp_ward_code',
+                $paymenttable . '.gp_ward_name as gp_name',
+                $paymenttable . '.gp_ward_name as ward_name',
+                $paymenttable . '.next_level_role_id'
+              ]);
 
-            $totalRecords = 0;
-            $filterRecords = 0;
-            $data = array();
-            $query = $modelName->where($condition)->where("next_level_role_id", -400);
-            if (empty($serachvalue)) {
-              $totalRecords = $query->count($paymenttable . '.beneficiary_id');
-              // dd($query);
-              $data = $query->orderBy($paymenttable . '.ben_fname')->orderBy('gp_ward_code')->offset($offset)->limit($limit)->get(
-                [
-                  '' . $paymenttable . '.application_id as application_id',
-                  '' . $paymenttable . '.ben_fname as ben_name',
-                  '' . $paymenttable . '.mobile_no as mobile_no',
-                  '' . $paymenttable . '.rural_urban_id as rural_urban_id',
-                  '' . $paymenttable . '.block_ulb_code as block_ulb_code',
-                  '' . $paymenttable . '.block_ulb_name as block_name',
-                  '' . $paymenttable . '.block_ulb_name as munc_name',
-                  '' . $paymenttable . '.gp_ward_code as gp_ward_code',
-                  '' . $paymenttable . '.gp_ward_name as gp_name',
-                  '' . $paymenttable . '.gp_ward_name as ward_name',
-                  '' . $paymenttable . '.next_level_role_id as next_level_role_id'
+            if (!empty($search)) {
 
-                ]
-              );
-              // dd($data);
-            } else {
-              if (preg_match('/^[0-9]*$/', $serachvalue)) {
-                $query = $query->where(function ($query1) use ($serachvalue, $paymenttable) {
-                  if (strlen($serachvalue) < 10) {
-                    $query1->where($paymenttable . '.application_id', $serachvalue);
-                  } else if (strlen($serachvalue) == 10) {
-                    $query1->where($paymenttable . '.mobile_no', $serachvalue);
+              if (preg_match('/^[0-9]*$/', $search)) {
+
+                $query->where(function ($q) use ($search, $paymenttable) {
+
+                  if (strlen($search) < 10) {
+                    $q->where($paymenttable . '.application_id', $search);
+                  } elseif (strlen($search) == 10) {
+                    $q->where($paymenttable . '.mobile_no', $search);
                   }
                 });
-                $totalRecords = $query->count($paymenttable . '.beneficiary_id');
-                $data = $query->orderBy($paymenttable . '.ben_fname')->orderBy('gp_ward_code')->offset($offset)->limit($limit)->get(
-                  [
 
-                    '' . $paymenttable . '.application_id as application_id',
-                    '' . $paymenttable . '.ben_fname as ben_name',
-                    '' . $paymenttable . '.mobile_no as mobile_no',
-                    '' . $paymenttable . '.rural_urban_id as rural_urban_id',
-                    '' . $paymenttable . '.block_ulb_code as block_ulb_code',
-                    '' . $paymenttable . '.block_ulb_name as block_name',
-                    '' . $paymenttable . '.block_ulb_name as munc_name',
-                    '' . $paymenttable . '.gp_ward_code as gp_ward_code',
-                    '' . $paymenttable . '.gp_ward_name as gp_name',
-                    '' . $paymenttable . '.gp_ward_name as ward_name',
-                    '' . $paymenttable . '.next_level_role_id as next_level_role_id'
-                  ]
-                );
               } else {
-                $query = $query->where(function ($query1) use ($serachvalue) {
-                  $query1->where('ben_fname', 'like', $serachvalue . '%');
-                });
-                $totalRecords = $query->count($paymenttable . '.beneficiary_id');
-                $data = $query->orderBy($paymenttable . '.ben_fname')->orderBy('gp_ward_code')->offset($offset)->limit($limit)->get(
-                  [
-
-                    '' . $paymenttable . '.application_id as application_id',
-                    '' . $paymenttable . '.ben_fname as ben_name',
-                    '' . $paymenttable . '.mobile_no as mobile_no',
-                    '' . $paymenttable . '.rural_urban_id as rural_urban_id',
-                    '' . $paymenttable . '.block_ulb_code as block_ulb_code',
-                    '' . $paymenttable . '.block_ulb_name as block_name',
-                    '' . $paymenttable . '.block_ulb_name as munc_name',
-                    '' . $paymenttable . '.gp_ward_code as gp_ward_code',
-                    '' . $paymenttable . '.gp_ward_name as gp_name',
-                    '' . $paymenttable . '.gp_ward_name as ward_name',
-                    '' . $paymenttable . '.next_level_role_id as next_level_role_id'
-                  ]
-                );
+                $query->where($paymenttable . '.ben_fname', 'like', $search . '%');
               }
-              $filterRecords = count($data);
             }
           } else if ($report_type == 8) {
             $Table = 'lb_main.ben_payment_details_bank_code_dup';
             $paymenttable = $Table;
-            $modelName->setConnection('pgsql_payment');
-            $modelName->setTable('' . $Table);
 
+            $modelName->setConnection('pgsql_payment');
+            $modelName->setTable($Table);
+
+            $condition = [];
 
             if (!empty($district_code)) {
-              //$condition[$paymenttable . ".dist_code"] = $district_code;
               $condition[$Table . ".dist_code"] = $district_code;
             }
+
             if (!empty($is_urban)) {
-              // $condition[$contact_table . ".rural_urban_id"] = $is_urban;
-              if ($is_urban == 2) {
-                if (!empty($urban_body_code)) {
-                  //$condition["rural_urban_id"] = 2;
-                  $condition[$Table . ".local_body_code"] = $urban_body_code;
-                }
+
+              if ($is_urban == 2 && !empty($urban_body_code)) {
+                $condition[$Table . ".local_body_code"] = $urban_body_code;
               }
-              //'Urban'
-              if ($is_urban == 1) {
-                if (!empty($urban_body_code)) {
-                  //$condition["rural_urban_id"] = 1;
-                  $condition[$Table . ".local_body_code"] = $urban_body_code;
-                }
-                if (!empty($block_ulb_code)) {
-                  $condition[$Table . ".block_ulb_code"] = $block_ulb_code;
-                }
+
+              if ($is_urban == 1 && !empty($urban_body_code)) {
+                $condition[$Table . ".local_body_code"] = $urban_body_code;
+              }
+
+              if ($is_urban == 1 && !empty($block_ulb_code)) {
+                $condition[$Table . ".block_ulb_code"] = $block_ulb_code;
               }
             }
+
             if (!empty($gp_ward_code)) {
               $condition[$Table . ".gp_ward_code"] = $gp_ward_code;
             }
 
+            $search = $request->search['value'];
+            $query = $modelName
+              ->where($condition)
+              ->whereIn("ben_status", [-98, -99])
+              ->leftJoin($blocktable, $blocktable . '.block_code', '=', $paymenttable . '.block_ulb_code')
+              ->leftJoin($munctable, $munctable . '.urban_body_code', '=', $paymenttable . '.block_ulb_code')
+              ->leftJoin($gptable, $gptable . '.gram_panchyat_code', '=', $paymenttable . '.gp_ward_code')
+              ->leftJoin($wardtable, $wardtable . '.urban_body_ward_code', '=', $paymenttable . '.gp_ward_code')
+              ->select([
+                $paymenttable . '.application_id',
+                $paymenttable . '.ben_name',
+                $paymenttable . '.mobile_no',
+                $paymenttable . '.last_accno as bank_code',
+                $paymenttable . '.last_ifsc as bank_ifsc',
+                $paymenttable . '.rural_urban_id',
+                $paymenttable . '.gp_ward_code',
+                $paymenttable . '.block_ulb_code',
+                $blocktable . '.block_name',
+                $munctable . '.urban_body_name as munc_name',
+                $gptable . '.gram_panchyat_name as gp_name',
+                $wardtable . '.urban_body_ward_name as ward_name',
+                $paymenttable . '.rejected_date'
+              ]);
 
-            $serachvalue = $request->search['value'];
-            $limit = $request->input('length');
-            $offset = $request->input('start');
+            if (!empty($search)) {
 
-            $totalRecords = 0;
-            $filterRecords = 0;
-            $data = array();
-            $query = $modelName->where($condition)->whereIn("ben_status", [-98, -99]);
-            $query = $query->leftjoin($blocktable, $blocktable . '.block_code', '=', $paymenttable . '.block_ulb_code');
-            $query = $query->leftjoin($munctable, $munctable . '.urban_body_code', '=', $paymenttable . '.block_ulb_code');
-            $query = $query->leftjoin($gptable, $gptable . '.gram_panchyat_code', '=', $paymenttable . '.gp_ward_code');
-            $query = $query->leftjoin($wardtable, $wardtable . '.urban_body_ward_code', '=', $paymenttable . '.gp_ward_code');
-            if (empty($serachvalue)) {
-              $totalRecords = $query->count($Table . '.ben_id');
-              // dd($query);
-              $data = $query->orderBy($paymenttable . '.ben_name')->orderBy('gp_ward_code')->offset($offset)->limit($limit)->get(
-                [
-                  '' . $paymenttable . '.application_id as application_id',
-                  '' . $paymenttable . '.ben_name as ben_name',
-                  '' . $paymenttable . '.mobile_no as mobile_no',
-                  '' . $paymenttable . '.last_accno as bank_code',
-                  '' . $paymenttable . '.last_ifsc as bank_ifsc',
-                  '' . $paymenttable . '.rural_urban_id as rural_urban_id',
-                  '' . $paymenttable . '.gp_ward_code as gp_ward_code',
-                  '' . $paymenttable . '.block_ulb_code as block_ulb_code',
-                  '' . $paymenttable . '.gp_ward_code as gp_ward_code',
-                  '' . $blocktable . '.block_name as block_name',
-                  '' . $munctable . '.urban_body_name as munc_name',
-                  '' . $gptable . '.gram_panchyat_name as gp_name',
-                  '' . $wardtable . '.urban_body_ward_name as ward_name',
-                  '' . $paymenttable . '.rejected_date as rejected_date'
+              if (preg_match('/^[0-9]*$/', $search)) {
 
-                ]
-              );
-              // dd($data);
-            } else {
-              if (preg_match('/^[0-9]*$/', $serachvalue)) {
-                $query = $query->where(function ($query1) use ($serachvalue, $paymenttable) {
-                  if (strlen($serachvalue) < 10) {
-                    $query1->where($paymenttable . '.application_id', $serachvalue);
-                  } else if (strlen($serachvalue) == 10) {
-                    $query1->where($paymenttable . '.mobile_no', $serachvalue);
+                $query->where(function ($q) use ($search, $paymenttable) {
+
+                  if (strlen($search) < 10) {
+                    $q->where($paymenttable . '.application_id', $search);
+                  } elseif (strlen($search) == 10) {
+                    $q->where($paymenttable . '.mobile_no', $search);
                   }
                 });
-                $totalRecords = $query->count($Table . '.application_id');
-                $data = $query->orderBy($paymenttable . '.ben_name')->orderBy('gp_ward_code')->offset($offset)->limit($limit)->get(
-                  [
 
-
-                    '' . $paymenttable . '.application_id as application_id',
-                    '' . $paymenttable . '.ben_name as ben_name',
-                    '' . $paymenttable . '.mobile_no as mobile_no',
-                    '' . $paymenttable . '.last_accno as bank_code',
-                    '' . $paymenttable . '.last_ifsc as bank_ifsc',
-                    '' . $paymenttable . '.rural_urban_id as rural_urban_id',
-                    '' . $paymenttable . '.gp_ward_code as gp_ward_code',
-                    '' . $paymenttable . '.block_ulb_code as block_ulb_code',
-                    '' . $paymenttable . '.gp_ward_code as gp_ward_code',
-                    '' . $blocktable . '.block_name as block_name',
-                    '' . $munctable . '.urban_body_name as munc_name',
-                    '' . $gptable . '.gram_panchyat_name as gp_name',
-                    '' . $wardtable . '.urban_body_ward_name as ward_name',
-                    '' . $paymenttable . '.rejected_date as rejected_date'
-                  ]
-                );
               } else {
-                $query = $query->where(function ($query1) use ($serachvalue) {
-                  $query1->where('ben_name', 'like', $serachvalue . '%');
-                });
-                $totalRecords = $query->count($Table . '.ben_id');
-                $data = $query->orderBy($paymenttable . '.ben_name')->orderBy('gp_ward_code')->offset($offset)->limit($limit)->get(
-                  [
-
-
-                    '' . $paymenttable . '.application_id as application_id',
-                    '' . $paymenttable . '.ben_name as ben_name',
-                    '' . $paymenttable . '.mobile_no as mobile_no',
-                    '' . $paymenttable . '.last_accno as bank_code',
-                    '' . $paymenttable . '.last_ifsc as bank_ifsc',
-                    '' . $paymenttable . '.rural_urban_id as rural_urban_id',
-                    '' . $paymenttable . '.gp_ward_code as gp_ward_code',
-                    '' . $paymenttable . '.block_ulb_code as block_ulb_code',
-                    '' . $paymenttable . '.gp_ward_code as gp_ward_code',
-                    '' . $blocktable . '.block_name as block_name',
-                    '' . $munctable . '.urban_body_name as munc_name',
-                    '' . $gptable . '.gram_panchyat_name as gp_name',
-                    '' . $wardtable . '.urban_body_ward_name as ward_name',
-                    '' . $paymenttable . '.rejected_date as rejected_date'
-                  ]
-                );
+                $query->where($paymenttable . '.ben_name', 'like', $search . '%');
               }
-              $filterRecords = count($data);
             }
+
           } else if ($report_type == 9) {
             $report_type_name = 'Rejection';
           } else {
@@ -1019,10 +695,7 @@ class StopBeneficiaryController extends Controller
 
 
           return datatables()
-            ->of($data)
-            ->setTotalRecords($totalRecords)
-            ->setFilteredRecords($filterRecords)
-            ->skipPaging()
+            ->eloquent($query)
             ->addColumn('application_id', function ($data) use ($report_type) {
 
               return $data->application_id;
@@ -1038,7 +711,7 @@ class StopBeneficiaryController extends Controller
               if ($data->rural_urban_id == 1) {
                 $description = $data->munc_name;
               } else if ($data->rural_urban_id == 2) {
-                $description =  $data->block_name;
+                $description = $data->block_name;
               }
               return $description;
             })->addColumn('gp_ward_name', function ($data) use ($report_type) {
@@ -1046,7 +719,7 @@ class StopBeneficiaryController extends Controller
               if ($data->rural_urban_id == 1) {
                 $description = $data->ward_name;
               } else if ($data->rural_urban_id == 2) {
-                $description =  $data->gp_name;
+                $description = $data->gp_name;
               }
               return $description;
             })->addColumn('status', function ($data) use ($report_type) {
@@ -1091,9 +764,9 @@ class StopBeneficiaryController extends Controller
             ->with('gpwardList', $gpwardList)
             ->with('mappingLevel', $mappingLevel)
             ->with('sessiontimeoutmessage', $errormsg['sessiontimeOut'])
-            ->with('scheme_name',  $scheme_name_arr->scheme_name)
-            ->with('ds_phase_list',  $ds_phase_list)
-            ->with('download_excel',  $download_excel);
+            ->with('scheme_name', $scheme_name_arr->scheme_name)
+            ->with('ds_phase_list', $ds_phase_list)
+            ->with('download_excel', $download_excel);
         }
       } else {
         return redirect('/')->with('error', 'User not Authorized for this scheme');
@@ -1570,9 +1243,15 @@ class StopBeneficiaryController extends Controller
       }
       //dd($data->toArray());
       $excel_data[] = array(
-        'Application ID', 'Applicant Name', 'Mobile No', 'Block/Municipality', 'GP/WARD', 'DS Phase', 'Status'
+        'Application ID',
+        'Applicant Name',
+        'Mobile No',
+        'Block/Municipality',
+        'GP/WARD',
+        'DS Phase',
+        'Status'
       );
-      $filename = $scheme_name . "-" . $report_type_name . "-" . date('d/m/Y') .  "-" . time() . ".xls";
+      $filename = $scheme_name . "-" . $report_type_name . "-" . date('d/m/Y') . "-" . time() . ".xls";
       header("Content-Type: application/xls");
       header("Content-Disposition: attachment; filename=" . $filename);
       header("Pragma: no-cache");
@@ -1592,13 +1271,13 @@ class StopBeneficiaryController extends Controller
           if ($row->rural_urban_id == 1) {
             $block_ulb_name = $row->munc_name;
           } else if ($row->rural_urban_id == 2) {
-            $block_ulb_name =  $row->block_name;
+            $block_ulb_name = $row->block_name;
           }
           $gp_ward_name = '';
           if ($row->rural_urban_id == 1) {
             $gp_ward_name = $row->ward_name;
           } else if ($row->rural_urban_id == 2) {
-            $gp_ward_name =  $row->gp_name;
+            $gp_ward_name = $row->gp_name;
           }
           if ($row->ds_phase != '') {
             $phase_des = $this->getPhaseDes($row->ds_phase);

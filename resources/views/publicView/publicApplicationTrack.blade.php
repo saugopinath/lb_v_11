@@ -206,7 +206,6 @@
                         <select class="form-select" name="select_type" id="select_type">
                             <option value="">-- Select --</option>
                             <option value="1">Application ID</option>
-                            <option value="2">Beneficiary ID</option>
                             <option value="3">Mobile Number</option>
                             <option value="4">Aadhaar Number</option>
                             <option value="5">Bank Account Number</option>
@@ -279,8 +278,8 @@
         </div>
     </div>
     <hr>
-    <!-- Payment Status Section -->
-<<<<<<< HEAD
+
+
      <h4 class="text-center fw-bold text-success mb-3 paymentStatusDiv" style="display:none;">Payment Status (Beneficiary Id- <span class="span_ben_id"></span>)</h4>
      <div class="alert alert-danger" role="alert" id="payment_error_msg_div" style="display:none;"></div>
 
@@ -290,24 +289,7 @@
                 
               </h2>
               <div
-=======
-    <h4 class="text-center fw-bold text-success mb-3">Payment Status</h4>
 
-    <div class="accordion" id="paymentAccordion">
-        <div class="accordion-item">
-            <h2 class="accordion-header">
-                <button
-                    class="accordion-button fw-bold"
-                    type="button"
-                    data-target="#collapseOne"
-                    aria-expanded="false"
-                    aria-controls="collapseOne">
-                    Name – APARNA KARMAKAR, Beneficiary Id – 208789445,
-                    Application Id – 124458094
-                </button>
-            </h2>
-            <div
->>>>>>> Feature/frontend_update
                 id="collapseOne"
                 class="accordion-collapse collapse"
                 data-parent="#paymentAccordion">
@@ -317,14 +299,8 @@
                             <label>Which financial year you want to view payment
                                 status?</label>
                         </div>
-                        <div class="col-md-6">
-                            <select class="form-select w-auto d-inline-block" id="fin_year_select_example">
-                                <option value="2025-2026">2025-2026</option>
-                                <option value="2024-2025">2024-2025</option>
-                            </select>
-                        </div>
+                       
                     </div>
-<<<<<<< HEAD
                     <div class="col-md-6">
                       <select class="form-select w-auto d-inline-block"  onchange="changeFinancialYear(this.value)" id="fin_year">
                             <?php
@@ -366,50 +342,6 @@
                       </tbody>
                     </table>
                   </div>
-=======
-
-                    <p class="fw-semibold mb-1">
-                        Bank Account Status : <span class="text-success">Validation Success. Ready For Payment</span>
-                    </p>
-                    <p class="fw-semibold mb-1">
-                        Beneficiary Status : <span class="text-success">Active beneficiary</span>
-                    </p>
-                    <p class="mb-1">
-                        Bank A/C No : 38xxxxxxxx758, IFSC : SBINxxxxx65
-                    </p>
-                    <div class="table-responsive">
-                        <table class="table table-bordered align-middle">
-                            <thead class="table-light">
-                                <tr>
-                                    <th>Month</th>
-                                    <th>Payment Status</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td>January 2025</td>
-                                    <td>Payment Success</td>
-                                </tr>
-                                <tr>
-                                    <td>February 2025</td>
-                                    <td>Payment Success</td>
-                                </tr>
-                                <tr>
-                                    <td>March 2025</td>
-                                    <td>Payment Success</td>
-                                </tr>
-                                <tr>
-                                    <td>April 2025</td>
-                                    <td>Payment Pending</td>
-                                </tr>
-                                <tr>
-                                    <td>May 2025</td>
-                                    <td>Payment Success</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
->>>>>>> Feature/frontend_update
                 </div>
             </div>
         </div>
@@ -417,7 +349,6 @@
 </div>
 
 @push('scripts')
-<<<<<<< HEAD
  <script type="text/javascript">
         $(document).ready(function() {
             $('#loaderDiv').hide();
@@ -647,37 +578,7 @@
             document.body.innerHTML = originalContents;
         }
    
-    $(document).ready(function() {
-        $('.open-payment-modal-btn').on('click', function() {
-            $('#ben_payment_view_modal').modal('show');
-        });
-=======
-<script>
-$(function() {
 
-    // Helper: find buttons that control a collapse pane (by id)
-    function buttonsForPaneId(paneId) {
-        return $('[data-target="#' + paneId + '"], [data-bs-target="#' + paneId + '"], [aria-controls="' + paneId + '"]');
-    }
-
-    // Initialize each accordion on page load
-    $('#paymentAccordion .accordion-collapse').each(function() {
-        const $pane = $(this);
-        const paneId = this.id;
-
-        // ensure aria/collapsed state matches visibility / .show class
-        const isShown = $pane.hasClass('show') || $pane.is(':visible');
-        const $buttons = buttonsForPaneId(paneId);
-
-        if (isShown) {
-            $pane.show().addClass('show');
-            $buttons.removeClass('collapsed').attr('aria-expanded', 'true');
-        } else {
-            $pane.hide().removeClass('show');
-            $buttons.addClass('collapsed').attr('aria-expanded', 'false');
-        }
->>>>>>> Feature/frontend_update
-    });
 
     // Delegated click handler for accordion toggle
     $('#paymentAccordion').on('click', '.accordion-button', function(e) {
@@ -730,7 +631,7 @@ $(function() {
         }
     });
 
-});
+
 </script>
 @endpush
 
