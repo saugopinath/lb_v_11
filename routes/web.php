@@ -18,7 +18,9 @@ use App\Http\Controllers\{
     casteManagementController,
     TrackApplicantController,
     MasterDataController,
-    CmoGrivanceWorkflowController1
+    CmoGrivanceWorkflowController1,
+    BenNameValidationFailedController,
+    ApproveEditedFailedBenNameController
 };
 
 Route::get('refresh-captcha', [CaptchaController::class, 'refreshCaptcha'])->name('refresh-captcha');
@@ -125,22 +127,6 @@ Route::controller(MasterDataController::class)->group(function () {
     Route::post('masterDataAjax/getWard', 'getWard');
 });
 
-
-
-
-
-
-
-// -----------------
-
-// ----------------
-
-
-
-
-
-
-
 Route::controller(CmoGrivanceWorkflowController1::class)->group(function () {
     Route::get('cmo-grievance-workflow1', 'index')->name('cmo-grievance-workflow1');
     Route::post('cmo-grievance-linelisting1', 'listing')->name('cmo-grievance-linelisting1');
@@ -172,4 +158,25 @@ Route::controller(CmoGrivanceWorkflowController1::class)->group(function () {
     Route::any('cmo-getblksublist', 'getblksublist')->name('cmo-getblksublist');
     Route::any('cmo-getMunicipalityList', 'getMunicipalityList')->name('cmo-getMunicipalityList');
     Route::any('cmo-mapbospost', 'mapbospost')->name('cmo-mapbospost');
+});
+
+
+Route::post('bankIfsc', 'LegacyProcessController@bankIfsc')->name('bankIfsc');
+
+
+Route::controller(BenNameValidationFailedController::class)->group(function () {
+    Route::get('selectMatchingScore', 'selectMatchingScore')->name('selectMatchingScore');
+    Route::get('edit-name-failed-90-to-100', 'editIndex')->name('edit-name-failed-90-to-100');
+    Route::post('editFailedNameDetails', 'editFailedNameDetails')->name('editFailedNameDetails');
+    Route::post('getDataNameValidationFailed90to100', 'getDataNameValidationFailed90to100')->name('getDataNameValidationFailed90to100');
+    Route::post('updateNameValidationFailed90to100', 'updateNameValidationFailed90to100')->name('updateNameValidationFailed90to100');
+    Route::post('failedNameAjaxViewPassbook', 'failedNameAjaxViewPassbook')->name('failedNameAjaxViewPassbook');
+});
+
+
+Route::controller(ApproveEditedFailedBenNameController::class)->group(function () {
+    Route::get('mis-report-of-90-to-100', 'indexMisReport')->name('mis-report-of-90-to-100');
+    Route::get('selectVerifiedMatchingScore', 'selectMatchingScore')->name('selectVerifiedMatchingScore');
+    Route::post('getMis90to100', 'getMis90to100')->name('getMis90to100');
+    Route::post('nameMismatchRejectOtpVerify', 'nameMismatchRejectOtpVerify')->name('nameMismatchRejectOtpVerify');
 });
