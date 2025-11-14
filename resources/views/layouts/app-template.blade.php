@@ -32,7 +32,7 @@
     <link rel="stylesheet" href="{{ asset('bootstrap-5/css/bootstrap.min.css') }}" type="text/css" />
     <link rel="stylesheet" href="{{ asset('css/jquery-confirm.min.css') }}" type="text/css" />
     <link rel="stylesheet" href="{{ asset('css/global.css') }}" type="text/css" />
-
+   <link rel="stylesheet" href="{{ asset('css/sweetalert2.min.css') }}" type="text/css"/>
     <!-- STACK 1: Global Styles -->
     @stack('styles')
 
@@ -59,6 +59,7 @@
     <script src="{{ asset('bootstrap-5/js/bootstrap.bundle.min.js') }}"></script>
     <script src="{{ asset('AdminLTE_3/dist/js/adminlte.js') }}"></script>
     <script src="{{ asset('js/jquery-confirm.min.js') }}"></script>
+    <script src="{{ asset('js/sweetalert2.all.min.js') }}"></script>
 
     {{-- Dynamic JS --}}
     <!-- STACK 3: Library/Plugin Scripts (js from middle-level templates) -->
@@ -91,28 +92,38 @@
         });
 
         function ajax_error(jqXHR, textStatus, errorThrown) {
-            $('#loadingDiv').hide();
-            var msg = "<strong>Failed to Load data.</strong><br/>";
-            if (jqXHR.status !== 422 && jqXHR.status !== 400) {
-                msg += "<strong>" + jqXHR.status + ": " + errorThrown + "</strong>";
-            } else {
-                if (jqXHR.responseJSON.hasOwnProperty('exception')) {
-                    msg += "Exception: <strong>" + jqXHR.responseJSON.exception_message + "</strong>";
-                } else {
-                    msg += "Error(s):<strong><ul>";
-                    $.each(jqXHR.responseJSON, function(key, value) {
-                        msg += "<li>" + value + "</li>";
-                    });
-                    msg += "</ul></strong>";
-                }
-            }
-            $.alert({
-                title: 'Error!!',
-                type: 'red',
-                icon: 'fa fa-warning',
-                content: msg,
+    $('#loadingDiv').hide();
+    var msg = "<strong>Failed to Load data.</strong><br/>";
+    
+    if (jqXHR.status !== 422 && jqXHR.status !== 400) {
+        msg += "<strong>" + jqXHR.status + ": " + errorThrown + "</strong>";
+    } else {
+        if (jqXHR.responseJSON && jqXHR.responseJSON.hasOwnProperty('exception')) {
+            msg += "Exception: <strong>" + jqXHR.responseJSON.exception_message + "</strong>";
+        } else if (jqXHR.responseJSON) {
+            msg += "Error(s):<strong><ul>";
+            $.each(jqXHR.responseJSON, function(key, value) {
+                msg += "<li>" + value + "</li>";
             });
+            msg += "</ul></strong>";
+        } else {
+            msg += "Unknown error occurred";
         }
+    }
+    
+    // Replace $.alert with SweetAlert2
+    Swal.fire({
+        title: 'Error!',
+        html: msg,
+        icon: 'error',
+        confirmButtonText: 'OK',
+        confirmButtonColor: '#d33',
+        customClass: {
+            popup: 'sweet-alert-popup'
+        }
+    });
+}
+        
     </script>
 </body>
 </html>

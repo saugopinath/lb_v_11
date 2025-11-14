@@ -168,7 +168,7 @@ class getModelFunc
                   // } else {
                   //       $schema = 'trx_mgmt_' . substr($prevYear, 2, 4) . substr($prevYear + 1, 2, 4);
                   // }
-                  $schema = 'trx_mgmt_cur_fy';
+                  $schema = 'payment';
             }
 
             //echo $schema;die;
