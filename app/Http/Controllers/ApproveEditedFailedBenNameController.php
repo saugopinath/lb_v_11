@@ -8,24 +8,24 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Session;
-use App\User;
-use App\Configduty;
-use App\getModelFunc;
-use App\District;
-use App\UrbanBody;
-use App\SubDistrict;
-use App\Taluka;
-use App\Ward;
-use App\GP;
+use App\Models\User;
+use App\Models\Configduty;
+use App\Models\getModelFunc;
+use App\Models\District;
+use App\Models\UrbanBody;
+use App\Models\SubDistrict;
+use App\Models\Taluka;
+use App\Models\Ward;
+use App\Models\GP;
 use Validator;
-use App\LotMaster;
-use App\LotDetails;
-use App\AvLotmaster;
-use App\AvLotdetails;
-use App\FailedBankDetails;
-use App\BankDetails;
+use App\Models\LotMaster;
+use App\Models\LotDetails;
+use App\Models\AvLotmaster;
+use App\Models\AvLotdetails;
+use App\Models\FailedBankDetails;
+use App\Models\BankDetails;
 use App\Helpers\Helper;
-use App\DataSourceCommon;
+use App\Models\DataSourceCommon;
 
 class ApproveEditedFailedBenNameController extends Controller
 {
@@ -735,6 +735,7 @@ class ApproveEditedFailedBenNameController extends Controller
       return response()->json($response, $statuscode);
     }
     try {
+      // dd($request->all());
       $otp = md5($request->login_otp);
       $user_id = Auth::user()->id;
       // if ($user_id == 41852) {
@@ -744,6 +745,7 @@ class ApproveEditedFailedBenNameController extends Controller
       // }
       
       $login_otp = User::where('id', $user_id)->where('is_active', 1)->value('last_otp');
+      // dd($login_otp, $otp);
       // $login_otp_last = User::where('id', $user_id)->where('is_active', 1)->value('login_otp');
       if ($otp == $login_otp /*|| $otp == md5($login_otp_last)*/) {
         $response = array(

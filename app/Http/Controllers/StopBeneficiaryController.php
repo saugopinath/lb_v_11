@@ -146,6 +146,7 @@ class StopBeneficiaryController extends Controller
 
 
         if (request()->ajax()) {
+          // dd($request->all());
           $condition = array();
           $blocktable = 'public.m_block';
           $munctable = 'public.m_urban_body';
@@ -193,7 +194,8 @@ class StopBeneficiaryController extends Controller
 
             $schemaname = $getModelFunc->getSchemaDetails();
             $paymenttable = $schemaname . '.ben_payment_details';
-            $search = $request->search['value'];
+            // $search = $request->search['value'];
+            $search = $request->search_value;
 
 
             $query = $modelName->where($condition)
@@ -223,9 +225,13 @@ class StopBeneficiaryController extends Controller
                 $wardtable . '.urban_body_ward_name as ward_name',
               ]);
 
+
+
+
+
             if (!empty($search)) {
               if (preg_match('/^[0-9]+$/', $search)) {
-                // numeric search: application_id (short numbers) or mobile_no (10 digits)
+                // Numeric search - check application_id or mobile_no
                 $query = $query->where(function ($query1) use ($search, $paymenttable) {
                   if (strlen($search) < 10) {
                     $query1->where($paymenttable . '.application_id', $search);
@@ -234,12 +240,13 @@ class StopBeneficiaryController extends Controller
                   }
                 });
               } else {
-                // non-numeric: search name (use ilike for Postgres)
+                // Non-numeric search - search by beneficiary name
                 $query = $query->where(function ($query1) use ($search, $paymenttable) {
                   $query1->where($paymenttable . '.ben_name', 'ilike', $search . '%');
                 });
               }
             }
+
 
 
 
@@ -304,22 +311,23 @@ class StopBeneficiaryController extends Controller
               ]);
 
 
-            // if (!empty($search)) {
-
-            //   if (preg_match('/^[0-9]*$/', $search)) {
-
-            //     $query->where(function ($q) use ($search, $paymenttable) {
-            //       if (strlen($search) < 10) {
-            //         $q->where($paymenttable . '.application_id', $search);
-            //       } elseif (strlen($search) == 10) {
-            //         $q->where($paymenttable . '.mobile_no', $search);
-            //       }
-            //     });
-
-            //   } else {
-            //     $query->where($paymenttable . '.ben_name', 'like', $search . '%');
-            //   }
-            // }
+            if (!empty($search)) {
+              if (preg_match('/^[0-9]+$/', $search)) {
+                // Numeric search - check application_id or mobile_no
+                $query = $query->where(function ($query1) use ($search, $paymenttable) {
+                  if (strlen($search) < 10) {
+                    $query1->where($paymenttable . '.application_id', $search);
+                  } else if (strlen($search) == 10) {
+                    $query1->where($paymenttable . '.mobile_no', $search);
+                  }
+                });
+              } else {
+                // Non-numeric search - search by beneficiary name
+                $query = $query->where(function ($query1) use ($search, $paymenttable) {
+                  $query1->where($paymenttable . '.ben_name', 'ilike', $search . '%');
+                });
+              }
+            }
 
           } else if ($report_type == 4) {
             $schemaname = $getModelFunc->getSchemaDetails();
@@ -381,22 +389,23 @@ class StopBeneficiaryController extends Controller
               ]);
 
 
-            // if (!empty($search)) {
-
-            //   if (preg_match('/^[0-9]*$/', $search)) {
-
-            //     $query->where(function ($q) use ($search, $paymenttable) {
-            //       if (strlen($search) < 10) {
-            //         $q->where($paymenttable . '.application_id', $search);
-            //       } elseif (strlen($search) == 10) {
-            //         $q->where($paymenttable . '.mobile_no', $search);
-            //       }
-            //     });
-
-            //   } else {
-            //     $query->where($paymenttable . '.ben_name', 'like', $search . '%');
-            //   }
-            // }
+            if (!empty($search)) {
+              if (preg_match('/^[0-9]+$/', $search)) {
+                // Numeric search - check application_id or mobile_no
+                $query = $query->where(function ($query1) use ($search, $paymenttable) {
+                  if (strlen($search) < 10) {
+                    $query1->where($paymenttable . '.application_id', $search);
+                  } else if (strlen($search) == 10) {
+                    $query1->where($paymenttable . '.mobile_no', $search);
+                  }
+                });
+              } else {
+                // Non-numeric search - search by beneficiary name
+                $query = $query->where(function ($query1) use ($search, $paymenttable) {
+                  $query1->where($paymenttable . '.ben_name', 'ilike', $search . '%');
+                });
+              }
+            }
 
           } else if ($report_type == 5) {
             $paymenttable = 'lb_scheme.ben_caste_modification_track';
@@ -449,22 +458,23 @@ class StopBeneficiaryController extends Controller
                 $paymenttable . '.next_level_role_id_caste'
               ]);
 
-            // if (!empty($search)) {
-
-            //   if (preg_match('/^[0-9]*$/', $search)) {
-
-            //     $query->where(function ($q) use ($search, $paymenttable) {
-            //       if (strlen($search) < 10) {
-            //         $q->where($paymenttable . '.application_id', $search);
-            //       } elseif (strlen($search) == 10) {
-            //         $q->where($paymenttable . '.mobile_no', $search);
-            //       }
-            //     });
-
-            //   } else {
-            //     $query->where($paymenttable . '.ben_name', 'like', $search . '%');
-            //   }
-            // }
+            if (!empty($search)) {
+              if (preg_match('/^[0-9]+$/', $search)) {
+                // Numeric search - check application_id or mobile_no
+                $query = $query->where(function ($query1) use ($search, $paymenttable) {
+                  if (strlen($search) < 10) {
+                    $query1->where($paymenttable . '.application_id', $search);
+                  } else if (strlen($search) == 10) {
+                    $query1->where($paymenttable . '.mobile_no', $search);
+                  }
+                });
+              } else {
+                // Non-numeric search - search by beneficiary name
+                $query = $query->where(function ($query1) use ($search, $paymenttable) {
+                  $query1->where($paymenttable . '.ben_name', 'ilike', $search . '%');
+                });
+              }
+            }
           } else if ($report_type == 6) {
             $paymenttable = 'lb_scheme.ben_reject_details';
 
@@ -517,23 +527,23 @@ class StopBeneficiaryController extends Controller
                 $paymenttable . '.next_level_role_id'
               ]);
 
-            // if (!empty($search)) {
-
-            //   if (preg_match('/^[0-9]*$/', $search)) {
-
-            //     $query->where(function ($q) use ($search, $paymenttable) {
-
-            //       if (strlen($search) < 10) {
-            //         $q->where($paymenttable . '.application_id', $search);
-            //       } elseif (strlen($search) == 10) {
-            //         $q->where($paymenttable . '.mobile_no', $search);
-            //       }
-            //     });
-
-            //   } else {
-            //     $query->where($paymenttable . '.ben_fname', 'like', $search . '%');
-            //   }
-            // }
+            if (!empty($search)) {
+              if (preg_match('/^[0-9]+$/', $search)) {
+                // Numeric search - check application_id or mobile_no
+                $query = $query->where(function ($query1) use ($search, $paymenttable) {
+                  if (strlen($search) < 10) {
+                    $query1->where($paymenttable . '.application_id', $search);
+                  } else if (strlen($search) == 10) {
+                    $query1->where($paymenttable . '.mobile_no', $search);
+                  }
+                });
+              } else {
+                // Non-numeric search - search by beneficiary name
+                $query = $query->where(function ($query1) use ($search, $paymenttable) {
+                  $query1->where($paymenttable . '.ben_name', 'ilike', $search . '%');
+                });
+              }
+            }
 
           } else if ($report_type == 7) {
             $paymenttable = 'lb_scheme.ben_reject_details';
@@ -589,23 +599,23 @@ class StopBeneficiaryController extends Controller
                 $paymenttable . '.next_level_role_id'
               ]);
 
-            // if (!empty($search)) {
-
-            //   if (preg_match('/^[0-9]*$/', $search)) {
-
-            //     $query->where(function ($q) use ($search, $paymenttable) {
-
-            //       if (strlen($search) < 10) {
-            //         $q->where($paymenttable . '.application_id', $search);
-            //       } elseif (strlen($search) == 10) {
-            //         $q->where($paymenttable . '.mobile_no', $search);
-            //       }
-            //     });
-
-            //   } else {
-            //     $query->where($paymenttable . '.ben_fname', 'like', $search . '%');
-            //   }
-            // }
+            if (!empty($search)) {
+              if (preg_match('/^[0-9]+$/', $search)) {
+                // Numeric search - check application_id or mobile_no
+                $query = $query->where(function ($query1) use ($search, $paymenttable) {
+                  if (strlen($search) < 10) {
+                    $query1->where($paymenttable . '.application_id', $search);
+                  } else if (strlen($search) == 10) {
+                    $query1->where($paymenttable . '.mobile_no', $search);
+                  }
+                });
+              } else {
+                // Non-numeric search - search by beneficiary name
+                $query = $query->where(function ($query1) use ($search, $paymenttable) {
+                  $query1->where($paymenttable . '.ben_name', 'ilike', $search . '%');
+                });
+              }
+            }
           } else if ($report_type == 8) {
             $Table = 'lb_main.ben_payment_details_bank_code_dup';
             $paymenttable = $Table;
@@ -662,23 +672,23 @@ class StopBeneficiaryController extends Controller
                 $paymenttable . '.rejected_date'
               ]);
 
-            // if (!empty($search)) {
-
-            //   if (preg_match('/^[0-9]*$/', $search)) {
-
-            //     $query->where(function ($q) use ($search, $paymenttable) {
-
-            //       if (strlen($search) < 10) {
-            //         $q->where($paymenttable . '.application_id', $search);
-            //       } elseif (strlen($search) == 10) {
-            //         $q->where($paymenttable . '.mobile_no', $search);
-            //       }
-            //     });
-
-            //   } else {
-            //     $query->where($paymenttable . '.ben_name', 'like', $search . '%');
-            //   }
-            // }
+            if (!empty($search)) {
+              if (preg_match('/^[0-9]+$/', $search)) {
+                // Numeric search - check application_id or mobile_no
+                $query = $query->where(function ($query1) use ($search, $paymenttable) {
+                  if (strlen($search) < 10) {
+                    $query1->where($paymenttable . '.application_id', $search);
+                  } else if (strlen($search) == 10) {
+                    $query1->where($paymenttable . '.mobile_no', $search);
+                  }
+                });
+              } else {
+                // Non-numeric search - search by beneficiary name
+                $query = $query->where(function ($query1) use ($search, $paymenttable) {
+                  $query1->where($paymenttable . '.ben_name', 'ilike', $search . '%');
+                });
+              }
+            }
 
           } else if ($report_type == 9) {
             $report_type_name = 'Rejection';

@@ -1,4 +1,12 @@
+<style>
+    .nav-treeview > .nav-item > .nav-link {
+    padding-left: 2rem;
+}
 
+.nav-treeview .nav-icon {
+    margin-left: 0.5rem;
+}
+</style>
 
 <aside class="main-sidebar sidebar-dark-primary elevation-4">
     <!-- Brand Logo -->
@@ -7,7 +15,6 @@
             style="opacity: .8; max-width: 30px; max-height: 30px;">
         <span class="brand-text font-weight-bold ml-3"> Lakshmir Bhandar </span>
     </div>
-
 
     <!-- Sidebar -->
     <div class="sidebar">
@@ -65,34 +72,30 @@
                                     <i class="nav-icon {{ $mymenu['icon'] }}"></i>
                                     <span>{{ $mymenu['menu_name'] }}</span>
                                 </a>
-
-
                             </li>
                         @else
-                            <li class="nav-item">
+                            <li class="nav-item has-treeview">
                                 <a href="#" class="nav-link">
                                     <i class="nav-icon {{ $mymenu['icon'] }}"></i>
                                     <p>
                                         {{ $mymenu['menu_name'] }}
-                                        <i class="fas fa-angle-left right"></i>
+                                        <i class="right fas fa-angle-left"></i>
                                     </p>
                                 </a>
-                                <ul class="nav nav-treeview">
+                                <ul class="nav nav-treeview" style="display: none;">
                                     @foreach ($mymenu['child_menu'] as $mysubmenu)
                                         <li class="nav-item">
                                             <a href="{{ $mysubmenu['url_type'] == 2 ? route($mysubmenu['link_url']) : url($mysubmenu['link_url']) }}"
                                                 class="nav-link" title="{{ $mysubmenu['menu_name'] }}">
                                                 <i class="far fa-circle nav-icon {{ $mysubmenu['icon'] }}"></i>
-                                                <span>{{ $mysubmenu['menu_name'] }}</span>
+                                                <p>{{ $mysubmenu['menu_name'] }}</p>
                                             </a>
-
                                         </li>
                                     @endforeach
                                 </ul>
                             </li>
                         @endif
                     @endforeach
-
                 @endif
             </ul>
         </nav>

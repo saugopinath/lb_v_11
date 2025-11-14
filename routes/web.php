@@ -7,6 +7,7 @@ use App\Http\Controllers\{
     FAQController,
     PolicyController,
     AuthenticationController,
+    BankDetailsEditBandhanBankController,
     UserManualController,
     DashboardController,
     CaptchaController,
@@ -24,9 +25,12 @@ use App\Http\Controllers\{
     MasterDataController,
     NameValidationController,
     CmoGrivanceWorkflowController1,
+    DuplicateController,
     MisReportWithFaultyController,
     StopBeneficiaryController,
-    WorkflowController
+    WorkflowController,
+    ApprovedEditedBankDetailsController,
+    ApproveEditedBankDetailsController
 };
 Route::get('refresh-captcha', [CaptchaController::class, 'refreshCaptcha'])->name('refresh-captcha');
 Route::controller(AuthenticationController::class)->group(function () {
@@ -253,9 +257,66 @@ Route::controller(ApprovedVerificationPendingController::class)->group(function 
 
 //Payment Issue
 Route::controller(StopBeneficiaryController::class)->group(function () {
-Route::any('stop-list', 'listReport');
-Route::post('stop-list-excel', 'generate_excel');
-Route::any('stop-list-mis', 'mishod');
+    Route::any('stop-list', 'listReport');
+    Route::post('stop-list-excel', 'generate_excel');
+    Route::any('stop-list-mis', 'mishod');
 });
 
 
+
+// Approved Bank Edited Details
+
+Route::controller(BankDetailsEditBandhanBankController::class)->group(function () {
+    Route::get('failed-bank-details-edit', 'index')->name('failed-bank-details-edit');
+    Route::post('linelisting-bank-edit', 'getData')->name('linelisting-bank-edit');
+    Route::post('editBankDetails', 'editBankDetails')->name('editBankDetails');
+    Route::post('updateBankDetails', 'updateBankDetails')->name('updateBankDetails');
+    Route::get('rectified-bank-details-edit', 'verified')->name('rectified-bank-details-edit');
+    Route::post('completedBankValidationVerified', 'completedBankValidationVerified')->name('completedBankValidationVerified');
+    Route::post('completedBankValidationApproved', 'completedBankValidationApproved')->name('completedBankValidationApproved');
+    Route::post('ajaxViewPassbook', 'ajaxViewPassbook')->name('ajaxViewPassbook');
+    Route::post('getBankFailedexcel', 'getBankFailedexcel')->name('getBankFailedexcel');
+});
+
+Route::post('legacy/getBankDetails', 'LegacyProcessController@getBankDetails');
+Route::post('bankIfsc', 'LegacyProcessController@bankIfsc')->name('bankIfsc');
+
+Route::controller(LegacyProcessController::class)->group(function () {
+    Route::post('legacy/getBankDetails', 'getBankDetails');
+    Route::post('bankIfsc', 'bankIfsc')->name('bankIfsc');
+});
+
+Route::any('lb-dup-aadhar-list-approved-verifier', 'DuplicateController@dup_aadhar_approved_verifier');
+Route::get('dedupAadhaarView', 'DuplicateController@dedupAadhaarView');
+Route::post('dupAadharReject', 'DuplicateController@dupAadharReject')->name('dupAadharReject');
+Route::post('dupAadharModify', 'DuplicateController@dupAadharmodify')->name('dupAadharModify');
+Route::any('lb-dup-aadhar-list-approved-approver', 'DuplicateController@dup_aadhar_approved_approver');
+Route::post('dupAadhaarApproved', 'DuplicateController@dupAadhaarApproved')->name('dupAadhaarApproved');
+Route::get('dupAadhaarMis', 'DuplicateController@misAadhar')->name('dupAadhaarMis');
+Route::any('dupAadhaarMisPost', 'DuplicateController@misAadharPost')->name('dupAadhaarMisPost');
+Route::get('dup-aadhar-ben-list', 'DuplicateController@dupAadharBenList')->name('dup-aadhar-ben-list');
+Route::post('dupAadharGetBenList', 'DuplicateController@dupAadharGetBenList')->name('dupAadharGetBenList');
+Route::post('GetdupAadharBenListExcel', 'DuplicateController@GetdupAadharBenListExcel')->name('GetdupAadharBenListExcel');
+
+
+Route::controller(DuplicateController::class)->group(function () {
+    Route::any('lb-dup-aadhar-list-approved-verifier', 'dup_aadhar_approved_verifier');
+    Route::get('dedupAadhaarView', 'dedupAadhaarView');
+    Route::post('dupAadharReject', 'dupAadharReject')->name('dupAadharReject');
+    Route::post('dupAadharModify', 'dupAadharmodify')->name('dupAadharModify');
+    Route::any('lb-dup-aadhar-list-approved-approver', 'dup_aadhar_approved_approver');
+    Route::post('dupAadhaarApproved', 'dupAadhaarApproved')->name('dupAadhaarApproved');
+    Route::get('dupAadhaarMis', 'misAadhar')->name('dupAadhaarMis');
+    Route::any('dupAadhaarMisPost', 'misAadharPost')->name('dupAadhaarMisPost');
+    Route::get('dup-aadhar-ben-list', 'dupAadharBenList')->name('dup-aadhar-ben-list');
+    Route::post('dupAadharGetBenList', 'dupAadharGetBenList')->name('dupAadharGetBenList');
+    Route::post('GetdupAadharBenListExcel', 'GetdupAadharBenListExcel')->name('GetdupAadharBenListExcel');
+});
+
+
+Route::controller(ApproveEditedBankDetailsController::class)->group(function () {
+    Route::get('approved-edited-bank-details', 'index')->name('approved-edited-bank-details');
+    Route::post('getEditedBankData', 'getEditedBankDetailsData')->name('getEditedBankData');
+    Route::post('getUpdateEditDetailsBenData', 'getUpdateEditBenData')->name('getUpdateEditDetailsBenData');
+    Route::post('approvedEditedBankData', 'approvedEditedBankData')->name('approvedEditedBankData');
+});
