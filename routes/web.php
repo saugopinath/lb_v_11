@@ -20,7 +20,8 @@ use App\Http\Controllers\{
     MasterDataController,
     CmoGrivanceWorkflowController1,
     BenNameValidationFailedController,
-    ApproveEditedFailedBenNameController
+    ApproveEditedFailedBenNameController,
+    BankDetailsEditBandhanBankController
 };
 
 Route::get('refresh-captcha', [CaptchaController::class, 'refreshCaptcha'])->name('refresh-captcha');
@@ -162,6 +163,9 @@ Route::controller(CmoGrivanceWorkflowController1::class)->group(function () {
 
 
 Route::post('bankIfsc', 'LegacyProcessController@bankIfsc')->name('bankIfsc');
+Route::controller(BankDetailsEditBandhanBankController::class)->group(function () {
+    Route::post('getBankFailedexcel', 'getBankFailedexcel')->name('getBankFailedexcel');
+});
 
 
 Route::controller(BenNameValidationFailedController::class)->group(function () {
@@ -184,5 +188,3 @@ Route::controller(ApproveEditedFailedBenNameController::class)->group(function (
     Route::post('getVerifiedNameValidationFailed90to100', 'getVerifiedNameValidationFailed90to100')->name('getVerifiedNameValidationFailed90to100');
     Route::post('updateFailedNameApprove90to100', 'updateFailedNameApprove90to100')->name('updateFailedNameApprove90to100');
 });
-
-
