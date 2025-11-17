@@ -63,6 +63,7 @@
     <script src="{{ asset('bootstrap-5/js/bootstrap.bundle.min.js') }}"></script>
     <script src="{{ asset('AdminLTE_3/dist/js/adminlte.js') }}"></script>
     <script src="{{ asset('js/jquery-confirm.min.js') }}"></script>
+   
 
     {{-- Dynamic JS --}}
     <!-- STACK 3: Library/Plugin Scripts (js from middle-level templates) -->

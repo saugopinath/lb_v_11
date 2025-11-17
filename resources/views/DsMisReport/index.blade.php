@@ -278,7 +278,7 @@
 
                                                 <br><br>
 
-                                                <table id="example" class="table table-striped table-bordered table2excel">
+                                                <table id="example" class="data-table table-striped table-bordered table2excel">
 
                                                     <thead>
                                                         <tr>

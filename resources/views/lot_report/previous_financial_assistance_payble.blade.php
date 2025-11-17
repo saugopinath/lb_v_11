@@ -79,146 +79,145 @@
 @extends('layouts.app-template-datatable')
 @section('content')
     <!-- Content Header -->
-    <section class="content-header">
-        <div class="container-fluid">
-            <div class="row mb-2">
-                <div class="col-sm-6">
-                    <h1>Financial Assistance Payable</h1>
-                </div>
-                {{-- <div class="col-sm-6">
-                    <ol class="breadcrumb float-sm-right">
-                        <span style="font-size: 12px; font-weight: bold;">
-                            <i class="fa fa-clock-o"></i> Date :
-                            <span class="date-part"></span>
-                            <span class="time-part"></span>
-                        </span>
-                    </ol>
-                </div> --}}
+
+    <div class="container-fluid">
+        <div class="row mb-2">
+            <div class="col-sm-6">
+                <h1>Financial Assistance Payable</h1>
             </div>
+            {{-- <div class="col-sm-6">
+                <ol class="breadcrumb float-sm-right">
+                    <span style="font-size: 12px; font-weight: bold;">
+                        <i class="fa fa-clock-o"></i> Date :
+                        <span class="date-part"></span>
+                        <span class="time-part"></span>
+                    </span>
+                </ol>
+            </div> --}}
         </div>
-    </section>
+    </div>
+
 
     <!-- Main content -->
-    <section class="content">
-        <div class="container-fluid">
 
-            <!-- Card -->
-            <div class="card card-default">
-                <div class="card-body">
+    <div class="container-fluid">
 
-                    <div id="loadingDiv"></div>
+        <!-- Card -->
+        <div class="card card-default">
+            <div class="card-body">
 
-                    {{-- Success Message --}}
-                    @if (($message = Session::get('success')))
-                        <div class="alert alert-success alert-dismissible fade show" role="alert">
-                            <strong>{{ $message }}</strong>
-                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                        </div>
-                    @endif
+                <div id="loadingDiv"></div>
 
-                    {{-- Error Message --}}
-                    @if(count($errors) > 0)
-                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                            <ul class="m-0">
-                                @foreach($errors->all() as $error)
-                                    <li><strong>{{ $error }}</strong></li>
-                                @endforeach
-                            </ul>
-                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                        </div>
-                    @endif
-
-                    <!-- Filters -->
-                    <div class="row filterDiv mt-3">
-                        <div class="col-md-12 d-flex flex-wrap">
-
-                            <!-- Financial Year -->
-                            <div class="col-md-3 mb-3">
-                                <label class="form-label">Select Financial Year <span class="text-danger">*</span></label>
-                                <select class="form-select" name="financial_year" id="financial_year">
-                                    <option value="">-- Select --</option>
-                                    @foreach($fin_year as $year)
-                                        <option value="{{ $year->db_schema_name }}">{{ $year->financial_year }}</option>
-                                    @endforeach
-                                </select>
-                            </div>
-
-                            <!-- Phase -->
-                            <div class="col-md-3 mb-3">
-                                <label class="form-label">Select Phase</label>
-                                <select class="form-select" name="phase_code" id="phase_code">
-                                    <option value="">All</option>
-                                    @foreach($ds_phase as $phase)
-                                        <option value="{{ $phase->ds_phase }}">{{ $phase->ds_phase_name }}</option>
-                                    @endforeach
-                                </select>
-                            </div>
-
-                            <!-- Search Button -->
-                            <div class="col-md-2 offset-md-1 mb-3 d-flex align-items-end">
-                                <button type="button" name="filter" id="filter" class="btn btn-success w-100">
-                                    <i class="fa fa-search"></i> Search
-                                </button>
-                            </div>
-
-                        </div>
+                {{-- Success Message --}}
+                @if (($message = Session::get('success')))
+                    <div class="alert alert-success alert-dismissible fade show" role="alert">
+                        <strong>{{ $message }}</strong>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                     </div>
+                @endif
 
-                    <!-- Result Section -->
-                    <div class="table-responsive mt-4 resultDiv" id="result_div">
+                {{-- Error Message --}}
+                @if(count($errors) > 0)
+                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                        <ul class="m-0">
+                            @foreach($errors->all() as $error)
+                                <li><strong>{{ $error }}</strong></li>
+                            @endforeach
+                        </ul>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                @endif
 
-                        <div class="float-end text-sm mb-2" id="report_generation_text">
-                            Report Generated on:
-                            <b>
-                                <?php
+                <!-- Filters -->
+                <div class="row filterDiv mt-3">
+                    <div class="col-md-12 d-flex flex-wrap">
+
+                        <!-- Financial Year -->
+                        <div class="col-md-3 mb-3">
+                            <label class="form-label">Select Financial Year <span class="text-danger">*</span></label>
+                            <select class="form-select" name="financial_year" id="financial_year">
+                                <option value="">-- Select --</option>
+                                @foreach($fin_year as $year)
+                                    <option value="{{ $year->db_schema_name }}">{{ $year->financial_year }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+
+                        <!-- Phase -->
+                        <div class="col-md-3 mb-3">
+                            <label class="form-label">Select Phase</label>
+                            <select class="form-select" name="phase_code" id="phase_code">
+                                <option value="">All</option>
+                                @foreach($ds_phase as $phase)
+                                    <option value="{{ $phase->ds_phase }}">{{ $phase->ds_phase_name }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+
+                        <!-- Search Button -->
+                        <div class="col-md-2 offset-md-1 mb-3 d-flex align-items-end">
+                            <button type="button" name="filter" id="filter" class="btn btn-success w-100">
+                                <i class="fa fa-search"></i> Search
+                            </button>
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- Result Section -->
+                <div class="table-responsive mt-4 resultDiv" id="result_div">
+
+                    <div class="float-end text-sm mb-2" id="report_generation_text">
+                        Report Generated on:
+                        <b>
+                            <?php
     date_default_timezone_set('Asia/Kolkata');
     echo date("l jS \of F Y h:i:s A");
-                                    ?>
-                            </b>
-                        </div>
+                                        ?>
+                        </b>
+                    </div>
 
-                        <button class="btn btn-info btn-sm exportToExcel mb-3" type="button">
-                            Export to Excel
-                        </button>
+                    <button class="btn btn-info btn-sm exportToExcel mb-3" type="button">
+                        Export to Excel
+                    </button>
 
-                        <p id="phase_month_list"></p>
-                        <p id="caste_amount_list"></p>
+                    <p id="phase_month_list"></p>
+                    <p id="caste_amount_list"></p>
 
-                        <table id="example" class="table table-bordered table-hover table-striped table2excel"
-                            cellspacing="0">
+                    <table id="example" class="table table-bordered table-hover table-striped table2excel" cellspacing="0">
 
-                            <thead class="table-light text-center" style="font-size: 13px;">
-                                <tr>
-                                    <th colspan="2"></th>
-                                    <th colspan="2">Payment Lot Generation Pending</th>
-                                </tr>
-                                <tr>
-                                    <th>Duare Sarkar<br>Phase<br>[1]</th>
-                                    <th>Category<br>[2]</th>
-                                    <th>Currently Active<br>Beneficiaries<br>[3]</th>
-                                    <th>Amount<br>[4]</th>
-                                </tr>
-                            </thead>
+                        <thead class="table-light text-center" style="font-size: 13px;">
+                            <tr>
+                                <th colspan="2"></th>
+                                <th colspan="2">Payment Lot Generation Pending</th>
+                            </tr>
+                            <tr>
+                                <th>Duare Sarkar<br>Phase<br>[1]</th>
+                                <th>Category<br>[2]</th>
+                                <th>Currently Active<br>Beneficiaries<br>[3]</th>
+                                <th>Amount<br>[4]</th>
+                            </tr>
+                        </thead>
 
-                            <tbody style="font-size: 14px; text-align:right;"></tbody>
+                        <tbody style="font-size: 14px; text-align:right;"></tbody>
 
-                            <tfoot style="font-size: 14px; font-weight: bold; text-align:right;">
-                                <tr id="fotter_id"></tr>
-                                <tr id="grand_total_fotter"></tr>
-                                <tr>
-                                    <td colspan="4" style="display:none;" id="fotter_excel">Heading</td>
-                                </tr>
-                            </tfoot>
+                        <tfoot style="font-size: 14px; font-weight: bold; text-align:right;">
+                            <tr id="fotter_id"></tr>
+                            <tr id="grand_total_fotter"></tr>
+                            <tr>
+                                <td colspan="4" style="display:none;" id="fotter_excel">Heading</td>
+                            </tr>
+                        </tfoot>
 
-                        </table>
+                    </table>
 
-                    </div> <!-- End resultDiv -->
+                </div> <!-- End resultDiv -->
 
-                </div> <!-- card-body -->
-            </div> <!-- card -->
+            </div> <!-- card-body -->
+        </div> <!-- card -->
 
-        </div>
-    </section>
+    </div>
+
 @endsection
 
 

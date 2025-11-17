@@ -324,13 +324,22 @@ class NameValidationController extends Controller
             $return_arr[$i]['total_rej_edited'] = $arr->total_rej_edited;
             $return_arr[$i]['total_rej_approved'] = $arr->total_rej_approved;
             $return_arr[$i]['total_deactivate'] = $arr->total_deactivate;
-            if (!empty($result1)) {
-                //dump('ok');
+            // if (!empty($result1)) {
+            //     //dump('ok');
+            //     $return_arr[$i]['total'] = $result1[$arr->location_id]['total'];
+            //     $return_arr[$i]['verification_pending_non_legacy'] = $result1[$arr->location_id]['verification_pending_non_legacy'];
+            //     $return_arr[$i]['verification_pending_legacy'] = $result1[$arr->location_id]['verification_pending_legacy'];
+            // } else {
+            //     // dump('okk');
+            //     $return_arr[$i]['total'] = 0;
+            //     $return_arr[$i]['verification_pending_non_legacy'] = 0;
+            //     $return_arr[$i]['verification_pending_legacy'] = 0;
+            // }
+            if (!empty($result1) && isset($result1[$arr->location_id])) {
                 $return_arr[$i]['total'] = $result1[$arr->location_id]['total'];
                 $return_arr[$i]['verification_pending_non_legacy'] = $result1[$arr->location_id]['verification_pending_non_legacy'];
                 $return_arr[$i]['verification_pending_legacy'] = $result1[$arr->location_id]['verification_pending_legacy'];
             } else {
-                // dump('okk');
                 $return_arr[$i]['total'] = 0;
                 $return_arr[$i]['verification_pending_non_legacy'] = 0;
                 $return_arr[$i]['verification_pending_legacy'] = 0;
@@ -415,13 +424,22 @@ class NameValidationController extends Controller
             $return_arr[$i]['total_rej_edited'] = $arr->total_rej_edited;
             $return_arr[$i]['total_rej_approved'] = $arr->total_rej_approved;
             $return_arr[$i]['total_deactivate'] = $arr->total_deactivate;
-            if (!empty($result1)) {
-                //dump('ok');
+            // if (!empty($result1)) {
+            //     //dump('ok');
+            //     $return_arr[$i]['total'] = $result1[$arr->location_id]['total'];
+            //     $return_arr[$i]['verification_pending_non_legacy'] = $result1[$arr->location_id]['verification_pending_non_legacy'];
+            //     $return_arr[$i]['verification_pending_legacy'] = $result1[$arr->location_id]['verification_pending_legacy'];
+            // } else {
+            //     // dump('okk');
+            //     $return_arr[$i]['total'] = 0;
+            //     $return_arr[$i]['verification_pending_non_legacy'] = 0;
+            //     $return_arr[$i]['verification_pending_legacy'] = 0;
+            // }
+            if (!empty($result1) && isset($result1[$arr->location_id])) {
                 $return_arr[$i]['total'] = $result1[$arr->location_id]['total'];
                 $return_arr[$i]['verification_pending_non_legacy'] = $result1[$arr->location_id]['verification_pending_non_legacy'];
                 $return_arr[$i]['verification_pending_legacy'] = $result1[$arr->location_id]['verification_pending_legacy'];
             } else {
-                // dump('okk');
                 $return_arr[$i]['total'] = 0;
                 $return_arr[$i]['verification_pending_non_legacy'] = 0;
                 $return_arr[$i]['verification_pending_legacy'] = 0;
