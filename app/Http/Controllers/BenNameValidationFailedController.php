@@ -1636,10 +1636,10 @@ class BenNameValidationFailedController extends Controller
                         $btn = '<button class="btn btn-xs btn-primary bank_edit_btn" type="button" id="' . base64_encode($data->ben_id) . '_' . base64_encode($data->id) . '"><i class="glyphicon glyphicon-edit"></i> View</button>';
                     }
                     if ($data->edited_status == 1) {
-                        $btn .= '<span style="font-size: 13px;" class="label label-warning"><b>Pending For Approval</b></span>';
+                        $btn .= '<span style="font-size: 13px;" class="badge badge-warning"><b>Pending For Approval</b></span>';
                     }
                     if ($data->edited_status == 2) {
-                        $btn .= '<span style="font-size: 13px;" class="label label-success">Approved</span>';
+                        $btn .= '<span style="font-size: 13px;" class="badge bg-success">Approved</span>';
                     }
                     return $btn;
                 })
