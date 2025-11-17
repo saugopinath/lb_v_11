@@ -73,6 +73,9 @@
     @stack('scripts')
 
     <script>
+        var s = document.createElement('script');
+        s.src = "{{ asset('js/jquery-confirm.min.js') }}";
+        document.head.appendChild(s);
         $(document).ready(function() {
             function updateDateTime() {
                 const now = new Date();
