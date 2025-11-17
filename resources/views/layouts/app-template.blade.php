@@ -8,19 +8,23 @@
 
     <!-- Footer Fix CSS -->
     <style>
-        html, body {
+        html,
+        body {
             height: 100%;
         }
+
         .wrapper {
             display: flex;
             flex-direction: column;
             min-height: 100vh;
         }
+
         .content-wrapper {
             flex: 1;
             display: flex;
             flex-direction: column;
         }
+
         .content {
             flex: 1;
         }
@@ -68,7 +72,10 @@
     @stack('scripts')
 
     <script>
-        $(document).ready(function() {
+        var s = document.createElement('script');
+        s.src = "{{ asset('js/jquery-confirm.min.js') }}";
+        document.head.appendChild(s);
+        $(document).ready(function () {
             function updateDateTime() {
                 const now = new Date();
                 const options = {
@@ -100,7 +107,7 @@
                     msg += "Exception: <strong>" + jqXHR.responseJSON.exception_message + "</strong>";
                 } else {
                     msg += "Error(s):<strong><ul>";
-                    $.each(jqXHR.responseJSON, function(key, value) {
+                    $.each(jqXHR.responseJSON, function (key, value) {
                         msg += "<li>" + value + "</li>";
                     });
                     msg += "</ul></strong>";
@@ -115,4 +122,5 @@
         }
     </script>
 </body>
+
 </html>

@@ -203,11 +203,11 @@
     <script>
         $(document).ready(function () {
             // Live Clock
-            var interval = setInterval(function () {
+            {{--  var interval = setInterval(function () {
                 var momentNow = moment();
                 $('.date-part').html(momentNow.format('DD-MMMM-YYYY'));
                 $('.time-part').html(momentNow.format('hh:mm:ss A'));
-            }, 100);
+            }, 100);  --}}
             $('#loadingDiv').hide();
             $('#filter_div').removeClass('disabledcontent');
             // $('#loader_img').hide();

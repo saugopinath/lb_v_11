@@ -24,6 +24,7 @@ use App\Http\Controllers\{
     DsMisReportController,
     FinancialAssistancePaybleController,
     LotReportController,
+    NameValidationController,
 };
 
 Route::get('refresh-captcha', [CaptchaController::class, 'refreshCaptcha'])->name('refresh-captcha');
@@ -204,4 +205,8 @@ Route::controller(FinancialAssistancePaybleController::class)->group(function ()
     Route::get('select-financial-year-payment-assistance', 'selectFinancialYearForPaymentAssistance')->name('select-financial-year-payment-assistance');
     Route::get('financial-assistance-payable', 'lotGeneratedPendingIndex')->name('financial-assistance-payable');
     Route::post('lotGeneratedPendingAmountReport', 'lotGeneratedPendingAmountReport')->name('lotGeneratedPendingAmountReport');
+});
+Route::controller(NameValidationController::class)->group(function () {
+Route::get('misReport-nameValidation', 'misReport');
+Route::get('misReport-nameValidation-Post', 'getData')->name('misReport-nameValidation-Post');
 });
