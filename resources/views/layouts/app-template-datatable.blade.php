@@ -17,6 +17,7 @@
     <script src="{{ asset('datatable/js/dataTables.buttons.min.js') }}"></script>
     <script src="{{ asset('datatable/js/buttons.html5.min.js') }}"></script>
     <script src="{{ asset('datatable/js/buttons.print.min.js') }}"></script>
+    <script src="{{ URL::asset('js/master-data-v2.js') }}"></script>
   <script>
     (function ($) {
       $(document).ready(function () {
@@ -32,5 +33,5 @@
         });
       });
     })(jQuery);
-  </script>
+    </script>
 @endpush

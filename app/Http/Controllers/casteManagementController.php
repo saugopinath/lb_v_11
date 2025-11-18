@@ -31,13 +31,14 @@ use App\Models\DsPhase;
 use App\Models\SubDistrict;
 use Illuminate\Support\Facades\Crypt;
 use App\Traits\TraitCasteCertificateValidate;
+
 class casteManagementController extends Controller
 {
     use TraitCasteCertificateValidate;
 
     public function __construct()
     {
-        
+
         $this->base_dob_chk_date = '2021-01-01';
         $this->max_dob = '1996-01-01';
         $this->min_dob = '1961-01-01';
@@ -257,7 +258,7 @@ class casteManagementController extends Controller
 
     public function change(Request $request)
     {
-        
+
         $this->middleware('auth');
         //return redirect("/")->with('error', 'Payment Server is down for Maintenance. Please try after some time.');
         $caste_lb = Config::get('constants.caste_lb');
@@ -529,12 +530,11 @@ class casteManagementController extends Controller
                     $is_processing = $benPaymentObj->payment_process;
 
                     if ($is_processing == 0 && $ben_status == 1) {
-                        if($row->ds_phase == NULL){
+                        if ($row->ds_phase == NULL) {
                             // $effect_year = substr($benPaymentObj->start_yymm, 0, 2);
                             // $effect_month =  substr($benPaymentObj->start_yymm, 2, 4);
                             $lot_base_yymm = $benPaymentObj->start_yymm;
-
-                        }else{
+                        } else {
                             $lot_base_yymm = $ds_phase->lot_base_yymm;
                         }
                         if (!empty($benPaymentObj->apr_lot_status) && $benPaymentObj->apr_lot_status != 'R') {
@@ -605,7 +605,7 @@ class casteManagementController extends Controller
                                 }
                             }
                         }
-                        
+
                         if (empty($effect_month)) {
                             $effect_month = sprintf("%02d", $cur_month);
                         }
@@ -653,7 +653,7 @@ class casteManagementController extends Controller
                 if ($is_faulty == 1) {
                     $modelmain->is_faulty = TRUE;
                 } else
-                $modelmain->is_faulty = FALSE;
+                    $modelmain->is_faulty = FALSE;
                 $modelmain->ip_address = request()->ip();
                 $modelmain->created_by = $user_id;
                 $modelmain->scheme_id = $scheme_id;
@@ -718,7 +718,7 @@ class casteManagementController extends Controller
                     $encolser_enquiry['application_id'] = $row->application_id;
                     $encolser_enquiry['action_by'] = Auth::user()->id;
                     $encolser_enquiry['action_ip_address'] = request()->ip();
-                    $encolser_enquiry['action_type'] = class_basename(request()->route()->getAction()['controller']);                    
+                    $encolser_enquiry['action_type'] = class_basename(request()->route()->getAction()['controller']);
                     $encolser_entry_status = $encloser_enquiry_model->insert($encolser_enquiry);
                 } else {
                     $encolser_entry_status = 1;
@@ -735,7 +735,7 @@ class casteManagementController extends Controller
                     $is_saved_bank_payment = 1;
                 }
 
-                $input = ['is_caste_changed' => 1,'action_by' => Auth::user()->id,'action_ip_address' => request()->ip(),'action_type' => class_basename(request()->route()->getAction()['controller'])];
+                $input = ['is_caste_changed' => 1, 'action_by' => Auth::user()->id, 'action_ip_address' => request()->ip(), 'action_type' => class_basename(request()->route()->getAction()['controller'])];
                 if ($caste_change_type == 2) {
                     if ($is_faulty == 1) {
                         $is_status_updated = $personal_model_f->where($condition)->where('beneficiary_id', $beneficiary_id)->update($input);
@@ -743,7 +743,7 @@ class casteManagementController extends Controller
                         $is_status_updated = $personal_model->where($condition)->where('beneficiary_id', $beneficiary_id)->update($input);
                     }
                 } else
-                $is_status_updated = 1;
+                    $is_status_updated = 1;
                 $modelmainArch->update_code  = 501;
                 $modelmainArch->application_id  = $row->application_id;
                 $modelmainArch->beneficiary_id  = $row->beneficiary_id;
@@ -773,7 +773,7 @@ class casteManagementController extends Controller
                     return redirect('changeCaste?id=' . $beneficiary_id . '&is_faulty=' . $is_faulty . '&caste_change_type=' . $caste_change_type)->with('error', $return_text);
                 }
             } catch (\Exception $e) {
-                // dd($e);
+                dd($e);
                 DB::connection('pgsql_appwrite')->rollBack();
                 DB::connection('pgsql_encwrite')->rollBack();
                 DB::connection('pgsql_payment')->rollBack();
@@ -899,21 +899,19 @@ class casteManagementController extends Controller
         }
         if (request()->ajax()) {
             $query = $query->where($condition);
-            $serachvalue = $request->search['value'];
-            $limit = $request->input('length');
-            $offset = $request->input('start');
+            $serachvalue = $request->search_value;
 
-            $totalRecords = 0;
-            $filterRecords = 0;
-            $data = array();
             if (empty($serachvalue)) {
-                $totalRecords = $query->count();
-                // dd($query);
-                $data = $query->orderBy('ben_name')->orderBy('gp_ward_name')->offset($offset)->limit($limit)->get([
-                    'application_id', 'beneficiary_id', 'ben_name',  'mobile_no', 'ss_card_no', 'next_level_role_id_caste', 'rejected_cause', 'is_final'
-
+                $query = $query->orderBy('ben_name')->orderBy('gp_ward_name')->select([
+                    'application_id',
+                    'beneficiary_id',
+                    'ben_name',
+                    'mobile_no',
+                    'ss_card_no',
+                    'next_level_role_id_caste',
+                    'rejected_cause',
+                    'is_final'
                 ]);
-                 $filterRecords = count($data);
             } else {
                 if (preg_match('/^[0-9]*$/', $serachvalue)) {
                     $query = $query->where(function ($query1) use ($serachvalue) {
@@ -925,41 +923,41 @@ class casteManagementController extends Controller
                             $query1->where('ss_card_no', $serachvalue);
                         }
                     });
-                    $totalRecords = $query->count();
-                    $data = $query->orderBy('ben_name')->orderBy('gp_ward_name')->offset($offset)->limit($limit)->get(
-                        [
-                            'application_id', 'beneficiary_id', 'ben_name', 'mobile_no', 'ss_card_no', 'next_level_role_id_caste', 'rejected_cause', 'is_final'
 
-                        ]
-                    );
+                    $query = $query->orderBy('ben_name')->orderBy('gp_ward_name')->select([
+                        'application_id',
+                        'beneficiary_id',
+                        'ben_name',
+                        'mobile_no',
+                        'ss_card_no',
+                        'next_level_role_id_caste',
+                        'rejected_cause',
+                        'is_final'
+                    ]);
                 } else {
                     $query = $query->where(function ($query1) use ($serachvalue) {
                         $query1->where('ben_name', 'like', $serachvalue . '%');
                     });
-                    $totalRecords = $query->count();
-                    $data = $query->orderBy('ben_name')->orderBy('gp_ward_name')->offset($offset)->limit($limit)->get(
-                        [
 
-                            'application_id', 'beneficiary_id', 'ben_name', 'mobile_no', 'ss_card_no', 'next_level_role_id_caste', 'rejected_cause', 'is_final'
-
-                        ]
-                    );
+                    $query = $query->orderBy('ben_name')->orderBy('gp_ward_name')->select([
+                        'application_id',
+                        'beneficiary_id',
+                        'ben_name',
+                        'mobile_no',
+                        'ss_card_no',
+                        'next_level_role_id_caste',
+                        'rejected_cause',
+                        'is_final'
+                    ]);
                 }
-                $filterRecords = count($data);
             }
-            return datatables()
-                ->of($data)
-                ->setTotalRecords($totalRecords)
-                ->setFilteredRecords($filterRecords)
-                ->skipPaging()
-                ->addColumn('application_id', function ($data) use ($report_type) {
 
+            return datatables()->of($query)
+                ->addColumn('application_id', function ($data) use ($report_type) {
                     return $data->application_id;
                 })->addColumn('beneficiary_id', function ($data) use ($report_type) {
-
                     return $data->beneficiary_id;
-                })
-                ->addColumn('name', function ($data) {
+                })->addColumn('name', function ($data) {
                     return $data->ben_name;
                 })->addColumn('ss_card_no', function ($data) {
                     return $data->ss_card_no;
@@ -968,11 +966,15 @@ class casteManagementController extends Controller
                 })->addColumn('applicant_mobile_no', function ($data) use ($report_type) {
                     return $data->mobile_no;
                 })->addColumn('status', function ($data) use ($report_type, $rejection_cause_list) {
-                    if (is_int($data->next_level_role_id_caste) && trim($data->next_level_role_id_caste) == 0 && $data->is_final == TRUE) {
+                    // normalize next_level_role_id_caste to int for safe comparisons
+                    $nextRole = intval($data->next_level_role_id_caste);
+                    $isFinal = ($data->is_final == true || $data->is_final === 't' || $data->is_final === 1 || $data->is_final === '1');
+
+                    if ($nextRole === 0 && $isFinal) {
                         $status = 'Caste Modification has been approved';
-                    } else if (trim($data->next_level_role_id_caste) > 0 && $data->is_final == FALSE) {
+                    } else if ($nextRole > 0 && !$isFinal) {
                         $status = 'Caste Modification has been verified..but yet to be approved';
-                    } else if ($data->next_level_role_id_caste == -100 && $data->is_final == TRUE) {
+                    } else if ($nextRole === -100 && $isFinal) {
                         $description = '';
                         foreach ($rejection_cause_list as $rejArr) {
                             if ($rejArr['id'] == $data->rejected_cause) {
@@ -981,7 +983,7 @@ class casteManagementController extends Controller
                             }
                         }
                         $status = 'Caste Modification has been rejected for the reason ' . $description;
-                    } else if ($data->next_level_role_id_caste == -50 && $data->is_final == FALSE) {
+                    } else if ($nextRole === -50 && !$isFinal) {
                         $description = '';
                         foreach ($rejection_cause_list as $rejArr) {
                             if ($rejArr['id'] == $data->rejected_cause) {
@@ -1136,32 +1138,27 @@ class casteManagementController extends Controller
         $condition["created_by_dist_code"] = $district_code;
         $condition["is_final"] = FALSE;
         $query = DB::connection('pgsql_appread')->table('lb_scheme.ben_caste_modification_track')->where($condition);
-        if ($designation_id == 'Approver' ||  $designation_id == 'Delegated Approver') {
-            //  dd('ok');
+        if ($designation_id == 'Approver' || $designation_id == 'Delegated Approver') {
             $query = $query->where('next_level_role_id_caste', $role_id);
             if (!empty($request->rural_urban_id)) {
-                // $query = $query->where('rural_urban_id', $request->filter_1);
                 $query = $query->where('rural_urban_id', $request->rural_urban_id);
             }
             if (!empty($request->created_by_local_body_code)) {
-
                 $query = $query->where('created_by_local_body_code', $request->created_by_local_body_code);
             }
             if (!empty($request->block_ulb_code)) {
-
                 $query = $query->where('block_ulb_code', $request->block_ulb_code);
             }
             if (!empty($request->gp_ward_code)) {
-
                 $query = $query->where('gp_ward_code', $request->gp_ward_code);
             }
             if (!empty($request->caste_category)) {
-
                 $query = $query->where('new_caste', $request->caste_category);
             }
         } else if ($designation_id == 'Verifier' || $designation_id == 'Delegated Verifier') {
-            $query = $query->whereNull('next_level_role_id_caste');
-            $query = $query->where('created_by_local_body_code', $urban_body_code);
+            $query = $query->whereNull('next_level_role_id_caste')
+                ->where('created_by_local_body_code', $urban_body_code);
+
             if ($mapping_level == 'Subdiv') {
                 if (!empty($request->block_ulb_code)) {
                     $query = $query->where('block_ulb_code', $request->block_ulb_code);
@@ -1170,68 +1167,51 @@ class casteManagementController extends Controller
                     $query = $query->where('gp_ward_code', $request->gp_ward_code);
                 }
                 if (!empty($request->caste_category)) {
-
                     $query = $query->where('new_caste', $request->caste_category);
                 }
             } else {
                 if (!empty($request->caste_category)) {
-
                     $query = $query->where('new_caste', $request->caste_category);
                 }
                 if (!empty($request->gp_code)) {
-
                     $query = $query->where('gp_ward_code', $request->gp_code);
                 }
             }
         }
 
         if (request()->ajax()) {
-            $serachvalue = $request->search['value'];
-            $limit = $request->input('length');
-            $offset = $request->input('start');
+            $searchValue = $request->search['value'];
 
-            $totalRecords = 0;
-            $filterRecords = 0;
-            $data = array();
-            if (empty($serachvalue)) {
-                $totalRecords = $query->count();
-                // dd($query);
-                $data = $query->orderBy('ben_name')->orderBy('gp_ward_name')->offset($offset)->limit($limit)->get();
+            if (empty($searchValue)) {
+                $query = $query->orderBy('ben_name')->orderBy('gp_ward_name');
             } else {
-                if (preg_match('/^[0-9]*$/', $serachvalue)) {
-                    $query = $query->where(function ($query1) use ($serachvalue) {
-                        if (strlen($serachvalue) < 10) {
-                            $query1->where('application_id', $serachvalue)->orWhere('beneficiary_id', $serachvalue);
-                        } else if (strlen($serachvalue) == 10) {
-                            $query1->where('mobile_no', $serachvalue);
-                        } else if (strlen($serachvalue) == 17) {
-                            $query1->where('ss_card_no', $serachvalue);
+                if (preg_match('/^[0-9]+$/', $searchValue)) {
+                    $query = $query->where(function ($query1) use ($searchValue) {
+                        if (strlen($searchValue) < 10) {
+                            $query1->where('application_id', $searchValue)
+                                ->orWhere('beneficiary_id', $searchValue);
+                        } else if (strlen($searchValue) == 10) {
+                            $query1->where('mobile_no', $searchValue);
+                        } else if (strlen($searchValue) == 17) {
+                            $query1->where('ss_card_no', $searchValue);
                         }
                     });
-                    $totalRecords = $query->count();
-                    $data = $query->orderBy('ben_name')->orderBy('gp_ward_name')->offset($offset)->limit($limit)->get();
+                    $query = $query->orderBy('ben_name')->orderBy('gp_ward_name');
                 } else {
-                    $query = $query->where(function ($query1) use ($serachvalue) {
-                        $query1->where('ben_name', 'like', $serachvalue . '%');
+                    $query = $query->where(function ($query1) use ($searchValue) {
+                        $query1->where('ben_name', 'like', $searchValue . '%');
                     });
-                    $totalRecords = $query->count();
-                    $data = $query->orderBy('ben_name')->orderBy('gp_ward_name')->offset($offset)->limit($limit)->get();
+                    $query = $query->orderBy('ben_name')->orderBy('gp_ward_name');
                 }
-                $filterRecords = count($data);
             }
-            return datatables()
-                ->of($data)
-                ->setTotalRecords($totalRecords)
-                ->setFilteredRecords($filterRecords)
-                ->skipPaging()
-                ->addColumn('application_id', function ($data) {
 
+            return datatables()
+                ->of($query) // <-- changed to queryBuilder(...) to accept Query\Builder
+                ->addColumn('application_id', function ($data) {
                     return $data->application_id;
                 })->addColumn('beneficiary_id', function ($data) {
-
                     return $data->beneficiary_id;
-                })
-                ->addColumn('name', function ($data) {
+                })->addColumn('name', function ($data) {
                     return $data->ben_name;
                 })->addColumn('ss_card_no', function ($data) {
                     return $data->ss_card_no;
@@ -1240,15 +1220,14 @@ class casteManagementController extends Controller
                 })->addColumn('applicant_mobile_no', function ($data) {
                     return $data->mobile_no;
                 })->addColumn('check', function ($data) {
-
-                    return '<input type="checkbox"  name="chkbx" class="all_checkbox"  onclick="controlCheckBox();" value="' . $data->application_id . '">';
+                    return '<input type="checkbox" name="chkbx" class="all_checkbox" onclick="controlCheckBox();" value="' . $data->application_id . '">';
                 })->addColumn('view', function ($data) {
-
                     $action = '<button class="btn btn-primary btn-sm ben_view_button" value="' . $data->application_id . '_' . intval($data->is_faulty) . '"><i class="glyphicon glyphicon-edit"></i>View</button>';
-
                     return $action;
                 })->rawColumns(['view', 'check'])->make(true);
         }
+
+
 
         if ($designation_id == 'Approver' ||  $designation_id == 'Delegated Approver') {
             $levels = [
@@ -1485,7 +1464,7 @@ class casteManagementController extends Controller
         } else {
             $role = MapLavel::where('scheme_id', $scheme_id)->where('role_name', $designation_id)->where('stack_level', $duty->mapping_level)->first();
         }
-        
+
         if ($role->isEmpty) {
             return response()->json(['return_status' => 0, 'return_msg' => $errormsg['notauthorized']]);
         }
@@ -1575,19 +1554,19 @@ class casteManagementController extends Controller
             $next_level_role_id = $role->parent_id;
             $rejected_cause = NULL;
             $message = 'Verified Succesfully!';
-            $input = ['action_by' => Auth::user()->id,'action_ip_address' => request()->ip(),'action_type' => class_basename(request()->route()->getAction()['controller']),'next_level_role_id_caste' => $next_level_role_id, 'rejected_cause' => $rejected_cause, 'comments' => $comments, 'ben_verified_at' => $today];
+            $input = ['action_by' => Auth::user()->id, 'action_ip_address' => request()->ip(), 'action_type' => class_basename(request()->route()->getAction()['controller']), 'next_level_role_id_caste' => $next_level_role_id, 'rejected_cause' => $rejected_cause, 'comments' => $comments, 'ben_verified_at' => $today];
         } else if ($opreation_type == 'R') {
             $txt = 'Rejected';
             $next_level_role_id = -100;
             $rejected_cause = $reject_cause;
             $message = 'Rejected Succesfully!';
-            $input = ['action_by' => Auth::user()->id,'action_ip_address' => request()->ip(),'action_type' => class_basename(request()->route()->getAction()['controller']),'is_final' => TRUE, 'next_level_role_id_caste' => $next_level_role_id, 'rejected_cause' => $rejected_cause, 'comments' => $comments, 'ben_rejected_at' => $today];
+            $input = ['action_by' => Auth::user()->id, 'action_ip_address' => request()->ip(), 'action_type' => class_basename(request()->route()->getAction()['controller']), 'is_final' => TRUE, 'next_level_role_id_caste' => $next_level_role_id, 'rejected_cause' => $rejected_cause, 'comments' => $comments, 'ben_rejected_at' => $today];
         } else if ($opreation_type == 'T') {
             $txt = 'Reverted';
             $next_level_role_id = -50;
             $rejected_cause = $reject_cause;
             $message = 'Reverted Succesfully!';
-            $input = ['action_by' => Auth::user()->id,'action_ip_address' => request()->ip(),'action_type' => class_basename(request()->route()->getAction()['controller']),'next_level_role_id_caste' => $next_level_role_id, 'rejected_cause' => $rejected_cause, 'comments' => $comments];
+            $input = ['action_by' => Auth::user()->id, 'action_ip_address' => request()->ip(), 'action_type' => class_basename(request()->route()->getAction()['controller']), 'next_level_role_id_caste' => $next_level_role_id, 'rejected_cause' => $rejected_cause, 'comments' => $comments];
         }
         //  $input = ['next_level_role_id_caste' => $next_level_role_id, 'rejected_cause' => $rejected_cause, 'comments' => $comments];
 
@@ -1767,16 +1746,16 @@ class casteManagementController extends Controller
     }
     public function approvedata(Request $request)
     {
+        // dd($request->all());
         $this->middleware('auth');
         //return redirect("/")->with('error', 'Payment Server is down for Maintenance. Please try after some time.');
         $designation_id = Auth::user()->designation_id;
         $errormsg = Config::get('constants.errormsg');
         if (!in_array($designation_id, ['Approver', 'Delegated Approver'])) {
             return response()->json(['return_status' => 0, 'return_msg' => $errormsg['notauthorized']]);
-
         }
-       
-         
+
+
         $scheme_id = $this->scheme_id;
         $user_id = Auth::user()->id;
         $designation_id = Auth::user()->designation_id;
@@ -1821,8 +1800,7 @@ class casteManagementController extends Controller
         $getModelFunc = new getModelFunc();
         $schemaname = $getModelFunc->getSchemaDetails();
         $opreation_type = $request->opreation_type;
-        if($designation_id == 'Delegated Approver')
-        {
+        if ($designation_id == 'Delegated Approver') {
             $role = MapLavel::where('scheme_id', $scheme_id)->where('role_name', 'Approver')->where('stack_level', $mapping_level)->first();
         } elseif ($designation_id == 'Approver') {
             $role = MapLavel::where('scheme_id', $scheme_id)->where('role_name', 'Approver')->where('stack_level', $mapping_level)->first();
@@ -1878,19 +1856,19 @@ class casteManagementController extends Controller
             $next_level_role_id = 0;
             $rejected_cause = NULL;
             $message = 'Approved Succesfully!';
-            $input = ['action_by' => Auth::user()->id,'action_ip_address' => request()->ip(),'action_type' => class_basename(request()->route()->getAction()['controller']),'is_final' => TRUE, 'next_level_role_id_caste' => $next_level_role_id, 'comments' => $comments, 'ben_approved_at' => $today];
+            $input = ['action_by' => Auth::user()->id, 'action_ip_address' => request()->ip(), 'action_type' => class_basename(request()->route()->getAction()['controller']), 'is_final' => TRUE, 'next_level_role_id_caste' => $next_level_role_id, 'comments' => $comments, 'ben_approved_at' => $today];
         } else if ($opreation_type == 'R') {
             $txt = 'Rejected';
             $next_level_role_id = -100;
             $rejected_cause = $reject_cause;
             $message = 'Rejected Succesfully!';
-            $input = ['action_by' => Auth::user()->id,'action_ip_address' => request()->ip(),'action_type' => class_basename(request()->route()->getAction()['controller']),'is_final' => TRUE, 'next_level_role_id_caste' => $next_level_role_id, 'rejected_cause' => $rejected_cause, 'comments' => $comments, 'ben_rejected_at' => $today];
+            $input = ['action_by' => Auth::user()->id, 'action_ip_address' => request()->ip(), 'action_type' => class_basename(request()->route()->getAction()['controller']), 'is_final' => TRUE, 'next_level_role_id_caste' => $next_level_role_id, 'rejected_cause' => $rejected_cause, 'comments' => $comments, 'ben_rejected_at' => $today];
         } else if ($opreation_type == 'T') {
             $txt = 'Reverted';
             $next_level_role_id = -50;
             $rejected_cause = $reject_cause;
             $message = 'Reverted Succesfully!';
-            $input = ['action_by' => Auth::user()->id,'action_ip_address' => request()->ip(),'action_type' => class_basename(request()->route()->getAction()['controller']),'next_level_role_id_caste' => $next_level_role_id, 'rejected_cause' => $rejected_cause, 'comments' => $comments, 'ben_reverted_at' => $today];
+            $input = ['action_by' => Auth::user()->id, 'action_ip_address' => request()->ip(), 'action_type' => class_basename(request()->route()->getAction()['controller']), 'next_level_role_id_caste' => $next_level_role_id, 'rejected_cause' => $rejected_cause, 'comments' => $comments, 'ben_reverted_at' => $today];
         }
         try {
 
@@ -1930,12 +1908,10 @@ class casteManagementController extends Controller
                     if ($app_row->caste_change_type == 2) {
                         array_push($payment_master_status_arr, $app_row->application_id);
                         array_push($payment_update_status_arr, $app_row->application_id);
-                    }else if($app_row->caste_change_type == 1){
-                        if(($app_row->new_caste == 'SC' && $app_row->old_caste == 'ST') || ($app_row->new_caste == 'ST' && $app_row->old_caste == 'SC')){
+                    } else if ($app_row->caste_change_type == 1) {
+                        if (($app_row->new_caste == 'SC' && $app_row->old_caste == 'ST') || ($app_row->new_caste == 'ST' && $app_row->old_caste == 'SC')) {
                             array_push($payment_master_status_arr, $app_row->application_id);
-    
                         }
-    
                     }
                 }
             } else {
@@ -1975,12 +1951,10 @@ class casteManagementController extends Controller
 
                     array_push($payment_update_status_arr, $row->application_id);
                     array_push($payment_master_status_arr, $row->application_id);
-                }else if($row->caste_change_type == 1){
-                    if(($row->new_caste == 'SC' && $row->old_caste == 'ST') || ($row->new_caste == 'ST' && $row->old_caste == 'SC')){
+                } else if ($row->caste_change_type == 1) {
+                    if (($row->new_caste == 'SC' && $row->old_caste == 'ST') || ($row->new_caste == 'ST' && $row->old_caste == 'SC')) {
                         array_push($payment_master_status_arr, $row->application_id);
-
                     }
-
                 }
             }
             //dd($ben_master_status_arr);
@@ -1997,7 +1971,7 @@ class casteManagementController extends Controller
             DB::connection('pgsql_appwrite')->beginTransaction();
             DB::connection('pgsql_encwrite')->beginTransaction();
             DB::connection('pgsql_payment')->beginTransaction();
-            
+
             if ($is_bulk == 1) {
 
 
@@ -2052,7 +2026,7 @@ class casteManagementController extends Controller
                                 $payment_model_effective1->beneficiary_id = $app_row->beneficiary_id;
                                 $payment_model_effective1->from_effective_yymm =  $date->format('ym'); //Approval Date in YYMM format
                                 $payment_model_effective1->to_effective_yymm =  (int) ($new_effective_year . $new_effective_month);
-                                
+
                                 $payment_model_effective1->caste = $app_row->old_caste;
                                 $payment_model_effective1->is_faulty = $app_row->is_faulty;
                                 $is_saved_effective1 = $payment_model_effective1->save();
@@ -2062,7 +2036,7 @@ class casteManagementController extends Controller
                                 $payment_model_effective1->setTable('' . $Table);
                                 $payment_model_effective1->setConnection('pgsql_payment');
                                 $to_effective_yymm = (int) ($new_effective_year . $new_effective_month);
-                                
+
                                 $is_saved_effective1 = $payment_model_effective1->whereNull('to_effective_yymm')->where('application_id', $app_row->application_id)->update(['to_effective_yymm' => $to_effective_yymm]);
                             }
                             $payment_model_effective = new DataSourceCommon;
@@ -2192,7 +2166,7 @@ class casteManagementController extends Controller
                             $payment_model_effective1->setTable('' . $Table);
                             $payment_model_effective1->setConnection('pgsql_payment');
                             $to_effective_yymm = (int) ($new_effective_year . $new_effective_month);
-                           
+
                             $is_saved_effective1 = $payment_model_effective1->whereNull('to_effective_yymm')->where('application_id', $row->application_id)->update(['to_effective_yymm' => $to_effective_yymm]);
                         }
                         $payment_model_effective = new DataSourceCommon;
@@ -2574,7 +2548,7 @@ class casteManagementController extends Controller
     public function getData(Request $request)
     {
 
-       
+
         $this->middleware('auth');
         $district = $request->district;
         $urban_code = $request->urban_code;
@@ -2592,14 +2566,11 @@ class casteManagementController extends Controller
         $heading_msg = '';
         $title = "";
 
-        if($new_caste=='SC & ST')
-        {
-            $visible=1;
+        if ($new_caste == 'SC & ST') {
+            $visible = 1;
+        } else {
 
-        }
-        else{
-
-            $visible=0;
+            $visible = 0;
         }
         //$block_condition = "";
         if (!empty($district)) {
@@ -2743,25 +2714,24 @@ class casteManagementController extends Controller
             'column' => $column,
             'title' => $title,
             'heading_msg' => $heading_msg,
-            'visible' =>$visible
+            'visible' => $visible
         ]);
     }
     public function getDistrictWise($district_code = NULL, $ulb_code = NULL, $block_ulb_code = NULL, $gp_ward_code = NULL, $fromdate = NULL, $todate = NULL, $old_caste = NULL, $new_caste = NULL)
     {
         $this->middleware('auth');
 
-        if($new_caste=='SC & ST')
-        {
-                    $whereCon = "where 1=1";
-                    if (!empty($old_caste)) {
-                        $whereCon .= "  and old_caste='" . $old_caste . "'";
-                    }
-                    // if (!empty($new_caste)) {
-                    //     $whereCon .= "  and new_caste='" . $new_caste . "'";
-                    // }
-                   
+        if ($new_caste == 'SC & ST') {
+            $whereCon = "where 1=1";
+            if (!empty($old_caste)) {
+                $whereCon .= "  and old_caste='" . $old_caste . "'";
+            }
+            // if (!empty($new_caste)) {
+            //     $whereCon .= "  and new_caste='" . $new_caste . "'";
+            // }
 
-                    $query="select main.location_id,main.location_name,
+
+            $query = "select main.location_id,main.location_name,
                     COALESCE(caste.tot_ben_sc,0) as tot_ben_sc,
                     COALESCE(caste.total_verified_sc,0) as total_verified_sc,
                     COALESCE(caste.total_yet_tobe_verified_sc,0) as total_yet_tobe_verified_sc,
@@ -2801,22 +2771,20 @@ class casteManagementController extends Controller
                     created_by_dist_code 
                     from lb_scheme.ben_caste_modification_track    " . $whereCon . " and  new_caste in('SC','ST')
                     group by created_by_dist_code
-                    ) as caste ON main.location_id=caste.created_by_dist_code"
-;
-                //dd($query);
-                   
-                    $result = DB::connection('pgsql_appread')->select($query);
-            }
-            else{
+                    ) as caste ON main.location_id=caste.created_by_dist_code";
+            //dd($query);
 
-                $whereCon = "where 1=1";
-                if (!empty($old_caste)) {
-                    $whereCon .= "  and old_caste='" . $old_caste . "'";
-                }
-                if (!empty($new_caste)) {
-                    $whereCon .= "  and new_caste='" . $new_caste . "'";
-                }
-                $query = "select main.location_id,main.location_name,
+            $result = DB::connection('pgsql_appread')->select($query);
+        } else {
+
+            $whereCon = "where 1=1";
+            if (!empty($old_caste)) {
+                $whereCon .= "  and old_caste='" . $old_caste . "'";
+            }
+            if (!empty($new_caste)) {
+                $whereCon .= "  and new_caste='" . $new_caste . "'";
+            }
+            $query = "select main.location_id,main.location_name,
                 COALESCE(caste.tot_ben,0) as tot_ben,
                 COALESCE(caste.total_verified,0) as total_verified,
                 COALESCE(caste.total_yet_tobe_verified,0) as total_yet_tobe_verified,
@@ -2842,18 +2810,17 @@ class casteManagementController extends Controller
                     group by created_by_dist_code
                 ) as caste ON main.location_id=caste.created_by_dist_code";
 
-                $result = DB::connection('pgsql_appread')->select($query);
-            }
+            $result = DB::connection('pgsql_appread')->select($query);
+        }
         // echo $query;die;
-        
+
         return $result;
     }
     public function getSubDivWise($district_code = NULL, $ulb_code = NULL, $block_ulb_code = NULL, $gp_ward_code = NULL, $fromdate = NULL, $todate = NULL, $old_caste = NULL, $new_caste = NULL)
     {
         $this->middleware('auth');
 
-        if($new_caste=='SC & ST')
-        {
+        if ($new_caste == 'SC & ST') {
             $whereMain = "where  district_code=" . $district_code;
             $whereCon = "where  created_by_dist_code=" . $district_code;
             if (!empty($old_caste)) {
@@ -2862,7 +2829,7 @@ class casteManagementController extends Controller
             // if (!empty($new_caste)) {
             //     $whereCon .= "  and new_caste='" . $new_caste . "'";
             // }
-    
+
             $query = "select main.location_id,main.location_name||'-SubDivision' as location_name,
             COALESCE(caste.tot_ben_sc,0) as tot_ben_sc,
                     COALESCE(caste.total_verified_sc,0) as total_verified_sc,
@@ -2904,10 +2871,7 @@ class casteManagementController extends Controller
                 from lb_scheme.ben_caste_modification_track  " . $whereCon . " and  new_caste in('SC','ST')
                 group by created_by_local_body_code
             ) as caste ON main.location_id=caste.created_by_local_body_code";
-
-
-        }
-        else{
+        } else {
 
             $whereMain = "where  district_code=" . $district_code;
             $whereCon = "where  created_by_dist_code=" . $district_code;
@@ -2917,7 +2881,7 @@ class casteManagementController extends Controller
             if (!empty($new_caste)) {
                 $whereCon .= "  and new_caste='" . $new_caste . "'";
             }
-    
+
             $query = "select main.location_id,main.location_name||'-SubDivision' as location_name,
             COALESCE(caste.tot_ben,0) as tot_ben,
             COALESCE(caste.total_verified,0) as total_verified,
@@ -2943,11 +2907,9 @@ class casteManagementController extends Controller
                 from lb_scheme.ben_caste_modification_track  " . $whereCon . " 
                 group by created_by_local_body_code
             ) as caste ON main.location_id=caste.created_by_local_body_code";
-
-
         }
         //$whereCon = "where A.dist_code=" . $district_code;
-      
+
 
         // echo $query;die;
         $result = DB::connection('pgsql_appread')->select($query);
@@ -2957,8 +2919,7 @@ class casteManagementController extends Controller
     {
         $this->middleware('auth');
 
-        if($new_caste=='SC & ST')
-        {
+        if ($new_caste == 'SC & ST') {
 
             $whereMain = "where  district_code=" . $district_code;
             $whereCon = "where  created_by_dist_code=" . $district_code;
@@ -3009,26 +2970,22 @@ class casteManagementController extends Controller
                from lb_scheme.ben_caste_modification_track   " . $whereCon . "  and  new_caste in('SC','ST')
                group by created_by_local_body_code
            ) as caste ON main.location_id=caste.created_by_local_body_code";
+        } else {
 
 
 
-        }
-        else{
 
 
-      
-
-
-        //$whereCon = "where A.dist_code=" . $district_code;
-        $whereMain = "where  district_code=" . $district_code;
-        $whereCon = "where  created_by_dist_code=" . $district_code;
-        if (!empty($old_caste)) {
-            $whereCon .= "  and old_caste='" . $old_caste . "'";
-        }
-        if (!empty($new_caste)) {
-            $whereCon .= "  and new_caste='" . $new_caste . "'";
-        }
-        $query = "select main.location_id,main.location_name||'-Block' as location_name,
+            //$whereCon = "where A.dist_code=" . $district_code;
+            $whereMain = "where  district_code=" . $district_code;
+            $whereCon = "where  created_by_dist_code=" . $district_code;
+            if (!empty($old_caste)) {
+                $whereCon .= "  and old_caste='" . $old_caste . "'";
+            }
+            if (!empty($new_caste)) {
+                $whereCon .= "  and new_caste='" . $new_caste . "'";
+            }
+            $query = "select main.location_id,main.location_name||'-Block' as location_name,
         COALESCE(caste.tot_ben,0) as tot_ben,
         COALESCE(caste.total_verified,0) as total_verified,
         COALESCE(caste.total_yet_tobe_verified,0) as total_yet_tobe_verified,
@@ -3176,18 +3133,26 @@ class casteManagementController extends Controller
         }
         if (request()->ajax()) {
             $query = $query->where($condition);
-            $serachvalue = $request->search['value'];
-            $limit = $request->input('length');
-            $offset = $request->input('start');
+            $serachvalue = $request->search_value;
+            // $limit = $request->input('length');
+            // $offset = $request->input('start');
 
-            $totalRecords = 0;
-            $filterRecords = 0;
-            $data = array();
+            // $totalRecords = 0;
+            // $filterRecords = 0;
+            // $data = array();
             if (empty($serachvalue)) {
-                $totalRecords = $query->count();
+                // $totalRecords = $query->count();
                 // dd($query);
-                $data = $query->orderBy('ben_name')->orderBy('gp_ward_name')->offset($offset)->limit($limit)->get([
-                    'application_id', 'beneficiary_id', 'ben_name',  'mobile_no', 'ss_card_no', 'next_level_role_id_caste', 'rejected_cause', 'is_final', 'is_faulty'
+                $query = $query->orderBy('ben_name')->orderBy('gp_ward_name')->select([
+                    'application_id',
+                    'beneficiary_id',
+                    'ben_name',
+                    'mobile_no',
+                    'ss_card_no',
+                    'next_level_role_id_caste',
+                    'rejected_cause',
+                    'is_final',
+                    'is_faulty'
 
                 ]);
             } else {
@@ -3201,10 +3166,18 @@ class casteManagementController extends Controller
                             $query1->where('ss_card_no', $serachvalue);
                         }
                     });
-                    $totalRecords = $query->count();
-                    $data = $query->orderBy('ben_name')->orderBy('gp_ward_name')->offset($offset)->limit($limit)->get(
+                    // $totalRecords = $query->count();
+                    $query = $query->orderBy('ben_name')->orderBy('gp_ward_name')->select(
                         [
-                            'application_id', 'beneficiary_id', 'ben_name', 'mobile_no', 'ss_card_no', 'next_level_role_id_caste', 'rejected_cause', 'is_final', 'is_faulty'
+                            'application_id',
+                            'beneficiary_id',
+                            'ben_name',
+                            'mobile_no',
+                            'ss_card_no',
+                            'next_level_role_id_caste',
+                            'rejected_cause',
+                            'is_final',
+                            'is_faulty'
 
                         ]
                     );
@@ -3212,22 +3185,29 @@ class casteManagementController extends Controller
                     $query = $query->where(function ($query1) use ($serachvalue) {
                         $query1->where('ben_name', 'like', $serachvalue . '%');
                     });
-                    $totalRecords = $query->count();
-                    $data = $query->orderBy('ben_name')->orderBy('gp_ward_name')->offset($offset)->limit($limit)->get(
+                    // $totalRecords = $query->count();
+                    $query = $query->orderBy('ben_name')->orderBy('gp_ward_name')->select(
                         [
 
-                            'application_id', 'beneficiary_id', 'ben_name', 'mobile_no', 'ss_card_no', 'next_level_role_id_caste', 'rejected_cause', 'is_final', 'is_faulty'
+                            'application_id',
+                            'beneficiary_id',
+                            'ben_name',
+                            'mobile_no',
+                            'ss_card_no',
+                            'next_level_role_id_caste',
+                            'rejected_cause',
+                            'is_final',
+                            'is_faulty'
 
                         ]
                     );
                 }
-                $filterRecords = count($data);
             }
             return datatables()
-                ->of($data)
-                ->setTotalRecords($totalRecords)
-                ->setFilteredRecords($filterRecords)
-                ->skipPaging()
+                ->of($query)
+                // ->setTotalRecords($totalRecords)
+                // ->setFilteredRecords($filterRecords)
+                // ->skipPaging()
                 ->addColumn('application_id', function ($data) use ($report_type) {
 
                     return $data->application_id;
@@ -3563,7 +3543,7 @@ is_final, ben_reverted_at,approved_arrear,rejected_arrear,approved_due_amt, appr
                 }
 
                 // dd($row->application_id);
-                $save_2 = $modelmain->where('is_final', FALSE)->where('application_id', $row->application_id)->update(['action_by' => Auth::user()->id,'action_ip_address' => request()->ip(),'action_type' => class_basename(request()->route()->getAction()['controller']),'new_caste_certificate_no' => $caste_certificate_no, 'new_caste' => $caste_category, 'next_level_role_id_caste' => null]);
+                $save_2 = $modelmain->where('is_final', FALSE)->where('application_id', $row->application_id)->update(['action_by' => Auth::user()->id, 'action_ip_address' => request()->ip(), 'action_type' => class_basename(request()->route()->getAction()['controller']), 'new_caste_certificate_no' => $caste_certificate_no, 'new_caste' => $caste_category, 'next_level_role_id_caste' => null]);
 
                 $op_type = 'CZ';
                 $modelNameAcceptReject->op_type =  $op_type;
@@ -3651,84 +3631,82 @@ is_final, ben_reverted_at,approved_arrear,rejected_arrear,approved_due_amt, appr
     public function casteInfoList(Request $request)
     {
         $this->middleware('auth');
-      //return redirect('/')->with('error', 'Not Allowded');
+        //return redirect('/')->with('error', 'Not Allowded');
         $this->middleware('auth');
         $designation_id = Auth::user()->designation_id;
         //dd($designation_id);
         $user_id = Auth::user()->id;
-    
+
         $scheme_id = $this->scheme_id;
-        
+
         $duty_obj = Configduty::where('user_id', $user_id)->where('scheme_id', $scheme_id)->first();
         //dd($duty_obj);
         if (empty($duty_obj)) {
-          return redirect("/")->with('danger', 'Not Allowed');
+            return redirect("/")->with('danger', 'Not Allowed');
         }
         if ($designation_id == 'Delegated Verifier') {
-            $mapArr = MapLavel::where('scheme_id', $duty_obj->scheme_id)->where('role_name','Verifier')->first();
+            $mapArr = MapLavel::where('scheme_id', $duty_obj->scheme_id)->where('role_name', 'Verifier')->first();
         } else {
-            $mapArr = MapLavel::where('scheme_id', $duty_obj->scheme_id)->where('role_name','Verifier')->first();
+            $mapArr = MapLavel::where('scheme_id', $duty_obj->scheme_id)->where('role_name', 'Verifier')->first();
         }
         // $mapArr = MapLavel::where('scheme_id', $duty_obj->scheme_id)->where('role_name','Verifier')->first();
-        $next_level_role_id=$mapArr->parent_id;
-        $type_des='SC and ST List';
-        
+        $next_level_role_id = $mapArr->parent_id;
+        $type_des = 'SC and ST List';
+
         //dd($type_des);
         $district_code = $duty_obj->district_code;
         $urban_bodys = collect([]);
         $gps = collect([]);
         $district_list_obj = collect([]);
-        
-        $where_condition=' where 1=1';
+
+        $where_condition = ' where 1=1';
         if ($duty_obj->mapping_level == "Subdiv") {
-          $created_by_local_body_code = $duty_obj->urban_body_code;
-          $is_rural = 1;
-          $verifier_type = 'Subdiv';
-          $gps = collect([]);
-          $urban_body_code = $duty_obj->urban_body_code;
-          $urban_bodys = UrbanBody::where('sub_district_code', $urban_body_code)->select('urban_body_code', 'urban_body_name')->get();
-          $urban_body_codes = [];
-          $i = 0;
-          foreach ($urban_bodys as $urban_body) {
-    
-            $urban_body_codes[$i] = $urban_body->urban_body_code;
-            $i++;
-          }
-          $where_condition .= " AND A.created_by_dist_code=".$district_code." AND A.created_by_local_body_code=" . $created_by_local_body_code . " ";
-          $where_condition .= " AND B.created_by_dist_code=".$district_code." AND B.created_by_local_body_code=" . $created_by_local_body_code . " ";
-  
-          if (!empty($request->block_ulb_code)) {
-              $where_condition .= " AND B.block_ulb_code=" . $request->block_ulb_code . " ";
-          }
-          if (!empty($request->gp_ward_code)) {
-              $where_condition .= " AND  B.gp_ward_code=" . $request->gp_ward_code . "";
-          }
+            $created_by_local_body_code = $duty_obj->urban_body_code;
+            $is_rural = 1;
+            $verifier_type = 'Subdiv';
+            $gps = collect([]);
+            $urban_body_code = $duty_obj->urban_body_code;
+            $urban_bodys = UrbanBody::where('sub_district_code', $urban_body_code)->select('urban_body_code', 'urban_body_name')->get();
+            $urban_body_codes = [];
+            $i = 0;
+            foreach ($urban_bodys as $urban_body) {
+
+                $urban_body_codes[$i] = $urban_body->urban_body_code;
+                $i++;
+            }
+            $where_condition .= " AND A.created_by_dist_code=" . $district_code . " AND A.created_by_local_body_code=" . $created_by_local_body_code . " ";
+            $where_condition .= " AND B.created_by_dist_code=" . $district_code . " AND B.created_by_local_body_code=" . $created_by_local_body_code . " ";
+
+            if (!empty($request->block_ulb_code)) {
+                $where_condition .= " AND B.block_ulb_code=" . $request->block_ulb_code . " ";
+            }
+            if (!empty($request->gp_ward_code)) {
+                $where_condition .= " AND  B.gp_ward_code=" . $request->gp_ward_code . "";
+            }
         }
         if ($duty_obj->mapping_level == "Block") {
-          $created_by_local_body_code = $duty_obj->taluka_code;
-          $is_rural = 2;
-          $verifier_type = 'Block';
-          $urban_bodys = collect([]);
-          $taluka_code = $duty_obj->taluka_code;
-          $gps = GP::where('block_code', $taluka_code)->select('gram_panchyat_code', 'gram_panchyat_name')->get();
-          $where_condition .= " AND A.created_by_dist_code=".$district_code." AND A.created_by_local_body_code=" . $created_by_local_body_code . " ";
-          $where_condition .= " AND B.created_by_dist_code=".$district_code." AND B.created_by_local_body_code=" . $created_by_local_body_code . " ";
-          if (!empty($request->gp_ward_code)) {
-              $where_condition .= " AND  B.gp_ward_code=" . $request->gp_ward_code . "";
-          }
+            $created_by_local_body_code = $duty_obj->taluka_code;
+            $is_rural = 2;
+            $verifier_type = 'Block';
+            $urban_bodys = collect([]);
+            $taluka_code = $duty_obj->taluka_code;
+            $gps = GP::where('block_code', $taluka_code)->select('gram_panchyat_code', 'gram_panchyat_name')->get();
+            $where_condition .= " AND A.created_by_dist_code=" . $district_code . " AND A.created_by_local_body_code=" . $created_by_local_body_code . " ";
+            $where_condition .= " AND B.created_by_dist_code=" . $district_code . " AND B.created_by_local_body_code=" . $created_by_local_body_code . " ";
+            if (!empty($request->gp_ward_code)) {
+                $where_condition .= " AND  B.gp_ward_code=" . $request->gp_ward_code . "";
+            }
         }
         if ($duty_obj->mapping_level == "District") {
-          $district_list_obj = District::get();
-          $verifier_type = 'District';
-          $is_rural = NULL;
-          $created_by_local_body_code = NULL;
-          $where_condition .= " AND A.created_by_dist_code=".$district_code;
-          $where_condition .= " AND B.created_by_dist_code=".$district_code;
-  
-         
+            $district_list_obj = District::get();
+            $verifier_type = 'District';
+            $is_rural = NULL;
+            $created_by_local_body_code = NULL;
+            $where_condition .= " AND A.created_by_dist_code=" . $district_code;
+            $where_condition .= " AND B.created_by_dist_code=" . $district_code;
         }
         if (request()->ajax()) {
-          $query = "select * from
+            $query = "select * from
           (select 
           A.next_level_role_id,A.application_id,
           A.beneficiary_id,CONCAT(COALESCE(ben_fname,''), ' ', COALESCE(ben_mname,''),' ',COALESCE(ben_lname,'')) AS ben_name,mobile_no,
@@ -3736,7 +3714,7 @@ is_final, ben_reverted_at,approved_arrear,rejected_arrear,approved_due_amt, appr
           A.caste_certificate_check_lastdatetime,A.caste_matched_with_certificate_no
           from lb_scheme.ben_personal_details as A JOIN lb_scheme.ben_contact_details as B 
           ON A.application_id=B.application_id
-          ".$where_condition." and caste IN ('SC','ST')
+          " . $where_condition . " and caste IN ('SC','ST')
           UNION
           select 
           A.next_level_role_id,A.application_id,
@@ -3745,98 +3723,90 @@ is_final, ben_reverted_at,approved_arrear,rejected_arrear,approved_due_amt, appr
           A.caste_certificate_check_lastdatetime,A.caste_matched_with_certificate_no
           from lb_scheme.faulty_ben_personal_details as A LEFT JOIN lb_scheme.faulty_ben_contact_details as B 
           ON A.application_id=B.application_id
-          ".$where_condition." and caste IN ('SC','ST')) as P order by application_id";
-        
-  
-          $data = DB::connection('pgsql_appread')->select($query);
-  
-          //print_r($data);die;
-          return datatables()->of($data)
-              ->addIndexColumn()
-              ->addColumn('action', function ($data) use ($scheme_id, $designation_id,$next_level_role_id) {
-               
-                        $action = '';
-                    if(is_null($data->caste_certificate_checked) && is_null($data->caste_matched_with_certificate_no)){
-               
-                    $action = '<button type="button" id="validatebtn_'. $data->application_id.'" value="'. $data->application_id.'_'. $data->is_faulty.'" class="btn btn-xs btn-primary validate">Validate&nbsp; &nbsp;';
-                    }
-                    else{
-                        if($data->caste_certificate_checked==1 && $data->caste_matched_with_certificate_no==1){
-                            $action = '<i class="fa fa-check text-success"></i><b>Caste Certificate validated on '.date('d-m-Y',strtotime($data->caste_certificate_check_lastdatetime)).'</b> ';
-                        }
-                        elseif($data->caste_certificate_checked==1 && $data->caste_matched_with_certificate_no==2){
-                            $action = 'Name Not Matched &nbsp; &nbsp;&nbsp; &nbsp;<button type="button" id="validatebtn_'. $data->application_id.'" value="'. $data->application_id.'_'. $data->is_faulty.'" class="btn btn-xs btn-info validate">Revalidate&nbsp; &nbsp;';
+          " . $where_condition . " and caste IN ('SC','ST')) as P order by application_id";
 
-                        }
-                        elseif($data->caste_certificate_checked==1 && $data->caste_matched_with_certificate_no==0){
-                            $action = '<i class="fa fa-close text-danger"></i>&nbsp; &nbsp;&nbsp; &nbsp;<button type="button" id="validatebtn_'. $data->application_id.'" value="'. $data->application_id.'_'. $data->is_faulty.'" class="btn btn-xs btn-info validate">Revalidate&nbsp; &nbsp;';
 
-                        } elseif($data->caste_certificate_checked==1 && $data->caste_matched_with_certificate_no==3){
-                            $action = '<i class="fa fa-close text-danger"></i>&nbsp; &nbsp;&nbsp; &nbsp;<button type="button" id="validatebtn_'. $data->application_id.'" value="'. $data->application_id.'_'. $data->is_faulty.'" class="btn btn-xs btn-info validate">Revalidate&nbsp; &nbsp;';
+            $data = DB::connection('pgsql_appread')->select($query);
 
-                        }elseif($data->caste_certificate_checked==1 && $data->caste_matched_with_certificate_no==4){
-                            $action = '<i class="fa fa-close text-danger"></i>&nbsp; &nbsp;&nbsp; &nbsp;<button type="button" id="validatebtn_'. $data->application_id.'" value="'. $data->application_id.'_'. $data->is_faulty.'" class="btn btn-xs btn-info validate">Revalidate&nbsp; &nbsp;';
+            //print_r($data);die;
+            return datatables()->of($data)
+                ->addIndexColumn()
+                ->addColumn('action', function ($data) use ($scheme_id, $designation_id, $next_level_role_id) {
 
+                    $action = '';
+                    if (is_null($data->caste_certificate_checked) && is_null($data->caste_matched_with_certificate_no)) {
+
+                        $action = '<button type="button" id="validatebtn_' . $data->application_id . '" value="' . $data->application_id . '_' . $data->is_faulty . '" class="btn btn-xs btn-primary validate">Validate&nbsp; &nbsp;';
+                    } else {
+                        if ($data->caste_certificate_checked == 1 && $data->caste_matched_with_certificate_no == 1) {
+                            $action = '<i class="fa fa-check text-success"></i><b>Caste Certificate validated on ' . date('d-m-Y', strtotime($data->caste_certificate_check_lastdatetime)) . '</b> ';
+                        } elseif ($data->caste_certificate_checked == 1 && $data->caste_matched_with_certificate_no == 2) {
+                            $action = 'Name Not Matched &nbsp; &nbsp;&nbsp; &nbsp;<button type="button" id="validatebtn_' . $data->application_id . '" value="' . $data->application_id . '_' . $data->is_faulty . '" class="btn btn-xs btn-info validate">Revalidate&nbsp; &nbsp;';
+                        } elseif ($data->caste_certificate_checked == 1 && $data->caste_matched_with_certificate_no == 0) {
+                            $action = '<i class="fa fa-close text-danger"></i>&nbsp; &nbsp;&nbsp; &nbsp;<button type="button" id="validatebtn_' . $data->application_id . '" value="' . $data->application_id . '_' . $data->is_faulty . '" class="btn btn-xs btn-info validate">Revalidate&nbsp; &nbsp;';
+                        } elseif ($data->caste_certificate_checked == 1 && $data->caste_matched_with_certificate_no == 3) {
+                            $action = '<i class="fa fa-close text-danger"></i>&nbsp; &nbsp;&nbsp; &nbsp;<button type="button" id="validatebtn_' . $data->application_id . '" value="' . $data->application_id . '_' . $data->is_faulty . '" class="btn btn-xs btn-info validate">Revalidate&nbsp; &nbsp;';
+                        } elseif ($data->caste_certificate_checked == 1 && $data->caste_matched_with_certificate_no == 4) {
+                            $action = '<i class="fa fa-close text-danger"></i>&nbsp; &nbsp;&nbsp; &nbsp;<button type="button" id="validatebtn_' . $data->application_id . '" value="' . $data->application_id . '_' . $data->is_faulty . '" class="btn btn-xs btn-info validate">Revalidate&nbsp; &nbsp;';
                         }
                     }
-                  
-                
-               
-                  
-                
-                 
-               
-      
-                return $action;
-              })->addColumn('id', function ($data) {
-                  return $data->beneficiary_id;
-              })
-              ->addColumn('name', function ($data) {
-                  return $data->ben_name;
-              })
-              ->addColumn('block_ulb_name', function ($data) {
-                  return $data->block_ulb_name;
-              })
-              ->addColumn('gp_ward_name', function ($data) {
-                  return $data->gp_ward_name;
-              })
-              ->addColumn('caste_certificate_no', function ($data) {
-                  if(!is_null($data->caste_certificate_no)){
-                      return $data->caste_certificate_no;
-                      }
-                      else{
-                          return ''; 
-                      }
-              })
-          
-              ->addColumn('mobile_no', function ($data) {
-  
-                  return $data->mobile_no;
-              })
-              ->addColumn('application_id', function ($data) {
-  
-                  return $data->application_id;
-              })
-          
-              // ->with('completed', $complete)
-              ->rawColumns(['id', 'name', 'block_ulb_name', 'gp_ward_name', 'action', 'mobile_no', 'application_id',  'caste_certificate_no'])
-              ->make(true);
-            }
-    
+
+
+
+
+
+
+
+
+                    return $action;
+                })->addColumn('id', function ($data) {
+                    return $data->beneficiary_id;
+                })
+                ->addColumn('name', function ($data) {
+                    return $data->ben_name;
+                })
+                ->addColumn('block_ulb_name', function ($data) {
+                    return $data->block_ulb_name;
+                })
+                ->addColumn('gp_ward_name', function ($data) {
+                    return $data->gp_ward_name;
+                })
+                ->addColumn('caste_certificate_no', function ($data) {
+                    if (!is_null($data->caste_certificate_no)) {
+                        return $data->caste_certificate_no;
+                    } else {
+                        return '';
+                    }
+                })
+
+                ->addColumn('mobile_no', function ($data) {
+
+                    return $data->mobile_no;
+                })
+                ->addColumn('application_id', function ($data) {
+
+                    return $data->application_id;
+                })
+
+                // ->with('completed', $complete)
+                ->rawColumns(['id', 'name', 'block_ulb_name', 'gp_ward_name', 'action', 'mobile_no', 'application_id',  'caste_certificate_no'])
+                ->make(true);
+        }
+
         return view(
-          'casteManagement.casteInfoList',
-          [
-            'designation_id' => $designation_id,
-            'verifier_type' => $verifier_type,
-            'created_by_local_body_code' => $created_by_local_body_code,
-            'is_rural' => $is_rural,
-            'scheme_id' => $scheme_id,
-            'gps' => $gps,
-            'urban_bodys' => $urban_bodys,
-            'gps' => $gps,
-            'district_code' => $district_code,
-            'type_des' => $type_des
-          ]
+            'casteManagement.casteInfoList',
+            [
+                'designation_id' => $designation_id,
+                'verifier_type' => $verifier_type,
+                'created_by_local_body_code' => $created_by_local_body_code,
+                'is_rural' => $is_rural,
+                'scheme_id' => $scheme_id,
+                'gps' => $gps,
+                'urban_bodys' => $urban_bodys,
+                'gps' => $gps,
+                'district_code' => $district_code,
+                'type_des' => $type_des
+            ]
         );
     }
     public function casteInfoValidatePost(Request $request)
@@ -3859,14 +3829,14 @@ is_final, ben_reverted_at,approved_arrear,rejected_arrear,approved_due_amt, appr
                 break;
             }
         }
-       // dd($is_active);
+        // dd($is_active);
         $return_status = 0;
         $return_msg = '';
         if ($is_active == 0 || empty($distCode)) {
             $return_status = 0;
             $return_text = 'User Disabled';
             $return_msg = array("" . $return_text);
-            $error_found=1;
+            $error_found = 1;
         }
         $user_id = Auth::user()->id;
         $caste_certificate_no = $request->caste_certificate_no;
@@ -3877,17 +3847,17 @@ is_final, ben_reverted_at,approved_arrear,rejected_arrear,approved_due_amt, appr
             $return_status = 0;
             $return_text = 'Application Id is Required';
             $return_msg = array("" . $return_text);
-            $error_found=1;
+            $error_found = 1;
         }
-        if ($is_faulty=='') {
+        if ($is_faulty == '') {
             $return_status = 0;
             $return_text = 'Faulty Type is Required';
             $return_msg = array("" . $return_text);
-            $error_found=1;
+            $error_found = 1;
         }
-        
-      
-        $insert_arr=array();
+
+
+        $insert_arr = array();
         $c_time = date('Y-m-d H:i:s', time());
         $getModelFunc = new getModelFunc();
         $schemaname = $getModelFunc->getSchemaDetails();
@@ -3905,85 +3875,78 @@ is_final, ben_reverted_at,approved_arrear,rejected_arrear,approved_due_amt, appr
         $aadhaar_model->setTable('' . $Tableaadhaar);
         //dd($is_faulty);
         if ($is_faulty == 1) {
-            $row = $personal_model_f->select('ben_fname','ben_mname','ben_lname','caste_certificate_no','application_id','wbpds_ration_card_no')->where('application_id', $application_id)->first();
-            $table_main= $TableFaultyPersonal;
+            $row = $personal_model_f->select('ben_fname', 'ben_mname', 'ben_lname', 'caste_certificate_no', 'application_id', 'wbpds_ration_card_no')->where('application_id', $application_id)->first();
+            $table_main = $TableFaultyPersonal;
         } else if ($is_faulty == 0) {
-            $row = $personal_model->select('ben_fname','ben_mname','ben_lname','caste_certificate_no','application_id','wbpds_ration_card_no')->where('application_id', $application_id)->first();
-            $table_main= $TablePersonal;
+            $row = $personal_model->select('ben_fname', 'ben_mname', 'ben_lname', 'caste_certificate_no', 'application_id', 'wbpds_ration_card_no')->where('application_id', $application_id)->first();
+            $table_main = $TablePersonal;
         }
         if (empty($row->application_id)) {
             return redirect("/casteInfoList")->with('error', ' Application Id Not found in Db');
-            
         }
-        $aadhar_row = $aadhaar_model->select('encoded_aadhar','application_id')->where('application_id', $application_id)->first();
-        $ben_fname=trim($row->ben_fname);
-        $ben_mname=trim($row->ben_mname);
-        $ben_lname=trim($row->ben_lname);
-        $ben_fullname=$ben_fname;
+        $aadhar_row = $aadhaar_model->select('encoded_aadhar', 'application_id')->where('application_id', $application_id)->first();
+        $ben_fname = trim($row->ben_fname);
+        $ben_mname = trim($row->ben_mname);
+        $ben_lname = trim($row->ben_lname);
+        $ben_fullname = $ben_fname;
         //dd($ben_fullname);
-        if(!empty($ben_mname)){
-            $ben_fullname= $ben_fullname.$ben_mname;
+        if (!empty($ben_mname)) {
+            $ben_fullname = $ben_fullname . $ben_mname;
         }
-        if(!empty($ben_lname)){
-            $ben_fullname= $ben_fullname.$ben_lname;
+        if (!empty($ben_lname)) {
+            $ben_fullname = $ben_fullname . $ben_lname;
         }
         $ben_fullname = str_replace(' ', '', $ben_fullname);
-        $insert_arr['created_by_local_body_code']=$blockCode;
-        $insert_arr['api_hit_time']=$c_time;
-        $insert_arr['loginid']=$user_id;
-        $insert_arr['ip_address']= $request->ip();
-        if(!empty($request->module_type)){
-        $insert_arr['module_type']=$request->module_type;
+        $insert_arr['created_by_local_body_code'] = $blockCode;
+        $insert_arr['api_hit_time'] = $c_time;
+        $insert_arr['loginid'] = $user_id;
+        $insert_arr['ip_address'] = $request->ip();
+        if (!empty($request->module_type)) {
+            $insert_arr['module_type'] = $request->module_type;
         }
-        if(!empty($request->application_id)){
-            $insert_arr['application_id']=$request->application_id;
+        if (!empty($request->application_id)) {
+            $insert_arr['application_id'] = $request->application_id;
         }
         DB::beginTransaction();
-       
-        $validation_arr=$this->validate_with_caste_certificate($caste_certificate_no = $row->caste_certificate_no,$ben_fullname= $ben_fullname); 
 
-        $c_time1=date('Y-m-d H:i:s', time());
-        $insert_arr['m_type']=2;
-        $insert_arr['response_text']=$validation_arr['response_text'];
-        $c_time1=date('Y-m-d H:i:s', time());
-        $insert_arr['api_response_time']= $c_time1;
-        $insert=DB::table('lb_scheme.ben_caste_api_response_track')->insert($insert_arr);
-      
-            $update_arr=array();
-            $update_arr['caste_certificate_checked']=1;
-            $update_arr['caste_matched_with_certificate_no']=$validation_arr['code'];
-            $update_arr['caste_certificate_check_lastdatetime']=$c_time1;
-            $update_arr['action_by'] = Auth::user()->id;
-            $update_arr['action_ip_address'] = request()->ip();
-            $update_arr['action_type'] = class_basename(request()->route()->getAction()['controller']);
-            if($validation_arr['match_found']==1){
-                $is_error=0;
-                $return_text=$validation_arr['message'];
-            }
-            else{
-                $is_error=1;
-                $return_text=$validation_arr['message'];   
-                $return_msg = array("" . $return_text);
-            }
-            $update=DB::table($table_main)->where('application_id',$row->application_id)->update($update_arr);
+        $validation_arr = $this->validate_with_caste_certificate($caste_certificate_no = $row->caste_certificate_no, $ben_fullname = $ben_fullname);
 
-       
-            if($insert && $update){
-                DB::commit();
-                if( $is_error==0){
-                    return redirect('casteInfoList')->with('message',  $return_text);
+        $c_time1 = date('Y-m-d H:i:s', time());
+        $insert_arr['m_type'] = 2;
+        $insert_arr['response_text'] = $validation_arr['response_text'];
+        $c_time1 = date('Y-m-d H:i:s', time());
+        $insert_arr['api_response_time'] = $c_time1;
+        $insert = DB::table('lb_scheme.ben_caste_api_response_track')->insert($insert_arr);
 
-                }
-                else
+        $update_arr = array();
+        $update_arr['caste_certificate_checked'] = 1;
+        $update_arr['caste_matched_with_certificate_no'] = $validation_arr['code'];
+        $update_arr['caste_certificate_check_lastdatetime'] = $c_time1;
+        $update_arr['action_by'] = Auth::user()->id;
+        $update_arr['action_ip_address'] = request()->ip();
+        $update_arr['action_type'] = class_basename(request()->route()->getAction()['controller']);
+        if ($validation_arr['match_found'] == 1) {
+            $is_error = 0;
+            $return_text = $validation_arr['message'];
+        } else {
+            $is_error = 1;
+            $return_text = $validation_arr['message'];
+            $return_msg = array("" . $return_text);
+        }
+        $update = DB::table($table_main)->where('application_id', $row->application_id)->update($update_arr);
+
+
+        if ($insert && $update) {
+            DB::commit();
+            if ($is_error == 0) {
+                return redirect('casteInfoList')->with('message',  $return_text);
+            } else
                 return redirect("casteInfoList")->with('errors', $return_msg);
-            }
-            else{
-                DB::rollBack();
-                $return_text = $errormsg['roolback'];
-                return redirect('casteInfoList')->with('error', $return_text);
-            }
-           
-      
+        } else {
+            DB::rollBack();
+            $return_text = $errormsg['roolback'];
+            return redirect('casteInfoList')->with('error', $return_text);
+        }
     }
     public function cron(Request $request)
     {
@@ -4015,98 +3978,85 @@ is_final, ben_reverted_at,approved_arrear,rejected_arrear,approved_due_amt, appr
         $aadhaar_model = new DataSourceCommon;
         $aadhaar_model->setTable('' . $Tableaadhaar);
         $rows = DB::table('lb_scheme.ben_personal_details')->whereNull('caste_certificate_checked')->whereNull('caste_matched_with_certificate_no')
-        ->where('created_by_dist_code', $district_code)->whereIn('caste',['SC','ST'])
-        ->limit($limit)->get();
-        if(count($rows)>0){
-        try{
-        DB::beginTransaction();
-        $i=0;
-        $insert_arr=array();
-        $insert_arr['created_by_dist_code']=$district_code;
-        $insert_arr['loginid']=3378;
-        $insert_arr['ip_address']= $request->ip();
-        $insert_arr['m_type']=2;
-        foreach($rows as $row){
-        $c_time = date('Y-m-d H:i:s', time());
-        $ben_fname=trim($row->ben_fname);
-        $ben_mname=trim($row->ben_mname);
-        $ben_lname=trim($row->ben_lname);
-        $ben_fullname=$ben_fname;
-        //dd($ben_fullname);
-        if(!empty($ben_mname)){
-            $ben_fullname= $ben_fullname.$ben_mname;
-        }
-        if(!empty($ben_lname)){
-            $ben_fullname= $ben_fullname.$ben_lname;
-        }
-        $ben_fullname = str_replace(' ', '', $ben_fullname);
-        $insert_arr['api_hit_time']=date('Y-m-d H:i:s', time());
-        $insert_arr['application_id']=$row->application_id;
-        $validation_arr=$this->validate_with_caste_certificate($caste_certificate_no = $row->caste_certificate_no,$ben_fullname= $ben_fullname); 
-                $insert_arr['response_text']=$validation_arr['response_text'];
-                $c_time1=date('Y-m-d H:i:s', time());
-                $insert_arr['api_response_time']= $c_time1;
-                $insert=DB::table('lb_scheme.ben_caste_api_response_track')->insert($insert_arr);
-                //dd( $validation_arr);
-                    if($validation_arr['is_success']==1){
-                        $return_text=$validation_arr['message'];  
-                        $update_arr=array();
-                        $update_arr['caste_certificate_checked']=1;
-                        $update_arr['caste_certificate_check_lastdatetime']=$c_time1;
-                        $update_arr['caste_matched_with_certificate_no']=$validation_arr['code'];
+            ->where('created_by_dist_code', $district_code)->whereIn('caste', ['SC', 'ST'])
+            ->limit($limit)->get();
+        if (count($rows) > 0) {
+            try {
+                DB::beginTransaction();
+                $i = 0;
+                $insert_arr = array();
+                $insert_arr['created_by_dist_code'] = $district_code;
+                $insert_arr['loginid'] = 3378;
+                $insert_arr['ip_address'] = $request->ip();
+                $insert_arr['m_type'] = 2;
+                foreach ($rows as $row) {
+                    $c_time = date('Y-m-d H:i:s', time());
+                    $ben_fname = trim($row->ben_fname);
+                    $ben_mname = trim($row->ben_mname);
+                    $ben_lname = trim($row->ben_lname);
+                    $ben_fullname = $ben_fname;
+                    //dd($ben_fullname);
+                    if (!empty($ben_mname)) {
+                        $ben_fullname = $ben_fullname . $ben_mname;
+                    }
+                    if (!empty($ben_lname)) {
+                        $ben_fullname = $ben_fullname . $ben_lname;
+                    }
+                    $ben_fullname = str_replace(' ', '', $ben_fullname);
+                    $insert_arr['api_hit_time'] = date('Y-m-d H:i:s', time());
+                    $insert_arr['application_id'] = $row->application_id;
+                    $validation_arr = $this->validate_with_caste_certificate($caste_certificate_no = $row->caste_certificate_no, $ben_fullname = $ben_fullname);
+                    $insert_arr['response_text'] = $validation_arr['response_text'];
+                    $c_time1 = date('Y-m-d H:i:s', time());
+                    $insert_arr['api_response_time'] = $c_time1;
+                    $insert = DB::table('lb_scheme.ben_caste_api_response_track')->insert($insert_arr);
+                    //dd( $validation_arr);
+                    if ($validation_arr['is_success'] == 1) {
+                        $return_text = $validation_arr['message'];
+                        $update_arr = array();
+                        $update_arr['caste_certificate_checked'] = 1;
+                        $update_arr['caste_certificate_check_lastdatetime'] = $c_time1;
+                        $update_arr['caste_matched_with_certificate_no'] = $validation_arr['code'];
                         $update_arr['action_by'] = Auth::user()->id;
                         $update_arr['action_ip_address'] = request()->ip();
                         $update_arr['action_type'] = class_basename(request()->route()->getAction()['controller']);
-                        $update=DB::table('lb_scheme.ben_personal_details')->where('application_id',$row->application_id)->update($update_arr);
-                       
+                        $update = DB::table('lb_scheme.ben_personal_details')->where('application_id', $row->application_id)->update($update_arr);
+                    } else {
+                        $update = 1;
                     }
-                    else{
-                        $update=1; 
-                        
+
+
+
+                    if ($insert && $update) {
+                        $i++;
                     }
-                
-
-           
-            if($insert && $update){
-                $i++;
-
+                }
+                if ($i == count($rows)) {
+                    DB::commit();
+                    return response()->json([
+                        'status' => 200,
+                        'message' => 'Total - ' . $i . ' Applications Updated Successfully',
+                    ]);
+                } else {
+                    DB::rollBack();
+                    return response()->json([
+                        'status' => 200,
+                        'errors' => 'Someting went wrong..please try again',
+                    ]);
+                }
+            } catch (\Exception $e) {
+                dd($e);
+                DB::rollBack();
+                return response()->json([
+                    'status' => 200,
+                    'errors' => $e,
+                ]);
             }
-           
+        } else {
+            return response()->json([
+                'status' => 200,
+                'errors' => 'No record found',
+            ]);
         }
-         if($i==count($rows)){
-            DB::commit();
-            return response()->json([
-                'status' => 200,
-                'message' => 'Total - '.$i.' Applications Updated Successfully',
-            ]);
-         } 
-         else{
-            DB::rollBack();
-            return response()->json([
-                'status' => 200,
-                'errors' => 'Someting went wrong..please try again',
-            ]);
-         }        
-          
-        
-      
     }
-    catch (\Exception $e) {
-        dd($e);
-        DB::rollBack();
-        return response()->json([
-            'status' => 200,
-            'errors' => $e,
-        ]);
-    }
-   }
-   else{
-    return response()->json([
-        'status' => 200,
-        'errors' => 'No record found',
-    ]);
-   }
-}        
-
-   
 }
