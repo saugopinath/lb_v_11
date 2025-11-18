@@ -1,578 +1,493 @@
-<?php 
+@extends('layouts.app-template-datatable')
 
-?>
-<!DOCTYPE html>
-<html>
-<head>
-  <meta charset="utf-8">
-  <meta http-equiv="X-UA-Compatible" content="IE=edge">
-   <title>{{Config::get('constants.site_title')}}</title>
+@push('styles')
+  <style>
+    .card-header-custom {
+      background: linear-gradient(to right, #4e73df, #6f9bff);
+      color: #fff;
+      padding: 15px;
+      font-size: 18px;
+      font-weight: bold;
+      border-radius: 5px 5px 0 0;
+    }
 
-  <!-- Tell the browser to be responsive to screen width -->
-  <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
+    .dt-container,
+    #example_wrapper {
+      width: 100% !important;
+    }
 
-  <link href="{{ asset("/bower_components/AdminLTE/bootstrap/css/bootstrap.min.css") }}" rel="stylesheet" type="text/css" />
+    .modal-confirm .modal-content {
+      padding: 20px;
+      border-radius: 8px;
+    }
 
-  <!-- Font Awesome -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.5.0/css/font-awesome.min.css">
-  <!-- Ionicons -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/ionicons/2.0.1/css/ionicons.min.css">
-  <!-- Theme style -->
-   <link href="{{ asset("/bower_components/AdminLTE/dist/css/AdminLTE.min.css")}}" rel="stylesheet" type="text/css" />
-      <link href="{{ asset("css/select2.min.css") }}" rel="stylesheet">
-  <!-- AdminLTE Skins. We have chosen the skin-blue for this starter
-        page. However, you can choose any other skin. Make sure you
-        apply the skin class to the body tag so the changes take effect.
-  -->
-   <link href="{{ asset("/bower_components/AdminLTE/dist/css/skins/skin-blue.min.css")}}" rel="stylesheet" type="text/css" />  
-  
-   
-   
-   <link rel="stylesheet" href="https://cdn.datatables.net/1.10.16/css/jquery.dataTables.min.css">
-   <link rel="stylesheet" href="https://cdn.datatables.net/buttons/1.5.1/css/buttons.dataTables.min.css">
+    .modal-title {
+      font-size: 20px;
+      font-weight: bold;
+    }
 
-   
-
-   
-   <style>
-   .errorField{
-    border-color: #990000;
-  }
-  .searchPosition{
-    margin:70px;
-  }
-  .submitPosition{
-    margin: 25px 0px 0px 0px;
-  }
-  .required-field::after {
+    .required-field::after {
       content: "*";
       color: red;
-}
-  
-  .typeahead { border: 2px solid #FFF;border-radius: 4px;padding: 8px 12px;max-width: 300px;min-width: 290px;background: rgba(66, 52, 52, 0.5);color: #FFF;}
-  .tt-menu { width:300px; }
-  ul.typeahead{margin:0px;padding:10px 0px;}
-  ul.typeahead.dropdown-menu li a {padding: 10px !important;  border-bottom:#CCC 1px solid;color:#FFF;}
-  ul.typeahead.dropdown-menu li:last-child a { border-bottom:0px !important; }
-  .bgcolor {max-width: 550px;min-width: 290px;max-height:340px;background:url("world-contries.jpg") no-repeat center center;padding: 100px 10px 130px;border-radius:4px;text-align:center;margin:10px;}
-  .demo-label {font-size:1.5em;color: #686868;font-weight: 500;color:#FFF;}
-  .dropdown-menu>.active>a, .dropdown-menu>.active>a:focus, .dropdown-menu>.active>a:hover {
-    text-decoration: none;
-    background-color: #1f3f41;
-    outline: 0;
-  }
-  table.dataTable thead th, table.dataTable thead td{
-    padding:10px 13px;
-  }
-  table.dataTable tfoot th, table.dataTable tfoot td{
-    padding:10px 5px;
-  }
+      margin-left: 4px;
+    }
 
-  .criteria1{
-    text-transform: uppercase;
-    font-weight: bold;
-  }
-  
-  #example_length{
-    margin-left: 40%;
-    margin-top: 2px;
-  }
-  @keyframes spinner {
-  to {transform: rotate(360deg);}
-}
- 
-.spinner:before {
-  content: '';
-  box-sizing: border-box;
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 20px;
-  height: 20px;
-  margin-top: -10px;
-  margin-left: -10px;
-  border-radius: 50%;
-  border: 2px solid #ccc;
-  border-top-color: #333;
-  animation: spinner .6s linear infinite;
-}
-.select2{
-    width:100%!important;
-  }
-  .select2 .has-error {
-    border-color:#cc0000;
-   background-color:#ffff99;
-}
-</style>
+    .custom-short-btn {
+      padding: 4px 12px !important;
+      font-size: 13px !important;
+      height: 40px;
+      line-height: 1.2 !important;
+      min-height: 0 !important;
+      width: auto !important;
+    }
+  </style>
+@endpush
 
-<!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
-<!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
-  <!--[if lt IE 9]>
-  <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
-  <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
-<![endif]-->
 
-<!-- Google Font -->
-<link rel="stylesheet"
-href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,600,700,300italic,400italic,600italic">
+@section('content')
+  <section class="content">
+    <div class="container-fluid">
 
-</head>
-<body class="hold-transition skin-blue sidebar-mini">
-  <div class="wrapper">
+      {{-- ===================== ALERT MESSAGES ===================== --}}
+      <div class="row mt-2">
+        @if(session('success'))
+          <div class="col-md-12">
+            <div class="alert alert-success alert-dismissible fade show">
+              <strong>{{ session('success') }}</strong>
+              <button type="button" class="close" data-dismiss="alert">×</button>
+            </div>
+          </div>
+        @endif
 
-    
-    <!-- Main Header -->
-    @include('layouts.header')
-    <!-- Sidebar -->
-    @include('layouts.sidebar')
+        @if(session('error'))
+          <div class="col-md-12">
+            <div class="alert alert-danger alert-dismissible fade show">
+              <strong>{{ session('error') }}</strong>
+              <button type="button" class="close" data-dismiss="alert">×</button>
+            </div>
+          </div>
+        @endif
 
-    <!-- Content Wrapper. Contains page content -->
-    <div class="content-wrapper">
-      <!-- Content Header (Page header) -->
-      <section class="content-header">
-        <b>{{$type_des}}</b>
-        
-       
-        <div class='row'>
-          @php
-          $aadhaar_no_checked =Session::get('aadhaar_no_checked');
-          $aadhaar_no_checked_lastdatetime =Session::get('aadhaar_no_checked_lastdatetime');
-          $aadhaar_no_checked_pass=Session::get('aadhaar_no_checked_pass');
-          $aadhaar_no_validation_msg=Session::get('aadhaar_no_validation_msg');
-        @endphp
-        @if ( ($message = Session::get('message')))
-                <div class="alert alert-success alert-block">
-                  <button type="button" class="close" data-dismiss="alert">×</button>
-                  <strong>{{ $message }}</strong>
-                  
-
-                </div>
-      @endif
-      @if ($message = Session::get('success'))
-                <div class="alert alert-success alert-block">
-                  <button type="button" class="close" data-dismiss="alert">×</button>
-                  <strong>{{ $message }}</strong>
-                  
-
-                </div>
-                @if($aadhaar_no_checked ==1)
-                  @if($aadhaar_no_checked_pass==1)
-                    <p class="text-success" style="font-size: 16px; font-weight: bold;"> <i class="fa fa-check"></i> Checked Aadhaar Card Demographic Status: Passed as on @if(!empty($aadhaar_no_checked_lastdatetime)) {{date('d-m-Y',strtotime($aadhaar_no_checked_lastdatetime))}}@endif</p>
-                    @elseif($aadhaar_no_validation_msg=='Name not Match')
-                    <p class="text-warning" style="font-size: 16px; font-weight: bold;"> <i class="fa fa-close"></i> Checked Aadhaar Card Demographic Status:@if(!empty($aadhaar_no_validation_msg)) {{$aadhaar_no_validation_msg}} @endif as on @if(!empty($aadhaar_no_checked_lastdatetime)) {{date('d-m-Y',strtotime($aadhaar_no_checked_lastdatetime))}}@endif</p>
-                    @else
-                    <p class="text-danger" style="font-size: 16px; font-weight: bold;"> <i class="fa fa-close"></i> Checked Aadhaar Card Demographic Status: Not Passed as on @if(!empty($aadhaar_no_checked_lastdatetime)) {{date('d-m-Y',strtotime($aadhaar_no_checked_lastdatetime))}}@endif</p>
-                  @endif
-                @endif
-      @endif
-      @if ( ($error = Session::get('error')))
-                <div class="alert alert-danger alert-block">
-                  <button type="button" class="close" data-dismiss="alert">×</button>
-                  <strong>{{ $error }}</strong>
-                  
-
-                </div>
-      @endif
-      @if(count($errors) > 0)
-      <div class="alert alert-danger alert-block">
-        <ul>
-          @foreach($errors as $error)
-          <li><strong> {{ $error }}</strong></li>
-          @endforeach
-        </ul>
+        @if($errors->any())
+          <div class="col-md-12">
+            <div class="alert alert-danger alert-dismissible fade show">
+              <ul class="mb-0">
+                @foreach($errors->all() as $error)
+                  <li><strong>{{ $error }}</strong></li>
+                @endforeach
+              </ul>
+              <button type="button" class="close" data-dismiss="alert">×</button>
+            </div>
+          </div>
+        @endif
       </div>
-      @endif
-      </div>
-        
-        
-      </section>
+      {{-- ===================== END ALERTS ===================== --}}
 
-      <!-- Main content -->
-      <section class="content">
-      <form method="POST" action="{{route('BulkApprovenoaadhar')}}"  name="form" id="form">
-      <input type="hidden" id="scheme_id" name="scheme_id" value="{{ $scheme_id }}">
-        <input type="hidden" name="dist_code" id="dist_code" value="{{ $district_code }}" class="js-district_1">
-        <input type="hidden" name="_token" value="{{ csrf_token() }}">
-        <input type="hidden" id="application_id" name="application_id"/>
-         <div class="row" style="">
-         <div class="form-group col-md-4">
-                 <label class="required-field">Application Type</label>
-                 <select name="application_type" id="application_type" class="form-control"  >
-                
-                  <option value="1" selected>Pending</option>
-                  @if($designation_id=='Verifier' || $designation_id == 'Delegated Verifier')
-                  <option value="2">Verified but Approval Pending</option>
+
+
+      {{-- ===================== FILTER CARD ===================== --}}
+      <div class="card shadow-lg mt-3">
+        <div class="card-header card-header-custom">
+          <h5 class="mb-0"><i class="fas fa-filter"></i> Application Filtering</h5>
+        </div>
+
+        <div class="card-body">
+
+          <form method="POST" action="{{ route('BulkApprovenoaadhar') }}" name="form" id="form">
+            @csrf
+            <input type="hidden" id="scheme_id" name="scheme_id" value="{{ $scheme_id }}">
+            <input type="hidden" name="dist_code" id="dist_code" value="{{ $district_code }}">
+            <input type="hidden" name="application_id" id="application_id">
+
+            <div class="row">
+
+              {{-- Application Type --}}
+              <div class="form-group col-md-4">
+                <label class="required-field">Application Type</label>
+                <select name="application_type" id="application_type" class="form-control select2">
+                  <option value="1">Pending</option>
+
+                  @if($designation_id == 'Verifier' || $designation_id == 'Delegated Verifier')
+                    <option value="2">Verified but Approval Pending</option>
                   @endif
+
                   <option value="3">Verified and Approved</option>
                 </select>
-                 <span id="error_application_type" class="text-danger"></span>
               </div>
-          
-          @if($verifier_type=='Block')
-          <div class="form-group col-md-4">
-            <label class=" control-label" >Gram Panchayat</label>
-              <select name="gp_ward_code" id="gp_ward_code" class="form-control full-width" >
-                  <option value="">-----Select----</option>
-                   @foreach ($gps as $gp)
-                          <option value="{{$gp->gram_panchyat_code}}" > {{$gp->gram_panchyat_name}}</option>
-                  @endforeach
 
-              </select>
-          </div> 
-          <input type="hidden" name="block_ulb_code" value="" id="block_ulb_code">
-          <input type="hidden" name="rural_urban_code"  id="rural_urban_code" value="{{$is_rural}}">
-          <input value="{{$created_by_local_body_code}}" type="hidden" name="created_by_local_body_code"  id="created_by_local_body_code">
-           @endif
-           @if($verifier_type=='Subdiv')
-        <div class="form-group col-md-3">
-            <label class=" control-label" >Municipality</label>
-              <select name="block_ulb_code" id="block_ulb_code" class="form-control select2 full-width js-municipality" >
-                  <option value="">-----Select----</option>
-                   @foreach ($urban_bodys as $urban_body)
-                          <option value="{{$urban_body->urban_body_code}}" > {{$urban_body->urban_body_name}}</option>
-                  @endforeach
+              {{-- Gram Panchayat (Block Users) --}}
+              @if($verifier_type == 'Block')
+                <div class="form-group col-md-4">
+                  <label>Gram Panchayat</label>
+                  <select name="gp_ward_code" id="gp_ward_code" class="form-control select2">
+                    <option value="">-- Select --</option>
+                    @foreach ($gps as $gp)
+                      <option value="{{ $gp->gram_panchyat_code }}">{{ $gp->gram_panchyat_name }}</option>
+                    @endforeach
+                  </select>
+                </div>
+              @endif
 
-              </select>
-          </div> 
-          <div class="form-group col-md-3">
-            <label class=" control-label" >Wards</label>
-              <select name="gp_ward_code" id="gp_ward_code" class="form-control select2 full-width js-wards" >
-                  <option value="">-----Select----</option>
-                  
+              {{-- Municipality & Ward (Subdivision Users) --}}
+              @if($verifier_type == 'Subdiv')
+                <div class="form-group col-md-3">
+                  <label>Municipality</label>
+                  <select name="block_ulb_code" id="block_ulb_code" class="form-control select2">
+                    <option value="">-- Select --</option>
+                    @foreach ($urban_bodys as $urban)
+                      <option value="{{ $urban->urban_body_code }}">{{ $urban->urban_body_name }}</option>
+                    @endforeach
+                  </select>
+                </div>
 
-              </select>
-          </div> 
-          <input type="hidden" name="rural_urban_code"  id="rural_urban_code" value="{{$is_rural}}">
-          <input value="{{$created_by_local_body_code}}" type="hidden" name="created_by_local_body_code"  id="created_by_local_body_code">
-           @endif
-           @if($designation_id=='Approver' || $designation_id == 'Delegated Approver')
-         
-           
-        <div class="form-group col-md-3">
-            <label class=" control-label" >Urban/Rural</label>
-              <select name="rural_urban_code" id="rural_urban_code" class="form-control" >
-                  <option value="">-----All----</option>
-                   @foreach(Config::get('constants.rural_urban') as $key=>$val)
-                  <option value="{{$key}}">{{$val}}</option>
-                  @endforeach     
+                <div class="form-group col-md-3">
+                  <label>Wards</label>
+                  <select name="gp_ward_code" id="gp_ward_code" class="form-control select2">
+                    <option value="">-- Select --</option>
+                  </select>
+                </div>
+              @endif
 
-              </select>
-          </div> 
-          <div class="form-group col-md-3">
-            <label class=" control-label" ><span id="blk_sub_txt">Block/Sub Division</span></label>
-              <select name="created_by_local_body_code" id="created_by_local_body_code" class="form-control select2 full-width js-wards" >
-                  <option value="">-----Select----</option>
-                  
+              {{-- Urban / Rural + Block for Approver --}}
+              @if($designation_id == 'Approver' || $designation_id == 'Delegated Approver')
 
-              </select>
+                <div class="form-group col-md-3">
+                  <label>Urban / Rural</label>
+                  <select name="rural_urban_code" id="rural_urban_code" class="form-control select2">
+                    <option value="">-- All --</option>
+                    @foreach(Config::get('constants.rural_urban') as $key => $val)
+                      <option value="{{ $key }}">{{ $val }}</option>
+                    @endforeach
+                  </select>
+                </div>
+
+                <div class="form-group col-md-3">
+                  <label>Block / Sub Division</label>
+                  <select name="created_by_local_body_code" id="created_by_local_body_code" class="form-control select2">
+                    <option value="">-- Select --</option>
+                  </select>
+                </div>
+              @endif
+
+
+              {{-- Filter Buttons --}}
+              <div class="form-group col-md-4 mt-4 p-2">
+                <button type="button" name="filter" id="filter" class="btn btn-info"><i class="fas fa-search"></i>
+                  Filter</button>
+                <button type="button" name="reset" id="reset" class="btn btn-secondary ml-2"><i class="fas fa-undo"></i>
+                  Reset</button>
+                @if($verifier_type == 'District')
+
+                  <input type="hidden" name="_token" value="{{ csrf_token() }}">
+                  {{-- <button type="button" name="bulk_approve" id="confirm" value="approve"
+                    class="btn btn-primary btn-margin btn-sm custom-short-btn" disabled>
+                    Bulk Approve
+                  </button> --}}
+                @endif
+              </div>
+
+
+            </div>
+          </form>
+
+        </div>
+      </div>
+      {{-- ===================== END FILTER CARD ===================== --}}
+
+
+
+      {{-- ===================== DATATABLE ===================== --}}
+      <div class="card shadow-lg border-0 mt-4 rounded-3">
+        <div class="card-header card-header-custom">
+          <h5 class="mb-0 fw-bold text-dark">Application List</h5>
+        </div>
+        <div class="card-body p-4">
+          <div class="table-responsive">
+            <table id="example" class="data-table">
+              <thead>
+                <tr class="text-center">
+                  <th>Application ID</th>
+                  <th>Beneficiary Name</th>
+                  <th>Mobile No</th>
+
+                  @if($verifier_type == 'Subdiv' || $verifier_type == 'District')
+                    <th>Block / Municipality</th>
+                  @endif
+
+                  <th>GP / Ward</th>
+                  <th>Aadhaar No</th>
+                  <th>Action</th>
+
+                  {{-- @if($verifier_type == 'District')
+                    <th>Select</th>
+                  @endif --}}
+                </tr>
+              </thead>
+
+              <tbody></tbody>
+            </table>
           </div>
-          @else 
-          <input type="hidden" name="process_type"  id="process_type" value="">
-           @endif
-          
-          <div class="form-group col-md-4">
-            <button type="button" name="filter" id="filter" class="btn btn-info">Filter</button>
-            <button type="button" name="reset" id="reset" class="btn btn-default">Reset</button>
+
+
+        </div>
+      </div>
+      {{-- ===================== END DATATABLE ===================== --}}
+
+
+
+      {{-- ===================== APPROVE MODAL ===================== --}}
+      <div id="modalConfirm" class="modal fade">
+        <div class="modal-dialog modal-confirm">
+          <div class="modal-content">
+
+            <div class="modal-body text-center">
+              <h4 class="modal-title">Do you really want to Approve?</h4>
+            </div>
+
+            <div class="modal-footer justify-content-center">
+              <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+
+              <button type="submit" class="btn btn-primary" id="confirm_yes">
+                <i class="fas fa-check"></i> OK
+              </button>
+
+              <button type="button" class="btn btn-success" id="submittingapprove" disabled>
+                <i class="fas fa-spinner fa-spin"></i> Submitting...
+              </button>
+            </div>
+
           </div>
         </div>
-        @if($verifier_type=='District')
-        
-        <input type="hidden" name="_token" value="{{ csrf_token() }}">
-<button type="button"  style="margin: 0% 0% 2% 0%;" type="button" name="bulk_approve" id="confirm" value="approve" class="btn btn-info col-sm-3 col-xs-5 btn-margin" disabled>
-             Approve
-  </button>
-  @endif
-      
-       <table id="example" class="display" cellspacing="0" width="100%"> 
+      </div>
+      {{-- ===================== END MODAL ===================== --}}
 
-        <thead>
+    </div>
+  </section>
+@endsection
+@push('scripts')
+  <script>
 
-                <tr role="row" class="sorting_asc" style="font-size: 12px;">
-                <!-- <th width="26%" class="sorting_asc" tabindex="0" aria-controls="example2" rowspan="1" colspan="1" aria-label="Name: activate to sort column descending" aria-sort="ascending">Employee Code</th> -->
-                <th  width="7%">Application ID</th>
-                <th width="12%">Beneficiary Name</th>
-                <th width="12%">Mobile Number</th>
-                @if($verifier_type=='Subdiv' || $verifier_type=='District')
-                <th width="12%">Block/Munc Name</th>
-                @endif
-                <th width="12%">GP/Ward Name</th>  
-                <th width="12%">Aadhar No.</th>
-                <th width="17%">Action</th>
-                @if($verifier_type=='District')
-                <th width="2%">Check</th>
-                 @endif
-              </tr>
-            </thead>
-            <tbody>
+    $(document).ready(function () {
+      $('.sidebar-menu li').removeClass('active');
+      $('.sidebar-menu #lb-aadhar').addClass("active");
+      $('.sidebar-menu #noaadharlist').addClass("active");
+      $("#confirm").hide();
+      $("#submittingapprove").hide();
 
-            
-              
-
-             
-
-               
-            
-            </tbody>
-            <!-- <tfoot> -->
-           
-            </form>
-            <!-- </tfoot> -->
-
-            
-          
-          
-    </table>
- <div class="row">
-            
-            <div class="col-sm-7">
-               <div class="dataTables_paginate paging_simple_numbers" id="example2_paginate">
-                
-              </div>
-            </div>
-  </div>
-  </div>
- 
-</div>
-<div id="modalConfirm" class="modal fade">
-
-
-	<div class="modal-dialog modal-confirm">
-		<div class="modal-content">
-			<div class="modal-header flex-column">
-								
-			
-			</div>
-			<div class="modal-body">
-      <h4 class="modal-title w-100">Do you really want to Approve?</h4>	
-       
-         
-			</div>
-			<div class="modal-footer justify-content-center">
-				<button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-				<button type="submit" class="btn btn-info" id="confirm_yes" >OK</button>
-         <button type="button" id="submittingapprove" value="Submit" class="btn btn-success btn-lg"
-                          disabled>Submitting please wait</button>
-			</div>
-		</div>
-	</div>
- 
-</div>
-</form>
-<!-- /.row -->
-
-</section>
-<!-- /.content -->
-</div>
-
-<script src="{{ asset ("/bower_components/AdminLTE/plugins/jQuery/jquery-2.2.3.min.js") }}"></script>
-<script src="{{ URL::asset('js/master-data-v2.js') }}"></script>
-<script src="{{ asset ("/bower_components/AdminLTE/bootstrap/js/bootstrap.min.js") }}" type="text/javascript"></script>
-<script src="{{ asset ("/bower_components/AdminLTE/dist/js/app.min.js") }}" type="text/javascript"></script>
-<script src="https://cdn.datatables.net/1.10.16/js/jquery.dataTables.min.js"></script>
-<script src="https://cdn.datatables.net/buttons/1.5.1/js/dataTables.buttons.min.js"></script>
-<script src="https://cdn.datatables.net/buttons/1.5.1/js/buttons.flash.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.3/jszip.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.32/pdfmake.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.32/vfs_fonts.js"></script>
-<script src="https://cdn.datatables.net/buttons/1.5.1/js/buttons.html5.min.js"></script>
-<script src="https://cdn.datatables.net/buttons/1.5.1/js/buttons.print.min.js"></script>
-
-
-<script>
-
-  $(document).ready(function() {
-    $('.sidebar-menu li').removeClass('active');
-    $('.sidebar-menu #lb-aadhar').addClass("active"); 
-    $('.sidebar-menu #noaadharlist').addClass("active"); 
-    $("#confirm").hide();
-    $("#submittingapprove").hide();
-    
-    var base_url='{{ url('/') }}';
-    var block_ulb_code=$("#block_ulb_code").val();
-    var gp_ward_code=$("#gp_ward_code").val();
-    var application_type=$("#application_type").val();
-  fill_datatable(block_ulb_code,gp_ward_code,application_type);
-  function fill_datatable(block_ulb_code = '',gp_ward_code = '',application_type = ''){
-    //console.log(process_type);
-       var scheme_id=$("#scheme_id").val();
-        var dataTable=$('#example').DataTable( {
-      oLanguage: {
-      "sSearch": "Search using Application Id/Mobile Number:"
-      },
-      paging: true,
-      searching: true,
-      pageLength:100,
-      ordering: false,
-      lengthMenu: [[20, 50,100,500,1000, -1], [20, 50,100,500,1000, 'All']],
-      processing: true,
-      serverSide: true,
-      ajax:{
+      var base_url = '{{ url('/') }}';
+      var block_ulb_code = $("#block_ulb_code").val();
+      var gp_ward_code = $("#gp_ward_code").val();
+      var application_type = $("#application_type").val();
+      fill_datatable(block_ulb_code, gp_ward_code, application_type);
+      function fill_datatable(block_ulb_code = '', gp_ward_code = '', application_type = '') {
+        //console.log(process_type);
+        var scheme_id = $("#scheme_id").val();
+        var dataTable = $('#example').DataTable({
+          dom: 'Blfrtip',
+          oLanguage: {
+            "sSearch": "Search using Application Id/Mobile Number:"
+          },
+          paging: true,
+          searching: true,
+          pageLength: 100,
+          ordering: false,
+          lengthMenu: [[20, 50, 100, 500, 1000, -1], [20, 50, 100, 500, 1000, 'All']],
+          processing: true,
+          serverSide: true,
+          ajax: {
             url: "{{ url('noaadharlist') }}",
             type: "GET",
-            data:function(d){
-                 d.application_type= application_type,
-                 d.block_ulb_code= block_ulb_code,
-                 d.gp_ward_code= gp_ward_code,
-                 d.scheme_id= scheme_id,
-                 d.type= $('#type').val(),
-                 d._token= "{{csrf_token()}}"
+            data: function (d) {
+              d.application_type = application_type,
+                d.block_ulb_code = block_ulb_code,
+                d.gp_ward_code = gp_ward_code,
+                d.scheme_id = scheme_id,
+                d.type = $('#type').val(),
+                d._token = "{{csrf_token()}}"
             },
             error: function (ex) {
               //console.log(ex);
-             //alert('Session time out..Please login again');
-            // window.location.href=base_url;
-           }                       
-      },
-      columns: [
-                
-        { "data": "application_id" },
-        { "data": "name" },
-        { "data": "mobile_no" },
-        @if($verifier_type=='Subdiv' || $verifier_type=='District')
-        { "data": "block_ulb_name" },
-        @endif
-        { "data": "gp_ward_name" },
-        { "data": "aadhar_no"},
-        { "data": "action" },
-        @if($verifier_type=='District')
-        { "data": "check" },
-        @endif
-       // { "data": "check" },
-               
+              //alert('Session time out..Please login again');
+              // window.location.href=base_url;
+            }
+          },
+          columns: [
 
-      ],          
-
-    
-    } );
+            { "data": "application_id" },
+            { "data": "name" },
+            { "data": "mobile_no" },
+            @if($verifier_type == 'Subdiv' || $verifier_type == 'District')
+              { "data": "block_ulb_name" },
+            @endif
+            { "data": "gp_ward_name" },
+            { "data": "aadhar_no" },
+            { "data": "action" },
+            @if($verifier_type == 'District')
+              { "data": "check" },
+            @endif
+                   // { "data": "check" },
 
 
-   }
+                  ],
+          "buttons": [{
+            extend: 'pdf',
+            footer: true,
+            exportOptions: {
+              columns: [0, 1, 2, 3]
+            },
+            className: 'table-action-btn'
+          },
+          {
+            extend: 'print',
+            footer: true,
+            exportOptions: {
+              columns: [0, 1, 2, 3]
+            },
+            className: 'table-action-btn'
+          },
+          {
+            extend: 'csv',
+            footer: true,
+            exportOptions: {
+              columns: [0, 1, 2, 3]
+            },
+            className: 'table-action-btn'
+          }
 
-    $('#filter').click(function(){
+          ],
+
+
+        });
+
+
+      }
+
+      $('#filter').click(function () {
         var block_ulb_code = $('#block_ulb_code').val();
         var gp_ward_code = $('#gp_ward_code').val();
         var application_type = $('#application_type').val();
         var designation_id = $('#designation_id').val();
-        var error_application_type='';
-        var error_process_type='';
-        if(application_type=='')
-        {
+        var error_application_type = '';
+        var error_process_type = '';
+        if (application_type == '') {
           error_application_type = 'Application Type is required';
           $('#error_application_type').text(error_application_type);
           $('#application_type').addClass('has-error');
         }
-        else
-        {
+        else {
           error_application_type = '';
           $('#error_application_type').text(error_application_type);
           $('#application_type').removeClass('has-error');
         }
-        
-        if(error_application_type=='' ){
+
+        if (error_application_type == '') {
           //console.log(process_type);
           $('#example').DataTable().destroy();
-          fill_datatable(block_ulb_code,gp_ward_code,application_type);
+          fill_datatable(block_ulb_code, gp_ward_code, application_type);
         }
-        
-       
-    });
-    $('#block_ulb_code').change(function() {
-      var municipality_code=$(this).val();
-       if(municipality_code!=''){
-        $('#gp_ward').html('<option value="">--All --</option>');
-        var htmlOption='<option value="">--All--</option>';
-          $.each(ulb_wards, function (key, value) {
-                if(value.urban_body_code==municipality_code){
-                    htmlOption+='<option value="'+value.id+'">'+value.text+'</option>';
-                }
-            });
-        $('#gp_ward_code').html(htmlOption);
-       }
-       else{
-          $('#gp_ward_code').html('<option value="">--All --</option>');
-       } 
-    });
-    $('#rural_urban_code').change(function() {
-       var urban_code=$(this).val();
-        if(urban_code==''){
-          $('#created_by_local_body_code').html('<option value="">--All --</option>'); 
-        }
-        $('#created_by_local_body_code').html('<option value="">--All --</option>'); 
-        select_district_code= $('#dist_code').val();
-       //console.log(select_district_code);
-        
-        select_body_type= urban_code;
-        var htmlOption='<option value="">--All--</option>';
-        if(select_body_type==2){
-            $("#blk_sub_txt").text('Block');
-            $.each(blocks, function (key, value) {
-                if(value.district_code==select_district_code){
-                    htmlOption+='<option value="'+value.id+'">'+value.text+'</option>';
-                }
-            });
-        }else if(select_body_type==1){
-            $("#blk_sub_txt").text('Subdivision');
-            $.each(subDistricts, function (key, value) {
-                if(value.district_code==select_district_code){
-                    htmlOption+='<option value="'+value.id+'">'+value.text+'</option>';
-                }
-            });
-        } 
-        else{
-          $("#blk_sub_txt").text('Block/Subdivision');
-        }   
-        $('#created_by_local_body_code').html(htmlOption);
-        
 
-    });
-    $(document).on('click', '.validate', function() {
-      $('#form #application_id').val('');
-      $('#application_text_approve').text('');
-      $('.validate').attr('disabled',false);
-      var benid=$(this).val();
-      var split_id=benid.split('_');
-      $('#validatebtn_'+benid).attr('disabled',true);
-      $('#form #application_id').val(split_id[0]);
-      $('#form #is_faulty').val(split_id[1]);
-      $('#application_text_approve').text(split_id[0]);
-      $('#modalConfirm').modal();
-    });
-      $('#reset').click(function(){
+
+      });
+      $('#block_ulb_code').change(function () {
+        var municipality_code = $(this).val();
+        if (municipality_code != '') {
+          $('#gp_ward').html('<option value="">--All --</option>');
+          var htmlOption = '<option value="">--All--</option>';
+          $.each(ulb_wards, function (key, value) {
+            if (value.urban_body_code == municipality_code) {
+              htmlOption += '<option value="' + value.id + '">' + value.text + '</option>';
+            }
+          });
+          $('#gp_ward_code').html(htmlOption);
+        }
+        else {
+          $('#gp_ward_code').html('<option value="">--All --</option>');
+        }
+      });
+      $('#rural_urban_code').change(function () {
+        var urban_code = $(this).val();
+        if (urban_code == '') {
+          $('#created_by_local_body_code').html('<option value="">--All --</option>');
+        }
+        $('#created_by_local_body_code').html('<option value="">--All --</option>');
+        select_district_code = $('#dist_code').val();
+        //console.log(select_district_code);
+
+        select_body_type = urban_code;
+        var htmlOption = '<option value="">--All--</option>';
+        if (select_body_type == 2) {
+          $("#blk_sub_txt").text('Block');
+          $.each(blocks, function (key, value) {
+            if (value.district_code == select_district_code) {
+              htmlOption += '<option value="' + value.id + '">' + value.text + '</option>';
+            }
+          });
+        } else if (select_body_type == 1) {
+          $("#blk_sub_txt").text('Subdivision');
+          $.each(subDistricts, function (key, value) {
+            if (value.district_code == select_district_code) {
+              htmlOption += '<option value="' + value.id + '">' + value.text + '</option>';
+            }
+          });
+        }
+        else {
+          $("#blk_sub_txt").text('Block/Subdivision');
+        }
+        $('#created_by_local_body_code').html(htmlOption);
+
+
+      });
+      $(document).on('click', '.validate', function () {
+        $('#form #application_id').val('');
+        $('#application_text_approve').text('');
+        $('.validate').attr('disabled', false);
+        var benid = $(this).val();
+        var split_id = benid.split('_');
+        $('#validatebtn_' + benid).attr('disabled', true);
+        $('#form #application_id').val(split_id[0]);
+        $('#form #is_faulty').val(split_id[1]);
+        $('#application_text_approve').text(split_id[0]);
+        $('#modalConfirm').modal();
+      });
+      $('#reset').click(function () {
         $('#application_type').val('');
         $('#gp_code').val('');
         $('#gp_code').val('');
         $('#example').DataTable().destroy();
         fill_datatable();
-    });
-    $('#confirm').click(function(){      
-      $('#modalConfirm').modal();
-    });
-    $('#confirm_yes').on('click',function(){
+      });
+      $('#confirm').click(function () {
+        $('#modalConfirm').modal('show');
+      });
+      $('#confirm_yes').on('click', function () {
         $("#confirm_yes").hide();
         $("#submittingapprove").show();
         $("#form").submit();
-        
-       
+
+
       });
 
-  } );
-  function controlCheckBox(){
-    //console.log('ok');
-    var anyBoxesChecked = false;
-    $(' input[type="checkbox"]').each(function() {
-      if ($(this).is(":checked")) {
-        anyBoxesChecked = true;
-      }
     });
-    if (anyBoxesChecked == true) {
-      $("#confirm").show();
-      document.getElementById('confirm').disabled = false;
-    } else{
-      $("#confirm").hide();
-      document.getElementById('confirm').disabled = true;
-    }
-  }
-</script>
+    function controlCheckBox() {
+      // 1. Get the button element
+      // alert('1');
+      var confirmButton = document.getElementById('confirm');
+      if (confirmButton) {
+        var anyBoxesChecked = false;
+        $('input[type="checkbox"]').each(function () {
+          if ($(this).is(":checked")) {
+            anyBoxesChecked = true;
+          }
+        });
 
-</body>
-</html>
+        if (anyBoxesChecked == true) {
+          $("#confirm").show();
+          confirmButton.disabled = false;
+        } else {
+          $("#confirm").hide();
+          confirmButton.disabled = true;
+        }
+      }
+    }
+  </script>
+@endpush

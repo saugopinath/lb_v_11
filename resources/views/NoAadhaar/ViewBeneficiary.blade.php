@@ -1,588 +1,438 @@
 @extends('NoAadhaar.base')
 @section('action-content')
 <style>
-  *{
-    font-size: 15px;
-  }
-
-.field-name{
-  float:left;
-  font-weight:600;
-  font-size:17px;
-  margin-right:3%;
-  padding-top:1%;
-}
-.field-value{
-  
-  
-  font-size:17px;
-  padding-top:1%;
-  
-}
-.required-field::after {
-      content: "*";
-      color: red;
-}
-.row{
-  margin-right: 0px!important;
-  margin-left: 0px!important;
-}
-.section1{
-    border: 1.5px solid #9187878c;
-    overflow: hidden;
-    padding-bottom: 10px;
-   
-   
-}
-.color1{
-  
-  background-color: #dcdfdf;
-}
-.color1 h3{
-margin: 10px 0px 10px 0px !important;
-}
-
-.setPos{
-  padding: 0px 0px 10px 0px;
-  margin: 10px 0px 10px 0px;
-  border:1px solid #dcdfdf;
-  overflow: hidden;
-}
-.modal_field_name{
-  float:left;
-  font-weight: 700;
-  margin-right:1%;
-  padding-top:1%;
-  margin-top:1%;
-}
-
-.modal_field_value{
-  margin-right:1%;
-  padding-top:1%;
-  margin-top:1%;
-}
-
-.modal-header{
-  background-color: #7fffd4;
-}
-
-@media print {
-  .example-screen {
-       display: none;
+    /* Custom CSS for styling and required field indicator */
+    .required-field::after {
+        content: " *";
+        color: red; 
+    }
+    .card-footer.actions {
+        display: flex;
+        justify-content: center;
+        gap: 15px;
+        padding: 20px;
+    }
+    .card-outline.inner-card {
+        margin-top: 15px;
+        border-top: 1px solid #dee2e6;
+    }
+    .bg-custom-header {
+        background-color: #dcdfdf !important; 
+        color: #343a40; /* Dark text */
+        padding: 8px 15px; 
+    }
+    .bg-custom-header h3, .bg-custom-header h5 {
+        margin: 0 !important;
+    }
+    .field-value {
+        padding-top: 5px;
+    }
+    .card-body p {
+        margin-bottom: 5px;
     }
 
-    *{
-    font-size: 15px;
-  }
-
-.field-name{
-  float:left;
-  font-weight:600;
-  font-size:17px;
-  margin-right:3%;
-  padding-top:1%;
-}
-.field-value{
-  
-  
-  font-size:17px;
-  padding-top:1%;
-  
-}
-
-.row{
-  margin-right: 0px!important;
-  margin-left: 0px!important;
-}
-.section1{
-    border: 1.5px solid #9187878c;
-    overflow: hidden;
-    padding-bottom: 10px;
-   
-   
-}
-.color1{
-  
-  background-color: #dcdfdf;
-
-}
-.color1 h3{
- margin: 10px 0px 10px 0px !important;
-}
-
-.setPos{
-  padding: 0px 0px 10px 0px;
-  margin: 10px 0px 10px 0px;
-  border:1px solid #dcdfdf;
-  overflow: hidden;
-}
-.modal_field_name{
-  float:left;
-  font-weight: 700;
-  margin-right:1%;
-  padding-top:1%;
-  margin-top:1%;
-}
-
-.modal_field_value{
-  margin-right:1%;
-  padding-top:1%;
-  margin-top:1%;
-}
-
-.modal-header{
-  background-color: #7fffd4;
-}
-
-  /*.row{
-  margin-right: 0px!important;
-  margin-left: 0px!important;
-}
-.section1{
-    border: 1.5px solid #9187878c!important;
-    margin: 0.25cm!important;
-    padding: 0.25cm!important;
-    page-break-inside : avoid;
-}
-.color1{
-  margin: 0%!important;
-  background-color: #5f9ea061!important;
-  -webkit-print-color-adjust: exact; 
-}
-.modal_field_name{
-  float:left!important;
-  font-weight: 700!important;
-  margin-right:0.5cm!important;
-
-}
-
-.modal_field_value{
-  padding-top:0.30cm!important;
-
-}
-.color1{
-  margin: 0%!important;
-  background-color: #7fffd4!important;
- -webkit-print-color-adjust: exact; 
-}
-
-.modal-header{
-  background-color: #7fffd4!important;
- -webkit-print-color-adjust: exact; 
-}
-#divToPrint{
-}*/
-}
-
-
+    /* Hide screen-specific elements on print */
+    @media print {
+        .example-screen {
+            display: none;
+        }
+    }
 </style>
-<section >
-<div class="modal-fade" tabindex="-1" role="document">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="example-screen">
-               <!--  <button type="button" class="close" data-dismiss="modal" aria-label="Close"> -->
-                <!-- <span aria-hidden="true">&times;</span> -->
-               <!-- </button> -->
-               
-               <a href="{{ route('noaadharlist')}}"> 
-                <img width="50px;" style="pull-right" src="{{ asset("images/back.png") }}" alt="Back" /></a>
-            </div>
-            <div class="modal-body">
-              <div class='row'>
-            <div>
-             @if ( ($message = Session::get('success')) && ($application_id =Session::get('application_id')))
-                <div class="alert alert-success alert-block">
-                  <button type="button" class="close" data-dismiss="alert">×</button>
-                  <strong>{{ $message }} with Application ID: {{$application_id}}</strong>
-                  
 
+<section class="content">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-12">
+
+                <div class="mb-3 example-screen">
+                    <a href="{{ route('noaadharlist')}}" class="btn btn-default">
+                        <i class="fas fa-arrow-left"></i> Back to List
+                    </a>
                 </div>
+
+                   {{-- ✔ FIXED SUCCESS ALERT --}}
+                @if ($message = Session::get('success'))
+                    <div class="alert alert-success alert-dismissible fade show" role="alert">
+                        <button type="button" class="close" data-dismiss="alert">&times;</button>
+                        <strong>Success!</strong> {{ $message }}
+                    </div>
                 @endif
-           @if(count($errors) > 0)
-      <div class="alert alert-danger alert-block">
-        <ul>
-          @foreach($errors as $error)
-          <li><strong> {{ $error }}</strong></li>
-          @endforeach
-        </ul>
-      </div>
-      @endif
-            </div>
-                
 
-                <!-- We display the details entered by the user here -->
-                <div class="section1">
-                  <div class="row">
-                  <div class="col-md-12">
-                    <h3 style="text-align: center; color:red;">Application ID:{{$application_id}}
-                      
-                      </h3>
-                  </div>
+                {{-- ERROR ALERT --}}
+                @if ($errors->any())
+                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                        <button type="button" class="close" data-dismiss="alert">&times;</button>
 
-
-                  </div>
-                       
-                <div class="row color1">
-                  <div class="col-md-12"><h3>Personal Details</h3></div>
-                </div>
-                <div class="row">
-                    <div class="col-md-6" >
-                      <div ><strong>Name :</strong> {{$row->ben_fname}} {{$row->ben_mname}} {{$row->ben_lname}}</div>
+                        <ul>
+                            @foreach($errors->all() as $error)
+                                <li><strong>{{ $error }}</strong></li>
+                            @endforeach
+                        </ul>
                     </div>
-                </div>
-              
+                @endif
+                
+                <div class="card card-primary card-outline">
+                    <div class="card-header text-center">
+                        <h3 class="card-title text-primary font-weight-bold">
+                            <i class="fas fa-id-card"></i> Application ID:- {{$application_id}}
+                        </h3>
+                    </div>
 
-                     
-                    
-                       <div class="row">
-                      
+                    <div class="card-body p-0">
                         
-                        @if(!is_null($row->dob))
-                        <div class="col-md-6">
-                          <div ><strong>Date of Birth (DD-MM-YYYY):</strong> {{date('d/m/Y', strtotime($row->dob)) }}</div>
-                         
+                        {{-- Personal Details Section --}}
+                        <div class="card card-secondary card-outline mb-0 border-0 rounded-0">
+                            <div class="card-header bg-custom-header">
+                                <h5 class="card-title"><i class="fas fa-user"></i> Personal Details</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-6 mb-2">
+                                        <p class="field-value"><strong>Name:</strong> {{$row->ben_fname}} {{$row->ben_mname}} {{$row->ben_lname}}</p>
+                                    </div>
+                                    @if(!is_null($row->dob))
+                                    <div class="col-md-6 mb-2">
+                                        <p class="field-value"><strong>Date of Birth (DD-MM-YYYY):</strong> {{date('d/m/Y', strtotime($row->dob)) }}</p>
+                                    </div>
+                                    @endif
+                                    <div class="col-md-6 mb-2">
+                                        <p class="field-value"><strong>Father's Name:</strong> {{$row->father_fname}} {{$row->father_mname}} {{$row->father_lname}}</p>
+                                    </div>
+                                    <div class="col-md-6 mb-2">
+                                        <p class="field-value"><strong>Mother's Name:</strong> {{$row->mother_fname}} {{$row->mother_mname}} {{$row->mother_lname}}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        {{-- Existing Aadhaar Details --}}
+                        @if(!empty($old_aadhar))
+                        <div class="card card-success card-outline inner-card mb-0 border-0 rounded-0">
+                            <div class="card-header bg-custom-header">
+                                <h5 class="card-title"><i class="fas fa-address-card"></i> Existing Aadhaar Details</h5>
+                            </div>
+                            <div class="card-body">
+                                <p class="field-value"><strong>Aadhaar Number:</strong> {{trim($old_aadhar)}}</p>
+                            </div>
                         </div>
                         @endif
 
-                        
-
-                    
-
-
-                    
-                    <div class="col-md-6" >
-                      <div ><strong>Father's Name :</strong> {{$row->father_fname}} {{$row->father_mname}} {{$row->father_lname}}</div>
-                    </div>
-
-                    <div class="col-md-6" >
-                      <div ><strong>Mother's Name :</strong> {{$row->mother_fname}} {{$row->mother_mname}} {{$row->mother_lname}}</div>
-                    </div>
-
-                     
-                    
-                      
-                        
-                       
-                      
-
-                        
-                       
-                       
-                        
-
-                        
-
-                                         
-                     
-
-                   
-                     
-                    
-                      </div>
-                    
-
-                      
-                     @if(!empty($old_aadhar))
-
-                      <div class="row">
-                          <div class="col-md-12 color1"  style="margin:10px 0px"><h3>Existing Aadhaar Details</h3></div>
-                      </div>
-
-                       <div class="col-md-6">
-                         <div ><strong>Aadhaar Number:</strong>  {{trim($old_aadhar)}}</div>
-                       
+                        {{-- New Aadhaar Details (after Verifier update) --}}
+                        @if(!empty($new_aadhar))
+                        <div class="card card-info card-outline inner-card mb-0 border-0 rounded-0">
+                            <div class="card-header bg-custom-header">
+                                <h5 class="card-title"><i class="fas fa-address-card"></i> New Aadhaar Details</h5>
+                            </div>
+                            <div class="card-body">
+                                <p class="field-value"><strong>Aadhaar Number:</strong> {{trim($new_aadhar)}}</p>
+                            </div>
                         </div>
-                     
-                    @endif
-                       
-                    @if(!empty($new_aadhar))
+                        @endif
 
-                    <div class="row">
-                        <div class="col-md-12 color1"  style="margin:10px 0px"><h3>New Aadhaar Details</h3></div>
-                    </div>
-
-                    <div class="col-md-6">
-                      <div ><strong>Aadhaar Number:</strong>  {{trim($new_aadhar)}}</div>
-                    
-                      </div>
-
-                    @endif
-
-
-
-                        
-
-
-                        </div>
+                        {{-- Approver/Delegated Approver View and Actions --}}
                         @if(($designation_id=='Approver' || $designation_id=='Delegated Approver') && $row->no_aadhar_next_level_role_id==1)
-                        <div class="row">
-                          <div class="col-md-12"  style="margin:10px 0px"><h3>{{$doc_man->doc_name}}</h3></div>
-                        </div>
-                        @if(strtolower($ext)=='jpg' || strtolower($ext)=='jpeg' || strtolower($ext)=='jfif' || strtolower($ext)=='png'|| strtolower($ext)=='gif')
-                       <div class="col-md-12">
-                          <a class="example-image-link"  data-lightbox="example-1">
-                          <img class="example-image" src="{{$image}}" alt="image-1" width="250" height="380" /></a>
-                          </div>
-                      </div>
-                      @elseif(strtolower($ext)=='pdf')
-                          <div class="col-md-12">
-    <a id="link"  href="{{ route('noaadharPdfDownload', ['application_id' => $application_id]) }}" target="_blank" style="color: #4324ef" width="">Download PDF Document</a>
-
-
-
-                          </div>
-                          <br/>
-                      @endif           
-                       <br/>
-                       <button type="button" id="confirm" value="Approve"
-                          class="btn btn-success btn-lg confirm">Approve
-                        </button>
-                        <button type="button" id="revert" value="Revert"
-                          class="btn btn-warning btn-lg confirm">Back To Verifier
-                        </button>
+                            <div class="card card-warning card-outline inner-card mb-0 border-0 rounded-0">
+                                <div class="card-header bg-custom-header">
+                                    <h5 class="card-title"><i class="fas fa-file-alt"></i> Documents: **{{$doc_man->doc_name}}**</h5>
+                                </div>
+                                <div class="card-body text-center">
+                                    @if(in_array(strtolower($ext), ['jpg', 'jpeg', 'jfif', 'png', 'gif']))
+                                        <div class="mb-3">
+                                            <a class="example-image-link" data-lightbox="example-1">
+                                                <img class="example-image img-thumbnail" src="{{$image}}" alt="Document Image" style="max-width: 100%; height: auto; max-height: 400px;"/>
+                                            </a>
+                                        </div>
+                                    @elseif(strtolower($ext)=='pdf')
+                                        <a href="{{ route('noaadharPdfDownload', ['application_id' => $application_id]) }}" target="_blank" class="btn btn-primary btn-lg">
+                                            <i class="fas fa-file-pdf"></i> Download PDF Document
+                                        </a>
+                                        <p class="mt-2 text-muted">Click the button to view/download the attached document.</p>
+                                    @endif
+                                </div>
+                            </div>
+                            
+                            <div class="card-footer actions">
+                                <button type="button" id="confirm" value="Approve" class="btn btn-success btn-lg confirm">
+                                    <i class="fas fa-check"></i> Approve
+                                </button>
+                                <button type="button" id="revert" value="Revert" class="btn btn-warning btn-lg confirm">
+                                    <i class="fas fa-undo"></i> Back To Verifier
+                                </button>
+                            </div>
                         @endif
-                      
-                        @if($designation_id=='Verifier' || $designation_id=='Delegated Verifier')
-                        <form method="post" id="register_form" action="{{url('noaadharPost')}}" enctype="multipart/form-data"
-                    class="submit-once" onsubmit="return client_validation()">
-                   
-                   
-                    <input type="hidden" name="application_id" id="application_id" value="{{$application_id}}"/>
-                    <input type="hidden" name="is_faulty" id="is_faulty" value="{{$is_faulty}}"/>
 
-                     {{ csrf_field() }}
-                     
-                    <div id="new_info_div">
-                        <div class="row">
-                          <div class="col-md-12 color1"  style="margin:10px 0px"><h3>Upload Aadhaar Details</h3></div>
-                        </div>
-                        
-                        <div class="row">
-                          
-                        
-                          <div class="form-group col-md-6">
-                          <label class="required-field">Aadhaar Number</label>
-                 <input type="text" name="aadhaar_no" id="aadhaar_no" class="form-control NumOnly" placeholder="Aadhaar No."  value="{{trim($decrypt_aadhar_old)}}"  maxlength='12'/>
-                 <span id="error_aadhaar_no" class="text-danger"></span>
+                        {{-- Verifier/Delegated Verifier Form --}}
+                        @if($designation_id=='Verifier' || $designation_id=='Delegated Verifier')
+                            <div class="card card-success card-outline inner-card mb-0 border-0 rounded-0" id="new_info_div">
+                                <div class="card-header bg-custom-header text-black">
+                                    <h5 class="card-title"><i class="fas fa-upload"></i> Upload Aadhaar Details</h5>
+                                </div>
+                                <form method="post" id="register_form" action="{{url('noaadharPost')}}" enctype="multipart/form-data" class="submit-once">
+                                    @csrf
+                                    <input type="hidden" name="application_id" id="application_id" value="{{$application_id}}"/>
+
+                                    <div class="card-body">
+                                        <div class="row">
+                                            <div class="form-group col-md-6">
+                                                <label class="required-field" for="aadhaar_no">Aadhaar Number</label>
+                                                <input type="text" name="aadhaar_no" id="aadhaar_no" class="form-control NumOnly" placeholder="Aadhaar No." value="{{trim($decrypt_aadhar_old)}}" maxlength='12'/>
+                                                <span id="error_aadhaar_no" class="text-danger"></span>
+                                            </div>
+                                            <div class="form-group col-md-6">
+                                                <label class="required-field" for="doc_{{ $doc_man['id']}}">{{ $doc_man['doc_name'] }}</label>
+                                                <input type="file" name="doc_{{ $doc_man['id']}}" id="doc_{{ $doc_man['id'] }}" class="form-control" tabindex="1" />
+                                                <small class="form-text text-muted imageSize">(Image type must be {{ $doc_man['doc_type'] }} and image size max {{ $doc_man['doc_size_kb'] }}KB)</small>
+                                                <span id="error_doc_{{ $doc_man['id'] }}" class="text-danger"></span>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="card-footer actions">
+                                        {{-- MODIFIED: Changed type="submit" to type="button" and added ID for JS handler --}}
+                                        <button type="button" id="verifier_submit_button" class="btn btn-success btn-lg modal-submit">
+                                            <i class="fas fa-paper-plane"></i> Submit
+                                        </button>
+                                        <button type="button" id="submitting" value="Submit" class="btn btn-danger btn-lg" disabled style="display:none;">
+                                            <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                                            Submitting please wait
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                        @endif
+
+                    </div>
                 </div>
 
-               
-               
-               
-                
-               
-
-              
-               </div>
-               <div class="row">
-                                        <div class="form-group col-md-6">
-                                    <label class="required-field">{{ $doc_man['doc_name'] }}</label>
-                                    <input type="file" name="doc_{{ $doc_man['id']}}" id="doc_{{ $doc_man['id'] }}" class="form-control" tabindex="1" />
-                                    <div class="imageSize">(Image type must be {{ $doc_man['doc_type'] }} and image size max {{ $doc_man['doc_size_kb'] }}KB)</div>
-                                    <span id="error_doc_{{ $doc_man['id'] }}" class="text-danger"></span>
-                          </div>
-               </div>
-              </div>
-              
-                <center> <button type="submit" id="submit" value="Submit"
-                          class="btn btn-success success btn-lg modal-submit">Submit </button>
-                        <button type="button" id="submitting" value="Submit" class="btn btn-danger btn-lg"
-                          disabled style="display:none;">Submitting please wait</button></center>
-                        </div>
-                        
-                     
-                    </form>
-                  @endif
-                      
-                <div class="row">
-                   
-               </div>
-
-                
-  </div>
-
-                   </div>
-
-
-                       </div>
-                 
-                      
-
-
             </div>
-
-
-          </div>
-          
-           
         </div>
-  <div id="modalConfirm" class="modal fade">
-  
-  <form method="post" id="approval_form" action="{{url('BulkApprovenoaadhar')}}" class="submit-once">
-      <input type="hidden" name="_token" value="{{ csrf_token() }}">
-      <input type="hidden" name="action_type" id="action_type" value=""/>
-      <input type="hidden" id="approvalcheck" name="approvalcheck[]" value="{{$application_id}}">
-      <input type="hidden" name="is_faulty" id="is_faulty" value="{{$is_faulty}}"/>
-
-	<div class="modal-dialog modal-confirm">
-		<div class="modal-content">
-			<div class="modal-header flex-column">
-								
-			
-			</div>
-			<div class="modal-body">
-      <h4 class="modal-title w-100">Do you really want to <span id="verify_revert_reject">Approve</span>?</h4>	
-       
-         
-			</div>
-			<div class="modal-footer justify-content-center">
-				<button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-				<button type="submit" class="btn btn-info" id="confirm_yes" >OK</button>
-         <button type="button" id="submittingapprove" value="Submit" class="btn btn-success btn-lg"
-                          disabled>Submitting please wait</button>
-			</div>
-		</div>
-	</div>
-</form>
-</div>
+    </div>
 </section>
+
+{{-- Confirmation Modal Definition --}}
+<div id="modalConfirm" class="modal fade">
+    <form method="post" id="approval_form" action="{{url('BulkApprovenoaadhar')}}" class="submit-once">
+        @csrf
+        <input type="hidden" name="action_type" id="action_type" value=""/>
+        <input type="hidden" id="approvalcheck" name="approvalcheck[]" value="{{$application_id}}">
+        <input type="hidden" name="is_faulty" id="is_faulty" value="{{$is_faulty}}"/>
+        {{-- NEW FIELD to track if the submission is from the Verifier (1) or Approver (0) --}}
+        <input type="hidden" name="is_verifier_submit" id="is_verifier_submit" value="0"/>
+
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header bg-gradient-info">
+                    <h5 class="modal-title"><i class="fas fa-question-circle"></i> Confirmation</h5>
+                    {{-- Close Button --}}
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body text-center">
+                    <h4 class="w-100">Do you really want to <span id="verify_revert_reject" class="font-weight-bold">Approve</span>?</h4> 
+                </div>
+                <div class="modal-footer justify-content-center">
+                    {{-- Cancel Button --}}
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-info" id="confirm_yes">
+                        <i class="fas fa-check"></i> OK
+                    </button>
+                    <button type="button" id="submittingapprove" value="Submit" class="btn btn-success" disabled style="display:none;">
+                        <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                        Submitting please wait
+                    </button>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
 @endsection
-<script src="{{ asset ("/bower_components/AdminLTE/plugins/jQuery/jquery-2.2.3.min.js") }}"></script>
-<script src="{{ asset ("/bower_components/AdminLTE/dist/js/app.min.js") }}" type="text/javascript"></script>
-<script src="{{ URL::asset('js/validateAdhar.js') }}"></script>
+
+@push('scripts')
 
 <script type="text/javascript">
 $(document).ready(function(){
-  $('.sidebar-menu li').removeClass('active');
-  $('.sidebar-menu #lb-aadhar').addClass("active"); 
-  $('.sidebar-menu #noaadharlist').addClass("active"); 
-  $("#submitting").hide();
-  $("#submittingapprove").hide();
-  $(".NumOnly").keyup(function(event) {
-              
-              $(this).val($(this).val().replace(/[^\d].+/, ""));
-                  if ((event.which < 48 || event.which > 57)) {
-                      event.preventDefault();
-                  }
-        }); 
-  var acc_validated_aadhar='{{$row->acc_validated_aadhar}}';
-  if(acc_validated_aadhar=='-1'){
-    $("#new_is_required").val(1);
-  }
-  else{
-    $("#new_is_required").val(0);
-  }
- 
- $(document).on('change', '#process_type', function() {
-    var processVal = this.value;
-    if (processVal == 1) {
-      $('#new_info_div').hide();
-      $('#aadhaar_no').val('');
-      $("#new_is_required").val(0);
+    // Existing setup code
+    $('.sidebar-menu li').removeClass('active');
+    $('.sidebar-menu #lb-aadhar').addClass("active"); 
+    $('.sidebar-menu #noaadharlist').addClass("active"); 
+    $("#submitting").hide();
+    $("#submittingapprove").hide();
+    
+    // Numeric-only input filter
+    $(".NumOnly").keyup(function(event) {
+        $(this).val($(this).val().replace(/[^\d].+/, ""));
+        if ((event.which < 48 || event.which > 57)) {
+            event.preventDefault();
+        }
+    }); 
+
+    // Existing logic for 'acc_validated_aadhar' and 'process_type'
+    var acc_validated_aadhar='{{$row->acc_validated_aadhar}}';
+    if(acc_validated_aadhar=='-1'){
+        $("#new_is_required").val(1);
     }
-    else if(processVal == 2) {
-      $('#new_info_div').show();
-      $('#remarks').val('');
-      $("#new_is_required").val(1);
+    else{
+        $("#new_is_required").val(0);
     }
-    else if (processVal == 3) {
-      $('#new_info_div').hide();
-      $('#aadhaar_no').val('');
-      $("#new_is_required").val(0);
-    }
-    else {
-      
-    }
-  });
-  $('.confirm').click(function(){  
-      $("#action_type").val('');
-      var button_val=$(this).val();
-      //console.log(button_val);
-      $('#verify_revert_reject').text(button_val); 
-      if(button_val=='Approve'){
-        $("#action_type").val(1);
-      } 
-      if(button_val=='Revert'){
-        $("#action_type").val(2);
-      } 
-      $('#modalConfirm').modal();
+
+    $(document).on('change', '#process_type', function() {
+        var processVal = this.value;
+        if (processVal == 1) {
+            $('#new_info_div').hide();
+            $('#aadhaar_no').val('');
+            $("#new_is_required").val(0);
+        }
+        else if(processVal == 2) {
+            $('#new_info_div').show();
+            $('#remarks').val('');
+            $("#new_is_required").val(1);
+        }
+        else if (processVal == 3) {
+            $('#new_info_div').hide();
+            $('#aadhaar_no').val('');
+            $("#new_is_required").val(0);
+        }
+        else {
+            
+        }
     });
-    $('#confirm_yes').on('click',function(){
+    
+    // === FIX FOR MODAL DISMISSAL ===
+    // Explicitly bind click handlers to ensure the modal closes, even if data-dismiss fails.
+    $('#modalConfirm').on('click', '.btn-secondary, .close', function(e) {
+        // Only hide the modal if the button clicked has data-dismiss="modal" or is a child of the modal
+        if ($(e.target).closest('[data-dismiss="modal"]').length || $(e.target).hasClass('close') || $(e.target).hasClass('btn-secondary')) {
+            // Reset loading states before hiding
+            $("#confirm_yes").show();
+            $("#submittingapprove").hide();
+            // Finally, hide the modal
+            $('#modalConfirm').modal('hide');
+        }
+    });
+    // ===============================
+
+    // -----------------------------------------------------------
+    // Approver/Delegated Approver action (Approve / Back to Verifier)
+    // -----------------------------------------------------------
+    $('.confirm').click(function(){  
+        $("#action_type").val('');
+        $("#is_verifier_submit").val(0); // Set flag to 0 for Approver actions
+        
+        var button_val=$(this).val();
+        $('#verify_revert_reject').text(button_val); 
+        
+        if(button_val=='Approve'){
+            $("#action_type").val(1);
+        } 
+        if(button_val=='Revert'){
+            $("#action_type").val(2);
+        } 
+        $('#modalConfirm').modal('show');
+    });
+
+    // -----------------------------------------------------------
+    // Verifier/Delegated Verifier action (Submit) - NEW LOGIC
+    // -----------------------------------------------------------
+    $('#verifier_submit_button').click(function(e) {
+        // Reset confirmation button state
+        $("#confirm_yes").show();
+        $("#submittingapprove").hide();
+        
+        // Run client-side validation first
+        if (client_validation()) {
+            // Validation passed. Set up the modal for submission confirmation.
+            $('#verify_revert_reject').text('Submit');
+            $("#action_type").val(''); 
+            $("#is_verifier_submit").val(1); // Set flag to 1 for Verifier submit
+            $('#modalConfirm').modal('show');
+        }
+    });
+
+    // -----------------------------------------------------------
+    // Modal Confirmation Handler - MODIFIED LOGIC
+    // -----------------------------------------------------------
+    $('#confirm_yes').on('click',function(e){
+        e.preventDefault(); 
+        
+        var isVerifier = $("#is_verifier_submit").val();
+
+        // Show loading state on the modal
         $("#confirm_yes").hide();
         $("#submittingapprove").show();
-        $("#approval_form").submit();
-        
-       
-      });
+
+        if (isVerifier == 1) {
+            // VERIFIER SUBMISSION: Submit the Verifier's form (#register_form)
+            $('#modalConfirm').modal('hide'); // Hide confirmation modal first
+            $("#submitting").show(); // Show Verifier's own loading text
+            // Note: The form submission is triggered here, and the back-end will handle the redirect/response.
+            $("#register_form").submit();
+        } else {
+            // APPROVER SUBMISSION: Submit the Approver's form (#approval_form)
+            $("#approval_form").submit();
+        }
+    });
 
 });
-function client_validation(){
-  var error_process_type='';
-  var error_doc_6='';
-  var aadhaar_no=$.trim($('#aadhaar_no').val());
-  var doc_6=$('#doc_6').val();
-  if(aadhaar_no == ""){
-    error_aadhaar_no = 'Aadhaar Number is required';
-       $('#error_aadhaar_no').text(error_aadhaar_no);
-       $('#aadhaar_no').addClass('has-error');
-  }
-  else{
-    if(aadhaar_no.length != 12)
-     {
-        valid_aadhar=0;
-        error_aadhar_no = 'Aadhar No should be 12 digit ';
-        $('#error_aadhar_no').text(error_aadhar_no);
-        $('#aadhar_no').addClass('has-error');
-     }
-     else{
-     
-      var aadhar_valid=validate_adhar(aadhaar_no);
-      // aadhar_valid=1;
-       if(aadhar_valid){
-           valid_aadhar=1;
-           error_aadhaar_no = '';
-           $('#error_aadhaar_no').text(error_aadhaar_no);
-           $('#aadhar_no').removeClass('has-error');
-       }
-       else{
-           valid_aadhar=0;
-           error_aadhaar_no = 'Invalid Aadhar No.';
-          $('#error_aadhaar_no').text(error_aadhaar_no);
-          $('#aadhar_no').addClass('has-error');
-       }
-       
-     }
-     if(valid_aadhar==1){
-      error_aadhaar_no = '';
-           $('#error_aadhaar_no').text(error_aadhaar_no);
-           $('#aadhar_no').removeClass('has-error');
-     }
-  }
-  
-  if(doc_6 == ""){
-       error_doc_6 = 'Copy of New  Aadhar Card Required';
-       $('#error_doc_6').text(error_doc_6);
-       $('#doc_6').addClass('has-error');
-  }
-  else{
-    error_doc_6 = '';
-    $('#error_doc_6').text(error_doc_6);
-    $('#doc_6').removeClass('has-error');
-  }
-  
- 
-  if(error_aadhaar_no == ''  && error_doc_6 == ''){
-   
-    //console.log(y_n);
+
+// -----------------------------------------------------------
+// Client Validation Function - MODIFIED (Only returns true/false)
+// -----------------------------------------------------------
+function client_validation() {
+
+    let error_aadhaar_no = '';
+    let error_doc = '';
+
+    // Clear previous errors
+    $('#error_aadhaar_no').text('');
+    $('#aadhaar_no').removeClass('has-error');
+    let doc_id = "{{ $doc_man['id'] }}"; 
+    $('#error_doc_' + doc_id).text('');
+    $('#doc_' + doc_id).removeClass('has-error');
+
+    let aadhaar_no = $.trim($('#aadhaar_no').val());
+    let doc_value = $('#doc_' + doc_id).val();
     
-     $("#submit").hide();
-     $("#submitting").show();
-     return true;
-    
-  }
-  else{
+    // Placeholder for validate_adhar if it's not defined elsewhere (You must ensure this function exists)
+    if (typeof validate_adhar === 'undefined') {
+        var validate_adhar = function() { return true; }; 
+    }
+
+    // Aadhaar Number Validation
+    if (aadhaar_no === "") {
+        error_aadhaar_no = 'Aadhaar Number is required';
+        $('#error_aadhaar_no').text(error_aadhaar_no);
+        $('#aadhaar_no').addClass('has-error');
+    }
+    else if (aadhaar_no.length != 12) {
+        error_aadhaar_no = 'Aadhaar No should be 12 digits';
+        $('#error_aadhaar_no').text(error_aadhaar_no);
+        $('#aadhaar_no').addClass('has-error');
+    }
+    else {
+        let aadhar_valid = validate_adhar(aadhaar_no);
+
+        if (!aadhar_valid) {
+            error_aadhaar_no = 'Invalid Aadhaar No.';
+            $('#error_aadhaar_no').text(error_aadhaar_no);
+            $('#aadhaar_no').addClass('has-error');
+        }
+    }
+
+    // Document Upload Validation
+    if (doc_value === "") {
+        error_doc = "Copy of New Aadhaar Card is required";
+        $('#error_doc_' + doc_id).text(error_doc);
+        $('#doc_' + doc_id).addClass('has-error');
+    }
+
+    // Final Check
+    if (error_aadhaar_no === "" && error_doc === "") {
+        return true;
+    }
+
     return false;
-  }
 }
+
 </script>
+@endpush

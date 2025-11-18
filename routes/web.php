@@ -35,6 +35,9 @@ use App\Http\Controllers\{
     MisReportAllPhaseController,
     RejectDraftController,
     SchemeOnboardingController
+    BackfromJBController,
+    NoAadharChangeController,
+    BenNameValidationFailedController
 };
 Route::get('refresh-captcha', [CaptchaController::class, 'refreshCaptcha'])->name('refresh-captcha');
 Route::controller(AuthenticationController::class)->group(function () {
@@ -117,7 +120,7 @@ Route::controller(BeneficiaryListReportExcel::class)->group(function () {
 });
 Route::controller(PensionformFaultyReportController::class)->group(function () {
     Route::any('application-list-common-faulty', 'applicationStatusList');
-    Route::post('applicationFaultyListExcel', 'generate_excel')->name('applicationFaultyListExcel');
+    Route::get('applicationFaultyListExcel', 'generate_excel')->name('applicationFaultyListExcel');
 });
 Route::controller(casteManagementController::class)->group(function () {
     Route::any('casteManagement', 'index')->name('casteManagement');
@@ -165,6 +168,26 @@ Route::controller(CmoGrivanceWorkflowController1::class)->group(function () {
    Route::get('cmo-op_entryList1', 'cmoEntryList')->name('cmo-op_entryList1');
 });
 
+Route::controller(BackfromJBController::class)->group(function () { 
+    Route::any('backfromjb', 'marked_list')->name('backfromjb');
+    Route::any('showbackfromjb/{application_id}/{is_faulty}', 'showApplicantDetails')->name('showbackfromjb');
+    Route::post('forward-backfromjb', 'verifydata')->name('forward-backfromjb');
+});
+
+Route::controller(NoAadharChangeController::class)->group(function () {
+    Route::any('noaadharlist','list')->name('noaadharlist');
+    Route::get('Viewnoaadhar','Viewnoaadhar')->name('Viewnoaadhar');
+    Route::post('noaadharPost','noaadharPost')->name('noaadharPost');
+    Route::post('BulkApprovenoaadhar','bulkApprove')->name('BulkApprovenoaadhar');
+    Route::get('noaadharPdfDownload','pdf')->name('noaadharPdfDownload');
+    Route::any('noaadharMisReport','misReport')->name('noaadharMisReport');
+    Route::any('noaadharMisReportPost','misReportPost')->name('noaadharMisReportPost');
+    Route::post('applicationListNoaadharExcel','generate_excel')->name('applicationListNoaadharExcel');
+});
+
+Route::controller(BenNameValidationFailedController::class)->group(function () {
+    Route::get('selectMatchingScore','selectMatchingScore')->name('selectMatchingScore');
+});
 
 
 // Financial Assistance Payble As On current Date

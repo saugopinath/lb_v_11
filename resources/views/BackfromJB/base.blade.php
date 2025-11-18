@@ -11,9 +11,7 @@
       // $pensioner_type = '[ Type: QUOTA ]';
     ?>
       <h1>
-      @if(isset($scheme_name))
-        Scheme Name: {{$scheme_name}} 
-      @endif  
+      
       </h1>
       <ol class="breadcrumb">
         {{-- <li><a href="#"><i class="fa fa-clock-o"></i><b> Date: </b></a></li> --}}
