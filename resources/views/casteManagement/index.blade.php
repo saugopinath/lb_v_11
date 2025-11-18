@@ -64,27 +64,39 @@
               {{ csrf_field() }}
                 <div class="row mb-4">
                   <div class="col-md-12">
-                    <div class="form-row align-items-end">
-                    
-                      <div class="form-group col-md-3">
-                  <label for="select_type">Search Using <span class="text-danger">*</span></label>
-                  <select class="form-control" name="select_type" id="select_type">
-                       @foreach(Config::get('globalconstants.search_payment_status') as $key=> $search_type)
-                          <option value="{{$key}}" @if($key==$fill_array['select_type']) selected @endif>{{$search_type}}</option>
-                       @endforeach
-                  </select>
-                   <span style="font-size: 14px;" id="error_select_type" class="text-danger"></span>
-                </div>
-                  <div class="form-group col-md-3" id="beneficiary_id_div">
-                  <label for="beneficiary"><span id="search_text"> {{$fill_array['search_text']}}</span> <span class="text-danger">*</span></label>
-                  <input type="text" name="ben_id" id="ben_id" class="form-control" 
-                  onkeypress="if ( isNaN(String.fromCharCode(event.keyCode) )) return false;" placeholder="Enter Beneficiary ID" value={{$fill_array['ben_id']}}>
-                   <span style="font-size: 14px;" id="error_ben_id" class="text-danger"></span>
-                </div>
-                  </div>
-                   <div class="form-group col-md-3 mb-0">
-                      <input class="btn btn-success" type="submit" name="btnSubmit" value="Search">
-                        
+                    <div class="row g-3 align-items-start">
+                      <div class="col-md-3">
+                        <div class="form-group">
+                          <label for="select_type" class="form-label required-field">Search Using</label>
+                          <select class="form-select" name="select_type" id="select_type">
+                            @foreach(Config::get('globalconstants.search_payment_status') as $key=> $search_type)
+                            <option value="{{$key}}" @if($key==$fill_array['select_type']) selected @endif>{{$search_type}}</option>
+                            @endforeach
+                          </select>
+                          <span id="error_select_type" class="text-danger small"></span>
+                        </div>
+                      </div>
+
+                      <div class="col-md-4">
+                        <div class="form-group">
+                          <label for="ben_id" class="form-label required-field">
+                            <span id="search_text">{{$fill_array['search_text']}}</span>
+                          </label>
+                          <input type="text" name="ben_id" id="ben_id" class="form-control"
+                            onkeypress="if ( isNaN(String.fromCharCode(event.keyCode) )) return false;"
+                            placeholder="Enter {{$fill_array['search_text']}}" value="{{$fill_array['ben_id']}}">
+                          <span id="error_ben_id" class="text-danger small"></span>
+                        </div>
+                      </div>
+
+                      <div class="col-md-2">
+                        <div class="form-group">
+                          <label class="form-label d-block">&nbsp;</label>
+                          <button type="submit" name="btnSubmit" class="btn btn-success table-action-btn w-100">
+                            <i class="fas fa-search me-1"></i> Search
+                          </button>
+                        </div>
+                      </div>
                     </div>
                 </div>
               </div>
