@@ -1179,6 +1179,9 @@ $(document).ready(function() {
                         $("#submitting").hide();
                         $("#verifyReject").show();
                         $("html, body").animate({ scrollTop: 0 }, "slow");
+                        if(data.return_status==1){
+                          window.location.href='workflowCaste';
+                        }
                       }
                     }
                   });
@@ -1186,7 +1189,7 @@ $(document).ready(function() {
                 else{
                   if(data.return_msg=='Aadhaar No. is Duplicate..'){
                     alert(data.return_msg);
-                    // window.location.href='workflowCaste?pr1=lb_wcd';
+                      // window.location.href='workflowCaste?pr1=lb_wcd';
                   }
                   else{
                     $("#submitting").hide();
