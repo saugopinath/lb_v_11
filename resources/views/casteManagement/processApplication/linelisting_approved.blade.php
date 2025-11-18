@@ -69,7 +69,7 @@
   <section class="content-header">
     <div class="container-fluid">
       <div class="row mb-2">
-        <div class="col-sm-6">
+        <div class="col-sm-8">
           <h1>Process Application for Caste Info Modification</h1>
         </div>
       </div>
@@ -154,7 +154,7 @@
                     <span id="error_caste_category" class="text-danger small"></span>
                   </div>
 
-                  <div class="col-md-12 mb-3 d-flex align-items-end gap-2">
+                  <div class="col-md-12 text-center gap-2">
                     <button type="button" name="filter" id="filter" class="btn btn-success table-action-btn">
                       <i class="fas fa-search me-1"></i> Search
                     </button>
@@ -166,10 +166,10 @@
               </div>
 
               <!-- Bulk Action Section -->
-              <div class="row mb-3">
+              <div class="row mb-1">
                 <div class="col-12 text-center" style="display: none;" id="approve_rejdiv">
-                  <button type="button" name="bulk_approve" class="btn btn-success btn-lg" id="bulk_approve">
-                    <i class="fas fa-check-circle me-1"></i> Approve/Reject Selected
+                  <button type="button" name="bulk_approve" class="btn btn-success table-action-btn" id="bulk_approve">
+                    <i class="fas fa-check-circle me-1"></i> Bulk Approve/Reject
                   </button>
                 </div>
               </div>
@@ -178,7 +178,7 @@
 
           <!-- Applications List -->
           <div class="card mt-3">
-            <div class="card-header">
+            <div class="card-header card-header-custom">
               <h5 class="card-title mb-0">List of New Applicants</h5>
             </div>
             <div class="card-body">
@@ -223,7 +223,7 @@
         <!-- Personal Details Accordion -->
         <div class="accordion mb-3" id="beneficiaryAccordion">
           <!-- Personal Details -->
-          <div class="accordion-item">
+          <div class="accordion-item singleInfo">
             <h2 class="accordion-header" id="personalHeading">
               <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapsePersonal" aria-expanded="true" aria-controls="collapsePersonal">
                 <i class="fas fa-user me-2"></i>Personal Details
@@ -240,8 +240,7 @@
                         <td id="aadhar_no_encrypt" width="30%">-</td>
                         <td id="aadhar_no_original" style="display:none;" width="30%">-</td>
                         <td width="20%">
-                          <button class="btn btn-outline-info btn-sm showhideAadhar" id="show_hide_aadhar">Show Original Aadhaar
-                          </button>
+                          <button class="btn btn-outline-info btn-sm showhideAadhar" id="show_hide_aadhar">Show Original Aadhaar</button>
                         </td>
                       </tr>
                       <tr>
@@ -286,7 +285,7 @@
           </div>
 
           <!-- Address Details -->
-          <div class="accordion-item">
+          <div class="accordion-item singleInfo">
             <h2 class="accordion-header" id="contactHeading">
               <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseContact" aria-expanded="false" aria-controls="collapseContact">
                 <i class="fas fa-home me-2"></i>Address Details
@@ -330,7 +329,7 @@
           </div>
 
           <!-- Bank Details -->
-          <div class="accordion-item">
+          <div class="accordion-item singleInfo">
             <h2 class="accordion-header" id="bankHeading">
               <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseBank" aria-expanded="false" aria-controls="collapseBank">
                 <i class="fas fa-university me-2"></i>Bank Details
@@ -362,7 +361,7 @@
           </div>
 
           <!-- Enclosure Details -->
-          <div class="accordion-item">
+          <div class="accordion-item singleInfo">
             <h2 class="accordion-header" id="encloserHeading">
               <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseEncloser" aria-expanded="false" aria-controls="collapseEncloser">
                 <i class="fas fa-file-alt me-2"></i>Enclosure Details
@@ -886,18 +885,135 @@ $(document).ready(function() {
     $('#benViewModal').modal('show');
   });
 
-  // Rest of your existing dropdown and filter code remains the same...
-  $('#rural_urban_id').change(function() {
-    // ... existing code
-  });
 
-  $('#created_by_local_body_code').change(function() {
-    // ... existing code
-  });
+    $('#rural_urban_id').change(function() {
+       var filter_1=$(this).val();
+       
+        $('#created_by_local_body_code').html('<option value="">--All --</option>');
+        $('#block_ulb_code').html('<option value="">--All --</option>');
+        select_district_code= $('#dist_code').val();
+       
+        var htmlOption='<option value="">--All--</option>';
+         $('#gp_ward_code').html('<option value="">--All --</option>');
+        if(filter_1==1){
+            $.each(subDistricts, function (key, value) {
+                if((value.district_code==select_district_code)){
+                    htmlOption+='<option value="'+value.id+'">'+value.text+'</option>';
+                }
+            });
+           $("#blk_sub_txt").text('Subdivision');
+           $("#gp_ward_txt").text('Ward');
+           $("#municipality_div").show();
+           $("#gp_ward_div").show();
 
+        }
+        else if(filter_1==2){
+         // console.log(filter_1);
+          $.each(blocks, function (key, value) {
+                if((value.district_code==select_district_code)){
+                    htmlOption+='<option value="'+value.id+'">'+value.text+'</option>';
+                }
+            });
+             $("#blk_sub_txt").text('Block');
+              $("#gp_ward_txt").text('GP');
+             $("#municipality_div").hide();
+            $("#gp_ward_div").show();
+
+        }
+        else{
+           $("#blk_sub_txt").text('Block/Subdivision');
+            $("#gp_ward_txt").text('GP/Ward');
+            $("#municipality_div").hide();
+        }
+        $('#created_by_local_body_code').html(htmlOption);
+       
+    });
+    $('#created_by_local_body_code').change(function() {
+       var rural_urbanid= $('#rural_urban_id').val();
+        $('#gp_ward_code').html('<option value="">--All --</option>');
+       if(rural_urbanid==1){
+       var sub_district_code=$(this).val();
+       if(sub_district_code!=''){
+        $('#block_ulb_code').html('<option value="">--All --</option>');
+        select_district_code= $('#dist_code').val();
+        var htmlOption='<option value="">--All--</option>';
+       // console.log(sub_district_code);
+        //console.log(select_district_code);
+
+          $.each(ulbs, function (key, value) {
+                if((value.district_code==select_district_code) && (value.sub_district_code==sub_district_code)){
+                    htmlOption+='<option value="'+value.id+'">'+value.text+'</option>';
+                }
+            });
+        $('#block_ulb_code').html(htmlOption);
+       }
+       else{
+          $('#block_ulb_code').html('<option value="">--All --</option>');
+       }   
+       } 
+      else if(rural_urbanid==2){
+         $('#muncid').html('<option value="">--All --</option>');
+          $("#municipality_div").hide();
+            var block_code=$(this).val();
+          select_district_code= $('#dist_code').val();
+
+          var htmlOption='<option value="">--All--</option>';
+          $.each(gps, function (key, value) {
+                if((value.district_code==select_district_code) && (value.block_code==block_code)){
+                    htmlOption+='<option value="'+value.id+'">'+value.text+'</option>';
+                }
+          });
+          $('#gp_ward_code').html(htmlOption);
+          $("#gp_ward_div").show();
+      }
+       else{
+          $('#block_ulb_code').html('<option value="">--All --</option>');
+       } 
+  });
   $('#block_ulb_code').change(function() {
-    // ... existing code
-  });
+      var muncid=$(this).val();
+     
+      var district=$("#dist_code").val();
+      var urban_code=$("#rural_urban_id").val();
+      if(district==''){
+        $('#rural_urban_id').val('');
+        $('#created_by_local_body_code').html('<option value="">--All --</option>');
+        $('#block_ulb_code').html('<option value="">--All --</option>'); 
+        
+    }
+    if(urban_code==''){
+        alert('Please Select Rural/Urban First');
+        $('#created_by_local_body_code').html('<option value="">--All --</option>');
+        $('#block_ulb_code').html('<option value="">--All --</option>'); 
+        $("#rural_urban_id").focus();
+    }
+    if(muncid!=''){
+        var rural_urbanid= $('#rural_urban_id').val();
+         
+      if(rural_urbanid==1){
+      
+        $('#gp_ward_code').html('<option value="">--All --</option>');
+        var htmlOption='<option value="">--All--</option>';
+          $.each(ulb_wards, function (key, value) {
+                if(value.urban_body_code==muncid){
+                    htmlOption+='<option value="'+value.id+'">'+value.text+'</option>';
+                }
+            });
+        $('#gp_ward_code').html(htmlOption);
+          //console.log(htmlOption);
+       } 
+    
+       else{
+          $('#gp_ward_code').html('<option value="">--All --</option>');
+          $("#gp_ward_div").hide();
+       } 
+    }
+    else{
+       $('#gp_ward_code').html('<option value="">--All --</option>');
+    }
+    
+    });
+
 
   $('#filter').click(function(){
     dataTable.ajax.reload();
@@ -941,8 +1057,6 @@ $(document).ready(function() {
       $("#aadhar_no_original").hide();
     }       
   });
-
-  // MISSING: Modal close event handler
   $('#encolserModal').on('hidden.bs.modal', function (e) {
     $('#benViewModal').css({
       'overflow': 'auto',
@@ -965,16 +1079,42 @@ $(document).ready(function() {
     }
   });
 
+  // $('#bulk_approve').click(function(){
+  //   // Hide beneficiary details for bulk action
+  //   $(".accordion-item").not('#actionHeading').hide();
+  //   $("#fullForm #is_bulk").val(1);
+  //   $('#fullForm #id').val('');
+  //   $('#fullForm #application_id').val('');
+  //   benid="";
+    
+  //   $('.ben_view_modal').modal('show');
+  // });
+
   $('#bulk_approve').click(function(){
-    // Hide beneficiary details for bulk action
-    $(".accordion-item").not('#actionHeading').hide();
+
+    // bulk mode ON
     $("#fullForm #is_bulk").val(1);
+
+    // Remove any selected beneficiary
     $('#fullForm #id').val('');
     $('#fullForm #application_id').val('');
-    benid="";
-    
+
+    // Hide all beneficiary detail sections
+    $(".singleInfo").hide();
+
+    // Clear all fields inside modal
+    $('.ben_view_body').find('td').html('');
+    $('.ben_view_body').find('input').val('');
+    $('.ben_view_body').find('textarea').val('');
+
+    // Reset operation panel only
+    $("#opreation_type").val('A');
+    $("#div_rejection").hide();
+    $("#verifyReject").html("Approve");
+
+    // Finally open modal without loading beneficiary data
     $('.ben_view_modal').modal('show');
-  });
+});
   
   $(document).on('click', '#verifyReject', function() { 
     var scheme_id = $('#scheme_id').val();
@@ -1075,7 +1215,7 @@ $(document).ready(function() {
             });
           },
           Cancel: function () {
-            // Do nothing
+
           }
         }
       });
@@ -1083,7 +1223,6 @@ $(document).ready(function() {
   });
 });
 
-// CRITICAL MISSING: controlCheckBox function
 function controlCheckBox(){
   var anyBoxesChecked = false;
   var applicantId=Array();
