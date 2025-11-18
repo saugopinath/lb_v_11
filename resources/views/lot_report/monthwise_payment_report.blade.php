@@ -142,7 +142,7 @@
 
                     {{-- Results Table --}}
                     <div class="table-responsive resultDiv mt-4" id="payment_div" style="display:none;">
-                        <table id="tableForPayment" class="data-table table-bordered table-striped"
+                        <table id="tableForPayment" class="data-table"
                             style="border:2px solid #f8f9fa;">
                             <thead class="table-light">
                                 <tr>

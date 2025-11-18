@@ -168,7 +168,7 @@
 
                 {{-- Result Table --}}
                 <div class="table-responsive resultDiv mt-4" id="validation_lot_div">
-                    <table id="tableForLot" class="data-table table-bordered table-striped"
+                    <table id="tableForLot" class="data-table"
                         style="width:100%; border: 1px solid #f8f9fa;">
                         <thead class="table-light" style="font-size:12px;">
                             <tr>

@@ -184,7 +184,7 @@
                     <p id="phase_month_list"></p>
                     <p id="caste_amount_list"></p>
 
-                    <table id="example" class="table table-bordered table-hover table-striped table2excel" cellspacing="0">
+                    <table id="example" class="data-table table2excel" cellspacing="0">
 
                         <thead class="table-light text-center" style="font-size: 13px;">
                             <tr>

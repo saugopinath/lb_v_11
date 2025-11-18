@@ -163,7 +163,7 @@
 
                         <p id="caste_amount_list"></p>
 
-                        <table id="example" class="table table-bordered table-hover table-striped table2excel">
+                        <table id="example" class="data-table  table2excel">
                             <thead class="table-light" style="font-size: 12px;">
                                 <tr>
                                     <th colspan="1"></th>
