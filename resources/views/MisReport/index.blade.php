@@ -108,9 +108,7 @@ scratch. This page gets rid of all links and provides the needed markup only.
   font-size: 9px;
   color: #333;
  }
- #divScrool {
-overflow-x: scroll;
-}
+
   </style>
 
 
@@ -220,21 +218,7 @@ desired effect
                <div class="row">
               
                 
-                
-               <div class="form-group col-md-3">
-             <label for="cars">Please Choose:</label>
-              <select name="ds_phase" id="ds_phase">
-                <optgroup label="Normal Entry">
-                  <option value="0">Normal Entry</option>
-                </optgroup>
-                <optgroup label="Form through Duare Sarkar camp">
-                @foreach($ds_phase_list as $ds_row)
-                            <option value="{{$ds_row->phase_code}}" @if($ds_row->is_current==TRUE) selected @endif>{{$ds_row->phase_des}}</option>
-                          @endforeach
-                </optgroup>
-              </select>
-                          <span id="error_ds_phase" class="text-danger"></span>
-              </div>
+               
               
                             
              
@@ -326,7 +310,30 @@ desired effect
                           </select>
                           <span id="error_caste_category" class="text-danger"></span>
               </div>
+                 <div class="form-group col-md-4">
+                 <label class="">From Date</label>
+                 @php
+                 $max_from = $base_date; // Or can put $today = date ("Y-m-d");
+                 $min_from = $c_date;
+                 @endphp
+                 <input type="date" name="from_date" id="from_date" class="form-control"  tabindex="21"  min="{{$max_from}}"  max="{{$min_from}}"/>
+                 <span id="error_from_date" class="text-danger"></span>
+
+                </div>
+                  <div class="form-group col-md-4">
+                 <label class="">To Date</label>
+                @php
+                 $max_to = $c_date; // Or can put $today = date ("Y-m-d");
+                 $min_to = $base_date;
+                 @endphp
+                  <input type="date" name="to_date" id="to_date" class="form-control"  tabindex="26" min="{{$min_to}}" max="{{$max_to}}" />
+                 <span id="error_to_date" class="text-danger"></span>
+                
+
+                </div>
                  
+ 
+                
               
                   <br />
                   <br />
@@ -358,62 +365,47 @@ desired effect
                <div class="panel-heading" id="heading_msg"><h4><b>Search Result</b></h4></div>
                <div class="panel-body">
 
-                                  <div class="pull-right">Report Generated on:<b><span id="report_generation_text"></span></b></div>
+                                  <div class="pull-right">Report Generated on:<b><?php echo date("l jS \of F Y h:i:s A"); ?></b></div>
 
-<button class="btn btn-info exportToExcel" type="button" >Export to Excel</button><br/><br/><br/>
-<div id="divScrool"> 
-             <table id="example" class="table table-striped table-bordered table2excel" style="width:100%">
-         <thead>
-              <tr>
-              <td colspan="21" align="center" style="display:none;" id="heading_excel">Heading</td>
-              </tr> 
-              <tr> 
-              <th id=""  rowspan="2">Sl No.(A)</th>
-              <th id="location_id" rowspan="2">District</th>
-              <th colspan="3">Total Applicant</th> 
-              <th rowspan="2">Partial Entry(F)</th>
-              <th rowspan="2">Full Entry(G)</th>
-              <th colspan="3">Verified</th> 
-              <th colspan="3">Verification Pending</th>
-              <th colspan="3">Approval Pending</th> 
-              <th colspan="3">Approved</th> 
-              <th  rowspan="2">Reverted(T)</th>
-              <th  rowspan="2">Rejected(U)</th>
-              </tr> 
-              <tr> 
-              <th>Total(C=D+E+J+M)</th> 
-              <th>Normal(D)</th> 
-              <th>Faulty(E)</th> 
 
-              <th>Total(H=I+J)</th> 
-              <th>Normal(I)</th> 
-              <th>Faulty without Doc(J)</th> 
-
-              <th>Total(K=L+M)</th> 
-              <th>Normal(L)</th> 
-              <th>Faulty without Doc(M)</th> 
-
-              <th>Total(N=O+P)</th> 
-              <th>Normal(O)</th> 
-              <th>Faulty without Doc(P)</th> 
-
-              <th>Total(Q=R+S)</th>
-              <th>Normal(R)</th> 
-              <th>Faulty without Doc(S)</th> 
-             
-              </tr> 
-               </thead>
+             <table id="example" class="table table-striped table-bordered" style="width:100%">
+        <thead>
+            <tr>
+                <th id="">Sl No.(A)</th>
+                <th id="location_id" width="25%">District</th>
+                <th>Total Applicant(C=D+E+I+K+L)</th>
+                <th>Partial Entry(D)</th>
+                <th>Full Entry(E)</th>
+                <th>Verified(F=H+I)</th>
+                <th>Verification Pending(G)</th>
+                <th>Approval Pending(H)</th>
+                <th>Approved(I)</th>
+                <th>Reverted(J)</th>
+                <th>Rejected(K)</th>
+                <th>Faulty(L)</th>
+            </tr>
+            
+        </thead>
         <tbody>
             
         </tbody>
         <tfoot>
-        <tr id="fotter_id"></tr>
-        <tr>
-              <td colspan="21" align="center" style="display:none;" id="fotter_excel">Heading</td>
-        </tr> 
+            <tr>
+               <th></th>
+                <th>Total</th>
+                <th>Total Applicant</th>
+                <th>Partial Entry</th>
+                <th>Full Entry</th>
+                <th>Verified</th>
+                <th>Verification Pending</th>
+                <th>Approval Pending</th>
+                <th>Approved</th>
+                <th>Reverted</th>
+                <th>Rejected</th>
+                <th>Faulty</th>
+            </tr>
         </tfoot>
     </table>
-    </div>
                 
               
                  
@@ -487,28 +479,22 @@ desired effect
 <!-- AdminLTE App -->
 <script src="{{ asset ("/bower_components/AdminLTE/dist/js/app.min.js") }}" type="text/javascript"></script>
 <script src="{{ asset("js/jquery.dataTables.min.js") }}"></script>
-<script src="{{ asset("js/jquery.table2excel.js") }}"></script>
-
+<script src="{{ asset("js/dataTables.buttons.min.js") }}"></script>
+<script src="{{ asset("js/buttons.flash.min.js") }}"></script>
+<script src="{{ asset("js/jszip.min.js") }}"></script>
+<script src="{{ asset("js/pdfmake.min.js") }}"></script>
+<script src="{{ asset("js/vfs_fonts.js") }}"></script>
+<script src="{{ asset("js/buttons.html5.min.js") }}"></script>
+<script src="{{ asset("js/buttons.print.min.js") }}"></script>
 <script>
 var base_date='{{$base_date}}';
 var c_date='{{$c_date}}';
 //alert(base_date);
-
 $(document).ready(function(){
   $('.sidebar-menu li').removeClass('active');
   $('.sidebar-menu #lk-main').addClass("active"); 
   $('.sidebar-menu #mis-report').addClass("active"); 
-  //loadDataTable();
-  $(".exportToExcel").click(function(e){
-      // alert('ok');
-			$(".table2excel").table2excel({
-    // exclude CSS class
-    exclude: ".noExl",
-    name: "Worksheet Name",
-    filename: "Lakshmir Bhandar Mis Report", //do not include extension
-    fileext: ".xls" // file extension
-  }); 
-	});
+  loadDataTable();
   $("#from_date").on('blur',function(){ 
       var from_date = $('#from_date').val();
       if(from_date!=''){
@@ -687,21 +673,12 @@ $('#muncid').change(function() {
     });
  $('.modal-search').on('click',function(){
   
-  var ds_phase=$("#ds_phase").val();
-  if(ds_phase!=''){
-    loadDataTable();
-
-  }
-  else{
-    var error_ds_phase='Please Select Duare Sarkar Phase';
-    $("#error_ds_phase").html(error_ds_phase);
-  }
+loadDataTable();
    
   
 });
 });
 function loadDataTable(){
-  var ds_phase=$('#ds_phase').val();
    var district=$('#district').val();
   var urban_code=$('#urban_code').val();
   var block=$('#block').val();
@@ -717,9 +694,8 @@ function loadDataTable(){
         $.ajax({
                 type: 'get',
                 dataType:'json',
-                url: '{{ url('misReportWithFaultyPost') }}',
+                url: '{{ url('misReportPost') }}',
                 data: {
-                  ds_phase: ds_phase,
                   district: district,
                   urban_code: urban_code,
                   block: block,
@@ -734,74 +710,151 @@ function loadDataTable(){
                  
                   //alert(data.title);
                   if(data.return_status){
-                    $('#search_details').show();
+                     $('#search_details').show();
                     $("#heading_msg").html("<h4><b>"+data.heading_msg+"</b></h4>");
-                    $("#heading_excel").html("<b>"+data.heading_msg+"</b>");
-                    $("#fotter_excel").html("<b>"+$('#report_generation_text').text()+"</b>");
                     $("#location_id").text(data.column+'(B)');
-                    $("#report_generation_text").text(data.report_geneartion_time);
+                    if ( $.fn.DataTable.isDataTable('#example') ) {
+                    $('#example').DataTable().destroy();
+                  }
                     $("#example > tbody").html("");
                    var table = $("#example tbody");
                    var slno=1;
-                   var fotter_1=0;var fotter_2=0;var fotter_3=0;var fotter_4=0;var fotter_5=0;var fotter_6=0;
-                   var fotter_7=0;var fotter_8=0;var fotter_9=0;var fotter_10=0;
-                   var fotter_11=0;var fotter_12=0;var fotter_13=0;var fotter_14=0;var fotter_15=0;var fotter_16=0;
-                   var fotter_17=0;var fotter_18=0;var fotter_19=0;
                    $.each(data.row_data, function(i, item) {
                      var partial = isNaN(parseInt(item.partial)) ? 0 : parseInt(item.partial);
                      var full = isNaN(parseInt(item.full)) ? 0 : parseInt(item.full);
                      var verification_pending = isNaN(parseInt(item.verification_pending)) ? 0 : parseInt(item.verification_pending);
-                     var verification_pending_faulty = isNaN(parseInt(item.verification_pending_faulty)) ? 0 : parseInt(item.verification_pending_faulty);
-
                      var verified = isNaN(parseInt(item.verified)) ? 0 : parseInt(item.verified);
-                     var verified_faulty = isNaN(parseInt(item.verified_faulty)) ? 0 : parseInt(item.verified_faulty);
-
                      var approved = isNaN(parseInt(item.approved)) ? 0 : parseInt(item.approved);
-                     var approved_faulty = isNaN(parseInt(item.approved_faulty)) ? 0 : parseInt(item.approved_faulty);
                      var reverted = isNaN(parseInt(item.reverted)) ? 0 : parseInt(item.reverted);
                      var rejected = isNaN(parseInt(item.rejected)) ? 0 : parseInt(item.rejected);
-                    // var faulty = isNaN(parseInt(item.faulty_count)) ? 0 : parseInt(item.faulty_count);
+                     var faulty = isNaN(parseInt(item.faulty_count)) ? 0 : parseInt(item.faulty_count);
                      var verified_sum = verified+approved;
-                     var verified_sum_faulty = verified_faulty+approved_faulty;
-                    
-                     var total = partial + full + approved +  rejected;
-                     var total_faulty = isNaN(parseInt(item.total_faulty)) ? 0 : parseInt(item.total_faulty);
-                     
-                     var total_n_f=total+total_faulty+verified_sum_faulty+verification_pending_faulty;
-                     var verified_sum_n_f=verified_sum+verified_sum_faulty;
-                     var verified_n_f=verified+verified_faulty;
-                     var verification_pending_n_f=verification_pending+verification_pending_faulty;
-                     var approved_n_f=approved+approved_faulty;
+                     //var verification_pending_cal = verification_pending + reverted ;
+                     var verification_pending_cal = verification_pending  ;
 
-                     fotter_1=fotter_1+total_n_f;
-                     fotter_2=fotter_2+total;
-                     fotter_3=fotter_3+total_faulty;
-                     fotter_4=fotter_4+partial;
-                     fotter_5=fotter_5+full;
-                     fotter_6=fotter_6+verified_sum_n_f;
-                     fotter_7=fotter_7+verified_sum;
-                     fotter_8=fotter_8+verified_sum_faulty;
-                     fotter_9=fotter_9+verification_pending_n_f;
-                     fotter_10=fotter_10+verification_pending;
-                     fotter_11=fotter_11+verification_pending_faulty;
-                     fotter_12=fotter_12+verified_n_f;
-                     fotter_13=fotter_13+verified;
-                     fotter_14=fotter_14+verified_faulty;
-                     fotter_15=fotter_15+approved_n_f;
-                     fotter_16=fotter_16+approved;
-                     fotter_17=fotter_17+approved_faulty;
-                     fotter_18=fotter_18+reverted;
-                     fotter_19=fotter_19+rejected;
-                     table.append("<tr><td>"+(i+1)+"</td><td>"+item.location_name+"</td><td>"+total_n_f+"</td><td>"+total+"</td><td>"+total_faulty+"</td><td>"+partial+"</td><td>"+full+"</td><td>"+verified_sum_n_f+"</td><td>"+verified_sum+"</td><td>"+verified_sum_faulty+"</td><td>"+verification_pending_n_f+"</td><td>"+verification_pending+"</td><td>"+verification_pending_faulty+"</td><td>"+verified_n_f+"</td><td>"+verified+"</td><td>"+verified_faulty+"</td><td>"+approved_n_f+"</td><td>"+approved+"</td><td>"+approved_faulty+"</td><td>"+reverted+"</td><td>"+rejected+"</td></tr>");
+                     var full_cal = full + verification_pending+approved+reverted+rejected ;
+
+                     var total = partial + full + approved +  rejected+faulty;
+                     table.append("<tr><td>"+(i+1)+"</td><td>"+item.location_name+"</td><td>"+total+"</td><td>"+partial+"</td><td>"+full+"</td><td>"+verified_sum+"</td><td>"+verification_pending_cal+"</td><td>"+verified+"</td><td>"+approved+"</td><td>"+reverted+"</td><td>"+rejected+"</td><td>"+faulty+"</td></tr>");
                       //slno++;
 
                   });
                   
-                  $("#example > tfoot #fotter_id").html("<th></th><th>Total</th><th>"+fotter_1+"</th><th>"+fotter_2+"</th><th>"+fotter_3+"</th><th>"+fotter_4+"</th><th>"+fotter_5+"</th><th>"+fotter_6+"</th><th>"+fotter_7+"</th><th>"+fotter_8+"</th><th>"+fotter_9+"</th><th>"+fotter_10+"</th><th>"+fotter_11+"</th><th>"+fotter_12+"</th><th>"+fotter_13+"</th><th>"+fotter_14+"</th><th>"+fotter_15+"</th><th>"+fotter_16+"</th><th>"+fotter_17+"</th><th>"+fotter_18+"</th><th>"+fotter_19+"</th>");
+
                   //$('#example tbody').empty();
                    $("#example").show();
-                 
-               
+                   $('#example').dataTable({
+                     "paging":   false,
+                     "ordering": false,
+                     "info":     false,
+                      "scrollX": true,
+                      "dom": 'Bfrtip',
+                      "buttons": [
+                                'copy',
+                                {
+                                    extend: 'excel',
+                                    footer: true ,
+                                    title: data.title,
+                                    messageTop: data.heading_msg
+                                },
+                                {
+                                    extend: 'pdf',
+                                    title: data.title,
+                                    footer: true ,
+                                    messageTop: data.heading_msg
+                                }
+                                
+                            ],
+                  "footerCallback": function ( row, data, start, end, display ) {
+                        var api = this.api(), data;
+            
+                        // converting to interger to find total
+                        var intVal = function ( i ) {
+                            return typeof i === 'string' ?
+                                i.replace(/[\$,]/g, '')*1 :
+                                typeof i === 'number' ?
+                                    i : 0;
+                        };
+            
+                        // computing column Total of the complete result 
+                 var fotter_2 = api
+                            .column( 2 )
+                            .data()
+                            .reduce( function (a, b) {
+                                return intVal(a) + intVal(b);
+                            }, 0 );
+                    
+                  var fotter_3 = api
+                            .column( 3 )
+                            .data()
+                            .reduce( function (a, b) {
+                                return intVal(a) + intVal(b);
+                            }, 0 );
+                  var fotter_4 = api
+                            .column( 4 )
+                            .data()
+                            .reduce( function (a, b) {
+                                return intVal(a) + intVal(b);
+                            }, 0 );
+                    
+                  var fotter_5 = api
+                            .column( 5 )
+                            .data()
+                            .reduce( function (a, b) {
+                                return intVal(a) + intVal(b);
+                            }, 0 );
+                  
+                    var fotter_6 = api
+                            .column( 6 )
+                            .data()
+                            .reduce( function (a, b) {
+                                return intVal(a) + intVal(b);
+                            }, 0 );  
+                  var fotter_7 = api
+                            .column( 7 )
+                            .data()
+                            .reduce( function (a, b) {
+                                return intVal(a) + intVal(b);
+                            }, 0 );  
+                  var fotter_8 = api
+                            .column( 8 )
+                            .data()
+                            .reduce( function (a, b) {
+                                return intVal(a) + intVal(b);
+                            }, 0 );  
+                var fotter_9 = api
+                            .column( 9 )
+                            .data()
+                            .reduce( function (a, b) {
+                                return intVal(a) + intVal(b);
+                            }, 0 );  
+                var fotter_10 = api
+                            .column( 10 )
+                            .data()
+                            .reduce( function (a, b) {
+                                return intVal(a) + intVal(b);
+                            }, 0 );  
+                var fotter_11 = api
+                            .column( 11 )
+                            .data()
+                            .reduce( function (a, b) {
+                                return intVal(a) + intVal(b);
+                            }, 0 );  
+                        // Update footer by showing the total with the reference of the column index 
+                        $( api.column( 0 ).footer() ).html('');
+                        $( api.column( 1 ).footer() ).html('Total');
+                        $( api.column( 2 ).footer() ).html(fotter_2);
+                        $( api.column( 3 ).footer() ).html(fotter_3);
+                        $( api.column( 4 ).footer() ).html(fotter_4);
+                        $( api.column( 5 ).footer() ).html(fotter_5);
+                        $( api.column( 6 ).footer() ).html(fotter_6);
+                        $( api.column( 7 ).footer() ).html(fotter_7);
+                        $( api.column( 8 ).footer() ).html(fotter_8);
+                        $( api.column( 9 ).footer() ).html(fotter_9);
+                        $( api.column( 10 ).footer() ).html(fotter_10);
+                        $( api.column( 11 ).footer() ).html(fotter_11);
+                    }
+                } );
                   }
                   else{
                      $('#search_details').hide();
@@ -813,7 +866,6 @@ function loadDataTable(){
 
                 },
                 error: function (ex) {
-                  //console.log(ex);
                   $("#submit_loader1").hide();
                   //$("#submitting").hide();
                   $("#submitting").show();

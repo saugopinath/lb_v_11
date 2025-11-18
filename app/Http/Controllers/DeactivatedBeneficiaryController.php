@@ -8,24 +8,23 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Session;
-use App\Models\User;
 use App\Models\Configduty;
+use App\Models\User;
 use App\Models\getModelFunc;
 use App\Models\District;
 use App\Models\UrbanBody;
 use App\Models\Assembly;
-use App\TModels\aluka;
+use App\Models\Taluka;
 use App\Models\Ward;
 use App\Models\GP;
 use App\Models\SchemeDocMap;
 use App\Models\DocumentType;
 use App\Helpers\Helper;
-use App\Models\DataSourceCommon;
 use App\Models\DsPhase;
-use App\Models\RejectRevertReason;
+use App\Models\DataSourceCommon;
 use App\Models\Scheme;
+use App\Models\RejectRevertReason;
 use Carbon\Carbon;
-use Yajra\DataTables\Facades\DataTables;
 class DeactivatedBeneficiaryController extends Controller
 {
   public function __construct()
@@ -71,8 +70,8 @@ class DeactivatedBeneficiaryController extends Controller
         if (!empty($beneficiary_id) || !empty($application_id) || !empty($ss_card_no)) {
           $query = "(select md.district_name, bl_div.block_subdiv_name, bp.ben_fname,bp.ben_mname, bp.ben_lname,bp.beneficiary_id, bp.mobile_no,bp.ss_card_no, bp.application_id, bp.next_level_role_id, bc.block_ulb_name,bc.gp_ward_name, bc.rural_urban_id, bb.bank_code,bb.bank_ifsc, bp.ds_phase,bp.dob,to_char(bp.dob + interval '60 year','yymm')::smallint as end_yymm from lb_scheme.ben_personal_details bp
             JOIN lb_scheme.ben_contact_details bc ON bp.beneficiary_id=bc.beneficiary_id
-            JOIN lb_scheme.ben_bank_details bb ON bb.beneficiary_id=bp.beneficiary_id 
-            JOIN public.m_district md ON md.district_code=bp.created_by_dist_code 
+            JOIN lb_scheme.ben_bank_details bb ON bb.beneficiary_id=bp.beneficiary_id
+            JOIN public.m_district md ON md.district_code=bp.created_by_dist_code
             JOIN (select block_code as block_subdiv_code,block_name as block_subdiv_name from public.m_block UNION ALL
               select sub_district_code as block_subdiv_code, sub_district_name as block_subdiv_name from public.m_sub_district
             ) bl_div ON bl_div.block_subdiv_code=bp.created_by_local_body_code
@@ -92,8 +91,8 @@ class DeactivatedBeneficiaryController extends Controller
           $query .= ') UNION ALL ';
           $query .= "(select md.district_name, bl_div.block_subdiv_name, bp.ben_fname,bp.ben_mname, bp.ben_lname,bp.beneficiary_id, bp.mobile_no,bp.ss_card_no, bp.application_id, bp.next_level_role_id, bc.block_ulb_name,bc.gp_ward_name,bc.rural_urban_id, bb.bank_code,bb.bank_ifsc, bp.ds_phase,bp.dob,to_char(bp.dob + interval '60 year','yymm')::smallint as end_yymm from lb_scheme.faulty_ben_personal_details bp
             JOIN lb_scheme.faulty_ben_contact_details bc ON bp.beneficiary_id=bc.beneficiary_id
-            JOIN lb_scheme.faulty_ben_bank_details bb ON bb.beneficiary_id=bp.beneficiary_id 
-            JOIN public.m_district md ON md.district_code=bp.created_by_dist_code 
+            JOIN lb_scheme.faulty_ben_bank_details bb ON bb.beneficiary_id=bp.beneficiary_id
+            JOIN public.m_district md ON md.district_code=bp.created_by_dist_code
             JOIN (select block_code as block_subdiv_code,block_name as block_subdiv_name from public.m_block UNION ALL
               select sub_district_code as block_subdiv_code, sub_district_name as block_subdiv_name from public.m_sub_district
             ) bl_div ON bl_div.block_subdiv_code=bp.created_by_local_body_code
@@ -165,7 +164,7 @@ class DeactivatedBeneficiaryController extends Controller
                 }
               }
               $current_yymm = date('ym');
-              if ($data->end_yymm <= $current_yymm) { 
+              if ($data->end_yymm <= $current_yymm) {
                 $monthYear = Config::get('constants.month_list.' . substr($data->end_yymm, 2, 2)) . ' - 20' . substr($data->end_yymm, 0, 2);
                 $action = '<p class="text-primary"><b>Beneficiary age exceeded <br>60 years on ' . $monthYear . '</b></p>';
               }
@@ -300,7 +299,7 @@ class DeactivatedBeneficiaryController extends Controller
         $is_aadhar_update = 0;
         if (isset($getAadharDetailsObj)) {
           $updateAadhaarDetails = [
-            'aadhar_hash_adj' => $getAadharDetailsObj->aadhar_hash,
+            'aadhar_hash_adj' => trim($getAadharDetailsObj->aadhar_hash),
             'aadhar_hash' => null,
             'action_by' => Auth::user()->id,
             'action_ip_address' => request()->ip(),
@@ -360,7 +359,7 @@ class DeactivatedBeneficiaryController extends Controller
         // New 16-12-2021
         $in_pension_id = 'ARRAY[' . "'$application_id'" . ']';
         if ($getFaultyObj->faulty_status) {
-          
+
           //$reject_fun = DB::connection('pgsql_appwrite')->select("select lb_scheme.rejected_approved_beneficiary_faulty(" . $in_pension_id . "," . $reason . ",'" . $comments . "')");
           $reject_fun = DB::connection('pgsql_appwrite')->select("select lb_scheme.rejected_approved_beneficiary_faulty(in_application_id => $in_pension_id,in_action_by => $user_id,in_ip_address => '".request()->ip()."', in_action_type => '".class_basename(request()->route()->getAction()['controller'])."',rejected_cause => " . $reason . ",comment_message => '" . $comments . "')");
 
@@ -472,7 +471,7 @@ class DeactivatedBeneficiaryController extends Controller
       }
       $query = '';
       $query = "select * from lb_scheme.ben_personal_details bp
-        JOIN lb_scheme.ben_contact_details bc ON bp.beneficiary_id=bc.beneficiary_id 
+        JOIN lb_scheme.ben_contact_details bc ON bp.beneficiary_id=bc.beneficiary_id
         where bp.next_level_role_id=-99 ";
       if (!is_null($finalDistCode)) {
         $query .= " and bp.created_by_dist_code=" . $finalDistCode . " ";
@@ -546,46 +545,14 @@ class DeactivatedBeneficiaryController extends Controller
   public function listReport(Request $request)
   {
     try {
-        $scheme_id = $this->scheme_id;
-        $roleArray = $request->session()->get('role');
-        $designation_id = Auth::user()->designation_id;
-        $user_id = Auth::user()->id;
-        $urban_body_code = '';
-        foreach ($roleArray as $roleObj) {
-            if ($roleObj['scheme_id'] == $scheme_id) {
-                $is_active = 1;
-                $mapping_level = $roleObj['mapping_level'];
-                if($mapping_level=='District'){
-                  $is_rural_visible=1;
-                  $block_munc_visible=1;
-                }
-                $is_urban = $roleObj['is_urban'];
-                $distCode = $roleObj['district_code'];
-                if ($roleObj['is_urban'] == 1) {
-                    $block_munc_visible=1;
-                    $block_munc_text='Municipality';
-                    $gp_ward_text='WARD';
-                    $blockCode = $roleObj['urban_body_code'];
-                    $urban_body_code = $roleObj['urban_body_code'];
-                    $block_munc_list = UrbanBody::select('urban_body_code as code','urban_body_name as name')->where('sub_district_code', $blockCode)->get();
-                } else if ($roleObj['is_urban'] == 2) {
-                    $gp_ward_text='GP';
-                    $blockCode = $roleObj['taluka_code'];
-                    $urban_body_code = $blockCode;
-                    $block_ulb_code=$blockCode;
-                    $gp_ward_list = GP::select('gram_panchyat_code as code','gram_panchyat_name as name')->where('block_code', $blockCode)->get();
-                }
-                break;
-            }
-        }
      // $ds_phase_list = Config::get('constants.ds_phase.phaselist');
-         $ds_phase_list = DsPhase::get()->pluck('phase_des', 'phase_code');
+     $ds_phase_list = DsPhase::get()->pluck('phase_des', 'phase_code');
 
+     if ($this->schemeSessionCheck($request)) {
          $mappingLevel = $request->session()->get('level');
          $role_name = Auth::user()->designation_id;
          //$rejection_cause_list = Config::get('constants.rejection_cause');
          $rejection_cause_list = RejectRevertReason::where('status', true)->get()->toArray();
-         $designation_id = Auth::user()->designation_id;
          $is_rural_visible = 0;
          $urban_visible = 0;
          $munc_visible = 0;
@@ -594,12 +561,44 @@ class DeactivatedBeneficiaryController extends Controller
          $gpwardList = collect([]);
          $modelName = new DataSourceCommon;
          $getModelFunc = new getModelFunc();
-        
+         $caste = $request->caste;
+         $block_ulb_code = $request->block_ulb_code;
+         $gp_ward_code = $request->gp_ward_code;
          $download_excel = 1;
-        
+         if ($role_name == 'Approver' ||  $role_name == 'Delegated Approver'
+         ) {
+             $is_urban = $request->rural_urbanid;
+             $district_code = $request->session()->get('distCode');
+             $urban_body_code = $request->urban_body_code;
+             $block_ulb_code = $request->block_ulb_code;
+             $is_rural_visible = 1;
+             $urban_visible = 1;
+             $munc_visible = 1;
+             $gp_ward_visible = 1;
+         } else if ($role_name == 'Verifier' || $role_name == 'Delegated Verifier' || $role_name == 'Operator') {
+             $district_code = $request->session()->get('distCode');
+             if ($mappingLevel == 'Block') {
+                 $block_ulb_code = NULL;
+                 $is_rural_visible = 0;
+                 $is_urban = 2;
+                 $munc_visible = 0;
+                 $urban_body_code = $request->session()->get('bodyCode');
+                 $block_ulb_code = NULL;
+                 $gpwardList = GP::where('block_code', $urban_body_code)->get();
+                 $gp_ward_visible = 1;
+             } else if ($mappingLevel == 'Subdiv') {
+                 $block_ulb_code = $request->block_ulb_code;
+                 $urban_body_code = $request->session()->get('bodyCode');
+                 $is_rural_visible = 0;
+                 $is_urban = 1;
+                 $munc_visible = 1;
+                 $gp_ward_visible = 1;
+                 $muncList = UrbanBody::where('sub_district_code', $urban_body_code)->get();
+                 $block_ulb_code = $request->block_ulb_code;
+             }
+         }
          $condition = array();
          $report_type=$request->report_type;
-          //dd($report_type);
          if ($report_type == 'D') {
           $report_type_name = 'Deacivated Beneficiary List';
 
@@ -616,131 +615,146 @@ class DeactivatedBeneficiaryController extends Controller
          $Table = 'lb_scheme.ben_reject_details';
          $modelName->setConnection('pgsql_appread');
          $modelName->setTable('' . $Table);
-         $condition[$Table . ".created_by_dist_code"] = $distCode;  
-         if(in_array($designation_id, array('Operator','Verifier','Delegated Verifier'))){
-            $condition[$Table . ".created_by_local_body_code"] = $blockCode;
-         }
-        
+
+
          if (request()->ajax()) {
-            $searchValue = trim($request->search['value'] ?? '');
-            $ds_phase    = trim($request->ds_phase ?? '');
-            $rural_urbanid     = trim($request->rural_urbanid ?? '');
-            $urban_body_code     = trim($request->urban_body_code ?? '');
-            $block_ulb_code     = trim($request->block_ulb_code ?? '');
-            $gp_ward_code  = trim($request->gp_ward_code ?? '');
-            $report_type  = trim($request->report_type ?? '');
-            $query = $modelName
-                ->where($condition)
-                ->select([
-                    $Table . '.created_by_dist_code as created_by_dist_code',
-                    $Table . '.application_id as application_id',
-                    $Table . '.ds_phase as ds_phase',
-                    $Table . '.ben_fname as ben_fname',
-                    $Table . '.ben_mname as ben_mname',
-                    $Table . '.ben_lname as ben_lname',
-                    $Table . '.father_fname as father_fname',
-                    $Table . '.father_mname as father_mname',
-                    $Table . '.father_lname as father_lname',
-                    $Table . '.mobile_no as mobile_no',
-                    $Table . '.caste as caste',
-                    $Table . '.block_ulb_name as block_ulb_name',
-                    $Table . '.gp_ward_name as gp_ward_name',
-                    $Table . '.village_town_city as village_town_city',
-                    $Table . '.bank_ifsc as bank_ifsc',
-                    $Table . '.bank_code as bank_code',
-                    $Table . '.rejected_cause as rejected_cause',
-                    $Table . '.next_level_role_id as next_level_role_id',
 
-                ]);
-          
+             if (!empty($request->ds_phase)) {
+                 $condition["ds_phase"] = $request->ds_phase;
+             }
 
-           
-           
-            if ($ds_phase !== '') {
-                if($ds_phase==0){
-                 $query->whereRaw(" (".$Table.".ds_phase=0 or ".$Table.".ds_phase IS NULL");
-                }
-                $query->whereRaw(" (".$Table.".ds_phase=".$ds_phase." or ".$Table.".mark_ds_phase=".$ds_phase."");
-            }
-            if (!empty($rural_urbanid)) {
-                $query->where($Table . ".rural_urban_id", $rural_urbanid);
-            }
-            if (!empty($urban_body_code)) {
-                $query->where($Table . ".created_by_local_body_code", $urban_body_code);
-            }
-            if (!empty($block_ulb_code)) {
-                $query->where($Table . ".block_ulb_code", $block_ulb_code);
-            }
-            if (!empty($gp_ward_code)) {
-                $query->where($Table . ".gp_ward_code", $gp_ward_code);
-            }
+             // District Filter
+             if (!empty($district_code)) {
+                 $condition[$Table .".created_by_dist_code"] = $district_code;
+             }
+             //dd();
+             if (!empty($is_urban)) {
+                 // $condition[$contact_table . ".rural_urban_id"] = $is_urban;
+                 if ($is_urban == 2) {
+                     if (!empty($urban_body_code)) {
+                         //$condition["rural_urban_id"] = 2;
+                         $condition[$Table .".created_by_local_body_code"] = $urban_body_code;
+                     }
+                 }
+                 //'Urban'
+                 if ($is_urban == 1) {
+                     if (!empty($urban_body_code)) {
+                         //$condition["rural_urban_id"] = 1;
+                         $condition[$Table .".created_by_local_body_code"] = $urban_body_code;
+                     }
+                     if (!empty($block_ulb_code)) {
+                         $condition[$Table .".block_ulb_code"] = $block_ulb_code;
+                     }
+                 }
+             }
+             if (!empty($gp_ward_code)) {
+                 $condition[$Table .".gp_ward_code"] = $gp_ward_code;
+             }
+
+
+
+
+             $serachvalue = $request->search['value'];
+             $limit = $request->input('length');
+             $offset = $request->input('start');
+
+             $totalRecords = 0;
+             $filterRecords = 0;
+             $data = array();
+             // $model_name = $request->session()->get('model_name');
+             $query = $modelName->where($condition);
+             //$query = $query->leftjoin($logTable, $logTable . '.application_id', '=', $Table . '.application_id');
+
+            //$query = $query->leftjoin('public.users as u', 'u.id', '=', $logTable . '.created_by');
             if ($report_type == 'D') {
-               $query->where($Table .'.next_level_role_id',-99);
-              
+              $query = $query->where($Table .'.next_level_role_id',-99);
              // $query = $query->where('op_type','RA');
               //$report_type_name = 'Deacivated Beneficiary List';
-  
+
             }
             else if ($report_type == 'R') {
-              $query->where($Table .'.next_level_role_id',-400);
+              $query = $query->where($Table .'.next_level_role_id',-400);
              // $query = $query->where('op_type','VR')->where('rejected_reverted_cause',3);
               //$report_type_name = 'Name Validation Rejection';
-  
+
             }
             else{
              // $report_type_name = 'Deacivated/Name Validation Rejection';
               $query = $query->whereIn($Table .'.next_level_role_id',[-400,-99]);
               //$query = $query->whereIN('op_type',['RA','VR']);
             }
-// dd($query->toSql());
-            // Yajra v12 DataTables (NO manual offset/limit/count)
-            return DataTables::eloquent($query)
-                ->filter(function ($q) use ($searchValue, $Table) {
-                    if ($searchValue == '') {
-                        return;
-                    }   
+           // dd($query->tosql());
+             if (empty($serachvalue)) {
+                 $totalRecords = $query->count($Table . '.application_id');
+                 // dd($query);
+                 $data = $query->orderBy($Table . '.ben_fname')->orderBy('gp_ward_name')->offset($offset)->limit($limit)->get();
+                 // dd($data);
+             } else {
+                 if (preg_match('/^[0-9]*$/', $serachvalue)) {
+                     $query = $query->where(function ($query1) use ($serachvalue, $Table) {
+                         if (strlen($serachvalue) < 10) {
+                             $query1->where($Table . '.application_id', $serachvalue);
+                         } else if (strlen($serachvalue) == 10) {
+                             $query1->where($Table . '.mobile_no', $serachvalue);
+                         } else if (strlen($serachvalue) == 17) {
+                             $query1->where('ss_card_no', $serachvalue);
+                         } else if (strlen($serachvalue) == 20) {
+                             $query1->where('duare_sarkar_registration_no', $serachvalue);
+                         }
+                     });
+                     $totalRecords = $query->count($Table . '.application_id');
+                     $data = $query->orderBy($Table . '.ben_fname')->orderBy('gp_ward_name')->offset($offset)->limit($limit)->get();
+                 } else {
+                     $query = $query->where(function ($query1) use ($serachvalue) {
+                         $query1->where('ben_fname', 'like', $serachvalue . '%');
+                     });
+                     $totalRecords = $query->count($Table . '.application_id');
+                     $data = $query->orderBy($Table . '.ben_fname')->orderBy('gp_ward_name')->offset($offset)->limit($limit)->get(
 
-                    // $sv = trim($searchValue);
-                    // if (is_numeric($sv)) {
-                    //     $q->where(function ($sub) use ($sv, $personal_table) {
-                    //         $sub->where("{$personal_table}.application_id", (int)$sv)
-                    //             ->orWhereRaw("CAST({$personal_table}.mobile_no AS TEXT)", [$sv]);
-                    //     });
-                    // } else {
-                    //     $q->where(function ($sub) use ($sv, $personal_table) {
-                    //         $sub->where("{$personal_table}.ben_fname", 'ilike', $sv . '%');
-                    //     });
-                    // }
+        );
+                 }
+                 $filterRecords = count($data);
+             }
 
-                    
-                    if (is_numeric($searchValue)) {
-                        
-                       $q->where(function ($q) use ($Table, $searchValue) {
-                            // Cast columns to TEXT and compare as string to avoid integer overflow
-                            $q->whereRaw("CAST({$Table}.application_id AS TEXT) = ?", [$searchValue])
-                                ->orWhereRaw("CAST({$Table}.mobile_no AS TEXT) = ?", [$searchValue]);
-                        });
-                        // dd($q->tosql());
-                    } else {
-                        // dd('kii');
-                        $q->Where(function ($q) use ($Table, $searchValue) {
-                            $q->orWhere($Table . '.ben_fname', 'ilike', $searchValue . '%');
-                        });
-                        return $q;
-                        // dd($q->tosql());
-                    }
-                    // dd($q->tosql());
-                }, true)
-                ->addColumn('name', function ($data) {
+             return datatables()
+                 ->of($data)
+                 ->setTotalRecords($totalRecords)
+                 ->setFilteredRecords($filterRecords)
+                 ->skipPaging()
+                 ->addColumn('application_id', function ($data) use ($report_type) {
+
+                     return $data->application_id;
+                 })
+                 ->addColumn('name', function ($data) {
                      return ($data->ben_fname . ' ' . $data->ben_mname . ' ' . $data->ben_lname);
+                 })->addColumn('ss_card_no', function ($data) {
+                     return $data->ss_card_no;
+                 })
+                 ->addColumn('ben_fname', function ($data) {
+                     return $data->ben_fname;
+                 })
+                 ->addColumn('ben_mname', function ($data) {
+                     return $data->ben_mname;
+                 })
+                 ->addColumn('ben_lname', function ($data) {
+                     return $data->ben_lname;
+                 })->addColumn('father_fname', function ($data) {
+                     return $data->father_fname;
+                 })->addColumn('father_mname', function ($data) {
+                     return $data->father_mname;
+                 })->addColumn('father_lname', function ($data) {
+                     return $data->father_lname;
                  })->addColumn('father_name', function ($data) {
                      return ($data->father_fname . ' ' . $data->father_mname . ' ' . $data->father_lname);
                  })->addColumn('mobile_no', function ($data) {
-                     return $data->mobile_no;
+                     return $data->applicant_mobile_no;
+                 })
+                 ->addColumn('duare_sarkar_registration_no', function ($data) {
+                     return $data->duare_sarkar_registration_no;
                  })->addColumn('applicant_mobile_no', function ($data) use ($report_type) {
-                     
+
                          return $data->applicant_mobile_no;
-                     
+
                  })->addColumn('rejected_type', function ($data) use ($report_type) {
                    $rejected_type='Deactivated/Name Validation Rejection';
                    if($data->next_level_role_id==-99)
@@ -748,7 +762,7 @@ class DeactivatedBeneficiaryController extends Controller
                    else if($data->next_level_role_id==-400)
                    $rejected_type='Name Validation';
                    return $rejected_type;
-               
+
                })->addColumn('rejected_reason', function ($data) use ($report_type, $rejection_cause_list) {
                         $description='';
                          foreach ($rejection_cause_list as $rejArr) {
@@ -758,22 +772,21 @@ class DeactivatedBeneficiaryController extends Controller
                              }
                          }
                          return $description;
-                     
+
                  })->addColumn('rejected_by', function ($data) use ($report_type) {
-                  $rejected_by_row = DB::select("select created_by,created_at from lb_scheme.ben_accept_reject_info 
-                  where application_id=" . $data->application_id . " and trim(op_type) IN ('RA','VR')  order by id limit 1"); 
+                  $rejected_by_row = DB::select("select created_by,created_at from lb_scheme.ben_accept_reject_info
+                  where application_id=" . $data->application_id . " and trim(op_type) IN ('RA','VR')  order by id limit 1");
                   if (!empty($rejected_by_row)) {
-                    
+
                   $return_text='Rejected by the Approver on '.$rejected_by_row[0]->created_at;
-                   
+
                     return $return_text;
                   }
                   else{
                     return 'NA';
                   }
-          
+
                 })->make(true);
-             
          } else {
              $errormsg = Config::get('constants.errormsg');
              $scheme_name_arr = Scheme::select('scheme_name')->where('id', $this->scheme_id)->first();
@@ -797,11 +810,13 @@ class DeactivatedBeneficiaryController extends Controller
                  ->with('ds_phase_list',  $ds_phase_list)
                  ->with('download_excel',  $download_excel);
          }
-     
+     } else {
+         return redirect('/')->with('error', 'User not Authorized for this scheme');
+     }
     }
     catch (\Exception $e) {
-      dd($e);
-      }
+     // dd($e);
+   }
     }
     public function generate_excel(Request $request)
     {
@@ -860,13 +875,13 @@ class DeactivatedBeneficiaryController extends Controller
               $query = $query->where($Table .'.next_level_role_id',-99);
              // $query = $query->where('op_type','RA');
               //$report_type_name = 'Deacivated Beneficiary List';
-  
+
             }
             else if ($report_type == 'R') {
               $query = $query->where($Table .'.next_level_role_id',-400);
              // $query = $query->where('op_type','VR')->where('rejected_reverted_cause',3);
               //$report_type_name = 'Name Validation Rejection';
-  
+
             }
             else{
              // $report_type_name = 'Deacivated/Name Validation Rejection';
@@ -924,25 +939,25 @@ class DeactivatedBeneficiaryController extends Controller
                         $f_bank_code = "'$bank_code'";
                     else
                         $f_bank_code = '';
-                    
+
                     $phase_des = $this->getPhaseDes($row->ds_phase);
                     //$rejected_type='Deactivated/Name Validation Rejection';
                     if($row->next_level_role_id==-99)
                     $rejected_type='Deactivated';
                     else if($row->next_level_role_id==-400)
                     $rejected_type='Name Validation';
-                   /* $rejected_by_row = DB::select("select created_by,created_at from lb_scheme.ben_accept_reject_info 
-                  where application_id=" . $row->application_id . " and trim(op_type) IN ('RA','VR')  order by id limit 1"); 
+                   /* $rejected_by_row = DB::select("select created_by,created_at from lb_scheme.ben_accept_reject_info
+                  where application_id=" . $row->application_id . " and trim(op_type) IN ('RA','VR')  order by id limit 1");
                   if (!empty($rejected_by_row)) {
                     $reject_text='';
-                    $rejected_by_user_row = DB::select("select mobile_no from public.users  where id=" . $rejected_by_row[0]->created_by."  limit 1"); 
+                    $rejected_by_user_row = DB::select("select mobile_no from public.users  where id=" . $rejected_by_row[0]->created_by."  limit 1");
                     if (!empty($rejected_by_user_row)) {
                       $reject_text='Rejected by the User with Mobile No.'.$rejected_by_user_row[0]->mobile_no.' on '.$rejected_by_row[0]->created_at;
                     }
                     else{
                       $reject_text='NA';
                     }
-                   
+
                   }
                   else{
                     $reject_text='NA';

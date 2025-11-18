@@ -150,6 +150,7 @@ class BeneficiaryCommonController extends Controller
   }
   public function getAadhaarApproved(Request $request)
   { //echo 1;die;
+    // dd($request->all());
     $statusCode = 200;
     $response = [];
     $benid = $request->benid;
@@ -167,6 +168,7 @@ class BeneficiaryCommonController extends Controller
         return response()->json($response, $statusCode);
       }
       if (!empty($benid)) {
+        // dd($benid);
         $this->shemeSessionCheck($request);
         $district_code = $request->session()->get('distCode');
         $is_urban = $request->session()->get('is_urban');
@@ -622,6 +624,6 @@ class BeneficiaryCommonController extends Controller
       //$diff = $this->ageCalculate($dob);
       $diff = Carbon::parse($dob)->diffInYears($this->base_dob_chk_date);
     }
-    return $diff;
+    return intval($diff);
   }
 }

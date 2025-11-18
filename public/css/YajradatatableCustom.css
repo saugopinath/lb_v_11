@@ -54,9 +54,14 @@
     vertical-align: middle;
     transition: all 0.3s ease;
 }
+.dataTable td, .dataTable th, .dt-type-numeric {
+    text-align: center;
+}
 
 .data-table tbody tr {
     transition: all 0.3s ease;
+    text-align: center;
+    
 }
 
 .data-table tbody tr:hover {

@@ -17,9 +17,7 @@
     <script src="{{ asset('datatable/js/dataTables.buttons.min.js') }}"></script>
     <script src="{{ asset('datatable/js/buttons.html5.min.js') }}"></script>
     <script src="{{ asset('datatable/js/buttons.print.min.js') }}"></script>
-    {{-- <script src="{{ asset('/bower_components/AdminLTE/plugins/jQuery/jquery-3.7.1.min.js') }}"></script> --}}
     <script src="{{ asset('js/select2.full.min.js') }}"></script>
-    <script src="{{ URL::asset('js/master-data-v2.js') }}"></script>
     <script src="{{ asset('js/jquery.table2excel.js') }}"></script>
     <script>
         (function($) {

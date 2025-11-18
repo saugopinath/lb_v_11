@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use DateTime;
 use Illuminate\Http\Request;
 use App\Models\Scheme;
 
@@ -2016,7 +2015,7 @@ class casteManagementController extends Controller
                             if ($app_row->is_faulty == true) {
                                 $approval_date = DB::connection('pgsql_appread')->table('lb_scheme.faulty_ben_personal_details')->select('approval_date')->where('application_id', $app_row->application_id)->first();
                             }
-                            $date = new DateTime($approval_date->approval_date);
+                            $date = new DateTime($approval_date);
                             $benaleady_category_changed = $payment_model_already->where('application_id', $app_row->application_id)->count();
                             if ($benaleady_category_changed == 0) {
                                 $payment_model_effective1 = new DataSourceCommon;
@@ -2138,13 +2137,13 @@ class casteManagementController extends Controller
                         }
                         // dump($new_effective_year);
                         // dd($new_effective_month);
-                        if ($row->is_faulty == false) {
-                            $approval_date = DB::connection('pgsql_appread')->table('lb_scheme.ben_personal_details')->select('approval_date')->where('application_id', $row->application_id)->first();
+                        if ($app_row->is_faulty == false) {
+                            $approval_date = DB::connection('pgsql_appread')->table('lb_scheme.ben_personal_details')->select('approval_date')->where('application_id', $app_row->application_id)->first();
                         }
-                        if ($row->is_faulty == true) {
-                            $approval_date = DB::connection('pgsql_appread')->table('lb_scheme.faulty_ben_personal_details')->select('approval_date')->where('application_id', $row->application_id)->first();
+                        if ($app_row->is_faulty == true) {
+                            $approval_date = DB::connection('pgsql_appread')->table('lb_scheme.faulty_ben_personal_details')->select('approval_date')->where('application_id', $app_row->application_id)->first();
                         }
-                        $date = new DateTime($approval_date->approval_date);
+                        $date = new DateTime($approval_date);
                         $benaleady_category_changed = $payment_model_already->where('application_id', $row->application_id)->count();
                         //dd($benaleady_category_changed);
                         if ($benaleady_category_changed == 0) {

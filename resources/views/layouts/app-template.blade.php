@@ -108,24 +108,33 @@
         function ajax_error(jqXHR, textStatus, errorThrown) {
             $('#loadingDiv').hide();
             var msg = "<strong>Failed to Load data.</strong><br/>";
+
             if (jqXHR.status !== 422 && jqXHR.status !== 400) {
                 msg += "<strong>" + jqXHR.status + ": " + errorThrown + "</strong>";
             } else {
-                if (jqXHR.responseJSON.hasOwnProperty('exception')) {
+                if (jqXHR.responseJSON && jqXHR.responseJSON.hasOwnProperty('exception')) {
                     msg += "Exception: <strong>" + jqXHR.responseJSON.exception_message + "</strong>";
-                } else {
+                } else if (jqXHR.responseJSON) {
                     msg += "Error(s):<strong><ul>";
                     $.each(jqXHR.responseJSON, function (key, value) {
                         msg += "<li>" + value + "</li>";
                     });
                     msg += "</ul></strong>";
+                } else {
+                    msg += "Unknown error occurred";
                 }
             }
-            $.alert({
-                title: 'Error!!',
-                type: 'red',
-                icon: 'fa fa-warning',
-                content: msg,
+
+            // Replace $.alert with SweetAlert2
+            Swal.fire({
+                title: 'Error!',
+                html: msg,
+                icon: 'error',
+                confirmButtonText: 'OK',
+                confirmButtonColor: '#d33',
+                customClass: {
+                    popup: 'sweet-alert-popup'
+                }
             });
         }
     </script>

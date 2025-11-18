@@ -594,14 +594,14 @@ class BankDetailsEditBandhanBankController extends Controller
                             $ben_payment_bank_dup = DB::connection('pgsql_payment')->table('lb_main.ben_payment_details_bank_code_dup')
                                 ->where('ben_id', $beneficiary_id)->where('ben_status', '-97')->update($payment_dup_update);
                             $ben_payment_update = DB::connection('pgsql_payment')->table($schemaname . '.ben_payment_details')
-                                ->where('ben_id', $beneficiary_id)->where('ben_status', '-97')->update(['ben_status' => 1]);
+                                ->where('ben_id', $beneficiary_id)->where('ben_status', '-97')->update(['ben_status'=> 1]);
                         }
                         $update_ben_track = DB::connection('pgsql_appwrite')->table('lb_scheme.update_ben_details')->insert($insert);
 
                         $getNpciBankCode = BankDetails::where('ifsc', $request->bank_ifsc)->first();
                         if ($getNpciBankCode) {
                             $newPaymentDetails = [
-                                'new_bank_name' => trim($request->bank_name),
+                                'new_bank_name' => trim( $request->bank_name),
                                 'new_bank_branch' => trim($request->branch_name),
                                 'new_bank_ifsc' => $request->bank_ifsc,
                                 'new_bank_code' => trim($request->bank_account_number),
@@ -613,10 +613,9 @@ class BankDetailsEditBandhanBankController extends Controller
                         $failed_update_payment = DB::connection('pgsql_payment')->table('lb_main.failed_payment_details')
                             ->whereRaw($condition)
                             ->where('ben_id', $beneficiary_id)->update([
-                                'edited_status' => '1',
-                                'updated_at' => date('Y-m-d H:i:s'),
-                                'updated_details' => json_encode($newPaymentDetails)
-                            ]);
+                                    'edited_status' => '1',
+                                    'updated_at' => date('Y-m-d H:i:s'),'updated_details' => json_encode($newPaymentDetails)
+                                ]);
                         $update_ben_update = [
                             'next_level_role_id' => 0,
                             'update_code' => 1,
@@ -734,8 +733,8 @@ class BankDetailsEditBandhanBankController extends Controller
                         $failed_update_payment3 = DB::connection('pgsql_payment')->table('lb_main.failed_payment_details')
                             ->whereRaw($condition)
                             ->where('ben_id', $beneficiary_id)->update([
-                                'edited_status' => '1'
-                            ]);
+                                    'edited_status' => '1'
+                                ]);
                         // if($beneficiary_id == 209032483){
                         //     dump($ben_payment_update3);dump($update_ben_track4);dd($failed_update_payment3);
                         // }
@@ -783,8 +782,10 @@ class BankDetailsEditBandhanBankController extends Controller
                     'title' => 'IFSC Not Found'
                 );
             }
+
+
         } catch (\Exception $e) {
-            //dd($e);
+           // dd($e);
             DB::rollback();
             DB::connection('pgsql_encwrite')->rollback();
             DB::connection('pgsql_appwrite')->rollback();
