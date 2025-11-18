@@ -26,30 +26,26 @@
         overflow-y: hidden;
         white-space: nowrap;
         box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
-        display: flex;
     }
 
     .timeline-scroller {
-
         overflow-x: auto;
         white-space: nowrap;
         padding: 0;
-        display: flex;
+        display: inline-block;
         position: relative;
         width: 100%;
-        padding-top: 10px;
     }
 
     .timeline {
         display: flex;
         gap: 24px;
         min-height: 200px !important;
-        /* padding: 16px 8px; */
+        padding: 16px 8px;
         position: relative;
         align-items: flex-start;
         justify-content: center;
-        padding-top: 10px;
-        margin: 0% !important;
+        margin-bottom: 10px;
     }
 
     .tl-card {
@@ -280,7 +276,6 @@
     </div>
     <hr>
     <!-- Payment Status Section -->
-<<<<<<< HEAD
      <h4 class="text-center fw-bold text-success mb-3 paymentStatusDiv" style="display:none;">Payment Status (Beneficiary Id- <span class="span_ben_id"></span>)</h4>
      <div class="alert alert-danger" role="alert" id="payment_error_msg_div" style="display:none;"></div>
 
@@ -290,41 +285,18 @@
                 
               </h2>
               <div
-=======
-    <h4 class="text-center fw-bold text-success mb-3">Payment Status</h4>
-
-    <div class="accordion" id="paymentAccordion">
-        <div class="accordion-item">
-            <h2 class="accordion-header">
-                <button
-                    class="accordion-button fw-bold"
-                    type="button"
-                    data-target="#collapseOne"
-                    aria-expanded="false"
-                    aria-controls="collapseOne">
-                    Name – APARNA KARMAKAR, Beneficiary Id – 208789445,
-                    Application Id – 124458094
-                </button>
-            </h2>
-            <div
->>>>>>> Feature/frontend_update
                 id="collapseOne"
-                class="accordion-collapse collapse"
-                data-parent="#paymentAccordion">
+                class="accordion-collapse collapse show"
+                data-bs-parent="#paymentAccordion"
+              >
                 <div class="accordion-body">
-                    <div class="row mb-3 align-items-center">
-                        <div class="col-md-6">
-                            <label>Which financial year you want to view payment
-                                status?</label>
-                        </div>
-                        <div class="col-md-6">
-                            <select class="form-select w-auto d-inline-block" id="fin_year_select_example">
-                                <option value="2025-2026">2025-2026</option>
-                                <option value="2024-2025">2024-2025</option>
-                            </select>
-                        </div>
+                  <div class="row mb-3 align-items-center">
+                    <div class="col-md-6">
+                      <label
+                        >Which financial year you want to view payment
+                        status?</label
+                      >
                     </div>
-<<<<<<< HEAD
                     <div class="col-md-6">
                       <select class="form-select w-auto d-inline-block"  onchange="changeFinancialYear(this.value)" id="fin_year">
                             <?php
@@ -366,58 +338,13 @@
                       </tbody>
                     </table>
                   </div>
-=======
-
-                    <p class="fw-semibold mb-1">
-                        Bank Account Status : <span class="text-success">Validation Success. Ready For Payment</span>
-                    </p>
-                    <p class="fw-semibold mb-1">
-                        Beneficiary Status : <span class="text-success">Active beneficiary</span>
-                    </p>
-                    <p class="mb-1">
-                        Bank A/C No : 38xxxxxxxx758, IFSC : SBINxxxxx65
-                    </p>
-                    <div class="table-responsive">
-                        <table class="table table-bordered align-middle">
-                            <thead class="table-light">
-                                <tr>
-                                    <th>Month</th>
-                                    <th>Payment Status</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td>January 2025</td>
-                                    <td>Payment Success</td>
-                                </tr>
-                                <tr>
-                                    <td>February 2025</td>
-                                    <td>Payment Success</td>
-                                </tr>
-                                <tr>
-                                    <td>March 2025</td>
-                                    <td>Payment Success</td>
-                                </tr>
-                                <tr>
-                                    <td>April 2025</td>
-                                    <td>Payment Pending</td>
-                                </tr>
-                                <tr>
-                                    <td>May 2025</td>
-                                    <td>Payment Success</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
->>>>>>> Feature/frontend_update
                 </div>
+              </div>
             </div>
-        </div>
-    </div>
+          </div>
 </div>
 
 @push('scripts')
-<<<<<<< HEAD
  <script type="text/javascript">
         $(document).ready(function() {
             $('#loaderDiv').hide();
@@ -651,87 +578,7 @@
         $('.open-payment-modal-btn').on('click', function() {
             $('#ben_payment_view_modal').modal('show');
         });
-=======
-<script>
-$(function() {
-
-    // Helper: find buttons that control a collapse pane (by id)
-    function buttonsForPaneId(paneId) {
-        return $('[data-target="#' + paneId + '"], [data-bs-target="#' + paneId + '"], [aria-controls="' + paneId + '"]');
-    }
-
-    // Initialize each accordion on page load
-    $('#paymentAccordion .accordion-collapse').each(function() {
-        const $pane = $(this);
-        const paneId = this.id;
-
-        // ensure aria/collapsed state matches visibility / .show class
-        const isShown = $pane.hasClass('show') || $pane.is(':visible');
-        const $buttons = buttonsForPaneId(paneId);
-
-        if (isShown) {
-            $pane.show().addClass('show');
-            $buttons.removeClass('collapsed').attr('aria-expanded', 'true');
-        } else {
-            $pane.hide().removeClass('show');
-            $buttons.addClass('collapsed').attr('aria-expanded', 'false');
-        }
->>>>>>> Feature/frontend_update
     });
-
-    // Delegated click handler for accordion toggle
-    $('#paymentAccordion').on('click', '.accordion-button', function(e) {
-        e.preventDefault();
-
-        const $btn = $(this);
-
-        // Accept data-target, data-bs-target or aria-controls (with/without #)
-        let targetSelector = $btn.attr('data-target') || $btn.attr('data-bs-target') || null;
-        if (!targetSelector) {
-            const aria = $btn.attr('aria-controls');
-            if (aria) targetSelector = '#' + aria;
-        }
-
-        if (!targetSelector) return; // nothing to do
-        // normalize to selector string beginning with '#'
-        if (targetSelector.charAt(0) !== '#') targetSelector = '#' + targetSelector;
-
-        const $target = $(targetSelector);
-        if ($target.length === 0) return;
-
-        // If visible -> collapse it
-        if ($target.is(':visible')) {
-            $target.slideUp(200, function() {
-                $target.removeClass('show').hide();
-            });
-            $btn.addClass('collapsed').attr('aria-expanded', 'false');
-
-        } else {
-            // Close other panels in the same accordion
-            const parentAccordionId = $btn.closest('.accordion').attr('id');
-            if (parentAccordionId) {
-                // find visible panes and hide them
-                $('#' + parentAccordionId + ' .accordion-collapse').not($target).each(function() {
-                    const $other = $(this);
-                    if ($other.is(':visible')) {
-                        $other.slideUp(200, function() {
-                            $other.removeClass('show').hide();
-                        });
-                        buttonsForPaneId(this.id).addClass('collapsed').attr('aria-expanded', 'false');
-                    }
-                });
-            }
-
-            // Open the target pane
-            $target.slideDown(200, function() {
-                $target.addClass('show');
-            });
-            $btn.removeClass('collapsed').attr('aria-expanded', 'true');
-        }
-    });
-
-});
 </script>
 @endpush
-
 @endsection

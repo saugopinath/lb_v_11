@@ -15,6 +15,7 @@ use App\Models\GP;
 use App\Models\User;
 use Redirect;
 use Auth;
+use DateTime;
 use Config;
 use Illuminate\Support\Facades\Input;
 use Illuminate\Support\Facades\Log;
@@ -900,8 +901,8 @@ class casteManagementController extends Controller
         if (request()->ajax()) {
             $query = $query->where($condition);
             $serachvalue = $request->search['value'];
-            $limit = (int) $request->input('length', 10);
-            $offset = (int) $request->input('start', 0);
+            $limit = $request->input('length');
+            $offset = $request->input('start');
 
             $totalRecords = 0;
             $filterRecords = 0;
@@ -913,7 +914,6 @@ class casteManagementController extends Controller
                     'application_id', 'beneficiary_id', 'ben_name',  'mobile_no', 'ss_card_no', 'next_level_role_id_caste', 'rejected_cause', 'is_final'
 
                 ]);
-                $filterRecords = $totalRecords;
             } else {
                 if (preg_match('/^[0-9]*$/', $serachvalue)) {
                     $query = $query->where(function ($query1) use ($serachvalue) {
@@ -1838,6 +1838,9 @@ class casteManagementController extends Controller
             if ($is_bulk == 0) {
                 $row = $model->select('approved_due_amt', 'approved_due_count', 'rejected_due_amt', 'rejected_due_count', 'approved_arrear', 'rejected_arrear', 'is_faulty', 'application_id', 'beneficiary_id', 'caste_change_type', 'new_caste', 'old_caste', 'effective_yymm')->where('is_final', FALSE)->where('application_id', $id)->where('next_level_role_id_caste', $role->id)->where('created_by_dist_code', $district_code)->first();
                 $applicant_id_in = array($row->application_id);
+                // if ($id == 135023166) {
+                //     dd($row);
+                // }
                 $paymentDataChk = DB::connection('pgsql_payment')->table('' . $schemaname . '.ben_payment_details')->where('dist_code', $district_code)->where('application_id', $id)->where('is_caste_changed', 1)->get();
             } else {
                 $applicant_id_post = request()->input('applicantId');
@@ -1868,7 +1871,9 @@ class casteManagementController extends Controller
         if ($is_bulk == 0 && empty($row->application_id)) {
             return response()->json(['return_status' => 0, 'return_msg' => 'Applicant Id Not Valid']);
         }
-        // dd($applicant_id_in);
+        // if ($id == 135023166) {
+        //     dump('2nd'); dd($applicant_id_in);
+        // }
         $reject_cause = $request->reject_cause;
         $comments = trim($request->accept_reject_comments);
         $today = date("Y-m-d h:i:s");
@@ -2041,7 +2046,7 @@ class casteManagementController extends Controller
                             if ($app_row->is_faulty == true) {
                                 $approval_date = DB::connection('pgsql_appread')->table('lb_scheme.faulty_ben_personal_details')->select('approval_date')->where('application_id', $app_row->application_id)->first();
                             }
-                            $date = new DateTime($approval_date);
+                            $date = new DateTime($approval_date->approval_date);
                             $benaleady_category_changed = $payment_model_already->where('application_id', $app_row->application_id)->count();
                             if ($benaleady_category_changed == 0) {
                                 $payment_model_effective1 = new DataSourceCommon;
@@ -2162,24 +2167,30 @@ class casteManagementController extends Controller
                             $new_effective_month = sprintf("%02d", intval($effective_month) - 1);
                         }
                         // dump($new_effective_year);
-                        // dd($new_effective_month);
-                        if ($app_row->is_faulty == false) {
-                            $approval_date = DB::connection('pgsql_appread')->table('lb_scheme.ben_personal_details')->select('approval_date')->where('application_id', $app_row->application_id)->first();
+                        // dd($row);
+                        if ($row->is_faulty == false) {
+                            $approval_date = DB::connection('pgsql_appread')->table('lb_scheme.ben_personal_details')->select('approval_date')->where('application_id', $row->application_id)->first();
                         }
-                        if ($app_row->is_faulty == true) {
-                            $approval_date = DB::connection('pgsql_appread')->table('lb_scheme.faulty_ben_personal_details')->select('approval_date')->where('application_id', $app_row->application_id)->first();
+                        if ($row->is_faulty == true) {
+                            $approval_date = DB::connection('pgsql_appread')->table('lb_scheme.faulty_ben_personal_details')->select('approval_date')->where('application_id', $row->application_id)->first();
                         }
-                        $date = new DateTime($approval_date);
+                        // if ($row->application_id == 135023166) {
+                        //     dd($approval_date->approval_date);
+                        // }
+                        $date = new DateTime($approval_date->approval_date);
                         $benaleady_category_changed = $payment_model_already->where('application_id', $row->application_id)->count();
                         //dd($benaleady_category_changed);
                         if ($benaleady_category_changed == 0) {
+                            // if ($row->application_id == 135023166) {
+                            //     dd('ENter');
+                            // }
                             $payment_model_effective1 = new DataSourceCommon;
                             $Table = 'lb_main.ben_caste_modification_track_payments';
                             $payment_model_effective1->setTable('' . $Table);
                             $payment_model_effective1->setConnection('pgsql_payment');
                             $payment_model_effective1->application_id = $row->application_id;
                             $payment_model_effective1->beneficiary_id = $row->beneficiary_id;
-                            $payment_model_effective1->from_effective_yymm =  $ds_phase->lot_base_yymm;
+                            // $payment_model_effective1->from_effective_yymm =  $ds_phase->lot_base_yymm;
                             $payment_model_effective1->from_effective_yymm = $date->format('ym'); //approval date in YYMM format;
                             $payment_model_effective1->to_effective_yymm =  (int) ($new_effective_year . $new_effective_month);
 
@@ -2259,6 +2270,7 @@ class casteManagementController extends Controller
                     try {
                         $master_status_main = DB::connection('pgsql_appwrite')->statement("update " . $TablePersonalMain . " as A set is_caste_changed=2,effective_yymm=B.effective_yymm,caste=B.new_caste,caste_certificate_no=B.new_caste_certificate_no from " . $TableCaste . " as B where  B.is_final=FALSE and A.application_id=B.application_id and A.application_id IN(" . implode(',', $ben_master_status_arr) . ")  and  B.application_id IN(" . implode(',', $ben_master_status_arr) . ") ");
                     } catch (\Exception $e) {
+                        dd($e);
                         $return_status = 0;
                         $return_msg = $errormsg['roolback'];
                         // $return_msg = '1' . $e;
@@ -2272,6 +2284,7 @@ class casteManagementController extends Controller
                     try {
                         $master_status_faulty = DB::connection('pgsql_appwrite')->statement("update " . $TablePersonalFaulty . " as A set is_caste_changed=2,effective_yymm=B.effective_yymm,caste=B.new_caste,caste_certificate_no=B.new_caste_certificate_no from " . $TableCaste . " as B where  B.is_final=FALSE and A.application_id=B.application_id and A.application_id IN(" . implode(',', $ben_master_status_faulty_arr) . ")  and  B.application_id IN(" . implode(',', $ben_master_status_faulty_arr) . ") ");
                     } catch (\Exception $e) {
+                        dd($e);
                         $return_status = 0;
                         $return_msg = $errormsg['roolback'];
                         //$return_msg = '2' . $e;
@@ -2288,6 +2301,7 @@ class casteManagementController extends Controller
                             $payment_status = DB::connection('pgsql_payment')->statement("update " . $schemaname . ".ben_payment_details set is_caste_changed=1,effective_yymm=" . $my_row->effective_yymm . ",caste=SUBSTRING(upper('" . $my_row->new_caste . "'),1,2) where application_id=" . $p_arr);
                         }
                     } catch (\Exception $e) {
+                        dd($e);
                         $return_status = 0;
                         $return_msg = $errormsg['roolback'];
                         //$return_msg = '3' . $e;
@@ -2303,6 +2317,7 @@ class casteManagementController extends Controller
                         $payment_status = DB::connection('pgsql_payment')->statement("update " . $schemaname . ".ben_payment_details   set ben_status=1 
                     where  application_id IN(" . implode(',', $payment_update_status_arr) . ")  and  ben_status=-102");
                     } catch (\Exception $e) {
+                        dd($e);
                         $return_status = 0;
                         $return_msg = $errormsg['roolback'];
                         //$return_msg = '4' . $e;
@@ -2329,7 +2344,7 @@ class casteManagementController extends Controller
                         from  " . $TableCasteEnc . "
                       where document_type=" . $doc_id . " and application_id IN(" . implode(',', $encloser_arch_main_status_arr) . ")");
                     } catch (\Exception $e) {
-                        // dd($e);
+                        dd($e);
                         $return_status = 0;
                         $return_msg = $errormsg['roolback'];
                         //$return_msg = '5' . $e;
@@ -2356,7 +2371,7 @@ class casteManagementController extends Controller
                         from  " . $TableCasteEnc . "
                       where document_type=" . $doc_id . " and application_id IN(" . implode(',', $encloser_arch_main_status_faulty_arr) . ")");
                     } catch (\Exception $e) {
-                        // dd($e);
+                        dd($e);
                         $return_status = 0;
                         $return_msg = $errormsg['roolback'];
                         //$return_msg = '6' . $e;
@@ -2376,7 +2391,7 @@ class casteManagementController extends Controller
                         from  " . $TableEncMain . " as A  where A.application_id IN(" . implode(',', $encloser_arch_caste_status_arr) . ")");
                         $del_status_enc_caste = DB::connection('pgsql_encwrite')->statement("delete from  " . $TableCasteEnc . "  where document_type=" . $doc_id . " and application_id IN(" . implode(',', $encloser_arch_caste_status_arr) . ")");
                     } catch (\Exception $e) {
-                        //dd($e);
+                        dd($e);
                         $return_status = 0;
                         $return_msg = $errormsg['roolback'];
                         // $return_msg = '7' . $e;
@@ -2390,6 +2405,7 @@ class casteManagementController extends Controller
                     try {
                         $payment_status_fin_year = DB::connection('pgsql_payment')->statement("update " . $schemaname . ".ben_payment_details set arrear_lot_status='R',arrear_lot_type='A' where arrear_lot_status IS NULL and arrear_lot_type IS NULL and application_id IN(" . implode(',', $fin_year_status) . ")");
                     } catch (\Exception $e) {
+                        dd($e);
                         $return_status = 0;
                         $return_msg = $errormsg['roolback'];
                         // $return_msg = '1' . $e;
@@ -2476,7 +2492,7 @@ class casteManagementController extends Controller
             } else
                 $return_msg = "Beneficiary Caste Modification with Application Id:" . $row->application_id . " " . $message;
         } catch (\Exception $e) {
-            // dd($e);
+            dd($e);
             $return_status = 0;
             $return_msg = $errormsg['roolback'];
             $return_msg = $e;

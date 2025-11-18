@@ -7,8 +7,6 @@
     padding: 15px 20px;
     border-bottom: 1px solid rgba(0, 0, 0, 0.1);
   }
-  
-  
 </style>
 @extends('layouts.app-template-datatable')
 @section('content')
@@ -75,7 +73,7 @@
                           @foreach($ds_phase_list as $ds_row)
                             <option value="{{$ds_row->phase_code}}">{{$ds_row->phase_des}}</option>
                           @endforeach 
-                           <option value="">Normal Entry</option>
+                           <option value="0">Normal Entry</option>
                           </select>
                           <span id="error_ds_phase" class="text-danger"></span>
                       </div>
@@ -220,7 +218,7 @@
       }
 
       dataTable = $('#example').DataTable({
-        // dom: 'Blfrtip',
+        dom: 'Blfrtip',
         "paging": true,
         "pageLength": 10,
         "lengthMenu": [
@@ -235,8 +233,8 @@
           "zeroRecords": "No matching records found"
         },
         "ajax": {
-        
-          "url": "{{ URL('lb-applicant-list/'.$list_type )}}",
+         // "url": "{{url('lb-applicant-list')}}",
+          "url": "{{ URL('lb-applicant-list-datatable/'.$list_type )}}",
           "type": "GET",
           "data": function(d) {
             d.ds_phase = $("#ds_phase").val();
@@ -248,7 +246,7 @@
             console.error("DataTables AJAX error:", thrown);
             if (xhr.status === 401 || xhr.status === 419) {
               alert(sessiontimeoutmessage);
-              // window.location.href = base_url;
+              window.location.href = base_url;
             } else {
               alert("An error occurred while loading data: " + thrown);
             }
@@ -256,19 +254,15 @@
         },
         "columns": [{
             "data": "application_id",
-            "className": "text-center",
-            "searchable": false
-
+            "className": "text-center"
           },
           {
             "data": "name",
-            "className": "text-center",
-            "searchable": true
+            "className": "text-center"
           },
           {
             "data": "mobile_no",
-            "className": "text-center",
-            "searchable": false
+            "className": "text-center"
           },
             {
             "data": "father_name",
@@ -281,47 +275,47 @@
             "searchable": false
           }
         ],
-        // "buttons": [{
-        //     extend: 'pdf',
-        //     footer: true,
-        //     exportOptions: {
-        //       columns: [0, 1, 2, 3]
-        //     },
-        //     className: 'table-action-btn'
-        //   },
-        //   {
-        //     extend: 'print',
-        //     footer: true,
-        //     exportOptions: {
-        //       columns: [0, 1, 2, 3]
-        //     },
-        //     className: 'table-action-btn'
-        //   },
-        //   {
-        //     extend: 'excel',
-        //     footer: true,
-        //     exportOptions: {
-        //       columns: [0, 1, 2, 3]
-        //     },
-        //     className: 'table-action-btn'
-        //   },
-        //   {
-        //     extend: 'copy',
-        //     footer: true,
-        //     exportOptions: {
-        //       columns: [0, 1, 2, 3]
-        //     },
-        //     className: 'table-action-btn'
-        //   },
-        //   {
-        //     extend: 'csv',
-        //     footer: true,
-        //     exportOptions: {
-        //       columns: [0, 1, 2, 3]
-        //     },
-        //     className: 'table-action-btn'
-        //   }
-        // ]
+        "buttons": [{
+            extend: 'pdf',
+            footer: true,
+            exportOptions: {
+              columns: [0, 1, 2, 3]
+            },
+            className: 'table-action-btn'
+          },
+          {
+            extend: 'print',
+            footer: true,
+            exportOptions: {
+              columns: [0, 1, 2, 3]
+            },
+            className: 'table-action-btn'
+          },
+          {
+            extend: 'excel',
+            footer: true,
+            exportOptions: {
+              columns: [0, 1, 2, 3]
+            },
+            className: 'table-action-btn'
+          },
+          {
+            extend: 'copy',
+            footer: true,
+            exportOptions: {
+              columns: [0, 1, 2, 3]
+            },
+            className: 'table-action-btn'
+          },
+          {
+            extend: 'csv',
+            footer: true,
+            exportOptions: {
+              columns: [0, 1, 2, 3]
+            },
+            className: 'table-action-btn'
+          }
+        ]
       });
     }
 
