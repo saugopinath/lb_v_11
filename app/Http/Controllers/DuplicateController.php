@@ -106,7 +106,6 @@ class DuplicateController extends Controller
             return redirect("/")->with('error', 'User Disabled. ');
 
         }
-       
         $getModelFunc = new getModelFunc();
         $aadhar_table = $getModelFunc->getTable($district_code, '', 2);
         $model = new DataSourceCommon;
@@ -117,10 +116,21 @@ class DuplicateController extends Controller
         $data = $model->where($condition)->whereNotNull('beneficiary_id')->get();
         //   dd($data->toArray());
         $data = $data->each(function ($item) {
-            if (!empty($item['encoded_aadhar']))
-                $item['original_aadhar'] = Crypt::decryptString($item['encoded_aadhar']);
-            else
-                $item['original_aadhar'] = '';
+            try {
+                if (!empty($item['encoded_aadhar'])) {
+                    $item['original_aadhar'] = Crypt::decryptString($item['encoded_aadhar']);
+                } else {
+                    $item['original_aadhar'] = '';
+                }
+            } catch (\Exception $e) {
+                // Optional logging for debugging
+                \Log::error("Aadhar decryption failed", [
+                    'value' => $item['encoded_aadhar'],
+                    'error' => $e->getMessage(),
+                ]);
+
+                $item['original_aadhar'] = 'INVALID';
+            }
         });
         $grouped = $data->groupBy('original_aadhar')->map(function ($row) {
             return $row->count();
@@ -157,7 +167,6 @@ class DuplicateController extends Controller
             return redirect("/")->with('error', 'User Disabled. ');
         }
         $designation_id = Auth::user()->designation_id;
-        
         if (!in_array($designation_id, ['Verifier', 'Delegated Verifier'])) {
             return redirect("/")->with('error', 'User Disabled. ');
 
@@ -172,9 +181,9 @@ class DuplicateController extends Controller
         }
         $explode = explode(':', $aadhar_no);
         $aadhar_no = $explode[1];
-        $aadhar_no = (int)$aadhar_no;
-        $aadhar_no =  (trim($aadhar_no, ';'));
-        $aadhar_no = (int)$aadhar_no;
+        $aadhar_no = (int) $aadhar_no;
+        $aadhar_no = (trim($aadhar_no, ';'));
+        $aadhar_no = (int) $aadhar_no;
         $getModelFunc = new getModelFunc();
         $aadhar_table = $getModelFunc->getTable($district_code, '', 2);
         $model = new DataSourceCommon;
@@ -194,11 +203,19 @@ class DuplicateController extends Controller
         // dd($query->toSql());
         $data = $query->get();
         $data = $data->each(function ($item) {
-            if (!empty($item['encoded_aadhar']))
-                $item['original_aadhar'] = Crypt::decryptString($item['encoded_aadhar']);
-            else
-                $item['original_aadhar'] = '';
+            try {
+                if (!empty($item['encoded_aadhar'])) {
+                    $item['original_aadhar'] = Crypt::decryptString($item['encoded_aadhar']);
+                } else {
+                    $item['original_aadhar'] = '';
+                }
+            } catch (\Exception $e) {
+                // dd($e);
+                // If decryption fails, set a safe value
+                $item['original_aadhar'] = 'INVALID';
+            }
         });
+
         //dump($aadhar_no);
         // dd($data->toArray());
         $data = $data->where('original_aadhar', $aadhar_no);
@@ -207,7 +224,7 @@ class DuplicateController extends Controller
         $schemaname = $getModelFunc->getSchemaDetails();
         $restrict_age_model->setTable($schemaname . '.ben_payment_details');
         $restrict_age_model->setConnection('pgsql_payment');
-        $curyymm =  substr(date('Y'), -2) . date('m');
+        $curyymm = substr(date('Y'), -2) . date('m');
         // dd($curyymm);
         $condition = array();
         $condition["dist_code"] = $district_code;
@@ -218,6 +235,7 @@ class DuplicateController extends Controller
         if (count($data1) > 0) {
             $age_restrict_data = $data1->pluck('application_id')->toArray();
         }
+        // dd($data);
         return view(
             'Duplicate.dedupAadhaarView',
             [
@@ -258,7 +276,6 @@ class DuplicateController extends Controller
             return redirect("/")->with('error', 'User Disabled. ');
         }
         $designation_id = Auth::user()->designation_id;
-        
         if (!in_array($designation_id, ['Verifier', 'Delegated Verifier'])) {
             return redirect("/")->with('error', 'User Disabled. ');
 
@@ -273,9 +290,9 @@ class DuplicateController extends Controller
             $aadhar_no = Crypt::decryptString($request->aadhar_no);
             $explode = explode(':', $aadhar_no);
             $aadhar_no = $explode[1];
-            $aadhar_no = (int)$aadhar_no;
-            $aadhar_no =  (trim($aadhar_no, ';'));
-            $aadhar_no = (int)$aadhar_no;
+            $aadhar_no = (int) $aadhar_no;
+            $aadhar_no = (trim($aadhar_no, ';'));
+            $aadhar_no = (int) $aadhar_no;
         } catch (\Exception $e) {
             return redirect("/lb-dup-aadhar-list-approved-verifier")->with('error', 'Aadhaar no. not valid');
         }
@@ -317,7 +334,7 @@ class DuplicateController extends Controller
 
             $in_pension_id = 'ARRAY[' . "'$row->application_id'" . ']';
             //$reject_fun = DB::select("select lb_scheme.beneficiary_rejected_final_dup(" . $in_pension_id . ")");
-            $reject_fun = DB::select("select lb_scheme.beneficiary_rejected_final_dup(in_application_id => $in_pension_id,in_action_by => $user_id,in_ip_address => '".request()->ip()."', in_action_type => '".class_basename(request()->route()->getAction()['controller'])."')");
+            $reject_fun = DB::select("select lb_scheme.beneficiary_rejected_final_dup(in_application_id => $in_pension_id,in_action_by => $user_id,in_ip_address => '" . request()->ip() . "', in_action_type => '" . class_basename(request()->route()->getAction()['controller']) . "')");
             return redirect("/dedupAadhaarView?aadhar_no=" . $request->aadhar_no)->with('success', 'Application with Id (' . $application_id . ') aadhar no. has been successfully rejected');
         } catch (\Exception $e) {
             //dd($e);
@@ -351,11 +368,11 @@ class DuplicateController extends Controller
             return redirect("/")->with('error', 'User Disabled. ');
         }
         $designation_id = Auth::user()->designation_id;
-      
-            if (!in_array($designation_id, ['Verifier', 'Delegated Verifier'])) {
-                return redirect("/")->with('error', 'User Disabled. ');
 
-            }
+        if (!in_array($designation_id, ['Verifier', 'Delegated Verifier'])) {
+            return redirect("/")->with('error', 'User Disabled. ');
+
+        }
         $application_id = $request->application_id;
         $aadhar_no = $request->aadhar_no;
         //dd($request);
@@ -366,22 +383,22 @@ class DuplicateController extends Controller
             $aadhar_no = Crypt::decryptString($request->aadhar_no);
             $explode = explode(':', $aadhar_no);
             $aadhar_no = $explode[1];
-            $aadhar_no = (int)$aadhar_no;
-            $aadhar_no =  (trim($aadhar_no, ';'));
-            $aadhar_no = (int)$aadhar_no;
+            $aadhar_no = (int) $aadhar_no;
+            $aadhar_no = (trim($aadhar_no, ';'));
+            $aadhar_no = (int) $aadhar_no;
             $post_aadhar_no = $request->new_aadhar_no;
             // dd($post_aadhar_no);
-            $aadharDupCheckOap = DupCheck::getDupCheckAadhar(10,$post_aadhar_no);
-            if(!empty($aadharDupCheckOap)){
-                return redirect("/dedupAadhaarView?aadhar_no=" . $request->aadhar_no)->with('error', 'Duplicate Aadhaar Number present in Old Age Pension Scheme with Beneficiary ID- '.$aadharDupCheckOap.'');
+            $aadharDupCheckOap = DupCheck::getDupCheckAadhar(10, $post_aadhar_no);
+            if (!empty($aadharDupCheckOap)) {
+                return redirect("/dedupAadhaarView?aadhar_no=" . $request->aadhar_no)->with('error', 'Duplicate Aadhaar Number present in Old Age Pension Scheme with Beneficiary ID- ' . $aadharDupCheckOap . '');
             }
-            $aadharDupCheckJohar = DupCheck::getDupCheckAadhar(1,$aadhar_no);
-            if(!empty($aadharDupCheckJohar)){
-                return redirect("/dedupAadhaarView?aadhar_no=" . $request->aadhar_no)->with('error', 'Duplicate Aadhaar Number present Jai Johar Pension Scheme with Beneficiary ID- '.$aadharDupCheckJohar.'');
+            $aadharDupCheckJohar = DupCheck::getDupCheckAadhar(1, $aadhar_no);
+            if (!empty($aadharDupCheckJohar)) {
+                return redirect("/dedupAadhaarView?aadhar_no=" . $request->aadhar_no)->with('error', 'Duplicate Aadhaar Number present Jai Johar Pension Scheme with Beneficiary ID- ' . $aadharDupCheckJohar . '');
             }
-            $aadharDupCheckBandhu = DupCheck::getDupCheckAadhar(3,$aadhar_no);
-            if(!empty($aadharDupCheckBandhu)){
-                return redirect("/dedupAadhaarView?aadhar_no=" . $request->aadhar_no)->with('error', 'Duplicate Aadhaar Number present Taposili Bandhu(for SC) Pension Scheme with Beneficiary ID- '.$aadharDupCheckBandhu.'');
+            $aadharDupCheckBandhu = DupCheck::getDupCheckAadhar(3, $aadhar_no);
+            if (!empty($aadharDupCheckBandhu)) {
+                return redirect("/dedupAadhaarView?aadhar_no=" . $request->aadhar_no)->with('error', 'Duplicate Aadhaar Number present Taposili Bandhu(for SC) Pension Scheme with Beneficiary ID- ' . $aadharDupCheckBandhu . '');
             }
             if (empty($post_aadhar_no)) {
                 return redirect("/dedupAadhaarView?aadhar_no=" . $request->aadhar_no)->with('error', 'Aadhaar Number Invalid');
@@ -556,11 +573,11 @@ class DuplicateController extends Controller
             $condition[$contact_table . ".created_by_dist_code"] = $district_code;
             $condition[$aadhar_table . ".created_by_dist_code"] = $district_code;
             $condition[$personal_table . ".next_level_role_id"] = 0;
-            $limit = $request->input('length');
-            $offset = $request->input('start');
-            $totalRecords = 0;
-            $filterRecords = 0;
-            $data = array();
+            // $limit = $request->input('length');
+            // $offset = $request->input('start');
+            // $totalRecords = 0;
+            // $filterRecords = 0;
+            // $data = array();
             if (!empty($request->search['value']))
                 $serachvalue = $request->search['value'];
             else
@@ -593,9 +610,9 @@ class DuplicateController extends Controller
             }
             if (empty($serachvalue)) {
                 //$totalRecords = $query->count();
-                $totalRecords = $query->count($personal_table . '.application_id');
-                $data = $query->orderBy($personal_table . '.ben_fname')->orderBy($contact_table . '.gp_ward_name')->offset($offset)->limit($limit)->select('ben_fname', 'ben_mname', 'ben_lname', 'mobile_no', 'age_ason_01012021', 'ss_card_no', 'duare_sarkar_registration_no', 'gp_ward_name', 'block_ulb_name', $personal_table . '.application_id as application_id', $personal_table . '.beneficiary_id as beneficiary_id', $aadhar_table . '.encoded_aadhar', $aadhar_table . '.dup_modification')->get();
-                $filterRecords = count($data);
+                // $totalRecords = $query->count($personal_table . '.application_id');
+                $data = $query->orderBy($personal_table . '.ben_fname')->orderBy($contact_table . '.gp_ward_name')->select('ben_fname', 'ben_mname', 'ben_lname', 'mobile_no', 'age_ason_01012021', 'ss_card_no', 'duare_sarkar_registration_no', 'gp_ward_name', 'block_ulb_name', $personal_table . '.application_id as application_id', $personal_table . '.beneficiary_id as beneficiary_id', $aadhar_table . '.encoded_aadhar', $aadhar_table . '.dup_modification');
+                // $filterRecords = count($data);
             } else {
                 if (preg_match('/^[0-9]*$/', $serachvalue)) {
                     $query = $query->where(function ($query1) use ($serachvalue, $personal_table) {
@@ -610,23 +627,23 @@ class DuplicateController extends Controller
                         }
                     });
                     //$totalRecords = $query->count();
-                    $totalRecords = $query->count($personal_table . '.application_id');
-                    $data = $query->orderBy($personal_table . '.ben_fname')->orderBy($contact_table . '.gp_ward_name')->offset($offset)->limit($limit)->select('ben_fname', 'ben_mname', 'ben_lname', 'mobile_no', 'age_ason_01012021', 'ss_card_no', 'duare_sarkar_registration_no', 'gp_ward_name', 'block_ulb_name', $personal_table . '.application_id as application_id', $personal_table . '.beneficiary_id as beneficiary_id', $aadhar_table . '.encoded_aadhar', $aadhar_table . '.dup_modification')->get();
+                    // $totalRecords = $query->count($personal_table . '.application_id');
+                    $data = $query->orderBy($personal_table . '.ben_fname')->orderBy($contact_table . '.gp_ward_name')->select('ben_fname', 'ben_mname', 'ben_lname', 'mobile_no', 'age_ason_01012021', 'ss_card_no', 'duare_sarkar_registration_no', 'gp_ward_name', 'block_ulb_name', $personal_table . '.application_id as application_id', $personal_table . '.beneficiary_id as beneficiary_id', $aadhar_table . '.encoded_aadhar', $aadhar_table . '.dup_modification');
                 } else {
                     $query = $query->where(function ($query1) use ($serachvalue, $personal_table, $contact_table) {
                         $query1->where($personal_table . '.ben_fname', 'like', $serachvalue . '%')
                             ->orWhere($contact_table . '.block_ulb_name', 'like', $serachvalue . '%');
                     });
                     //$totalRecords = $query->count();
-                    $totalRecords = $query->count($personal_table . '.application_id');
-                    $data = $query->orderBy($personal_table . '.ben_fname')->orderBy($contact_table . '.gp_ward_name')->offset($offset)->limit($limit)->select('ben_fname', 'ben_mname', 'ben_lname', 'mobile_no', 'age_ason_01012021', 'ss_card_no', 'duare_sarkar_registration_no', 'gp_ward_name', 'block_ulb_name', $personal_table . '.application_id as application_id', $personal_table . '.beneficiary_id as beneficiary_id', $aadhar_table . '.encoded_aadhar', $aadhar_table . '.dup_modification')->get();
+                    // $totalRecords = $query->count($personal_table . '.application_id');
+                    $data = $query->orderBy($personal_table . '.ben_fname')->orderBy($contact_table . '.gp_ward_name')->select('ben_fname', 'ben_mname', 'ben_lname', 'mobile_no', 'age_ason_01012021', 'ss_card_no', 'duare_sarkar_registration_no', 'gp_ward_name', 'block_ulb_name', $personal_table . '.application_id as application_id', $personal_table . '.beneficiary_id as beneficiary_id', $aadhar_table . '.encoded_aadhar', $aadhar_table . '.dup_modification');
                 }
-                $filterRecords = count($data);
+                // $filterRecords = count($data);
             }
             return datatables()->of($data)
-                ->setTotalRecords($totalRecords)
-                ->setFilteredRecords($filterRecords)
-                ->skipPaging()
+                // ->setTotalRecords($totalRecords)
+                // ->setFilteredRecords($filterRecords)
+                // ->skipPaging()
                 ->addColumn('view', function ($data) {
 
                     if ($data->dup_modification == 2) {
@@ -658,7 +675,7 @@ class DuplicateController extends Controller
                     return $data->ss_card_no;
                     // })->addColumn('gp_ward_name', function ($data) {
                     //   return trim($data->gp_ward_name);
-
+    
                     //  })
                 })
                 ->addColumn('aadhar_no', function ($data) {
@@ -706,7 +723,6 @@ class DuplicateController extends Controller
             $designation_id = Auth::user()->designation_id;
             if (!in_array($designation_id, ['Approver', 'Delegated Approver'])) {
                 return redirect("/")->with('error', 'User Disabled. ');
-    
             }
             $application_id = $request->application_id;
             $is_bulk = $request->is_bulk;
@@ -817,7 +833,7 @@ class DuplicateController extends Controller
                             $is_saved2 = DB::connection('pgsql_payment')->table($schemaname . '.ben_payment_details')->where('ben_id', $row->beneficiary_id)->where('ben_status', 0)->where('dist_code', $district_code)->update($update_payment_arr);
                         else
                             $is_saved2 = 1;
-                        $is_saved3 = $personal_model->where('application_id', $row->application_id)->where('created_by_dist_code', $district_code)->where('is_aadhar_dup', 1)->update(['action_by' => Auth::user()->id,'action_ip_address' => request()->ip(),'action_type' => class_basename(request()->route()->getAction()['controller']),'is_aadhar_dup' => NULL]);
+                        $is_saved3 = $personal_model->where('application_id', $row->application_id)->where('created_by_dist_code', $district_code)->where('is_aadhar_dup', 1)->update(['action_by' => Auth::user()->id, 'action_ip_address' => request()->ip(), 'action_type' => class_basename(request()->route()->getAction()['controller']), 'is_aadhar_dup' => NULL]);
                     } else if ($accept_reject_type == 'R') {
                         $update_aadhar_arr = array();
                         $update_aadhar_arr['dup_modification'] = NULL;
@@ -862,7 +878,7 @@ class DuplicateController extends Controller
                         $update_payment_arr = array();
                         $update_payment_arr['ben_status'] = 1;
                         $is_saved1_bulk = $pension_details_aadhar->where('application_id', $app['application_id'])->where('created_by_dist_code', $district_code)->where('is_dup', 1)->where('dup_modification', 1)->update($update_aadhar_arr);
-                        $is_saved3_bulk = $personal_model->where('application_id', $app['application_id'])->where('created_by_dist_code', $district_code)->where('is_aadhar_dup', 1)->update(['action_by' => Auth::user()->id,'action_ip_address' => request()->ip(),'action_type' => class_basename(request()->route()->getAction()['controller']),'is_aadhar_dup' => NULL]);
+                        $is_saved3_bulk = $personal_model->where('application_id', $app['application_id'])->where('created_by_dist_code', $district_code)->where('is_aadhar_dup', 1)->update(['action_by' => Auth::user()->id, 'action_ip_address' => request()->ip(), 'action_type' => class_basename(request()->route()->getAction()['controller']), 'is_aadhar_dup' => NULL]);
 
                         if ($app['ben_update_status'])
                             $is_saved2_bulk = DB::connection('pgsql_payment')->table($schemaname . '.ben_payment_details')->where('ben_id', $app['ben_id'])->where('ben_status', 0)->where('dist_code', $district_code)->update($update_payment_arr);
@@ -895,9 +911,9 @@ class DuplicateController extends Controller
                         }
                     }
                     if ($is_bulk == 1) {
-                        return redirect("/lb-dup-aadhar-list-approved-approver")->with('success',  $msg);
+                        return redirect("/lb-dup-aadhar-list-approved-approver")->with('success', $msg);
                     } else {
-                        return redirect("/lb-dup-aadhar-list-approved-approver")->with('success',  $msg);
+                        return redirect("/lb-dup-aadhar-list-approved-approver")->with('success', $msg);
                     }
                 } else {
                     DB::rollback();
@@ -918,7 +934,7 @@ class DuplicateController extends Controller
     public function misAadhar(Request $request)
     {
         $ds_phase_list = DsPhase::get()->pluck('phase_des', 'phase_code');
-        $base_date  = '2020-01-01';
+        $base_date = '2020-01-01';
         $c_time = Carbon::now();
         $c_date = $c_time->format("Y-m-d");
         $is_active = 0;
@@ -929,9 +945,9 @@ class DuplicateController extends Controller
         $gp_ward_visible = 0;
         $muncList = collect([]);
         $gpList = collect([]);
-        if ($designation_id == 'Admin' || $designation_id == 'HOD' || $designation_id == 'HOP' || $designation_id == 'MisState' ||  $designation_id == 'Dashboard') {
+        if ($designation_id == 'Admin' || $designation_id == 'HOD' || $designation_id == 'HOP' || $designation_id == 'MisState' || $designation_id == 'Dashboard') {
             $district_visible = $is_urban_visible = $block_visible = 1;
-        } else if ($designation_id == 'Delegated Verifier' ||  $designation_id == 'Delegated Approver' || $designation_id == 'Approver' || $designation_id == 'Verifier') {
+        } else if ($designation_id == 'Delegated Verifier' || $designation_id == 'Delegated Approver' || $designation_id == 'Approver' || $designation_id == 'Verifier') {
             $district_code = NULL;
             $is_urban = NULL;
             $blockCode = NULL;
@@ -1014,7 +1030,7 @@ class DuplicateController extends Controller
         $caste = $request->caste_category;
         $from_date = $request->from_date;
         $to_date = $request->to_date;
-        $base_date  = '2020-08-16';
+        $base_date = '2020-08-16';
         $c_time = Carbon::now();
         $c_date = $c_time->format("Y-m-d");
         $heading_msg = '';
@@ -1055,8 +1071,8 @@ class DuplicateController extends Controller
             'block' => 'nullable|integer',
             'muncid' => 'nullable|integer',
             'gp_ward' => 'nullable|integer',
-            'from_date'    => 'nullable|date|after_or_equal:' . $base_date . '|before_or_equal:' . $c_date,
-            'to_date'      => 'nullable|date|after_or_equal:from_date|before_or_equal:' . $c_date,
+            'from_date' => 'nullable|date|after_or_equal:' . $base_date . '|before_or_equal:' . $c_date,
+            'to_date' => 'nullable|date|after_or_equal:from_date|before_or_equal:' . $c_date,
         ];
         $data = array();
         $column = "";
@@ -1086,11 +1102,11 @@ class DuplicateController extends Controller
             if (!empty($gp_ward)) {
                 if ($urban_code == 1) {
                     $column = "Ward";
-                    $heading_msg =  $user_msg . ' of the Ward ' . $gp_ward_name;
+                    $heading_msg = $user_msg . ' of the Ward ' . $gp_ward_name;
                     $data = $this->getWardWise($district, $block, $muncid, $gp_ward, $from_date, $to_date, $caste, $ds_phase);
                 } else {
                     $column = "GP";
-                    $heading_msg =  $user_msg . ' of the GP ' . $gp_ward_name;
+                    $heading_msg = $user_msg . ' of the GP ' . $gp_ward_name;
                     $data = $this->getGpWise($district, $block, NULL, $gp_ward, $from_date, $to_date, $caste, $ds_phase);
                 }
             } else if (!empty($muncid)) {
@@ -1262,7 +1278,7 @@ class DuplicateController extends Controller
 
     public function dupAadharBenList(Request $request)
     {
-        $base_date  = '2020-01-01';
+        $base_date = '2020-01-01';
         $c_time = Carbon::now();
         $c_date = $c_time->format("Y-m-d");
         $is_active = 0;
@@ -1273,9 +1289,9 @@ class DuplicateController extends Controller
         $gp_ward_visible = 0;
         $muncList = collect([]);
         $gpList = collect([]);
-        if ($designation_id == 'Admin' || $designation_id == 'HOD' || $designation_id == 'HOP' || $designation_id == 'MisState' ||  $designation_id == 'Dashboard') {
+        if ($designation_id == 'Admin' || $designation_id == 'HOD' || $designation_id == 'HOP' || $designation_id == 'MisState' || $designation_id == 'Dashboard') {
             $district_visible = $is_urban_visible = $block_visible = 1;
-        } else if ($designation_id == 'Approver' ||  $designation_id == 'Delegated Approver') {
+        } else if ($designation_id == 'Approver' || $designation_id == 'Delegated Approver') {
             $district_code = NULL;
             $is_urban = NULL;
             $blockCode = NULL;
@@ -1348,7 +1364,7 @@ class DuplicateController extends Controller
 
     public function dupAadharGetBenList(Request $request)
     {
-        $base_date  = '2020-01-01';
+        $base_date = '2020-01-01';
         $c_time = Carbon::now();
         $c_date = $c_time->format("Y-m-d");
         $is_active = 0;
@@ -1359,9 +1375,9 @@ class DuplicateController extends Controller
         $gp_ward_visible = 0;
         $muncList = collect([]);
         $gpList = collect([]);
-        if ($designation_id == 'Admin' || $designation_id == 'HOD' || $designation_id == 'HOP' || $designation_id == 'MisState' ||  $designation_id == 'Dashboard') {
+        if ($designation_id == 'Admin' || $designation_id == 'HOD' || $designation_id == 'HOP' || $designation_id == 'MisState' || $designation_id == 'Dashboard') {
             $district_visible = $is_urban_visible = $block_visible = 1;
-        } else if ($designation_id == 'Approver' ||  $designation_id == 'Delegated Approver') {
+        } else if ($designation_id == 'Approver' || $designation_id == 'Delegated Approver') {
             $district_code = NULL;
             $is_urban = NULL;
             $blockCode = NULL;
@@ -1387,19 +1403,18 @@ class DuplicateController extends Controller
             return redirect("/")->with('success', 'User Disabled. ');
         }
         $getModelFunc = new getModelFunc();
-        $personal_table = $getModelFunc->getTable($district_code = NULL, '', 1);
+        $personal_table = $getModelFunc->getTable($district_code, '', 1);
         $personal_modal = new DataSourceCommon;
         $personal_modal->setTable('' . $personal_table);
-        $contact_table = $getModelFunc->getTable($district_code = NULL, '', 3);
-        $aadhar_table = $getModelFunc->getTable($district_code = NULL, '', 2);
+        $contact_table = $getModelFunc->getTable($district_code, '', 3);
+        $aadhar_table = $getModelFunc->getTable($district_code, '', 2);
 
         $filter = $request->search_for;
         $block = $request->block_ulb_code;
         $rural_urban = $request->rural_urban;
         $gp_ward = $request->gp_ward_code;
         $muncid = $request->muncid;
-        if ($request->ajax()) 
-        {
+        if ($request->ajax()) {
             $whereCon = array();
             if ($filter == 1) {
                 $whereCon[$aadhar_table . ".dup_modification"] = null;
@@ -1413,18 +1428,18 @@ class DuplicateController extends Controller
             } else {
                 //
             }
-            $result = $this->getQueryResult($district_code = NULL,$blockCode = NULL,$block = NULL,$gp_ward = NULL,$muncid = NULL,$rural_urban = NULL,$whereCon);
+            $result = $this->getQueryResult($district_code, $blockCode, $block, $gp_ward, $muncid, $rural_urban, $whereCon);
             // dd($result);
             // $result = DB::connection('pgsql_appwrite')->select($query);
             return datatables()->of($result)
-            ->rawColumns(['status'])
-            ->make(true);
+                ->rawColumns(['status'])
+                ->make(true);
         }
     }
 
     public function GetdupAadharBenListExcel(Request $request)
     {
-        $base_date  = '2020-01-01';
+        $base_date = '2020-01-01';
         $c_time = Carbon::now();
         $c_date = $c_time->format("Y-m-d");
         $is_active = 0;
@@ -1435,9 +1450,9 @@ class DuplicateController extends Controller
         $gp_ward_visible = 0;
         $muncList = collect([]);
         $gpList = collect([]);
-        if ($designation_id == 'Admin' || $designation_id == 'HOD' || $designation_id == 'HOP' || $designation_id == 'MisState' ||  $designation_id == 'Dashboard') {
+        if ($designation_id == 'Admin' || $designation_id == 'HOD' || $designation_id == 'HOP' || $designation_id == 'MisState' || $designation_id == 'Dashboard') {
             $district_visible = $is_urban_visible = $block_visible = 1;
-        } else if ($designation_id == 'Approver' ||  $designation_id == 'Delegated Approver') {
+        } else if ($designation_id == 'Approver' || $designation_id == 'Delegated Approver') {
             $district_code = NULL;
             $is_urban = NULL;
             $blockCode = NULL;
@@ -1486,9 +1501,13 @@ class DuplicateController extends Controller
             $whereCon[$aadhar_table . ".dup_modification"] = 2;
             $whereCon[$aadhar_table . ".is_dup"] = null;
         }
-        $result = $this->getQueryResult($district_code = NULL,$blockCode = NULL,$block = NULL,$gp_ward = NULL,$muncid = NULL,$rural_urban = NULL,$whereCon);
+        $result = $this->getQueryResult($district_code, $blockCode, $block, $gp_ward, $muncid, $rural_urban, $whereCon);
         $excelarr[] = array(
-            'Beneficiary ID', 'Beneficiary Name', 'Block/Municipality', 'GP/Ward', 'Mobile Number'
+            'Beneficiary ID',
+            'Beneficiary Name',
+            'Block/Municipality',
+            'GP/Ward',
+            'Mobile Number'
         );
         foreach ($result as $arr) {
             $excelarr[] = array(
@@ -1499,16 +1518,16 @@ class DuplicateController extends Controller
                 'Mobile Number' => trim($arr->mobile_no),
             );
         }
-        $file_name = $schemeObj.' '.$user_msg .' '.  date('d/m/Y');
-            Excel::create($file_name, function ($excel) use ($excelarr) {
-                $excel->setTitle('Jai Bangla Duplicate Report');
-                $excel->sheet('Jai Bangla Duplicate Report', function ($sheet) use ($excelarr) {
-                    $sheet->fromArray($excelarr, null, 'A1', false, false);
-                });
-            })->download('xlsx');
+        $file_name = $schemeObj . ' ' . $user_msg . ' ' . date('d/m/Y');
+        Excel::create($file_name, function ($excel) use ($excelarr) {
+            $excel->setTitle('Jai Bangla Duplicate Report');
+            $excel->sheet('Jai Bangla Duplicate Report', function ($sheet) use ($excelarr) {
+                $sheet->fromArray($excelarr, null, 'A1', false, false);
+            });
+        })->download('xlsx');
     }
 
-    private function getQueryResult($district_code = NULL,$blockCode,$block = NULL,$gp_ward = NULL,$muncid = NULL,$rural_urban = NULL,$whereCon)
+    private function getQueryResult($district_code, $blockCode, $block, $gp_ward, $muncid, $rural_urban, $whereCon)
     {
         $condition = array();
 
@@ -1527,20 +1546,16 @@ class DuplicateController extends Controller
         $query = $query->join($contact_table, $contact_table . '.application_id', '=', $personal_table . '.application_id');
         $query = $query->join($aadhar_table, $aadhar_table . '.application_id', '=', $personal_table . '.application_id');
         $query = $query->where($whereCon);
-        if (!empty($district_code)) 
-        {
+        if (!empty($district_code)) {
             $query = $query->where($personal_table . '.created_by_dist_code', $district_code);
         }
-        if (!empty($rural_urban)) 
-        {
+        if (!empty($rural_urban)) {
             $query = $query->where($contact_table . '.rural_urban_id', $rural_urban);
         }
-        if (!empty($block)) 
-        {
+        if (!empty($block)) {
             $query = $query->where($contact_table . '.created_by_local_body_code', $block);
         }
-        if (!empty($muncid)) 
-        {
+        if (!empty($muncid)) {
             $query = $query->where($contact_table . '.block_ulb_code', $muncid);
         }
         if (!empty($gp_ward)) {

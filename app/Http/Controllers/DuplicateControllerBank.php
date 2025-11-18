@@ -73,7 +73,7 @@ class DuplicateControllerBank extends Controller
          bt.present_amt, bt.present_count, bp.last_accno,  bp.ben_status, bp.ben_name, bp.updated_at, 
          bp.caste, bp.created_at, bp.acc_validated, bp.local_body_code, bp.rural_urban_id, bp.block_ulb_code, 
          bp.gp_ward_code, bp.ss_card_no, bp.mobile_no, bp.application_id, bp.end_yymm, bp.faulty_status, 
-         bp.faulty_to_main_date,  '" . date("Y-m-d h:i:s") . "' from " . $schemaname . ".ben_payment_details bp JOIN " . $schemaname . ".ben_transaction_details bt ON bp.ben_id = bt.ben_id where bt.fin_year = '2025-2026' AND bp.ben_id 
+         bp.faulty_to_main_date,  '" . date("Y-m-d h:i:s") . "' from " . $schemaname . ".ben_payment_details bp JOIN " . $schemaname . ".ben_transaction_details bt ON bp.ben_id = bt.ben_id where bt.fin_year = '2025-2026' bp.ben_id 
         IN
         (
         select ben_id  from " . $schemaname . ".ben_payment_details  where ben_status=" . $this->ben_status . "
@@ -3183,7 +3183,7 @@ class DuplicateControllerBank extends Controller
             } else {
                 $whereCon = " WHERE ben_status IN(101, 200, -98, -99) AND is_approved = 1";
             }
-            $query = $this->getQueryResult($district_code = NULL, $blockCode = NULL, $block = NULL, $gp_ward = NULL, $muncid = NULL, $rural_urban = NULL, $whereCon);
+            $query = $this->getQueryResult($district_code, $blockCode, $block, $gp_ward, $muncid, $rural_urban, $whereCon);
             // dd($query);
             $result = DB::connection('pgsql_payment')->select($query);
             return datatables()->of($result)
@@ -3269,7 +3269,7 @@ class DuplicateControllerBank extends Controller
         } else {
             $whereCon = " WHERE ben_status IN(101, 200, -98, -99) AND is_approved = 1";
         }
-        $query = $this->getQueryResult($district_code = NULL, $blockCode = NULL, $block = NULL, $gp_ward = NULL, $muncid = NULL, $rural_urban = NULL, $whereCon);
+        $query = $this->getQueryResult($district_code, $blockCode, $block, $gp_ward, $muncid, $rural_urban, $whereCon);
         $result = DB::connection('pgsql_payment')->select($query);
 
         $excelarr[] = array(
@@ -3315,7 +3315,7 @@ class DuplicateControllerBank extends Controller
             });
         })->download('xlsx');
     }
-    private function getQueryResult($district_code = NULL, $blockCode = NULL, $block, $gp_ward = NULL, $muncid, $rural_urban = NULL, $whereCon)
+    private function getQueryResult($district_code, $blockCode, $block, $gp_ward, $muncid, $rural_urban, $whereCon)
     {
         $query = "SELECT d.ben_id, d.ben_name, b.block_name, g.gram_panchyat_name, d.new_last_accno, d.new_last_ifsc, d.last_accno, d.last_ifsc, d.mobile_no, ben_status, is_approved
                     FROM lb_main.ben_payment_details_bank_code_dup d 

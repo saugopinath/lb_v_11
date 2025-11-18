@@ -735,6 +735,7 @@ class ApproveEditedFailedBenNameController extends Controller
       return response()->json($response, $statuscode);
     }
     try {
+      // dd($request->all());
       $otp = md5($request->login_otp);
       $user_id = Auth::user()->id;
       // if ($user_id == 41852) {
@@ -744,6 +745,7 @@ class ApproveEditedFailedBenNameController extends Controller
       // }
       
       $login_otp = User::where('id', $user_id)->where('is_active', 1)->value('last_otp');
+      // dd($login_otp, $otp);
       // $login_otp_last = User::where('id', $user_id)->where('is_active', 1)->value('login_otp');
       if ($otp == $login_otp /*|| $otp == md5($login_otp_last)*/) {
         $response = array(

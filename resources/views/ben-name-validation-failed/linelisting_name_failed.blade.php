@@ -1,450 +1,455 @@
-<style type="text/css">
-    .required-field::after {
-        content: "*";
-        color: red;
-    }
+@extends('layouts.app-template-datatable')
+@push('styles')
+    <style type="text/css">
+        .required-field::after {
+            content: "*";
+            color: red;
+        }
 
-    .has-error {
-        border-color: #cc0000;
-        background-color: #ffff99;
-    }
+        .has-error {
+            border-color: #cc0000;
+            background-color: #ffff99;
+        }
 
-    .preloader1 {
-        position: fixed;
-        top: 40%;
-        left: 52%;
-        z-index: 999;
-    }
+        .preloader1 {
+            position: fixed;
+            top: 40%;
+            left: 52%;
+            z-index: 999;
+        }
 
-    .preloader1 {
-        background: transparent !important;
-    }
+        .preloader1 {
+            background: transparent !important;
+        }
 
-    .panel-heading {
-        padding: 0;
-        border: 0;
-    }
+        .panel-heading {
+            padding: 0;
+            border: 0;
+        }
 
-    .panel-title>a,
-    .panel-title>a:active {
-        display: block;
-        padding: 10px;
-        color: #555;
-        font-size: 14px;
-        font-weight: bold;
-        text-transform: uppercase;
-        letter-spacing: 1px;
-        word-spacing: 3px;
-        text-decoration: none;
-    }
+        .panel-title>a,
+        .panel-title>a:active {
+            display: block;
+            padding: 10px;
+            color: #555;
+            font-size: 14px;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            word-spacing: 3px;
+            text-decoration: none;
+        }
 
-    .panel-heading a:before {
-        font-family: 'Glyphicons Halflings';
-        content: "\e114";
-        float: right;
-        transition: all 0.5s;
-    }
+        .panel-heading a:before {
+            font-family: 'Glyphicons Halflings';
+            content: "\e114";
+            float: right;
+            transition: all 0.5s;
+        }
 
-    .panel-heading.active a:before {
-        -webkit-transform: rotate(180deg);
-        -moz-transform: rotate(180deg);
-        transform: rotate(180deg);
-    }
+        .panel-heading.active a:before {
+            -webkit-transform: rotate(180deg);
+            -moz-transform: rotate(180deg);
+            transform: rotate(180deg);
+        }
 
-    .modal {
-        overflow: auto !important;
-    }
+        .modal {
+            overflow: auto !important;
+        }
 
-    #enCloserTable tbody tr td {
-        padding: 10px 10px 10px 10px;
-    }
+        #enCloserTable tbody tr td {
+            padding: 10px 10px 10px 10px;
+        }
 
-    .modal-open {
-        overflow: visible !important;
-    }
+        .modal-open {
+            overflow: visible !important;
+        }
 
-    .required:after {
-        color: red;
-        content: '*';
-        font-weight: bold;
-        margin-left: 5px;
-        float: right;
-        margin-top: 5px;
-    }
+        .required:after {
+            color: red;
+            content: '*';
+            font-weight: bold;
+            margin-left: 5px;
+            float: right;
+            margin-top: 5px;
+        }
 
-    #loadingDivModal {
-        position: absolute;
-        top: 0px;
-        right: 0px;
-        width: 100%;
-        height: 100%;
-        background-color: #fff;
-        background-image: url('images/ajaxgif.gif');
-        background-repeat: no-repeat;
-        background-position: center;
-        z-index: 10000000;
-        opacity: 0.4;
-        filter: alpha(opacity=40);
-        /* For IE8 and earlier */
-    }
-</style>
-
-@extends('layouts.app-template-datatable_new')
+        #loadingDivModal {
+            position: absolute;
+            top: 0px;
+            right: 0px;
+            width: 100%;
+            height: 100%;
+            background-color: #fff;
+            background-image: url('images/ajaxgif.gif');
+            background-repeat: no-repeat;
+            background-position: center;
+            z-index: 10000000;
+            opacity: 0.4;
+            filter: alpha(opacity=40);
+            /* For IE8 and earlier */
+        }
+    </style>
+    <style>
+        .has-error {
+            border-color: #cc0000;
+            background-color: #ffff99;
+        }
+    </style>
+@endpush
 @section('content')
-<style>
-    .has-error {
-        border-color: #cc0000;
-        background-color: #ffff99;
-    }
-</style> 
-    <div class="content-wrapper">
-        <!-- Content Header (Page header) -->
-        <section class="content-header">
-            <h1>
-                Name Validation Failed
-            </h1>
+<!-- <div class="content-wrapper"> -->
 
-        </section>
-        <section class="content">
-            <div class="box box-default">
-                <div class="box-body">
-                    <input type="hidden" name="dist_code" id="dist_code" value="{{ $dist_code }}" class="js-district_1">
+    <!-- Header -->
+    <section class="content-header">
+        <h1>Name Validation Failed</h1>
+    </section>
 
-                    <div class="panel panel-default">
-                        <div class="panel-heading"><span id="panel-icon">Filter Here</div>
-                        <div class="panel-body" style="padding: 5px;">
-                            <div class="row">
-                                @if ($message = Session::get('success'))
-                                    <div class="alert alert-success alert-block">
-                                        <button type="button" class="close" data-dismiss="alert">×</button>
-                                        <strong>{{ $message }}</strong>
+    <section class="content">
+        <div class="card card-default">
+            <div class="card-body">
 
-                                    </div>
-                                @endif
-                                @if (count($errors) > 0)
-                                    <div class="alert alert-danger alert-block">
-                                        <ul>
-                                            @foreach ($errors->all() as $error)
-                                                <li><strong> {{ $error }}</strong></li>
-                                            @endforeach
-                                        </ul>
-                                    </div>
-                                @endif
-                            </div>
-                            @if ($duty_level == 'SubdivVerifier' || $duty_level=='SubdivDelegated Verifier')
-                                <div class="row">
-                                    <div class="col-md-2">
-                                        <label class="control-label">Municipality </label>
-                                        <select name="filter_1" id="filter_1" class="form-control js-municipality">
-                                            <option value="">-----All----</option>
-                                            @foreach ($ulb_gp as $urban_body)
-                                                <option value="{{ $urban_body->urban_body_code }}">
-                                                    {{ $urban_body->urban_body_name }}</option>
-                                            @endforeach
-                                        </select>
+                <input type="hidden" name="dist_code" id="dist_code" value="{{ $dist_code }}" class="js-district_1">
 
-                                    </div>
-                                    <div class="col-md-3">
-                                        <label class="control-label" id="ward_div">Wards </label>
-                                        <select name="filter_2" id="filter_2" class="form-control">
-                                            <option value="">-----Select----</option>
-                                        </select>
+                <!-- Filter Card -->
+                <div class="card card-default">
+                    <div class="card-header">
+                        <span id="panel-icon">Filter Here</span>
+                    </div>
 
-                                    </div>
+                    <div class="card-body p-2">
 
-                                    <div class="form-group col-md-3">
-                                        <label class="control-label">&nbsp;</label><br />
-                                        <button type="button" name="filter" id="filter" class="btn btn-success"><i
-                                                class="fa fa-search"></i> Search</button>
-                                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                                        <button type="button" name="excel_btn" id="excel_btn" class="btn btn-primary"><i
-                                                class="fa fa-file-excel-o"></i> Get Excel</button>
-                                        {{-- <button type="button" name="reset" id="reset" class="btn btn-warning">Reset</button> --}}
-                                    </div>
-                                </div>
-                            @elseif($duty_level == 'BlockVerifier' || $duty_level=='BlockDelegated Verifier')
-                                <div class="row">
-                                    <div class="col-md-3">
-                                        <label class="control-label">Gram Panchayat </label>
-                                        <select name="filter_1" id="filter_1" class="form-control">
-                                            <option value="">-----All----</option>
-                                            @foreach ($ulb_gp as $gp)
-                                                <option value="{{ $gp->gram_panchyat_code }}"> {{ $gp->gram_panchyat_name }}
-                                                </option>
-                                            @endforeach
-                                        </select>
-
-                                    </div>
-                                    {{-- <div class="col-md-2">
-                  <label class="control-label" id="blk_sub_txt">Failed Type </label>
-                  <select name="failed_type" id="failed_type" class="form-control">
-                    <option value="">-----All----</option>
-                    @foreach (Config::get('globalconstants.failed_type') as $key => $val)
-                      <option value="{{ $key}}">{{$val}}</option>
-                    @endforeach
-                  </select>
-                </div> --}}
-
-                                    <div class="form-group col-md-3">
-                                        <label class="control-label">&nbsp;</label><br />
-                                        <button type="button" name="filter" id="filter" class="btn btn-success"><i
-                                                class="fa fa-search"></i> Search</button>
-                                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                                        <button type="button" name="excel_btn" id="excel_btn" class="btn btn-primary"><i
-                                                class="fa fa-file-excel-o"></i> Get Excel</button>
-                                        {{-- <button type="button" name="reset" id="reset" class="btn btn-warning">Reset</button> --}}
-
-                                    </div>
-
-
+                        <!-- ALERTS -->
+                        <div class="row">
+                            @if ($message = Session::get('success'))
+                                <div class="alert alert-success alert-dismissible fade show">
+                                    <strong>{{ $message }}</strong>
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                                 </div>
                             @endif
 
+                            @if (count($errors) > 0)
+                                <div class="alert alert-danger alert-dismissible fade show">
+                                    <ul>
+                                        @foreach ($errors->all() as $error)
+                                            <li><strong>{{ $error }}</strong></li>
+                                        @endforeach
+                                    </ul>
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                                </div>
+                            @endif
                         </div>
+
+                        <!-- SUBDIV Verifier -->
+                        @if ($duty_level == 'SubdivVerifier' || $duty_level=='SubdivDelegated Verifier')
+                        <div class="row">
+
+                            <div class="col-md-2">
+                                <label class="form-label">Municipality</label>
+                                <select name="filter_1" id="filter_1" class="form-control js-municipality">
+                                    <option value="">-----All----</option>
+                                    @foreach ($ulb_gp as $urban_body)
+                                        <option value="{{ $urban_body->urban_body_code }}">
+                                            {{ $urban_body->urban_body_name }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
+
+                            <div class="col-md-3">
+                                <label class="form-label" id="ward_div">Wards</label>
+                                <select name="filter_2" id="filter_2" class="form-control">
+                                    <option value="">-----Select----</option>
+                                </select>
+                            </div>
+
+                            <div class="col-md-3">
+                                <label class="form-label">&nbsp;</label><br>
+                                <button id="filter" class="btn btn-success"><i class="fa fa-search"></i> Search</button>
+                                <button id="excel_btn" class="btn btn-primary">
+                                    <i class="fa fa-file-excel-o"></i> Get Excel
+                                </button>
+                            </div>
+
+                        </div>
+
+                        @elseif($duty_level == 'BlockVerifier' || $duty_level=='BlockDelegated Verifier')
+
+                        <div class="row">
+
+                            <div class="col-md-3">
+                                <label class="form-label">Gram Panchayat</label>
+                                <select name="filter_1" id="filter_1" class="form-control">
+                                    <option value="">-----All----</option>
+                                    @foreach ($ulb_gp as $gp)
+                                        <option value="{{ $gp->gram_panchyat_code }}">
+                                            {{ $gp->gram_panchyat_name }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
+
+                            <div class="col-md-3">
+                                <label class="form-label">&nbsp;</label><br>
+                                <button id="filter" class="btn btn-success"><i class="fa fa-search"></i> Search</button>
+                                <button id="excel_btn" class="btn btn-primary">
+                                    <i class="fa fa-file-excel-o"></i> Get Excel
+                                </button>
+                            </div>
+
+                        </div>
+
+                        @endif
+
+                    </div>
+                </div>
+
+                <!-- Beneficiary List Card -->
+                <div class="card card-default mt-3">
+                    <div class="card-header" id="panel_head">
+                        List of account validation beneficiaries
                     </div>
 
-                    <div class="panel panel-default">
-                        <div class="panel-heading" id="panel_head">List of account validation beneficiaries</div>
-                        <div class="panel-body" style="padding: 5px; font-size: 14px;">
-                            <div id="loadingDiv">
-                            </div>
-                            <div class="table-responsive">
-                                {{-- <div class="form-group" style="font-weight:bold; font-size:25px;">
-                  <label class="control-label">Check All</label>
-                <input type="checkbox" id='check_all_btn' style="width:48px;">
-                </div> --}}
-                                <table id="example" class="display" cellspacing="0" width="100%">
-                                    <thead style="font-size: 12px;">
+                    <div class="card-body p-2" style="font-size: 14px;">
+                        <div id="loadingDiv"></div>
+
+                        <div class="table-responsive">
+                            <table id="example" class="table table-bordered table-striped w-100">
+                                <thead style="font-size: 12px;">
+                                    <tr>
                                         <th>Sl No</th>
                                         <th>Beneficiary ID</th>
                                         <th>Beneficiary Name</th>
-                                        <th>Swasthya Sathi Card No. </th>
-                                        <th>Block/ Municipality Name</th>
+                                        <th>Swasthya Sathi Card No.</th>
+                                        <th>Block/Municipality Name</th>
                                         <th>Application Id</th>
                                         <th>Mobile No</th>
-                                        <!-- <th>GP/Ward Name</th> -->
                                         <th>Account No</th>
                                         <th>IFSC Code</th>
                                         <th>Failure Type</th>
                                         <th>Failure Month</th>
                                         <th>Action</th>
-                                    </thead>
-                                    <tbody style="font-size: 14px;"></tbody>
-                                </table>
-                            </div>
+                                    </tr>
+                                </thead>
+                                <tbody style="font-size: 14px;"></tbody>
+                            </table>
                         </div>
                     </div>
                 </div>
-            </div>
-        </section>
-    </div>
-    <!-- Update Bank Details Modal -->
-    <!-- Modal -->
-    <div class="modal fade ben_bank_modal" id="" role="dialog">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span></button>
-                    <h4 class="modal-title">Name Validation Failed</h4>
-                </div>
-                <div class="modal-body">
-                    <div id="loadingDivModal"></div>
-                    <div class="panel panel-default">
-                        <!-- <div class="panel-heading">Update Mobile No. and Bank Details</div> -->
-                        <div class="panel-body">
-                            <table class="table table-bordered table-striped table-condensed" style="font-size: 14px;">
-                                <tbody>
-                                    <tr>
-                                        <th scope="row">Beneficiary Id</th>
-                                        <td id="ben_id_text"></td>
-                                        <th scope="row">Application Id</th>
-                                        <td id="app_id_text"></td>
-                                    </tr>
-                                    <tr>
-                                        <th scope="row">Beneficiary Name</th>
-                                        <td id="ben_name_text"></td>
-                                        <th scope="row">Father's Name</th>
-                                        <td id="father_name_text"></td>
-                                    </tr>
-                                    <tr>
-                                        <th scope="row">Gender</th>
-                                        <td id="gender_text"></td>
-                                        <th scope="row">Date of Birth :(DD-MM-YYYY)</th>
-                                        <td id="dob_text"></td>
-                                    </tr>
-                                    <tr>
-                                        <th scope="row">Caste</th>
-                                        <td id="caste_text"></td>
-                                        <th scope="row">Mobile No</th>
-                                        <td id="mobile_no_text"></td>
-                                    </tr>
-                                    <tr>
-                                        <th scope="row">Block/ Municipality</th>
-                                        <td id="block_ulb_name_text"></td>
-                                        <th scope="row">GP/ Ward</th>
-                                        <td id="gp_ward_name_text"></td>
-                                    </tr>
-                                    <tr>
-                                        <th scope="row">Bank A/c No.</th>
-                                        <td id="bank_account_number_text"></td>
-                                        <th scope="row">Bank Name</th>
-                                        <td id="bank_name_text"></td>
-                                    </tr>
-                                    <tr>
-                                        <th scope="row">Bank IFSC</th>
-                                        <td id="bank_ifsc_text"></td>
-                                        <th scope="row">Branch Name</th>
-                                        <td id="branch_name_text"></td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                            <input type="hidden" id="benId" name="benId" value="">
-                            <input type="hidden" id="faildTableId" name="faildTableId" value="">
-                            <input type="hidden" id="nameStatusCode" name="nameStatusCode" value="">
-                            <input type="hidden" id="application_id" name="application_id" value="">
-                            <input type="hidden" id="old_bank_ifsc" name="old_bank_ifsc" value="">
-                            <input type="hidden" id="old_bank_accno" name="old_bank_accno" value="">
-                            <input type="hidden" name="verify_otp_no" id="verify_otp_no" value="" />
-                            <!-- Showing Reason Section -->
-                            {{-- <div class="text-danger" style="font-size: 16px; text-align: center;">Failed Reason :- <span id="failed_reason" style=" font-weight: bold;"></span></div> --}}
-                            <div style="font-size: 16px; text-align: center; ">Name Response from Bank :- <span
-                                    id="name_response" class="text-success"></span></div>
 
-                            <p style="font-size: 12px; font-weight: bold; text-align:center; display: none;">All (<span
-                                    style="color:firebrick"> * </span>) marks filled are mandatory</p>
-                            <div style="padding: 5px 5px 5px 50px; border: 1px solid whitesmoke; border-radius: 5px; margin: 5px 0px; background-color: whitesmoke;"
-                                class="row">
-                                {{-- <label style="cursor: pointer; margin-bottom: 5px;">
-                                    <input type="radio" name="process_type" id="process_type" value="1"> Minor
-                                    mismatch, Keep existing bank information
-                                </label><br /> --}}
-                                {{-- <label style="cursor: pointer; margin-bottom: 5px;">
-                                    <input type="radio" name="process_type" id="process_type" value="2"> Process
-                                    with new bank information
-                                </label><br /> --}}
-                                <label style="cursor: pointer; margin-bottom: 5px;">
-                                    <input type="radio" name="process_type" id="process_type" value="3">
-                                    Application is rejected due to major mismatch
-                                </label>
+            </div> <!-- card-body -->
+        </div> <!-- card -->
+    </section>
+<!-- </div> -->
+
+
+<!-- Update Bank Details Modal -->
+<div class="modal fade ben_bank_modal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+
+            <div class="modal-header">
+                <h4 class="modal-title">Name Validation Failed</h4>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+
+            <div class="modal-body">
+
+                <div id="loadingDivModal"></div>
+
+                <div class="card card-default">
+                    <div class="card-body">
+
+                        <table class="table table-bordered table-striped table-condensed" style="font-size: 14px;">
+                            <tbody>
+                                <tr>
+                                    <th>Beneficiary Id</th>
+                                    <td id="ben_id_text"></td>
+                                    <th>Application Id</th>
+                                    <td id="app_id_text"></td>
+                                </tr>
+                                <tr>
+                                    <th>Beneficiary Name</th>
+                                    <td id="ben_name_text"></td>
+                                    <th>Father's Name</th>
+                                    <td id="father_name_text"></td>
+                                </tr>
+                                <tr>
+                                    <th>Gender</th>
+                                    <td id="gender_text"></td>
+                                    <th>DOB</th>
+                                    <td id="dob_text"></td>
+                                </tr>
+                                <tr>
+                                    <th>Caste</th>
+                                    <td id="caste_text"></td>
+                                    <th>Mobile No</th>
+                                    <td id="mobile_no_text"></td>
+                                </tr>
+                                <tr>
+                                    <th>Block/ Municipality</th>
+                                    <td id="block_ulb_name_text"></td>
+                                    <th>GP/ Ward</th>
+                                    <td id="gp_ward_name_text"></td>
+                                </tr>
+                                <tr>
+                                    <th>Bank A/c No.</th>
+                                    <td id="bank_account_number_text"></td>
+                                    <th>Bank Name</th>
+                                    <td id="bank_name_text"></td>
+                                </tr>
+                                <tr>
+                                    <th>Bank IFSC</th>
+                                    <td id="bank_ifsc_text"></td>
+                                    <th>Branch Name</th>
+                                    <td id="branch_name_text"></td>
+                                </tr>
+                            </tbody>
+                        </table>
+
+                        <!-- hidden inputs (unchanged) -->
+                        <input type="hidden" id="benId">
+                        <input type="hidden" id="faildTableId">
+                        <input type="hidden" id="nameStatusCode">
+                        <input type="hidden" id="application_id">
+                        <input type="hidden" id="old_bank_ifsc">
+                        <input type="hidden" id="old_bank_accno">
+                        <input type="hidden" name="verify_otp_no" id="verify_otp_no">
+
+                        <div class="text-center" style="font-size:16px;">
+                            Name Response from Bank: <span id="name_response" class="text-success"></span>
+                        </div>
+
+                        <div class="row p-3" style="background:#f5f5f5; border-radius:5px;">
+
+                            <label style="cursor:pointer;">
+                                <input type="radio" name="process_type" id="process_type" value="3">
+                                Application is rejected due to major mismatch
+                            </label>
+                        </div>
+
+                        <div id="radio_btn_confirm" class="text-warning text-center fw-bold fst-italic mt-2">
+                            Please select which one do you want to process?
+                        </div>
+
+                        <!-- Bank Info Section -->
+                        <table class="table table-bordered mt-3">
+
+                            <tbody>
+
+                                <tr class="bankInfoHideShow" style="display:none;">
+                                    <th>Bank Branch Name</th>
+                                    <td>
+                                        <input type="text" id="branch_name" class="form-control" readonly>
+                                        <span id="error_bank_branch" class="text-danger"></span>
+                                    </td>
+
+                                    <th>Bank IFSC</th>
+                                    <td>
+                                        <input type="text" id="bank_ifsc" class="form-control" onkeyup="this.value=this.value.toUpperCase();">
+                                        <img src="{{ asset('images/ajaxgif.gif') }}" width="60" id="ifsc_loader" style="display:none;">
+                                        <span id="error_bank_ifsc_code" class="text-danger"></span>
+                                    </td>
+                                </tr>
+
+                                <tr class="bankInfoHideShow" style="display:none;">
+                                    <th>Bank Name</th>
+                                    <td>
+                                        <input type="text" id="bank_name" class="form-control" readonly>
+                                        <span id="error_name_of_bank" class="text-danger"></span>
+                                    </td>
+
+                                    <th>Bank Account Number</th>
+                                    <td>
+                                        <input type="text" id="bank_account_number" class="form-control">
+                                        <span id="error_bank_account_number" class="text-danger"></span>
+                                    </td>
+                                </tr>
+
+                                <tr class="documentSectionHideShow" style="display:none;">
+                                    <th><span id="upload_text">Upload Bank Passbook</span></th>
+                                    <td>
+                                        <input type="file" id="upload_bank_passbook" accept=".jpg,.jpeg,.png,.pdf">
+                                        <span id="error_file" class="text-danger"></span>
+                                    </td>
+
+                                    <th>Copy Of Passbook</th>
+                                    <td class="encView">
+                                        <a class="btn btn-sm btn-primary"
+                                            href="javascript:void(0);"
+                                            onclick="View_encolser_modal('Copy of Bank Pass book','10',1)">View</a>
+                                    </td>
+                                </tr>
+
+                                <tr class="remarkSectionHideShow" style="display:none;">
+                                    <th>Remarks</th>
+                                    <td colspan="3">
+                                        <input type="text" id="remarks" maxlength="100" class="form-control">
+                                        <span id="error_remarks" class="text-danger"></span>
+                                    </td>
+                                </tr>
+
+                            </tbody>
+
+                        </table>
+
+                        <!-- OTP Section -->
+                        <div class="row" id="otp_div" style="display:none;">
+                            <span class="text-warning fw-bold p-3">
+                                For Rejection you have to enter your Login OTP for verification.
+                            </span>
+
+                            <div class="col-md-4">
+                                <input type="text" id="otp" maxlength="6" class="form-control" placeholder="Enter OTP">
+                                <span id="error_otp" class="text-danger"></span>
                             </div>
-                            <div id="radio_btn_confirm" style="font-size: 14px; font-weight: bold; font-style: italic;"
-                                class="text-warning" align="center">Please select which one do you want to process ?</div>
-                            <table class="table table-bordered table-responsive" style="width:100%;">
-                                <tbody>
-                                    <tr class="bankInfoHideShow" style="display: none;">
-                                        <th scope="row" class="required" style="font-size: 14px;">Bank Branch Name
-                                        </th>
-                                        <td id="branch_text"><input type="text" value="" name="branch_name"
-                                                id="branch_name" readonly>
-                                            <span style="font-size: 14px;" id="error_bank_branch"
-                                                class="text-danger"></span>
-                                        </td>
-                                        <th scope="row" class="required" style="font-size: 14px;">Bank IFSC Code</th>
-                                        <td id="bank_ifsc_text"><input type="text" value="" name="bank_ifsc"
-                                                onkeyup="this.value = this.value.toUpperCase();" id="bank_ifsc">
-                                            <img src="{{ asset('images/ajaxgif.gif') }}" width="60px" id="ifsc_loader"
-                                                style="display: none;">
-                                            <span style="font-size: 14px;" id="error_bank_ifsc_code"
-                                                class="text-danger"></span>
-                                        </td>
-                                    </tr>
-                                    <tr class="bankInfoHideShow" style="display: none;">
-                                        <th scope="row" class="required" style="font-size: 14px;">Bank Name</th>
-                                        <td id="bank_text"><input type="text" value="" name="bank_name"
-                                                maxlength="200" id="bank_name" readonly>
-                                            <span style="font-size: 14px;" id="error_name_of_bank"
-                                                class="text-danger"></span>
-                                        </td>
-                                        <th scope="row" class="required" style="font-size: 14px;">Bank Account Number
-                                        </th>
-                                        <td id="bank_acc_text"> <input type="text" value=""
-                                                name="bank_account_number" maxlength='20' id="bank_account_number">
-                                            <span style="font-size: 14px;" id="error_bank_account_number"
-                                                class="text-danger"></span>
-                                        </td>
-                                    </tr>
-                                    <!-- Document Update Section -->
-                                    <tr class="documentSectionHideShow" style="display: none;">
-                                        <th scope="row" class="required" style="font-size: 14px;"><span
-                                                id="upload_text">Upload Bank Passbook</span></th>
-                                        <td id="bank_passbook_text">
-                                            <input type="file" name="upload_bank_passbook"
-                                                accept=".jpg,.jpeg,.png,.pdf" id="upload_bank_passbook" value="">
-                                            <span style="font-size: 14px;" id="error_file" class="text-danger"></span>
-                                        </td>
-                                        <th scope="row" style="font-size: 14px;">Copy Of Passbook</th>
-                                        <td scope="row" class="encView">&nbsp;&nbsp;&nbsp;<a
-                                                class="btn btn-xs btn-primary" href="javascript:void(0);"
-                                                onclick="View_encolser_modal('Copy of Bank Pass book','10',1)">View</a>
-                                        </td>
-                                    </tr>
-                                    <tr class="remarkSectionHideShow" style="display: none;">
-                                        <th scope="row" class="required" style="font-size: 14px;">Remarks</th>
-                                        <td colspan="3"><input type="text" name="remarks" maxlength="100"
-                                                id="remarks" class="form-control" value=""
-                                                style="border-radius: 3px; border: 1px solid #737373;">
-                                            <span style="font-size: 14px;" id="error_remarks" class="text-danger"></span>
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                            <div class="row" id="otp_div" style="display: none;">
-                                <span class="text-warning" style="font-weight: bold; padding: 15px;">For
-                                    Rejection you have to enter your Login OTP for verification.</span><br>
-                                <div class="form-group col-md-4">
-                                    <input type="text" name="otp" id="otp" maxlength="6"
-                                        placeholder="Enter OTP" class="form-control">
-                                    <span class="text-danger" id="error_otp"></span>
-                                </div>
-                                <div class="form-group col-md-4">
-                                    <button class="btn btn-primary" id="otp_verify" name="otp_verify">Verify</button>
-                                    <span style="margin-left: 10px; font-weight: bold;" id="verification_result"
-                                        class="" style="font-weight: bold;"></span>
-                                </div>
-                            </div>
-                            <div class="row" id="finalUpdatediv" style="display: none;">
-                                <div class="col-md-12" style="text-align: center;"><input type="button" name="submit"
-                                        value="Update" id="" class="btn btn-success btn-lg verifySubmit"></div>
+
+                            <div class="col-md-4">
+                                <button class="btn btn-primary" id="otp_verify">Verify</button>
+                                <span id="verification_result" class="fw-bold ms-2"></span>
                             </div>
                         </div>
-                    </div>
-                </div>
-            </div>
-            <!-- /.modal-content -->
-        </div>
-        <!-- /.modal-dialog -->
-    </div>
-    <!-- /.modal -->
 
-    <!-- Passbook View Modal -->
-    <div class="modal encolser_modal" id="encolser_modal" role="dialog">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="encolser_name">Modal title</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <div id="encolser_content"> </div>
+                        <!-- Final Update Button -->
+                        <div class="row" id="finalUpdatediv" style="display:none;">
+                            <div class="col-md-12 text-center">
+                                <button class="btn btn-success btn-lg verifySubmit">Update</button>
+                            </div>
+                        </div>
 
-                <div class="modal-footer" style="text-align: center">
-                    <button type="button" class="btn btn-success modalEncloseClose">Close</button>
+                    </div><!-- card-body -->
+                </div><!-- card -->
 
+            </div><!-- modal-body -->
 
-
-                </div>
-            </div>
         </div>
     </div>
+</div>
 
-    <!-- </div> -->
+<!-- Passbook View Modal -->
+<div class="modal fade" id="encolser_modal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
 
+            <div class="modal-header">
+                <h5 class="modal-title" id="encolser_name">Modal title</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+
+            <div id="encolser_content"></div>
+
+            <div class="modal-footer text-center">
+                <button type="button" class="btn btn-success modalEncloseClose" data-bs-dismiss="modal">Close</button>
+            </div>
+
+        </div>
+    </div>
+</div>
 
 @endsection
-@section('script')
-    <script src="{{ URL::asset('js/master-data-v2.js') }}"></script>
+@push('scripts')
+
+ <script src="{{ URL::asset('js/master-data-v2.js') }}"></script>
     <script>
         $(document).ready(function() {
             $('#upload_bank_passbook').change(function() {
@@ -1067,103 +1072,85 @@
                             return false;
                         }
                     }
-                    $.confirm({
+                            Swal.fire({
                         title: 'Confirmation!',
-                        type: 'orange',
-                        icon: 'fa fa-check',
-                        content: 'Are you sure want to process ?',
-                        buttons: {
-                            confirm: {
-                                text: 'confirm',
-                                btnClass: 'btn-blue',
-                                keys: ['enter', 'shift'],
-                                action: function() {
-                                    var upload_bank_passbook = $('#upload_bank_passbook')[0]
-                                        .files;
-                                    var bank_name = $('#bank_name').val();
-                                    var branch_name = $('#branch_name').val();
-                                    var remarks = $('#remarks').val();
-                                    var benId = $('#benId').val();
-                                    var application_id = $('#application_id').val();
-                                    var faildTableId = $('#faildTableId').val();
-                                    var nameStatusCode = $('#nameStatusCode').val();
-                                    var token = '{{ csrf_token() }}';
-                                    var fd = new FormData();
-                                    fd.append('benId', benId);
-                                    fd.append('bank_ifsc', bank_ifsc);
-                                    fd.append('bank_name', bank_name);
-                                    fd.append('bank_account_number', bank_account_number);
-                                    fd.append('branch_name', branch_name);
-                                    fd.append('upload_bank_passbook', upload_bank_passbook[0]);
-                                    fd.append('_token', token);
-                                    fd.append('old_bank_ifsc', old_bank_ifsc);
-                                    fd.append('old_bank_accno', old_bank_accno);
-                                    fd.append('remarks', remarks);
-                                    fd.append('application_id', application_id);
-                                    fd.append('process_type', process_type);
-                                    fd.append('faildTableId', faildTableId);
-                                    fd.append('nameStatusCode', nameStatusCode);
-                                    fd.append('otp_login', login_otp_no);
-                                    $('#loadingDivModal').show();
-                                    $('.verifySubmit').attr('disabled', true);
-                                    $.ajax({
-                                        type: 'post',
-                                        url: "{{ route('updateFailedNameFromVerifier') }}",
-                                        data: fd,
-                                        processData: false,
-                                        contentType: false,
-                                        dataType: 'json',
-                                        success: function(response) {
-                                            $('#loadingDivModal').hide();
-                                            $('.verifySubmit').removeAttr(
-                                                'disabled', true);
-                                            $('.ben_bank_modal').modal('hide');
-                                            dataTable.ajax.reload();
-                                            $.confirm({
-                                                title: response.title,
-                                                type: response.type,
-                                                icon: response.icon,
-                                                content: response.msg,
-                                                buttons: {
-                                                    Ok: function() {
-                                                        // $('.verifySubmit').removeAttr('disabled',true);
-                                                        // $('.ben_bank_modal').modal('hide');
-                                                        // dataTable.ajax.reload();
-                                                        $("html, body")
-                                                            .animate({
-                                                                    scrollTop: 0
-                                                                },
-                                                                "slow");
-                                                    }
-                                                }
-                                            });
-                                        },
-                                        complete: function() {
-                                            //  $('.verifySubmit').removeAttr('disabled',true);
-                                        },
-                                        error: function(jqXHR, textStatus,
-                                            errorThrown) {
-                                            $('.verifySubmit').removeAttr(
-                                                'disabled', true);
-                                            $('#loadingDivModal').hide();
-                                            ajax_error(jqXHR, textStatus,
-                                                errorThrown)
-                                        }
-                                    });
-                                }
-                            },
-                            cancel: function() {
+                        text: 'Are you sure want to process?',
+                        icon: 'question',
+                        showCancelButton: true,
+                        confirmButtonText: 'Confirm',
+                        cancelButtonText: 'Cancel'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
 
-                            }
+                            // >>> Your old action() function moves here <<<
+                            var upload_bank_passbook = $('#upload_bank_passbook')[0].files;
+                            var bank_name = $('#bank_name').val();
+                            var branch_name = $('#branch_name').val();
+                            var remarks = $('#remarks').val();
+                            var benId = $('#benId').val();
+                            var application_id = $('#application_id').val();
+                            var faildTableId = $('#faildTableId').val();
+                            var nameStatusCode = $('#nameStatusCode').val();
+                            var token = '{{ csrf_token() }}';
+
+                            var fd = new FormData();
+                            fd.append('benId', benId);
+                            fd.append('bank_ifsc', bank_ifsc);
+                            fd.append('bank_name', bank_name);
+                            fd.append('bank_account_number', bank_account_number);
+                            fd.append('branch_name', branch_name);
+                            fd.append('upload_bank_passbook', upload_bank_passbook[0]);
+                            fd.append('_token', token);
+                            fd.append('old_bank_ifsc', old_bank_ifsc);
+                            fd.append('old_bank_accno', old_bank_accno);
+                            fd.append('remarks', remarks);
+                            fd.append('application_id', application_id);
+                            fd.append('process_type', process_type);
+                            fd.append('faildTableId', faildTableId);
+                            fd.append('nameStatusCode', nameStatusCode);
+                            fd.append('otp_login', login_otp_no);
+
+                            $('#loadingDivModal').show();
+                            $('.verifySubmit').attr('disabled', true);
+
+                            $.ajax({
+                                type: 'post',
+                                url: "{{ route('updateFailedNameFromVerifier') }}",
+                                data: fd,
+                                processData: false,
+                                contentType: false,
+                                dataType: 'json',
+                                success: function(response) {
+                                    $('#loadingDivModal').hide();
+                                    $('.verifySubmit').removeAttr('disabled', true);
+                                    $('.ben_bank_modal').modal('hide');
+                                    dataTable.ajax.reload();
+
+                                    Swal.fire({
+                                        title: response.title,
+                                        text: response.msg,
+                                        icon: response.type,
+                                    }).then(() => {
+                                        $("html, body").animate({ scrollTop: 0 }, "slow");
+                                    });
+                                },
+                                error: function(jqXHR, textStatus, errorThrown) {
+                                    $('.verifySubmit').removeAttr('disabled', true);
+                                    $('#loadingDivModal').hide();
+                                    ajax_error(jqXHR, textStatus, errorThrown);
+                                }
+                            });
+
                         }
                     });
+
                 } else {
-                    $.confirm({
-                        title: 'Alert!',
-                        type: 'red',
-                        icon: 'fa fa-warning',
-                        content: 'Something went wrong!!',
-                    });
+                   Swal.fire({
+    title: 'Alert!',
+    text: 'Something went wrong!!',
+    icon: 'error',
+    confirmButtonText: 'OK'
+});
                 }
             });
             // -------------------- Final Approve Section --------------------------//
@@ -1217,4 +1204,4 @@
             form.submit();
         }
     </script>
-@stop
+@endpush

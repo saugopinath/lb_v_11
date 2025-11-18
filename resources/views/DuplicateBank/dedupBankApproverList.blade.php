@@ -1,4 +1,6 @@
-<style type="text/css">
+@extends('layouts.app-template-datatable')
+@push('styles')
+  <style type="text/css">
     .required-field::after {
         content: "*";
         color: red;
@@ -64,105 +66,99 @@
         pointer-events: none;
     }
 </style>
-@extends('layouts.app-template-datatable_new')
+@endpush
 @section('content')
-    <div class="content-wrapper">
-        <!-- Content Header (Page header) -->
-        <section class="content-header">
-            <h1>
-                Approve/Revert De-Duplicate Bank Details
-            </h1>
+<!-- <div class="content-wrapper"> -->
+    <!-- Content Header (Page header) -->
+    <section class="content">
+        <div class="card card-default">
+            <div class="card-body">
+                <input type="hidden" name="dist_code" id="dist_code" value="{{ $dist_code }}" class="js-district_1">
 
-        </section>
-        <section class="content">
-            <div class="box box-default">
-                <div class="box-body">
-                    <input type="hidden" name="dist_code" id="dist_code" value="{{ $dist_code }}" class="js-district_1">
-                    <div class="panel panel-default">
-                        <div class="panel-heading">Bank Details Yet To Be Approved</div>
-                        <div class="panel-body" style="padding: 5px;">
-                            <div class="row">
-                                @if ($message = Session::get('success'))
-                                    <div class="alert alert-success alert-block">
-                                        <button type="button" class="close" data-dismiss="alert">×</button>
-                                        <strong>{{ $message }}</strong>
-
-                                    </div>
-                                @endif
-                                @if (count($errors) > 0)
-                                    <div class="alert alert-danger alert-block">
-                                        <ul>
-                                            @foreach ($errors->all() as $error)
-                                                <li><strong> {{ $error }}</strong></li>
-                                            @endforeach
-                                        </ul>
-                                    </div>
-                                @endif
-                            </div>
-
-                            <div class="row">
-                                {{-- <div class="col-md-4">
-                                    <label class=" control-label required-field">Is Faulty </label>
-                                    <select class="form-control" name="is_faulty" id='is_faulty' required>
-                                        <option value="1">Yes</option>
-                                        <option value="2">No</option>
-                                    </select>
-                                    <span class="text-danger" id="error_is_faulty"></span>
-                                </div> --}}
-                                <div class="col-md-4">
-                                    <label class=" control-label required-field">Request Type </label>
-                                    <select class="form-control" name="search_for" id='search_for' required>
-                                        <option value="">--Select Request Type--</option>
-                                        <option value="1">Different Bank Account Change Request</option>
-                                        <option value="2">Keep Same Request</option>
-                                        <option value="3">Reject Request</option>
-                                    </select>
-                                    <span class="text-danger" id="error_search_for"></span>
+                <div class="card card-default">
+                    <div class="card-header">Bank Details Yet To Be Approved</div>
+                    <div class="card-body p-2">
+                        <div class="row">
+                            @if ($message = Session::get('success'))
+                                <div class="alert alert-success alert-dismissible fade show w-100">
+                                    <strong>{{ $message }}</strong>
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                                 </div>
-                                <div class="form-group col-md-4">
-                                    <label class="control-label">Rural/Urban </label>
-                                    <select name="filter_1" id="filter_1" class="form-control">
-                                        <option value="">-----Select----</option>
-                                        @foreach ($levels as $key => $value)
-                                            <option value="{{ $key }}"> {{ $value }}</option>
+                            @endif
+
+                            @if (count($errors) > 0)
+                                <div class="alert alert-danger w-100">
+                                    <ul>
+                                        @foreach ($errors->all() as $error)
+                                            <li><strong> {{ $error }}</strong></li>
                                         @endforeach
-                                    </select>
+                                    </ul>
                                 </div>
-                                <div class="form-group col-md-4">
-                                    <label class="control-label" id="blk_sub_txt">Block/Sub Division </label>
-                                    <select name="filter_2" id="filter_2" class="form-control">
-                                        <option value="">-----Select----</option>
-                                    </select>
-                                </div>
+                            @endif
+                        </div>
+
+                        <div class="row g-2">
+                            <div class="col-md-4">
+                                <label class="control-label required-field">Request Type </label>
+                                <select class="form-control" name="search_for" id="search_for" required>
+                                    <option value="">--Select Request Type--</option>
+                                    <option value="1">Different Bank Account Change Request</option>
+                                    <option value="2">Keep Same Request</option>
+                                    <option value="3">Reject Request</option>
+                                </select>
+                                <span class="text-danger" id="error_search_for"></span>
                             </div>
-                            <div class="row">
-                                <center>
-                                    <div class="form-group col-md-12" style="margin-top: 24px;">
-                                        <button type="button" name="filter" id="filter" class="btn btn-success">
-                                            <i class="fa fa-search"> </i> Search</button>&nbsp;&nbsp;
-                                        <button type="button" name="reset" id="reset" class="btn btn-warning"><i
-                                                class="fa fa-refresh"></i> Reset</button>
-                                    </div>
-                                </center>
+
+                            <div class="col-md-4">
+                                <label class="control-label">Rural/Urban </label>
+                                <select name="filter_1" id="filter_1" class="form-control">
+                                    <option value="">-----Select----</option>
+                                    @foreach ($levels as $key => $value)
+                                        <option value="{{ $key }}"> {{ $value }}</option>
+                                    @endforeach
+                                </select>
                             </div>
-                            <hr />
-                            <div class="row">
-                                <div class="form-group col-md-offset-4 col-md-3 " style="display: none;"
-                                    id="approve_rejdiv">
-                                    <button type="button" name="bulk_approve" class="btn btn-info btn-lg"
-                                        id="bulk_approve" value="approve">
-                                        Approve</button>
-                                </div>
+
+                            <div class="col-md-4">
+                                <label class="control-label" id="blk_sub_txt">Block/Sub Division </label>
+                                <select name="filter_2" id="filter_2" class="form-control">
+                                    <option value="">-----Select----</option>
+                                </select>
                             </div>
                         </div>
-                    </div>
 
-                    <div class="panel panel-default" id="res_div" style="display: none;">
-                        <div class="panel-heading" id="panel_head">List of New Edited Banking Information</div>
-                        <div class="panel-body" style="padding: 5px; font-size: 14px;">
-                            <div class="table-responsive">
-                                <table id="example" class="display" cellspacing="0" width="100%">
-                                    <thead style="font-size: 12px;">
+                        <div class="row mt-3 text-center">
+                            <div class="col-12">
+                                <button type="button" name="filter" id="filter" class="btn btn-success">
+                                    <i class="fa fa-search"></i> Search
+                                </button>
+                                &nbsp;&nbsp;
+                                <button type="button" name="reset" id="reset" class="btn btn-warning">
+                                    <i class="fa fa-refresh"></i> Reset
+                                </button>
+                            </div>
+                        </div>
+
+                        <hr />
+
+                        <div class="row mt-2">
+                            <div class="col-md-3" id="approve_rejdiv" style="display: none;">
+                                <button type="button" name="bulk_approve" class="btn btn-info btn-lg" id="bulk_approve" value="approve">
+                                    Approve
+                                </button>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+                <div class="card card-default mt-3" id="res_div" style="display: none;">
+                    <div class="card-header" id="panel_head">List of New Edited Banking Information</div>
+                    <div class="card-body p-2" style="font-size: 14px;">
+                        <div class="table-responsive">
+                            <table id="example" class="table table-striped table-bordered w-100">
+                                <thead style="font-size: 12px;">
+                                    <tr>
                                         <th>Sl No</th>
                                         <th>Beneficiary ID</th>
                                         <th>Applicant Name</th>
@@ -172,158 +168,133 @@
                                         <th>New IFSC</th>
                                         <th>Block/Muncipality</th>
                                         <th>Action</th>
-                                        <th>Check <input type="checkbox" id='check_all_btn' style="width:48px;"> </th>
-                                    </thead>
-                                    <tbody style="font-size: 14px;"></tbody>
+                                        <th>Check <input type="checkbox" id="check_all_btn" style="width:48px;"></th>
+                                    </tr>
+                                </thead>
+                                <tbody style="font-size: 14px;"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- Detail Modal -->
+        <div class="modal fade bd-example-modal-lg ben_view_modal" id="ben_view_modal" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+
+                    <div class="modal-header">
+                        <h4 class="modal-title">Approve/Revert De-Duplicate Bank Details</h4>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+
+                    <div class="modal-body ben_view_body">
+
+                        <div class="card mb-2">
+                            <div class="card-header">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <span>Personal Details <span class="applicant_id_modal"></span></span>
+                                    <div class="preloader1"><img src="{{ asset('images/ZKZg.gif') }}" class="loader_img" width="150px" id="loader_img_personal"></div>
+                                </div>
+                            </div>
+
+                            <div class="card-body p-2">
+                                <table class="table table-bordered table-condensed" style="font-size: 14px;">
+                                    <tbody>
+                                        <tr>
+                                            <th scope="row" width="20%">Applicant Name</th>
+                                            <td id="fullname" width="30%"></td>
+                                            <th scope="row" width="20%">Applicant Mobile</th>
+                                            <td id="mobile_no" width="30%"></td>
+                                        </tr>
+                                        <tr>
+                                            <th scope="row" width="20%">Applicant Caste</th>
+                                            <td id="caste" width="30%"></td>
+                                        </tr>
+                                    </tbody>
                                 </table>
                             </div>
                         </div>
+
+                        <div class="card mb-2">
+                            <div class="card-header">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <span id="panel_bank_name_text">Bank Details</span>
+                                </div>
+                            </div>
+
+                            <div class="card-body p-2">
+                                <table class="table table-bordered table-condensed" style="font-size: 14px;">
+                                    <tbody>
+                                        <tr>
+                                            <th scope="row" width="20%">Old Account No.</th>
+                                            <td id="old_acc_no" width="30%"></td>
+                                            <th scope="row" width="20%">New Account No.</th>
+                                            <td id="new_acc_no" width="30%"></td>
+                                        </tr>
+                                        <tr>
+                                            <th scope="row" width="20%">Old IFSC</th>
+                                            <td id="old_ifsc" width="30%"></td>
+                                            <th scope="row" width="20%">New IFSC</th>
+                                            <td id="new_ifsc" width="30%"></td>
+                                        </tr>
+                                        <tr>
+                                            <th scope="row" width="20%">Document</th>
+                                            <td>
+                                                <button class="btn btn-primary ben_doc_button btn-sm" value="">View Bank Passbook</button>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <div class="card">
+                            <div class="card-header">Action</div>
+                            <div class="card-body p-2">
+                                <div class="row g-2">
+                                    <div class="col-md-4">
+                                        <label for="opreation_type">Select Operation <span class="text-danger">*</span></label>
+                                        <select name="opreation_type" id="opreation_type" class="form-control opreation_type">
+                                            <option value="A" selected>Approve</option>
+                                            <option value="T">Back To Verifier</option>
+                                        </select>
+                                    </div>
+
+                                    <div class="col-md-4">
+                                        <label for="accept_reject_comments">Enter Remarks</label>
+                                        <textarea name="accept_reject_comments" id="accept_reject_comments" class="form-control" maxlength="100" style="height:40px;"></textarea>
+                                    </div>
+                                </div>
+
+                                <form method="POST" action="#" target="_blank" name="fullForm" id="fullForm" class="mt-3 text-center">
+                                    <input type="hidden" name="_token" value="{{ csrf_token() }}">
+                                    <input type="hidden" name="is_bulk" id="is_bulk" value="0" />
+                                    <input type="hidden" id="id" name="id" />
+                                    <input type="hidden" id="application_id" name="application_id" />
+                                    <input type="hidden" name="applicantId[]" id="applicantId" value="" />
+
+                                    <button type="button" class="btn btn-success btn-lg" id="verifyReject">Approve</button>
+                                    <button style="display:none;" type="button" id="submitting" class="btn btn-success success" disabled>Processing Please Wait</button>
+                                </form>
+
+                            </div>
+                        </div>
+
                     </div>
+
                 </div>
             </div>
+        </div>
 
-            <div class="modal fade bd-example-modal-lg ben_view_modal" tabindex="-1" role="dialog"
-                aria-labelledby="myLargeModalLabel" aria-hidden="true">
-                <div class="modal-dialog modal-lg">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                <span aria-hidden="true">&times;</span>
-                            </button>
-                            <h4 class="modal-title">Approve/Revert De-Duplicate Bank Details</h4>
-                        </div>
-                        <div class="modal-body ben_view_body">
-                            <div class="panel-group singleInfo" role="tablist" aria-multiselectable="true">
-                                <div class="panel panel-default">
-                                    <div class="panel-heading active" role="tab" id="personal">
-                                        <div class="preloader1"><img src="{{ asset('images/ZKZg.gif') }}"
-                                                class="loader_img" width="150px" id="loader_img_personal"></div>
-                                        <h4 class="panel-title">
-                                            <a role="button" data-toggle="collapse" data-parent="#accordion"
-                                                href="#collapsePersonal" aria-expanded="true"
-                                                aria-controls="collapsePersonal">Personal Details <span
-                                                    class="applicant_id_modal"></span></a>
-                                        </h4>
-                                    </div>
-                                    <div id="collapsePersonal" class="panel-collapse collapse in" role="tabpanel"
-                                        aria-labelledby="personal">
-                                        <div class="panel-body" style="padding: 5px;">
-                                            <table class="table table-bordered table-condensed" style="font-size: 14px;">
-                                                <tbody>
-                                                    <tr>
-                                                        <th scope="row" width="20%">Applicant Name</th>
-                                                        <td id='fullname' width="30%"></td>
-                                                        <th scope="row" width="20%">Applicant Mobile</th>
-                                                        <td id='mobile_no' width="30%"></td>
-                                                    </tr>
-                                                    <tr>
-                                                        <th scope="row" width="20%">Applicant Caste</th>
-                                                        <td id='caste' width="30%"></td>
-                                                    </tr>
-                                                </tbody>
-                                            </table>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="panel-group singleInfo" role="tablist" aria-multiselectable="true">
-                                <div class="panel panel-default">
-                                    <div class="panel-heading active" role="tab" id="banking">
-                                        <h4 class="panel-title">
-                                            <a role="button" data-toggle="collapse" data-parent="#accordion"
-                                                href="#collapseBank" aria-expanded="true" aria-controls="collapseBank"
-                                                id="panel_bank_name_text">Bank Details</a>
-                                        </h4>
-                                    </div>
-                                    <div id="collapseBank" class="panel-collapse collapse in" role="tabpanel"
-                                        aria-labelledby="banking">
-                                        <div class="panel-body" style="padding: 5px;">
-                                            <table class="table table-bordered table-condensed" style="font-size: 14px;">
-                                                <tbody>
-                                                    <tr>
-                                                        <th scope="row" width="20%">Old Account No.</th>
-                                                        <td id="old_acc_no" width="30%"></td>
-                                                        <th scope="row" width="20%">New Account No.</th>
-                                                        <td id='new_acc_no' width="30%"></td>
-                                                    </tr>
-                                                    <tr>
-                                                        <th scope="row" width="20%">Old IFSC</th>
-                                                        <td id="old_ifsc" width="30%"></td>
-                                                        <th scope="row" width="20%">New IFSC</th>
-                                                        <td id="new_ifsc" width="30%"></td>
-                                                    </tr>
-                                                    <tr>
-                                                        <th scope="row" width="20%">Document</th>
-                                                            <td><button class="btn btn-primary ben_doc_button btn-xs" value="">View Bank Passbok</button></td>
-                                                    </tr>
-                                                </tbody>
-                                            </table>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="panel-group">
-                                <div class="panel panel-default">
-                                    <div class="panel-heading" role="tab" id="headingFour">
-                                        <h4 class="panel-title"> <a>Action</a> </h4>
-                                    </div>
-                                    <div id="collapse4" class="panel-collapse collapse in" role="tabpanel"
-                                        aria-labelledby="headingFour">
-                                        <div class="panel-body" style="padding: 5px;">
-                                            <div class="form-group col-md-4">
-                                                <label for="opreation_type">Select Operation<span class="text-danger">
-                                                        *</span></label>
-                                                <select name="opreation_type" id="opreation_type"
-                                                    class="form-control opreation_type">
-                                                    <option value="A" selected>Approve</option>
-                                                    <option value="T">Back To Verifier</option>
-                                                </select>
-                                            </div>
-                                            {{-- <div class="form-group col-md-4" style="display:none;" id="div_rejection">
-                                                <label for="reject_cause">Select Reverted Cause<span class="text-danger">
-                                                        *</span></label>
-                                                <select name="reject_cause" id="reject_cause" class="form-control">
-                                                    <option value="">--Select--</option>
-                                                    <option value="Banking informtion">Banking informtion</option>
-                                                </select>
-                                            </div> --}}
-                                            <div class="form-group col-md-4">
-                                                <label class="" for="heading">Enter Remarks</label>
-                                                <textarea style="margin: 0px; width: 279px; height: 40px;" name="accept_reject_comments" id="accept_reject_comments"
-                                                    class="form-control" maxlength="100"></textarea>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <form method="POST" action="#" target="_blank" name="fullForm" id="fullForm"
-                                style="text-align: center; align-content: center;">
-                                <input type="hidden" name="_token" value="{{ csrf_token() }}">
-                                <input type="hidden" name="is_bulk" id="is_bulk" value="0" />
-                                <input type="hidden" id="id" name="id" />
-                                <input type="hidden" id="application_id" name="application_id" />
-                                <input type="hidden" name="applicantId[]" id="applicantId" value="" />
-
-                                <button type="button" class="btn btn-success btn-lg" id="verifyReject">Approve</button>
-                                <button style="display:none;" type="button" id="submitting" value="Submit"
-                                    class="btn btn-success success" disabled>Processing Please Wait</button>
-                            </form>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-        </section>
-    </div>
+    </section>
+<!-- </div> -->
 
 @endsection
-@section('script')
+@push('scripts')
     <script src="{{ URL::asset('js/master-data-v2.js') }}"></script>
-    <script src="js/jquery.min.js" type="text/javascript"></script>
-    <script src="js/jquery.dataTables.min.js" type="text/javascript"></script>
     <script>
         $(document).ready(function() {
             $('.sidebar-menu li').removeClass('active');
@@ -933,4 +904,5 @@
             // console.log(applicantId);
         }
     </script>
-@stop
+@endpush
+

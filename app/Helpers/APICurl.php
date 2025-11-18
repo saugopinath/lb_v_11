@@ -26,30 +26,6 @@ class APICurl
         return  $response;
     }
 
-    public static function cmoFetchCurl($api_url, $data_string){
-        $ch = curl_init();
-
-        curl_setopt($ch, CURLOPT_URL, $api_url);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-        curl_setopt($ch, CURLOPT_POST, 1);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, $data_string);
-
-        $headers = array();
-        $headers[] = 'Content-Type: application/json';
-        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
-        
-
-        $result = curl_exec($ch);
-        $errorCurl='';
-        if (curl_errno($ch)) {
-            $errorCurl = curl_error($ch);
-        }
-        curl_close($ch);
-        $response=array('result'=>$result,'errorCurl'=>$errorCurl);
-        // dd($response);
-        return  $response;
-    }
-
     public static function callingAPIForSR($api_url, $headers, $data_string)
     {   
         $curl = curl_init($api_url);
