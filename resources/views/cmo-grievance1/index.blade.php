@@ -329,24 +329,45 @@
                         extend: 'pdf',
                         footer: true,
                         pageSize: 'A4',
-                        //orientation: 'landscape',
                         pageMargins: [40, 60, 40, 60],
                         exportOptions: {
-                            columns: [0, 1, 2, 3, 4, 5, 6],
-
-                        }
+                            columns: [0, 1, 2, 3]
+                        },
+                        className: 'table-action-btn'
+                    },
+                    {
+                        extend: 'print',
+                        footer: true,
+                        exportOptions: {
+                            columns: [0, 1, 2, 3]
+                        },
+                        className: 'table-action-btn'
                     },
                     {
                         extend: 'excel',
-                        footer: true,
                         pageSize: 'A4',
-                        //orientation: 'landscape',
-                        pageMargins: [40, 60, 40, 60],
+                        footer: true,
                         exportOptions: {
-                            columns: [0, 1, 2, 3, 4, 5, 6],
-                            stripHtml: false,
-                        }
+                            columns: [0, 1, 2, 3]
+                        },
+                        className: 'table-action-btn'
                     },
+                    {
+                        extend: 'copy',
+                        footer: true,
+                        exportOptions: {
+                            columns: [0, 1, 2, 3]
+                        },
+                        className: 'table-action-btn'
+                    },
+                    {
+                        extend: 'csv',
+                        footer: true,
+                        exportOptions: {
+                            columns: [0, 1, 2, 3]
+                        },
+                        className: 'table-action-btn'
+                    }
                 ],
             });
         }
