@@ -38,45 +38,24 @@ use App\Http\Controllers\{
     DuplicateController,
     wBPdsChangeController,
     jnmpController,
-    ApproveEditedFailedBenNameController,
     MisReportAllPhaseController,
     RejectDraftController,
-    SchemeOnboardingController
+    SchemeOnboardingController,
     BackfromJBController,
-    NoAadharChangeController,
-    BenNameValidationFailedController
     NameValidationController,
-    CmoGrivanceWorkflowController1,
-    DuplicateController,
-    MisReportWithFaultyController,
-    StopBeneficiaryController,
     WorkflowController,
     ApprovedEditedBankDetailsController,
     ApproveEditedBankDetailsController,
-    BasicAuthController,
     CheckingDataController,
     cmoDataFetchNewController,
     DocumentTypeController,
-    DuplicateControllerBank,
     FaultyLbEntryeditController,
     LakkhiBhandarAjaxEntry,
-    SchemeOnboardingController,
-    WorkflowFaultyController
-    CmoGrivanceWorkflowController1,
-    BenNameValidationFailedController,
-    ApproveEditedFailedBenNameController,
-    BankDetailsEditBandhanBankController
-    MasterDataController,
+    WorkflowFaultyController,
     UpdateBankDetailsController,
-    DeactivatedBeneficiaryController,
     DrilldownFaultyReportController,
-    MisReportController
-    jnmpController,
-    DeactivatedBeneficiaryController,
-    DsMisReportController,
-    FinancialAssistancePaybleController,
+    MisReportController,
     LotReportController,
-    NameValidationController,
 };
 
 Route::get('refresh-captcha', [CaptchaController::class, 'refreshCaptcha'])->name('refresh-captcha');
@@ -158,7 +137,7 @@ Route::controller(LegacyProcessController::class)->group(function () {
 });
 Route::controller(PensionCommonController::class)->group(function () {
     Route::any('applicant/track/', 'applicantTrack');
-    
+
 });
 Route::controller(PensionformReportController::class)->group(function () {
     Route::any('application-list-common', 'applicationStatusList');
@@ -180,7 +159,7 @@ Route::controller(casteManagementController::class)->group(function () {
     Route::post('getCasteApplieddata', 'getCastedata')->name('getCasteApplieddata');
     Route::post('ajaxModifiedCasteEncolser', 'ajaxModifiedCasteEncolser')->name('ajaxModifiedCasteEncolser');
     Route::post('verifyDataCaste', 'verifydata')->name('verifyDataCaste');
-    Route::post('approveDataCaste',  'approvedata')->name('approveDataCaste');
+    Route::post('approveDataCaste', 'approvedata')->name('approveDataCaste');
     Route::get('casteInfoMis', 'casteInfoMis')->name('casteInfoMis');
     Route::post('casteInfoMisPost', 'getData')->name('casteInfoMisPost');
     Route::any('lb-caste-reverted-list', 'applicationRevertedList')->name('lb-caste-reverted-list');
@@ -208,37 +187,37 @@ Route::controller(StopBeneficiaryController::class)->group(function () {
     Route::post('stop-list-Excel', 'generate_excel');
 });
 Route::controller(BeneficiaryCommonController::class)->group(function () {
-  Route::post('getPersonalApproved', 'getPersonalApproved')->name('getPersonalApproved');
-  Route::post('getAadhaarApproved', 'getAadhaarApproved')->name('getAadhaarApproved');
-  Route::post('getContactApproved', 'getContactApproved')->name('getContactApproved');
-  Route::post('getBankApproved', 'getBankApproved')->name('getBankApproved');
-  Route::post('getInvestigatorApproved', 'getInvestigatorApproved')->name('getInvestigatorApproved');
+    Route::post('getPersonalApproved', 'getPersonalApproved')->name('getPersonalApproved');
+    Route::post('getAadhaarApproved', 'getAadhaarApproved')->name('getAadhaarApproved');
+    Route::post('getContactApproved', 'getContactApproved')->name('getContactApproved');
+    Route::post('getBankApproved', 'getBankApproved')->name('getBankApproved');
+    Route::post('getInvestigatorApproved', 'getInvestigatorApproved')->name('getInvestigatorApproved');
 });
 
 Route::controller(CmoGrivanceWorkflowController1::class)->group(function () {
-   Route::get('cmo-grievance-entry-list1', 'opListCmo')->name('cmo-grievance-entry-list1');
-   Route::get('cmo-op_entryList1', 'cmoEntryList')->name('cmo-op_entryList1');
+    Route::get('cmo-grievance-entry-list1', 'opListCmo')->name('cmo-grievance-entry-list1');
+    Route::get('cmo-op_entryList1', 'cmoEntryList')->name('cmo-op_entryList1');
 });
 
-Route::controller(BackfromJBController::class)->group(function () { 
+Route::controller(BackfromJBController::class)->group(function () {
     Route::any('backfromjb', 'marked_list')->name('backfromjb');
     Route::any('showbackfromjb/{application_id}/{is_faulty}', 'showApplicantDetails')->name('showbackfromjb');
     Route::post('forward-backfromjb', 'verifydata')->name('forward-backfromjb');
 });
 
 Route::controller(NoAadharChangeController::class)->group(function () {
-    Route::any('noaadharlist','list')->name('noaadharlist');
-    Route::get('Viewnoaadhar','Viewnoaadhar')->name('Viewnoaadhar');
-    Route::post('noaadharPost','noaadharPost')->name('noaadharPost');
-    Route::post('BulkApprovenoaadhar','bulkApprove')->name('BulkApprovenoaadhar');
-    Route::get('noaadharPdfDownload','pdf')->name('noaadharPdfDownload');
-    Route::any('noaadharMisReport','misReport')->name('noaadharMisReport');
-    Route::any('noaadharMisReportPost','misReportPost')->name('noaadharMisReportPost');
-    Route::post('applicationListNoaadharExcel','generate_excel')->name('applicationListNoaadharExcel');
+    Route::any('noaadharlist', 'list')->name('noaadharlist');
+    Route::get('Viewnoaadhar', 'Viewnoaadhar')->name('Viewnoaadhar');
+    Route::post('noaadharPost', 'noaadharPost')->name('noaadharPost');
+    Route::post('BulkApprovenoaadhar', 'bulkApprove')->name('BulkApprovenoaadhar');
+    Route::get('noaadharPdfDownload', 'pdf')->name('noaadharPdfDownload');
+    Route::any('noaadharMisReport', 'misReport')->name('noaadharMisReport');
+    Route::any('noaadharMisReportPost', 'misReportPost')->name('noaadharMisReportPost');
+    Route::post('applicationListNoaadharExcel', 'generate_excel')->name('applicationListNoaadharExcel');
 });
 
 Route::controller(BenNameValidationFailedController::class)->group(function () {
-    Route::get('selectMatchingScore','selectMatchingScore')->name('selectMatchingScore');
+    Route::get('selectMatchingScore', 'selectMatchingScore')->name('selectMatchingScore');
 });
 
 
@@ -334,17 +313,17 @@ Route::controller(NoAadharChangeController::class)->group(function () {
 
 //Aadhar Dedplication
 Route::controller(DuplicateController::class)->group(function () {
-Route::any('lb-dup-aadhar-list-approved-verifier', 'dup_aadhar_approved_verifier');
-Route::get('dedupAadhaarView', 'dedupAadhaarView');
-Route::post('dupAadharReject', 'dupAadharReject')->name('dupAadharReject');
-Route::post('dupAadharModify', 'dupAadharmodify')->name('dupAadharModify');
-Route::any('lb-dup-aadhar-list-approved-approver', 'dup_aadhar_approved_approver');
-Route::post('dupAadhaarApproved', 'dupAadhaarApproved')->name('dupAadhaarApproved');
-Route::get('dupAadhaarMis','misAadhar')->name('dupAadhaarMis');
-Route::any('dupAadhaarMisPost','misAadharPost')->name('dupAadhaarMisPost');
-Route::get('dup-aadhar-ben-list', 'dupAadharBenList')->name('dup-aadhar-ben-list');
-Route::post('dupAadharGetBenList', 'dupAadharGetBenList')->name('dupAadharGetBenList');
-Route::post('GetdupAadharBenListExcel', 'GetdupAadharBenListExcel')->name('GetdupAadharBenListExcel');
+    Route::any('lb-dup-aadhar-list-approved-verifier', 'dup_aadhar_approved_verifier');
+    Route::get('dedupAadhaarView', 'dedupAadhaarView');
+    Route::post('dupAadharReject', 'dupAadharReject')->name('dupAadharReject');
+    Route::post('dupAadharModify', 'dupAadharmodify')->name('dupAadharModify');
+    Route::any('lb-dup-aadhar-list-approved-approver', 'dup_aadhar_approved_approver');
+    Route::post('dupAadhaarApproved', 'dupAadhaarApproved')->name('dupAadhaarApproved');
+    Route::get('dupAadhaarMis', 'misAadhar')->name('dupAadhaarMis');
+    Route::any('dupAadhaarMisPost', 'misAadharPost')->name('dupAadhaarMisPost');
+    Route::get('dup-aadhar-ben-list', 'dupAadharBenList')->name('dup-aadhar-ben-list');
+    Route::post('dupAadharGetBenList', 'dupAadharGetBenList')->name('dupAadharGetBenList');
+    Route::post('GetdupAadharBenListExcel', 'GetdupAadharBenListExcel')->name('GetdupAadharBenListExcel');
 });
 
 
@@ -763,11 +742,12 @@ Route::controller(DocumentTypeController::class)->group(function () {
     Route::post('documentSave', 'documentSaveUpdate')->name('documentSave');
     Route::post('editDocument', 'editDocument')->name('editDocument');
     Route::post('documentUpdate', 'documentSaveUpdate')->name('documentUpdate');
+});
+
 Route::post('bankIfsc', 'LegacyProcessController@bankIfsc')->name('bankIfsc');
 Route::controller(BankDetailsEditBandhanBankController::class)->group(function () {
     Route::post('getBankFailedexcel', 'getBankFailedexcel')->name('getBankFailedexcel');
 });
-
 
 Route::controller(BenNameValidationFailedController::class)->group(function () {
     Route::get('selectMatchingScore', 'selectMatchingScore')->name('selectMatchingScore');
@@ -789,12 +769,7 @@ Route::controller(ApproveEditedFailedBenNameController::class)->group(function (
     Route::post('getVerifiedNameValidationFailed90to100', 'getVerifiedNameValidationFailed90to100')->name('getVerifiedNameValidationFailed90to100');
     Route::post('updateFailedNameApprove90to100', 'updateFailedNameApprove90to100')->name('updateFailedNameApprove90to100');
 });
-// Update Bank Details for Approved Beneficiary
-// Route::get('bank-details-update', 'UpdateBankDetailsController@index')->name('bank-details-update');
-// Route::post('getLineListBankEdit', 'UpdateBankDetailsController@getLineListBankEdit')->name('getLineListBankEdit');
-// Route::post('getBenDataForBankUpdate', 'UpdateBankDetailsController@getBenDataForBankUpdate')->name('getBenDataForBankUpdate');
-// Route::post('updateApprovedBenBankDetails', 'UpdateBankDetailsController@updateApprovedBenBankDetails')->name('updateApprovedBenBankDetails');
-// Route::post('updateApprovedBenMobileNumber', 'UpdateBankDetailsController@updateApprovedBenMobileNumber')->name('updateApprovedBenMobileNumber');
+
 Route::controller(UpdateBankDetailsController::class)->group(function () {
     Route::get('bank-details-update', 'index')->name('bank-details-update');
     Route::post('getLineListBankEdit', 'getLineListBankEdit')->name('getLineListBankEdit');
@@ -804,14 +779,7 @@ Route::controller(UpdateBankDetailsController::class)->group(function () {
 });
 
 
-// De-activated Beneficiary
-// Route::get('de-activate-beneficiary', 'DeactivatedBeneficiaryController@index')->name('de-active-beneficiary');
-// Route::post('get-linelisting-deactive', 'DeactivatedBeneficiaryController@getData')->name('get-linelisting-deactive');
-// Route::post('getBeneficiaryPersonalData', 'DeactivatedBeneficiaryController@getBeneficiaryPersonalData')->name('getBeneficiaryPersonalData');
-// Route::post('updateStopPaymentFinal', 'DeactivatedBeneficiaryController@updateStopPaymentFinal')->name('updateStopPaymentFinal');
-// Route::get('de-activated-list', 'DeactivatedBeneficiaryController@deActivatedReport')->name('de-activated-list');
-// Route::post('getDeActivatedBenDataList', 'DeactivatedBeneficiaryController@getDeActivatedBenDataList')->name('getDeActivatedBenDataList');
-// De-activated Beneficiary
+
 Route::controller(DeactivatedBeneficiaryController::class)->group(function () {
     Route::get('de-activate-beneficiary', 'index')->name('de-active-beneficiary');
     Route::post('get-linelisting-deactive', 'getData')->name('get-linelisting-deactive');
@@ -829,13 +797,7 @@ Route::controller(BeneficiaryCommonController::class)->group(function () {
     Route::post('getInvestigatorApproved', 'getInvestigatorApproved')->name('getInvestigatorApproved');
 });
 
-// Route::post('getPersonalApproved', 'BeneficiaryCommonController@getPersonalApproved')->name('getPersonalApproved');
-// Route::post('getAadhaarApproved', 'BeneficiaryCommonController@getAadhaarApproved')->name('getAadhaarApproved');
-// Route::post('getContactApproved', 'BeneficiaryCommonController@getContactApproved')->name('getContactApproved');
-// Route::post('getBankApproved', 'BeneficiaryCommonController@getBankApproved')->name('getBankApproved');
-// Route::post('getInvestigatorApproved', 'BeneficiaryCommonController@getInvestigatorApproved')->name('getInvestigatorApproved');
 Route::controller(MisReportController::class)->group(function () {
-
     Route::get('misReport-faulty', 'faulty')->name('misReport-faulty');
     Route::post('misReport-faulty-Post', 'getData_faulty')->name('misReport-faulty-Post');
 });
@@ -846,9 +808,6 @@ Route::controller(DrilldownFaultyReportController::class)->group(function () {
     Route::post('getFaultyBlockSubdivAppData', 'getFaultyBlockSubdivAppData')->name('getFaultyBlockSubdivAppData');
 });
 
-// Route::get('faulty-application-report', 'DrilldownFaultyReportController@index')->name('faulty-application-report');
-// Route::post('getFaultyDistAppData', 'DrilldownFaultyReportController@getFaultyDistAppData')->name('getFaultyDistAppData');
-// Route::post('getFaultyBlockSubdivAppData', 'DrilldownFaultyReportController@getFaultyBlockSubdivAppData')->name('getFaultyBlockSubdivAppData');
 
 Route::controller(BasicAuthController::class)->group(function () {
     Route::get('jnmp-fetch-callback-api', 'index')->name('jnmp-fetch-callback-api');
@@ -932,7 +891,8 @@ Route::controller(FinancialAssistancePaybleController::class)->group(function ()
     Route::get('financial-assistance-payable', 'lotGeneratedPendingIndex')->name('financial-assistance-payable');
     Route::post('lotGeneratedPendingAmountReport', 'lotGeneratedPendingAmountReport')->name('lotGeneratedPendingAmountReport');
 });
+
 Route::controller(NameValidationController::class)->group(function () {
-Route::get('misReport-nameValidation', 'misReport');
-Route::get('misReport-nameValidation-Post', 'getData')->name('misReport-nameValidation-Post');
+    Route::get('misReport-nameValidation', 'misReport');
+    Route::get('misReport-nameValidation-Post', 'getData')->name('misReport-nameValidation-Post');
 });
