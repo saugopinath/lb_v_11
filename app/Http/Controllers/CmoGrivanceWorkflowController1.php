@@ -29,7 +29,7 @@ use Illuminate\Support\Facades\Storage;
 use App\SchemeDocMap;
 use File;
 use App\BankDetails;
-use App\UrbanBody;
+use App\Models\UrbanBody;
 use App\Ward;
 use App\Models\GP;
 use Carbon\Carbon;
