@@ -60,7 +60,12 @@ use App\Http\Controllers\{
     LakkhiBhandarAjaxEntry,
     SchemeOnboardingController,
     WorkflowFaultyController
+    CmoGrivanceWorkflowController1,
+    BenNameValidationFailedController,
+    ApproveEditedFailedBenNameController,
+    BankDetailsEditBandhanBankController
 };
+
 Route::get('refresh-captcha', [CaptchaController::class, 'refreshCaptcha'])->name('refresh-captcha');
 Route::controller(AuthenticationController::class)->group(function () {
     Route::get('/', 'login')->name('login');
@@ -97,7 +102,6 @@ Route::controller(TrackApplicantController::class)->group(function () {
     Route::get('/track-applicant', 'applicantTrack')->name('track-applicant');
     Route::get('ajaxApplicationTrack', 'ajaxApplicationTrack')->name('ajaxApplicationTrack');
     Route::get('getPaymentDetailsFinYearWiseInTrackApplication', 'getFinYearWisePaymentDetailsInTrackApplication')->name('getPaymentDetailsFinYearWiseInTrackApplication');
-
 });
 Route::controller(DashboardController::class)->group(function () {
     Route::get('dashboard', 'index')->middleware(['auth', 'verified'])->name('dashboard')->middleware('auth');
@@ -523,6 +527,38 @@ Route::controller(StopBeneficiaryController::class)->group(function () {
     Route::any('stop-list-mis', 'mishod');
 });
 
+Route::controller(CmoGrivanceWorkflowController1::class)->group(function () {
+    Route::get('cmo-grievance-workflow1', 'index')->name('cmo-grievance-workflow1');
+    Route::post('cmo-grievance-linelisting1', 'listing')->name('cmo-grievance-linelisting1');
+    Route::post('cmo-grievance-find1', 'find')->name('cmo-grievance-find1');
+    Route::post('cmo-grievance-redress1', 'redress')->name('cmo-grievance-redress1');
+    Route::post('cmo-grievance-transfar1', 'transfar')->name('cmo-grievance-transfar1');
+    Route::post('cmo-grievance-process-post1', 'processPost')->name('cmo-grievance-process-post1');
+    Route::post('cmo-grievance-benLising1', 'benlisting')->name('cmo-grievance-benLising1');
+    Route::post('cmo-sent-to-operator1', 'sendOperator')->name('cmo-sent-to-operator1');
+    Route::get('cmo-grievance-entry-list1', 'opListCmo')->name('cmo-grievance-entry-list1');
+    Route::get('cmo-op_entryList1', 'cmoEntryList')->name('cmo-op_entryList1');
+    Route::post('cmo-grievance-applicant-tag1', 'applicanttagdetails')->name('cmo-grievance-applicant-tag1');
+    Route::post('cmo_grivance_approve1', 'approve')->name('cmo_grivance_approve1');
+    Route::post('cmo_grivance_revert1', 'revert')->name('cmo_grivance_revert1');
+
+    // CMO HOD
+    Route::get('cmo-grievance-hod1', 'hodIndex')->name('cmo-grievance-hod1');
+    Route::post('cmo-grievance-hod-listing1', 'hodList')->name('cmo-grievance-hod-listing1');
+    Route::post('cmo-grievance-hod-view1', 'hodView')->name('cmo-grievance-hod-view1');
+    Route::post('cmo-grievance-hod-post1', 'sendBackToCmo')->name('cmo-grievance-hod-post1');
+    Route::post('cmo-grievance-hod-revert1', 'hodRevert')->name('cmo-grievance-hod-revert1');
+
+    // CMO MIS Report
+    Route::get('cmo-mis-report1', 'cmoMisReport')->name('cmo-mis-report1');
+    Route::post('get-mis-report1', 'getMisReport')->name('get-mis-report1');
+
+    // Map & Municipality related
+    Route::any('cmo-mapbosget', 'mapbosget')->name('cmo-mapbosget');
+    Route::any('cmo-getblksublist', 'getblksublist')->name('cmo-getblksublist');
+    Route::any('cmo-getMunicipalityList', 'getMunicipalityList')->name('cmo-getMunicipalityList');
+    Route::any('cmo-mapbospost', 'mapbospost')->name('cmo-mapbospost');
+});
 
 
 // Approved Bank Edited Details
@@ -698,4 +734,29 @@ Route::controller(DocumentTypeController::class)->group(function () {
     Route::post('documentSave', 'documentSaveUpdate')->name('documentSave');
     Route::post('editDocument', 'editDocument')->name('editDocument');
     Route::post('documentUpdate', 'documentSaveUpdate')->name('documentUpdate');
+Route::post('bankIfsc', 'LegacyProcessController@bankIfsc')->name('bankIfsc');
+Route::controller(BankDetailsEditBandhanBankController::class)->group(function () {
+    Route::post('getBankFailedexcel', 'getBankFailedexcel')->name('getBankFailedexcel');
+});
+
+
+Route::controller(BenNameValidationFailedController::class)->group(function () {
+    Route::get('selectMatchingScore', 'selectMatchingScore')->name('selectMatchingScore');
+    Route::get('edit-name-failed-90-to-100', 'editIndex')->name('edit-name-failed-90-to-100');
+    Route::post('editFailedNameDetails', 'editFailedNameDetails')->name('editFailedNameDetails');
+    Route::post('getDataNameValidationFailed90to100', 'getDataNameValidationFailed90to100')->name('getDataNameValidationFailed90to100');
+    Route::post('updateNameValidationFailed90to100', 'updateNameValidationFailed90to100')->name('updateNameValidationFailed90to100');
+    Route::post('failedNameAjaxViewPassbook', 'failedNameAjaxViewPassbook')->name('failedNameAjaxViewPassbook');
+});
+
+
+Route::controller(ApproveEditedFailedBenNameController::class)->group(function () {
+    Route::get('mis-report-of-90-to-100', 'indexMisReport')->name('mis-report-of-90-to-100');
+    Route::get('selectVerifiedMatchingScore', 'selectMatchingScore')->name('selectVerifiedMatchingScore');
+    Route::post('getMis90to100', 'getMis90to100')->name('getMis90to100');
+    Route::post('nameMismatchRejectOtpVerify', 'nameMismatchRejectOtpVerify')->name('nameMismatchRejectOtpVerify');
+    Route::get('approve-edited-name-failed-90-to-100', 'editIndex')->name('approve-edited-name-failed-90-to-100');
+    Route::post('getEditFailedNameData90to100', 'getEditFailedNameData90to100')->name('getEditFailedNameData90to100');
+    Route::post('getVerifiedNameValidationFailed90to100', 'getVerifiedNameValidationFailed90to100')->name('getVerifiedNameValidationFailed90to100');
+    Route::post('updateFailedNameApprove90to100', 'updateFailedNameApprove90to100')->name('updateFailedNameApprove90to100');
 });

@@ -36,14 +36,7 @@
     <link rel="stylesheet" href="{{ asset('bootstrap-5/css/bootstrap.min.css') }}" type="text/css" />
     <link rel="stylesheet" href="{{ asset('css/jquery-confirm.min.css') }}" type="text/css" />
     <link rel="stylesheet" href="{{ asset('css/global.css') }}" type="text/css" />
-    <!-- <link rel="stylesheet" href="{{ asset('css/sweetalert2.min.css') }}" type="text/css" /> -->
-
-
-
-
-
-
-
+    <link rel="stylesheet" href="{{ asset('css/sweetalert2.min.css') }}" type="text/css" />
     <!-- STACK 1: Global Styles -->
     @stack('styles')
 
@@ -71,6 +64,7 @@
     <script src="{{ asset('AdminLTE_3/dist/js/adminlte.js') }}"></script>
     <script src="{{ asset('js/jquery-confirm.min.js') }}"></script>
      <script src="{{ asset('js/validateAdhar.js') }}"></script>
+    <script src="{{ asset('js/sweetalert2.all.min.js') }}"></script>
 
     {{-- Dynamic JS --}}
     <!-- STACK 3: Library/Plugin Scripts (js from middle-level templates) -->

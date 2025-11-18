@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\User;
-use App\Models\District;
+use App\District;
 use App\Scheme;
 use Redirect;
 use Auth;
@@ -14,7 +14,7 @@ use Illuminate\Support\Facades\DB;
 use Validator;
 use DateTime;
 use Config;
-use App\Models\Configduty;
+use App\Configduty;
 use Maatwebsite\Excel\Facades\Excel;
 use App\DataSourceCommon;
 
@@ -29,9 +29,9 @@ use Illuminate\Support\Facades\Storage;
 use App\SchemeDocMap;
 use File;
 use App\BankDetails;
-use App\Models\UrbanBody;
+use App\UrbanBody;
 use App\Ward;
-use App\Models\GP;
+use App\GP;
 use Carbon\Carbon;
 use App\Helpers\Helper;
 use App\AcceptRejectInfo;
@@ -40,7 +40,7 @@ use phpDocumentor\Reflection\PseudoTypes\True_;
 use App\Helpers\DupCheck;
 use App\Traits\TraitCMOValidate;
 
-class CmoGrivanceWorkflowController1 extends Controller
+class CmoGrivanceWorkflowController extends Controller
 {
     use TraitCMOValidate;
     public function __construct()
@@ -68,7 +68,7 @@ class CmoGrivanceWorkflowController1 extends Controller
                 )
                     ->select('urban_body_code', 'urban_body_name')
                     ->get();
-                return view('cmo-grievance1/index', [
+                return view('cmo-grievance/index', [
                     'mapLevel' => $mapObj->mapping_level . $designation,
                     'urban_bodys' => $urban_bodys,
                     'local_body_code' => $urban_body_code,
@@ -79,7 +79,7 @@ class CmoGrivanceWorkflowController1 extends Controller
                 $gps = GP::where('block_code', $taluka_code)
                     ->select('gram_panchyat_code', 'gram_panchyat_name')
                     ->get();
-                return view('cmo-grievance1/index', [
+                return view('cmo-grievance/index', [
                     'mapLevel' => $mapObj->mapping_level . $designation,
                     'gps' => $gps,
                     'local_body_code' => $taluka_code,
@@ -88,12 +88,12 @@ class CmoGrivanceWorkflowController1 extends Controller
             }
         } else if ($designation == 'Approver' || $designation == 'Delegated Approver') {
             $district_code = $mapObj->district_code;
-            return view('cmo-grievance1/index', [
+            return view('cmo-grievance/index', [
                 'mapLevel' => $mapObj->mapping_level,
                 'district_code' => $district_code,
             ]);
         } else if ($designation == 'HOD') {
-            return view('cmo-grievance1/index', [
+            return view('cmo-grievance/index', [
                 'mapLevel' => $mapObj->mapping_level,
             ]);
         } else {
@@ -117,15 +117,20 @@ class CmoGrivanceWorkflowController1 extends Controller
                 if ($mapObj->is_urban == 1) {
                     $mapLevel = 'SubdivVerifier';
                     $created_by_local_body_code = $mapObj->urban_body_code;
+
+
                 } else {
                     $mapLevel = 'BlockVerifier';
                     $created_by_local_body_code = $mapObj->taluka_code;
+
                 }
             } else if ($designation == 'Approver' || $designation == 'Delegated Approver') {
                 $created_by_district_code = $mapObj->district_code;
                 $mapLevel = 'DistrictApprover';
+
             } else if ($designation == 'HOD') {
                 $mapLevel = 'Department';
+
             } else {
                 return redirect('/')->with('success', 'UnAuthorized');
             }
@@ -133,31 +138,9 @@ class CmoGrivanceWorkflowController1 extends Controller
             $process_type = $request->process_type;
             $whereCondition = ' 1=1 ';
 
-            if ($mapLevel == 'BlockVerifier' || $mapLevel == 'SubdivVerifier') {
-                $whereCondition = $whereCondition . " and lb_dist_code='" . $created_by_district_code . "'";
-                $whereCondition = $whereCondition . " and lb_local_body_code='" . $created_by_local_body_code . "'";
-                if ($process_type == 1) {
-                    $whereCondition = $whereCondition . ' and is_processed = 0 and send_to_op = 0';
-                } else if ($process_type == 2) {
-                    $whereCondition = $whereCondition . ' and is_processed = 1';
-                } else if ($process_type == 3) {
-                    $whereCondition = $whereCondition . ' and is_processed = 2';
-                } else if ($process_type == 4) {
-                    $whereCondition = $whereCondition . ' and is_processed = 3';
-                } else if ($process_type == 5) {
-                    $whereCondition = $whereCondition . ' and send_to_op = 1 and is_processed = 0';
-                }
-
-
-                $query = "Select grievance_id,applicant_name,pri_cont_no,created_on,is_processed,is_redressed,is_mark,is_change_block,lb_dist_code,lb_local_body_code, send_to_op from cmo.cmo_sm_data  where  " . $whereCondition . "";
-            }
-            /*elseif ($mapLevel == 'SubdivVerifier') {
-
-                $whereCondition = $whereCondition . " and lb_dist_code='" . $created_by_district_code . "'";
-                $munlist = UrbanBody::where('sub_district_code', $created_by_local_body_code)->get()->toArray();
-                $munlist_ids = array_column($munlist, 'urban_body_code');
-                $munlist_ids_list = "'" . implode("', '", $munlist_ids) . "'";
-                $whereCondition = $whereCondition . " and lb_local_body_code IN (" . $munlist_ids_list . ")";
+            if ($mapLevel == 'BlockVerifier') {
+                $whereCondition = $whereCondition . " and lgd_dist='" . $created_by_district_code . "'";
+                $whereCondition = $whereCondition . " and lgd_block='" . $created_by_local_body_code . "'";
                 if ($process_type == 1) {
                     $whereCondition = $whereCondition . ' and is_processed = 0';
                 } else if ($process_type == 2) {
@@ -171,13 +154,36 @@ class CmoGrivanceWorkflowController1 extends Controller
                 }
 
 
-                $query = "Select grievance_id,applicant_name,pri_cont_no,created_on,is_processed,is_redressed,is_mark,is_change_block,lb_dist_code,lb_local_body_code,
-              lb_local_body_code from cmo.cmo_sm_data  where  " . $whereCondition . "";
+                $query = "Select grievance_id,applicant_name,pri_cont_no,created_on,is_processed,is_redressed,is_mark,is_change_block,lgd_dist,lgd_block,
+              lgd_muni from cmo.cmo_sm_data  where  " . $whereCondition . "";
+
+            } elseif ($mapLevel == 'SubdivVerifier') {
+
+                $whereCondition = $whereCondition . " and lgd_dist='" . $created_by_district_code . "'";
+                $munlist = UrbanBody::where('sub_district_code', $created_by_local_body_code)->get()->toArray();
+                $munlist_ids = array_column($munlist, 'urban_body_code');
+                $munlist_ids_list = "'" . implode("', '", $munlist_ids) . "'";
+                $whereCondition = $whereCondition . " and lgd_muni IN (" . $munlist_ids_list . ")";
+                if ($process_type == 1) {
+                    $whereCondition = $whereCondition . ' and is_processed = 0';
+                } else if ($process_type == 2) {
+                    $whereCondition = $whereCondition . ' and is_processed = 1';
+                } else if ($process_type == 3) {
+                    $whereCondition = $whereCondition . ' and is_processed = 2';
+                } else if ($process_type == 4) {
+                    $whereCondition = $whereCondition . ' and is_processed = 3';
+                } else if ($process_type == 5) {
+                    $whereCondition = $whereCondition . ' and send_to_op = 1 and is_processed = 0';
+                }
 
 
-            } */ elseif ($mapLevel == 'DistrictApprover') {
+                $query = "Select grievance_id,applicant_name,pri_cont_no,created_on,is_processed,is_redressed,is_mark,is_change_block,lgd_dist,lgd_block,
+              lgd_muni from cmo.cmo_sm_data  where  " . $whereCondition . "";
 
-                $whereCondition = $whereCondition . " and lb_dist_code='" . $created_by_district_code . "'";
+
+            } elseif ($mapLevel == 'DistrictApprover') {
+
+                $whereCondition = $whereCondition . " and lgd_dist='" . $created_by_district_code . "'";
                 if ($process_type == 1) {
                     $whereCondition = $whereCondition . ' and is_processed=1';
                 } else if ($process_type == 3) {
@@ -187,18 +193,20 @@ class CmoGrivanceWorkflowController1 extends Controller
                 } else if ($process_type == 5) {
                     $whereCondition = $whereCondition . ' and send_to_op = 1 and is_processed = 0';
                 } else if ($process_type == 6) {
-                    $whereCondition = $whereCondition . " and (lb_local_body_code is null OR TRIM(lb_local_body_code) = '')";
+                    $whereCondition = $whereCondition . " and ((lgd_muni is null AND lgd_block is null) OR (lgd_muni is null AND TRIM(lgd_block) = '') OR (TRIM(lgd_muni) = '' AND lgd_block IS null))";
                 }
 
-                $query = "Select grievance_id,applicant_name,pri_cont_no,created_on,is_processed,is_redressed,is_mark,is_change_block,lb_dist_code,lb_local_body_code, send_to_op from cmo.cmo_sm_data  where  " . $whereCondition . "";
+                $query = "Select grievance_id,applicant_name,pri_cont_no,created_on,is_processed,is_redressed,is_mark,is_change_block,lgd_dist,lgd_block,
+              lgd_muni from cmo.cmo_sm_data  where  " . $whereCondition . "";                
             } elseif ($mapLevel == 'Department') {
 
                 if ($process_type == 7) {
-                    $whereCondition = $whereCondition . ' and is_processed = 0 and lb_dist_code is null and lb_local_body_code is null';
+                    $whereCondition = $whereCondition . ' and is_processed = 0 and lgd_dist is null and lgd_muni is null and lgd_block is null';
                 } else if ($process_type == 4) {
                     $whereCondition = $whereCondition . ' and is_processed = 3';
                 }
-                $query = "Select grievance_id,applicant_name,pri_cont_no,created_on,is_processed,is_redressed,is_mark,is_change_block,lb_dist_code,lb_local_body_code, send_to_op from cmo.cmo_sm_data  where  " . $whereCondition . "";
+                $query = "Select grievance_id,applicant_name,pri_cont_no,created_on,is_processed,is_redressed,is_mark,is_change_block,lgd_dist,lgd_block,
+                lgd_muni from cmo.cmo_sm_data  where  " . $whereCondition . "";
             } else {
                 return redirect('/')->with('success', 'UnAuthorized');
             }
@@ -222,21 +230,25 @@ class CmoGrivanceWorkflowController1 extends Controller
                                 $action = 'Marked but Approval Pending';
                             } else
                                 $action = '';
+
                         } else if ($process_type == 3) {
                             if ($data->is_processed == 2) {
                                 $action = 'Marked and Approved but Yet not send to CMO';
                             } else
                                 $action = '';
+
                         } else if ($process_type == 4) {
                             if ($data->is_processed == 3) {
                                 $action = 'Marked and Approved and Send to CMO';
                             } else
                                 $action = '';
+
                         } else if ($process_type == 5) {
-                            if ($data->send_to_op == 1 && $data->is_processed == 0) {
+                            if ($data->send_to_op = 1 && $data->is_processed = 0) {
                                 $action = 'Sent to Operator for New Entry';
                             } else
                                 $action = '';
+
                         }
                     }
 
@@ -252,23 +264,27 @@ class CmoGrivanceWorkflowController1 extends Controller
                                 $action = 'Marked and Approved but Yet not send to CMO';
                             } else
                                 $action = '';
+
                         } else if ($process_type == 4) {
                             if ($data->is_processed == 3) {
                                 $action = 'Marked and Approved and Send to CMO';
                             } else
                                 $action = '';
+
                         } else if ($process_type == 5) {
-                            if ($data->send_to_op == 1 && $data->is_processed == 0) {
+                            if ($data->send_to_op = 1 && $data->is_processed = 0) {
                                 $action = 'Sent to Operator for New Entry';
                             } else
                                 $action = '';
+
                         } else if ($process_type == 6) {
-                            if ($data->is_processed == 0) {
-                                // $action = '<button value="' . $data->grievance_id . '_' . $scheme_id . '_' . $data->pri_cont_no . '" class="btn btn-xs btn-info find_applicant"><i class="glyphicon glyphicon-edit"></i>Find</button>';
-                                $action = '<button value="' . $data->grievance_id . '_' . $scheme_id . '_' . $data->pri_cont_no . '_' . $data->lb_dist_code . '" class="btn btn-xs btn-info mapbos"><i class=""></i>Map Block/Sub-Division</button>';
+                            if ($data->is_processed = 0) {
+                                $action = '<button value="' . $data->grievance_id . '_' . $scheme_id . '_' . $data->pri_cont_no . '" class="btn btn-xs btn-info find_applicant"><i class="glyphicon glyphicon-edit"></i>Find</button>';
                             } else
                                 $action = '';
+
                         }
+
                     }
                     if ($mapLevel == 'Department') {
                         if ($process_type == 7) {
@@ -282,7 +298,9 @@ class CmoGrivanceWorkflowController1 extends Controller
                                 $action = 'Marked and Approved and Send to CMO';
                             } else
                                 $action = '';
+
                         }
+
                     }
 
 
@@ -329,7 +347,7 @@ class CmoGrivanceWorkflowController1 extends Controller
         //    dd($row->atr_type);
         // $scheme = DB::connection('pgsql_mis')->select('select id,scheme_name from public.m_scheme where id in (select scheme_id from public.duty_assignement where user_id=' . $user_id . ' and is_active=1) order by scheme_name');
         if ($designation == 'Verifier' || $designation == 'Delegated Verifier' || $designation == 'Approver' || $designation == 'Delegated Approver' || $designation == 'HOD') {
-            return view('cmo-grievance1/find_applicant', ['scheme_id' => $scheme_id, 'grievance_id' => $grievance_id, 'grievance_mobile_no' => $grievance_mobile_no, 'row' => $row, 'atr' => $atr, 'districtList' => $districtList]);
+            return view('cmo-grievance/find_applicant', ['scheme_id' => $scheme_id, 'grievance_id' => $grievance_id, 'grievance_mobile_no' => $grievance_mobile_no, 'row' => $row, 'atr' => $atr, 'districtList' => $districtList]);
         } else {
             return redirect("/")->with('success', 'User disabled. No scheme assign to this user');
         }
@@ -381,14 +399,12 @@ class CmoGrivanceWorkflowController1 extends Controller
                 $updateDetails['redressed_date'] = date('Y-m-d H:i:s');
                 $updateDetails['remarks'] = $remarks;
                 // dd($updateDetails);
-                // dd($grievance_id, $grievance_mobile_no);
                 $is_update = DB::table('cmo.cmo_sm_data')
                     ->where('grievance_id', $grievance_id)
                     ->where('pri_cont_no', $grievance_mobile_no)
                     ->where('is_processed', 0)
                     ->where('is_redressed', 0)
                     ->update($updateDetails);
-                    // dd($is_update);
                 if ($is_update) {
                     DB::commit();
                     $response = [
@@ -426,7 +442,7 @@ class CmoGrivanceWorkflowController1 extends Controller
                 'exception' => true,
                 // 'exception_message' => $e->getMessage(),
                 'exception_message' =>
-                'Something went wrong. May be session time out logout and login again.',
+                    'Something went wrong. May be session time out logout and login again.',
             ];
             $statusCode = 400;
         } finally {
@@ -511,7 +527,7 @@ class CmoGrivanceWorkflowController1 extends Controller
             // SELECT sub_district_code AS block_subdiv_code, sub_district_name AS block_subdiv_name FROM 	public.m_sub_district
             // ) bl_div ON bl_div.block_subdiv_code=b.created_by_local_body_code 
             // where b.scheme_id=".$scheme_id."";
-            $query = "SELECT bp.application_id,bp.ben_fname,bp.ben_mname,bp.ben_lname,bp.father_fname,bp.father_mname,bp.father_lname,bp.next_level_role_id,bp.mobile_no,bc.rural_urban_id, bc.gp_ward_name,md.district_name, bl_div.block_subdiv_name,bp.sm_flag, cmo_mark, bc.block_ulb_name FROM lb_scheme.ben_personal_details bp
+            $query = "SELECT bp.application_id,bp.ben_fname,bp.ben_mname,bp.ben_lname,bp.father_fname,bp.father_mname,bp.father_lname,bp.next_level_role_id,bp.mobile_no,bc.rural_urban_id, bc.gp_ward_name,md.district_name, bl_div.block_subdiv_name, bc.block_ulb_name, bp.sm_flag, cmo_mark FROM lb_scheme.ben_personal_details bp
                 JOIN lb_scheme.ben_contact_details bc ON bp.application_id = bc.application_id
                 JOIN lb_scheme.ben_aadhar_details ba ON bp.application_id = ba.application_id
                 JOIN lb_scheme.ben_bank_details bb ON bb.application_id = bp.application_id
@@ -523,7 +539,7 @@ class CmoGrivanceWorkflowController1 extends Controller
                     SELECT sub_district_code AS block_subdiv_code, sub_district_name AS block_subdiv_name FROM public.m_sub_district
                 ) bl_div ON bl_div.block_subdiv_code = bp.created_by_local_body_code $input_con1 $condition1
                 UNION ALL
-                SELECT fp.application_id,fp.ben_fname,fp.ben_mname,fp.ben_lname,fp.father_fname,fp.father_mname,fp.father_lname,fp.next_level_role_id,fp.mobile_no,bfc.rural_urban_id,bfc.gp_ward_name, mfd.district_name, bfl_div.block_subdiv_name,fp.sm_flag, cmo_mark, bfc.block_ulb_name FROM lb_scheme.faulty_ben_personal_details fp
+                SELECT fp.application_id,fp.ben_fname,fp.ben_mname,fp.ben_lname,fp.father_fname,fp.father_mname,fp.father_lname,fp.next_level_role_id,fp.mobile_no,bfc.rural_urban_id,bfc.gp_ward_name, mfd.district_name, bfl_div.block_subdiv_name, bfc.block_ulb_name, fp.sm_flag, cmo_mark FROM lb_scheme.faulty_ben_personal_details fp
                 JOIN lb_scheme.faulty_ben_contact_details bfc ON fp.application_id = bfc.application_id
                 JOIN lb_scheme.ben_aadhar_details fba ON fba.application_id = fp.application_id
                 JOIN lb_scheme.faulty_ben_bank_details bfb ON bfb.application_id = fp.application_id
@@ -535,7 +551,7 @@ class CmoGrivanceWorkflowController1 extends Controller
                     SELECT sub_district_code AS block_subdiv_code, sub_district_name AS block_subdiv_name FROM public.m_sub_district
                 ) bfl_div ON bfl_div.block_subdiv_code = fp.created_by_local_body_code $input_con2 $condition2
                 UNION ALL
-                SELECT dp.application_id,dp.ben_fname,dp.ben_mname,dp.ben_lname,dp.father_fname,dp.father_mname,dp.father_lname,dp.next_level_role_id,dp.mobile_no,bdc.rural_urban_id, bdc.gp_ward_name, mdd.district_name, bdl_div.block_subdiv_name,dp.sm_flag, cmo_mark, bdc.block_ulb_name FROM lb_scheme.draft_ben_personal_details dp
+                SELECT dp.application_id,dp.ben_fname,dp.ben_mname,dp.ben_lname,dp.father_fname,dp.father_mname,dp.father_lname,dp.next_level_role_id,dp.mobile_no,bdc.rural_urban_id, bdc.gp_ward_name, mdd.district_name, bdl_div.block_subdiv_name, bdc.block_ulb_name, dp.sm_flag, cmo_mark FROM lb_scheme.draft_ben_personal_details dp
                 JOIN lb_scheme.draft_ben_contact_details bdc ON dp.application_id = bdc.application_id
                 JOIN lb_scheme.ben_aadhar_details dba ON dba.application_id = dp.application_id
                 JOIN lb_scheme.draft_ben_bank_details bdb ON bdb.application_id = dp.application_id
@@ -562,11 +578,11 @@ class CmoGrivanceWorkflowController1 extends Controller
             return datatables()
                 ->of($data)
                 ->addColumn('view', function ($data) use ($grievance_id) {
-                    // if ($data->cmo_mark == 1) {
-                    //     $action = '<b>Already Marked</b>';
-                    // } else {
-                    $action = '<button value="' . $data->application_id . '_' . $data->mobile_no . '_' . $grievance_id . '" class="btn btn-xs btn-info process_applicant"><i class="glyphicon glyphicon-edit"></i> Process</button>';
-                    // }
+                    if ($data->cmo_mark == 1) {
+                        $action = '<b>Already Marked</b>';
+                    } else {
+                        $action = '<button value="' . $data->application_id . '_' . $data->mobile_no . '_' . $grievance_id . '" class="btn btn-xs btn-info process_applicant"><i class="glyphicon glyphicon-edit"></i> Process</button>';
+                    }
                     return $action;
                 })
                 ->addColumn('application_id', function ($data) {
@@ -770,7 +786,7 @@ class CmoGrivanceWorkflowController1 extends Controller
                 'exception' => true,
                 // 'exception_message' => $e->getMessage(),
                 'exception_message' =>
-                'Something went wrong. May be session time out logout and login again.',
+                    'Something went wrong. May be session time out logout and login again.',
             ];
             $statusCode = 400;
         } finally {
@@ -826,23 +842,22 @@ class CmoGrivanceWorkflowController1 extends Controller
                 // $table = $this->getSchemaName($scheme_id);
                 DB::beginTransaction();
                 $is_insert = DB::statement("INSERT INTO cmo.cmo_sm_data_archive(grievance_id, 
-             grievance_no,grievance_source,receipt_mode,received_at,reference_no,applicant_name,pri_cont_no,alt_cont_no,cont_email,applicant_gender,applicant_age,applicant_caste,applicant_reigion,applicant_address,state_id,district_id,block_id,municipality_id,gp_id,ward_id,police_station_id,assembly_const_id,postoffice_id,employment_type,employment_status,grievance_category,grievance_description,action_requested,usb_unique_id,parent_grievance_id,status,atr_recv_cmo_flag,emergency_flag,created_by,updated_by,sub_division_id,uploaded_doc_id,created_by_position,updated_by_position,assigned_to_id,assigned_to_position,educational_qualification_id,professional_qualification_id,skill_id,address_type,action_taken_note,atn_id,force_closure_2020,closure_reason_id,deo_phone_no,assigned_by_office_id,assigned_to_office_id,assigned_by_office_cat,assigned_to_office_cat,atr_submit_by_lastest_office_id,direct_close,lb_next_level_role_id,marked_date,marked_by,lb_name,lb_id,scheme_id,is_processed,level_type,remarks,redressed_by,redressed_date,is_redressed,lb_rural_urban_id,is_change_block,change_block_by,change_block_date,response_back_date,response_back_by,api_fetching_date,atr_recv_cmo_date,grievence_close_date,created_on,updated_on,grievance_generate_date,current_atr_date,lb_dist_code,lb_local_body_code,atr_type,atr_desc
+             grievance_no,grievance_source,receipt_mode,received_at,reference_no,applicant_name,pri_cont_no,alt_cont_no,cont_email,applicant_gender,applicant_age,applicant_caste,applicant_reigion,applicant_address,state_id,district_id,block_id,municipality_id,gp_id,ward_id,police_station_id,assembly_const_id,postoffice_id,employment_type,employment_status,grievance_category,grievance_description,action_requested,usb_unique_id,parent_grievance_id,status,atr_recv_cmo_flag,emergency_flag,created_by,updated_by,sub_division_id,uploaded_doc_id,created_by_position,updated_by_position,assigned_to_id,assigned_to_position,educational_qualification_id,professional_qualification_id,skill_id,address_type,action_taken_note,atn_id,force_closure_2020,closure_reason_id,deo_phone_no,assigned_by_office_id,assigned_to_office_id,assigned_by_office_cat,assigned_to_office_cat,atr_submit_by_lastest_office_id,direct_close,jb_next_level_role_id,marked_date,marked_by,jb_name,jb_id,scheme_id,is_processed,level_type,remarks,jb_dist_code,jb_local_body_code,jb_gp_ward_code,redressed_by,redressed_date,is_redressed,jb_rural_urban_id,is_change_block,change_block_by,change_block_date,response_back_date,response_back_by,api_fetching_date,atr_recv_cmo_date,grievence_close_date,created_on,updated_on,grievance_generate_date,current_atr_date,lgd_dist,lgd_block,lgd_muni,atr_type,atr_desc
             ) (SELECT grievance_id, 
-             grievance_no,grievance_source,receipt_mode,received_at,reference_no,applicant_name,pri_cont_no,alt_cont_no,cont_email,applicant_gender,applicant_age, applicant_caste, applicant_reigion,applicant_address,state_id,district_id,block_id,municipality_id,gp_id,ward_id,police_station_id,assembly_const_id,postoffice_id,employment_type,employment_status,grievance_category,grievance_description,action_requested,usb_unique_id,parent_grievance_id,status,atr_recv_cmo_flag,emergency_flag,created_by,updated_by,sub_division_id,uploaded_doc_id,created_by_position,updated_by_position,assigned_to_id,assigned_to_position,educational_qualification_id,professional_qualification_id,skill_id,address_type,action_taken_note,atn_id,force_closure_2020,closure_reason_id,deo_phone_no,assigned_by_office_id,assigned_to_office_id,assigned_by_office_cat,assigned_to_office_cat,atr_submit_by_lastest_office_id,direct_close,lb_next_level_role_id,marked_date,marked_by,lb_name,lb_id,scheme_id,is_processed,level_type,remarks,redressed_by,redressed_date,is_redressed,lb_rural_urban_id,is_change_block,change_block_by,change_block_date,response_back_date,response_back_by,api_fetching_date,atr_recv_cmo_date,grievence_close_date,created_on,updated_on,grievance_generate_date,current_atr_date,lb_dist_code,lb_local_body_code,atr_type,atr_desc
+             grievance_no,grievance_source,receipt_mode,received_at,reference_no,applicant_name,pri_cont_no,alt_cont_no,cont_email,applicant_gender,applicant_age, applicant_caste, applicant_reigion,applicant_address,state_id,district_id,block_id,municipality_id,gp_id,ward_id,police_station_id,assembly_const_id,postoffice_id,employment_type,employment_status,grievance_category,grievance_description,action_requested,usb_unique_id,parent_grievance_id,status,atr_recv_cmo_flag,emergency_flag,created_by,updated_by,sub_division_id,uploaded_doc_id,created_by_position,updated_by_position,assigned_to_id,assigned_to_position,educational_qualification_id,professional_qualification_id,skill_id,address_type,action_taken_note,atn_id,force_closure_2020,closure_reason_id,deo_phone_no,assigned_by_office_id,assigned_to_office_id,assigned_by_office_cat,assigned_to_office_cat,atr_submit_by_lastest_office_id,direct_close,jb_next_level_role_id,marked_date,marked_by,jb_name,jb_id,scheme_id,is_processed,level_type,remarks,jb_dist_code,jb_local_body_code,jb_gp_ward_code,redressed_by,redressed_date,is_redressed,jb_rural_urban_id,is_change_block,change_block_by,change_block_date,response_back_date,response_back_by,api_fetching_date,atr_recv_cmo_date,grievence_close_date,created_on,updated_on,grievance_generate_date,current_atr_date,lgd_dist,lgd_block,lgd_muni,atr_type,atr_desc
               from cmo.cmo_sm_data where grievance_id='" . $grievance_id . "')");
                 $updateDetails = [];
                 $updateDetails['atr_type'] = $atr_type;
                 $updateDetails['atr_desc'] = trim($atr[0]->atr_desc);
                 $updateDetails['remarks'] = $remarks;
-                $updateDetails['lb_dist_code'] = $district;
-                /*if ($rural_urban == 1) {
-                    $updateDetails['lb_local_body_code'] = $block;
-                    $updateDetails['lb_local_body_code'] = null;
+                $updateDetails['lgd_dist'] = $district;
+                if ($rural_urban == 1) {
+                    $updateDetails['lgd_muni'] = $block;
+                    $updateDetails['lgd_block'] = null;
                 } else {
-                    $updateDetails['lb_local_body_code'] = $block;
-                    $updateDetails['lb_local_body_code'] = null;
-                }*/
-                $updateDetails['lb_local_body_code'] = $block;
+                    $updateDetails['lgd_block'] = $block;
+                    $updateDetails['lgd_muni'] = null;
+                }
                 $updateDetails['is_change_block'] = 1;
                 $updateDetails['change_block_by'] = $user_id;
                 $updateDetails['change_block_date'] = date('Y-m-d H:i:s');
@@ -883,16 +898,13 @@ class CmoGrivanceWorkflowController1 extends Controller
                 ];
             }
         } catch (\Exception $e) {
-            if ($grievance_id == 5201149) {
-                dd($e);
-            }
             //  dd($e);
             DB::rollback();
             $response = [
                 'exception' => true,
                 // 'exception_message' => $e->getMessage(),
                 'exception_message' =>
-                'Something went wrong. May be session time out logout and login again.',
+                    'Something went wrong. May be session time out logout and login again.',
             ];
             $statusCode = 400;
         } finally {
@@ -910,11 +922,12 @@ class CmoGrivanceWorkflowController1 extends Controller
 
         $districts = District::get();
         return view(
-            'cmo-grievance1/hod_linelisting',
+            'cmo-grievance/hod_linelisting',
             [
                 'districts' => $districts
             ]
         );
+
     }
     private function getBenDetails()
     {
@@ -982,11 +995,12 @@ class CmoGrivanceWorkflowController1 extends Controller
             if ($designation_id == 'HOD') {
                 $whereCondition = " is_processed=" . $operation_type;
                 if (!empty($district)) {
-                    $whereCondition = $whereCondition . " and lb_dist_code='" . $district . "'";
+                    $whereCondition = $whereCondition . " and lgd_dist='" . $district . "'";
                 }
                 $query = '';
 
-                $query .= "SELECT grievance_id,applicant_name,pri_cont_no,created_on,is_processed,is_redressed,is_mark,is_change_block,lb_dist_code,lb_local_body_code FROM cmo.cmo_sm_data   where  " . $whereCondition . "";
+                $query .= "SELECT grievance_id,applicant_name,pri_cont_no,created_on,is_processed,is_redressed,is_mark,is_change_block,lgd_dist,lgd_block,
+                lgd_muni FROM cmo.cmo_sm_data   where  " . $whereCondition . "";
 
 
                 $data = DB::connection('pgsql')->select($query);
@@ -1098,7 +1112,7 @@ class CmoGrivanceWorkflowController1 extends Controller
                 'exception' => true,
                 // 'exception_message' => $e->getMessage(),
                 'exception_message' =>
-                'Something went wrong. May be session time out logout and login again.',
+                    'Something went wrong. May be session time out logout and login again.',
             ];
             $statusCode = 400;
         } finally {
@@ -1215,7 +1229,7 @@ class CmoGrivanceWorkflowController1 extends Controller
                         'exception' => true,
                         // 'exception_message' => $e->getMessage(),
                         'exception_message' =>
-                        'Something went wrong. May be session time out logout and login again.',
+                            'Something went wrong. May be session time out logout and login again.',
                     ];
                     $statusCode = 400;
                 } finally {
@@ -1318,7 +1332,7 @@ class CmoGrivanceWorkflowController1 extends Controller
                         'exception' => true,
                         // 'exception_message' => $e->getMessage(),
                         'exception_message' =>
-                        'Something went wrong. May be session time out logout and login again.',
+                            'Something went wrong. May be session time out logout and login again.',
                     ];
                     $statusCode = 400;
                 } finally {
@@ -1429,7 +1443,7 @@ class CmoGrivanceWorkflowController1 extends Controller
                         'exception' => true,
                         // 'exception_message' => $e->getMessage(),
                         'exception_message' =>
-                        'Something went wrong. May be session time out logout and login again.',
+                            'Something went wrong. May be session time out logout and login again.',
                     ];
                     $statusCode = 400;
                 } finally {
@@ -1588,7 +1602,7 @@ class CmoGrivanceWorkflowController1 extends Controller
                 'exception' => true,
                 // 'exception_message' => $e->getMessage(),
                 'exception_message' =>
-                'Something went wrong. May be session time out logout and login again.',
+                    'Something went wrong. May be session time out logout and login again.',
             ];
             $statusCode = 400;
         } finally {
@@ -1616,7 +1630,7 @@ class CmoGrivanceWorkflowController1 extends Controller
                 )
                     ->select('urban_body_code', 'urban_body_name')
                     ->get();
-                return view('cmo-grievance1/cmo-op-list', [
+                return view('cmo-grievance/cmo-op-list', [
                     'mapLevel' => $mapObj->mapping_level . $designation,
                     'urban_bodys' => $urban_bodys,
                     'local_body_code' => $urban_body_code,
@@ -1627,13 +1641,14 @@ class CmoGrivanceWorkflowController1 extends Controller
                 $gps = GP::where('block_code', $taluka_code)
                     ->select('gram_panchyat_code', 'gram_panchyat_name')
                     ->get();
-                return view('cmo-grievance1/cmo-op-list', [
+                return view('cmo-grievance/cmo-op-list', [
                     'mapLevel' => $mapObj->mapping_level . $designation,
                     'gps' => $gps,
                     'local_body_code' => $taluka_code,
                     'district_code' => $mapObj->district_code,
                 ]);
             }
+
         }
     }
     public function cmoEntryList(Request $request)
@@ -1652,14 +1667,15 @@ class CmoGrivanceWorkflowController1 extends Controller
             } else {
                 $local_body_code = $mapObj->taluka_code;
             }
-            /*if ($mapObj->is_urban == 1) {
+            if ($mapObj->is_urban == 1) {
                 $munlist = UrbanBody::where('sub_district_code', $local_body_code)->get()->toArray();
                 $munlist_ids = array_column($munlist, 'urban_body_code');
                 $munlist_ids_list = "'" . implode("', '", $munlist_ids) . "'";
-                $query = "Select * from cmo.cmo_sm_data where is_processed=0 and is_redressed=0 and lb_local_body_code IN (" . $munlist_ids_list . ") and send_to_op=1";
+                $query = "Select * from cmo.cmo_sm_data where is_processed=0 and is_redressed=0 and lgd_muni IN (" . $munlist_ids_list . ") and send_to_op=1";
+
             } else
-                $query = " Select * from cmo.cmo_sm_data where is_processed=0 and is_redressed=0 and lb_local_body_code='" . $local_body_code . "' and send_to_op=1";*/
-            $query = " Select * from cmo.cmo_sm_data where is_processed=0 and is_redressed=0 and lb_local_body_code='" . $local_body_code . "' and send_to_op=1";
+                $query = " Select * from cmo.cmo_sm_data where is_processed=0 and is_redressed=0 and lgd_block='" . $local_body_code . "' and send_to_op=1";
+
 
             //  dd($query);
             $data = DB::select($query);
@@ -1668,12 +1684,13 @@ class CmoGrivanceWorkflowController1 extends Controller
                 ->of($data)
                 ->addColumn('view', function ($data) {
                     if ($data->is_processed == 0) {
-                        // href="cmo-grievance1-find?id=' . $data->jb_beneficiary_id  . '&scheme_id=' . $data->scheme_id . '&sm_mobile_no='.$data->sm_mobile_no.'"
+                        // href="CMO-grievance-find?id=' . $data->jb_beneficiary_id  . '&scheme_id=' . $data->scheme_id . '&sm_mobile_no='.$data->sm_mobile_no.'"
                         $action = '<a href="' . route('lb-entry-draft-edit', ['type' => 10, 'grievance_id' => $data->grievance_id]) . '">
                         <button class="btn btn-xs btn-info find_applicant">
                             <i class="glyphicon glyphicon-edit"></i> Entry
                         </button>
                     </a>';
+
                     }
                     return $action;
                 })
@@ -1714,32 +1731,35 @@ class CmoGrivanceWorkflowController1 extends Controller
                 if ($mapObj->is_urban == 1) {
                     $mapLevel = 'SubdivVerifier';
                     $created_by_local_body_code = $mapObj->urban_body_code;
-                    // $whereCondition = $whereCondition . " and lb_dist_code='" . $created_by_district_code . "'";
-                    // $munlist = UrbanBody::where('sub_district_code', $created_by_local_body_code)->get()->toArray();
-                    // $munlist_ids = array_column($munlist, 'urban_body_code');
-                    // $munlist_ids_list = "'" . implode("', '", $munlist_ids) . "'";
-                    // $whereCondition = $whereCondition . " and lb_local_body_code IN (" . $munlist_ids_list . ")";
-                    // $whereCondition = $whereCondition . " and lb_local_body_code='" . $created_by_local_body_code . "'";
+                    $whereCondition = $whereCondition . " and lgd_dist='" . $created_by_district_code . "'";
+                    $munlist = UrbanBody::where('sub_district_code', $created_by_local_body_code)->get()->toArray();
+                    $munlist_ids = array_column($munlist, 'urban_body_code');
+                    $munlist_ids_list = "'" . implode("', '", $munlist_ids) . "'";
+                    $whereCondition = $whereCondition . " and lgd_muni IN (" . $munlist_ids_list . ")";
+
                 } else {
                     $mapLevel = 'BlockVerifier';
                     $created_by_local_body_code = $mapObj->taluka_code;
-                    // $whereCondition = $whereCondition . " and lb_dist_code='" . $created_by_district_code . "'";
-                    // $whereCondition = $whereCondition . " and lb_local_body_code='" . $created_by_local_body_code . "'";
+                    $whereCondition = $whereCondition . " and lgd_dist='" . $created_by_district_code . "'";
+                    $whereCondition = $whereCondition . " and lgd_block='" . $created_by_local_body_code . "'";
+
                 }
-                $whereCondition = $whereCondition . " and lb_dist_code='" . $created_by_district_code . "'";
-                $whereCondition = $whereCondition . " and lb_local_body_code='" . $created_by_local_body_code . "'";
+
+
             } else if ($designation == 'Approver' || $designation == 'Delegated Approver') {
                 $created_by_district_code = $mapObj->district_code;
                 $mapLevel = 'DistrictApprover';
-                $whereCondition = $whereCondition . " and lb_dist_code='" . $created_by_district_code . "'";
+                $whereCondition = $whereCondition . " and lgd_dist='" . $created_by_district_code . "'";
+
             } else if ($designation == 'HOD') {
                 $mapLevel = 'Department';
+
             } else {
                 return redirect('/')->with('success', 'UnAuthorized');
             }
             $grievance_id = $request->grievance_id;
             if (empty($grievance_id)) {
-                return redirect("/cmo-grievance-workflow1")->with('msg1', 'Grievance Id Not Found');
+                return redirect("/cmo-grievance-workflow")->with('msg1', 'Grievance Id Not Found');
             }
             $whereCondition = $whereCondition . " and grievance_id='" . $grievance_id . "'";
 
@@ -1751,8 +1771,8 @@ class CmoGrivanceWorkflowController1 extends Controller
                     $ben_bank_details = DB::table('lb_scheme.ben_bank_details')->where('application_id', $atr_details->lb_application_id)->first();
                 } else if ($atr_details->table_source == 2) {
                     $ben_tag_details = DB::table('lb_scheme.faulty_ben_personal_details')->where('application_id', $atr_details->lb_application_id)->first();
-                    $ben_contact_details = DB::table('lb_scheme.faulty_ben_contact_details')->where('application_id', $atr_details->lb_application_id)->first();
-                    $ben_bank_details = DB::table('lb_scheme.faulty_ben_bank_details')->where('application_id', $atr_details->lb_application_id)->first();
+                    $ben_contact_details = DB::table('lb_scheme.ben_contact_details')->where('application_id', $atr_details->lb_application_id)->first();
+                    $ben_bank_details = DB::table('lb_scheme.ben_bank_details')->where('application_id', $atr_details->lb_application_id)->first();
                 } else if ($atr_details->table_source == 3) {
                     $ben_tag_details = DB::table('lb_scheme.draft_ben_personal_details')->where('application_id', $atr_details->lb_application_id)->first();
                     $ben_contact_details = DB::table('lb_scheme.draft_ben_contact_details')->where('application_id', $atr_details->lb_application_id)->first();
@@ -1768,6 +1788,7 @@ class CmoGrivanceWorkflowController1 extends Controller
                     $ben_contact_details = collect([]);
                     $ben_bank_details = collect([]);
                 }
+
             } else {
                 $ben_tag_details = collect([]);
                 $ben_contact_details = collect([]);
@@ -1775,7 +1796,7 @@ class CmoGrivanceWorkflowController1 extends Controller
             }
             //dd( $ben_contact_details);
 
-            return view('cmo-grievance1/find_applicant_tag', [
+            return view('cmo-grievance/find_applicant_tag', [
                 'scheme_id' => $scheme_id,
                 'grievance_id' => $grievance_id,
                 'mapLevel' => $mapLevel,
@@ -1786,7 +1807,7 @@ class CmoGrivanceWorkflowController1 extends Controller
             ]);
         } catch (\Exception $e) {
             // dd($e);
-            return redirect("/cmo-grievance-workflow1")->with('msg1', 'Somethimg went wrong....');
+            return redirect("/cmo-grievance-workflow")->with('msg1', 'Somethimg went wrong....');
         }
     }
     public function approve(Request $request)
@@ -1796,7 +1817,7 @@ class CmoGrivanceWorkflowController1 extends Controller
         $grievance_id = $request->grivance_id;
         // dd($grievance_id);
         if (empty($grievance_id)) {
-            return redirect("/cmo-grievance-workflow1")->with('msg1', 'Grievance Id Not Found');
+            return redirect("/cmo-grievance-workflow")->with('msg1', 'Grievance Id Not Found');
         }
         $user_id = Auth::user()->id;
         $designation = Auth::user()->designation_id;
@@ -1811,7 +1832,7 @@ class CmoGrivanceWorkflowController1 extends Controller
         $whereCondition = $whereCondition . " and grievance_id='" . $grievance_id . "'";
         $atr_details = DB::connection('pgsql_mis')->table('cmo.cmo_sm_data')->where('grievance_id', $grievance_id)->whereraw($whereCondition)->first();
         if (is_null($atr_details)) {
-            return redirect("/cmo-grievance-workflow1")->with('error', 'Not Allowded');
+            return redirect("/cmo-grievance-workflow")->with('error', 'Not Allowded');
         }
         DB::beginTransaction();
         $updateDetails = [];
@@ -1828,16 +1849,16 @@ class CmoGrivanceWorkflowController1 extends Controller
         $is_update = DB::table('cmo.cmo_sm_data')
             ->where('grievance_id', $grievance_id)
             ->where('is_processed', 1)
-            ->where('lb_dist_code', $created_by_district_code)
+            ->where('lgd_dist', $created_by_district_code)
             ->update($updateDetails);
         if ($is_update && $is_insert) {
             // dd('ok');
             DB::commit();
-            return redirect("/cmo-grievance-workflow1")->with('message', 'Grievance ATR Approve Successfully');
+            return redirect("/cmo-grievance-workflow")->with('message', 'Grievance ATR Approve Successfully');
         } else {
             //dd('ok2');
             DB::rollback();
-            return redirect("/cmo-grievance-workflow1")->with('msg1', 'Somethimg went wrong!!');
+            return redirect("/cmo-grievance-workflow")->with('msg1', 'Somethimg went wrong!!');
         }
     }
 
@@ -1847,7 +1868,7 @@ class CmoGrivanceWorkflowController1 extends Controller
         $grievance_id = $request->grivance_id;
         // dd($grievance_id);
         if (empty($grievance_id)) {
-            return redirect("/cmo-grievance-workflow1")->with('msg1', 'Grievance Id Not Found');
+            return redirect("/cmo-grievance-workflow")->with('msg1', 'Grievance Id Not Found');
         }
         $user_id = Auth::user()->id;
         $designation = Auth::user()->designation_id;
@@ -1862,7 +1883,7 @@ class CmoGrivanceWorkflowController1 extends Controller
         $whereCondition = $whereCondition . " and grievance_id='" . $grievance_id . "'";
         $atr_details = DB::connection('pgsql_mis')->table('cmo.cmo_sm_data')->where('grievance_id', $grievance_id)->whereraw($whereCondition)->first();
         if (is_null($atr_details)) {
-            return redirect("/cmo-grievance-workflow1")->with('error', 'Not Allowded');
+            return redirect("/cmo-grievance-workflow")->with('error', 'Not Allowded');
         }
         DB::beginTransaction();
         $updateDetails = [];
@@ -1885,23 +1906,22 @@ class CmoGrivanceWorkflowController1 extends Controller
         $benAcceptRejectInfo['op_type'] = 'CMO-Marking-Revert';
         $benAcceptRejectInfo['designation_id'] = $designation;
         $benAcceptRejectInfo['ip_address'] = $request->ip();
-        $benAcceptRejectInfo['grievance_id'] = $grievance_id;
 
         $is_insert = DB::table('lb_scheme.ben_accept_reject_info')->insert($benAcceptRejectInfo);
         $is_update = DB::table('cmo.cmo_sm_data')
             ->where('grievance_id', $grievance_id)
             ->where('is_processed', 1)
-            ->where('lb_dist_code', $created_by_district_code)
+            ->where('lgd_dist', $created_by_district_code)
             ->update($updateDetails);
         // dd($is_insert &&  $is_update);
         if ($is_update && $is_insert) {
             // dd('ok');
             DB::commit();
-            return redirect("/cmo-grievance-workflow1")->with('success', 'Grievance ATR Reverted Successfully');
+            return redirect("/cmo-grievance-workflow")->with('success', 'Grievance ATR Reverted Successfully');
         } else {
             //dd('ok2');
             DB::rollback();
-            return redirect("/cmo-grievance-workflow1")->with('msg1', 'Somethimg went wrong!!');
+            return redirect("/cmo-grievance-workflow")->with('msg1', 'Somethimg went wrong!!');
         }
     }
     public function cmoMisReport(Request $request)
@@ -1966,7 +1986,7 @@ class CmoGrivanceWorkflowController1 extends Controller
         $districts = District::get();
         // dd($ds_phase_list);
         return view(
-            'cmo-grievance1.cmo-mis',
+            'cmo-grievance.cmo-mis',
             [
                 'districts' => $districts,
                 'district_visible' => $district_visible,
@@ -2159,55 +2179,11 @@ class CmoGrivanceWorkflowController1 extends Controller
       count(1) filter(where is_processed = 1) as total_verified,
       count(1) filter(where is_processed = 2) as total_approved,
       count(1) filter(where is_processed = 3) as total_grievance_back,
-      lb_local_body_code
-      from cmo.cmo_sm_data WHERE lb_dist_code = '" . $district_code . "' AND lb_local_body_code::text ~ '^\d+$' group by lb_local_body_code) as cmo ON A.location_id=cmo.lb_local_body_code::int";
+      lgd_block
+      from cmo.cmo_sm_data WHERE lgd_dist = '" . $district_code . "' AND lgd_block::text ~ '^\d+$' group by lgd_block) as cmo ON A.location_id=cmo.lgd_block::int";
         $result = DB::connection('pgsql_appwrite')->select($query);
         return $result;
     }
-    /*public function getSubDivWise($district_code = NULL, $ulb_code = NULL, $block_ulb_code = NULL, $gp_ward_code = NULL)
-    {
-        $whereMain = " WHERE district_code =" . $district_code;
-
-        $query = "SELECT 
-        A.location_id,
-        A.location_name,
-        COALESCE(cmo.total_grievance, 0) AS total_grievance,
-        COALESCE(cmo.total_verification_pending, 0) AS total_verification_pending, 
-        COALESCE(cmo.total_verified, 0) AS total_verified, 
-        COALESCE(cmo.total_approved, 0) AS total_approved,
-        COALESCE(cmo.total_grievance_back, 0) AS total_grievance_back
-        FROM (
-            SELECT 
-                sub.sub_district_code AS location_id,
-                'SubDiv-' || sub.sub_district_name AS location_name
-            FROM public.m_sub_district sub
-            " . $whereMain . "
-        ) AS A
-        LEFT JOIN (
-        SELECT 
-            COUNT(1) AS total_grievance,
-            count(1) filter(where is_processed = 0) as total_verification_pending,
-            count(1) filter(where is_processed = 1) as total_verified,
-            count(1) filter(where is_processed = 2) as total_approved,
-            count(1) filter(where is_processed = 3) as total_grievance_back,
-            lb_local_body_code
-                from cmo.cmo_sm_data where TRIM(lb_dist_code) = '" . $district_code . "' 
-         and lb_local_body_code::text ~ '^\d+$' group by lb_local_body_code) as cmo ON A.location_id=lb_local_body_code::int
-         UNION ALL
-            select 
-            -1 as location_id, 
-            'Unmapped (Block & Sub-Div null)' as location_name,
-            COUNT(1) AS total_grievance,
-            count(1) filter(where is_processed = 0) as total_verification_pending,
-            count(1) filter(where is_processed = 1) as total_verified,
-            count(1) filter(where is_processed = 2) as total_approved,
-            count(1) filter(where is_processed = 3) as total_grievance_back
-            from cmo.cmo_sm_data  
-            where TRIM(lb_dist_code) = '" . $district_code . "'
-            and (lb_local_body_code is null OR TRIM(lb_local_body_code) = '')";
-        $result = DB::connection('pgsql_appwrite')->select($query);
-        return $result;
-    }*/
     public function getSubDivWise($district_code = NULL, $ulb_code = NULL, $block_ulb_code = NULL, $gp_ward_code = NULL)
     {
         $whereMain = " WHERE district_code =" . $district_code;
@@ -2229,26 +2205,30 @@ class CmoGrivanceWorkflowController1 extends Controller
         ) AS A
         LEFT JOIN (
         SELECT 
-            COUNT(1) AS total_grievance,
-            count(1) filter(where is_processed = 0) as total_verification_pending,
-            count(1) filter(where is_processed = 1) as total_verified,
-            count(1) filter(where is_processed = 2) as total_approved,
-            count(1) filter(where is_processed = 3) as total_grievance_back,
-            lb_local_body_code
-                from cmo.cmo_sm_data where lb_dist_code = '" . $district_code . "' 
-         and lb_local_body_code::text ~ '^\d+$' group by lb_local_body_code) as cmo ON A.location_id=lb_local_body_code::int
-         UNION ALL
+            mu.sub_district_code,
+            COUNT(*) AS total_grievance,
+            COUNT(*) FILTER (WHERE is_processed = 0) AS total_verification_pending,
+            COUNT(*) FILTER (WHERE is_processed = 1) AS total_verified,
+            COUNT(*) FILTER (WHERE is_processed = 2) AS total_approved,
+            COUNT(*) FILTER (WHERE is_processed = 3) AS total_grievance_back
+            FROM cmo.cmo_sm_data cmo
+            JOIN public.m_urban_body mu ON cmo.lgd_muni::int = mu.urban_body_code
+            WHERE cmo.lgd_dist = '" . $district_code . "'
+            AND cmo.lgd_muni::text ~ '^\d+$'
+            GROUP BY mu.sub_district_code
+            ) AS cmo ON A.location_id = cmo.sub_district_code
+            UNION ALL
             select 
             -1 as location_id, 
-            'Unmapped (Block & Sub-Div null)' as location_name,
+            'Unmapped (Block & Muni null)' as location_name,
             COUNT(1) AS total_grievance,
             count(1) filter(where is_processed = 0) as total_verification_pending,
             count(1) filter(where is_processed = 1) as total_verified,
             count(1) filter(where is_processed = 2) as total_approved,
             count(1) filter(where is_processed = 3) as total_grievance_back
             from cmo.cmo_sm_data  
-            where lb_dist_code = '" . $district_code . "'
-            and (lb_local_body_code is null OR lb_local_body_code = null)";
+            where lgd_dist = '" . $district_code . "'
+            and ((lgd_muni is null AND lgd_block is null) OR (lgd_muni is null AND TRIM(lgd_block) = '') OR (TRIM(lgd_muni) = '' AND lgd_block IS null))";
         $result = DB::connection('pgsql_appwrite')->select($query);
         return $result;
     }
@@ -2271,124 +2251,11 @@ class CmoGrivanceWorkflowController1 extends Controller
 	    count(1) filter(where is_processed = 1) as total_verified,
 	    count(1) filter(where is_processed = 2) as total_approved,
 	    count(1) filter(where is_processed = 3) as total_grievance_back,
-	    lb_dist_code
-        from cmo.cmo_sm_data group by lb_dist_code) as cmo ON A.location_id=cmo.lb_dist_code::int";
+	    lgd_dist
+        from cmo.cmo_sm_data group by lgd_dist) as cmo ON A.location_id=cmo.lgd_dist::int";
         $result = DB::connection('pgsql_appwrite')->select($query);
         return $result;
     }
-
-    public function mapbosget(Request $request)
-    {
-        $grievance_id = $request->grievance_id;
-        $grievance_data = DB::table('cmo.cmo_sm_data')
-            ->select('grievance_description', 'applicant_name', 'grievance_id', 'lb_dist_code', 'grievance_no', 'pri_cont_no', 'applicant_age')
-            ->where('grievance_id', $grievance_id)
-            ->first();
-        $dist_name = District::where('district_code', $grievance_data->lb_dist_code)->value('district_name');
-        return response()->json([
-            'grievance_data' => $grievance_data,
-            'district_name' => $dist_name
-        ]);
-    }
-
-
-    public function getblksublist(Request $request)
-    {
-        if ($request->mapping_type == 1) {
-            $results = Taluka::where('district_code', $request->dist_code)
-                ->select('block_code as id', 'block_name as name')
-                ->get();
-        } else {
-            $results = SubDistrict::where('district_code', $request->dist_code)
-                ->select('sub_district_code as id', 'sub_district_name as name')
-                ->get();
-        }
-        return response()->json($results);
-    }
-
-    public function getMunicipalityList(Request $request)
-    {
-        $results = UrbanBody::where('sub_district_code', $request->subdivision_id)
-            ->select('urban_body_code as id', 'urban_body_name as name')
-            ->get();
-        return response()->json($results);
-    }
-    public function mapbospost(Request $request)
-    {
-        $user_id = Auth::user()->id;
-        $designation_id = Auth::user()->designation_id;
-        if ($designation_id == 'Delegated Approver' || $designation_id == 'Approver') {
-            $rules = [
-                'blk_sub_value' => 'required|integer',
-            ];
-            if ($request->mapping_type == 2) {
-                // $rules['municipality'] = 'required|integer';
-                $attributes = [
-                    'blk_sub_value' => 'Subdivision',
-                    // 'municipality' => 'Municipality',
-                ];
-            } else {
-                $attributes = [
-                    'blk_sub_value' => 'Block ',
-                ];
-            }
-            $messages = [
-                'required' => ':attribute is required.',
-                'integer' => ':attribute is required.',
-            ];
-            $validator = Validator::make(
-                $request->all(),
-                $rules,
-                $messages,
-                $attributes
-            );
-            if ($validator->passes()) {
-                $updateDetails = [];
-                $updateDetails['lb_local_body_code'] = $request->blk_sub_value;
-                $benAcceptRejectInfo['grievance_id'] = $request->grievance_id;
-                $benAcceptRejectInfo['created_by'] = $user_id;
-                $benAcceptRejectInfo['user_id'] = $user_id;
-                $benAcceptRejectInfo['created_at'] = date('Y-m-d H:i:s');
-                $benAcceptRejectInfo['op_type'] = 'CMO-Map-Grievance';
-                $benAcceptRejectInfo['ip_address'] = $request->ip();
-                DB::beginTransaction();
-                $is_update = DB::table('cmo.cmo_sm_data')
-                    ->where('grievance_id', $request->grievance_id)
-                    ->update($updateDetails);
-                $is_insert = DB::table('lb_scheme.ben_accept_reject_info')->insert($benAcceptRejectInfo);
-                if ($is_update && $is_insert) {
-                    DB::commit();
-                    $response = array(
-                        'return_status' => 1,
-                        'type' => 'green',
-                        'icon' => 'fa fa-check',
-                        'title' => 'Success',
-                        'return_msg' => 'The applicant successfully mapped',
-                    );
-                } else {
-                    DB::rollback();
-                    $response = array(
-                        'return_status' => 2,
-                        'type' => 'red',
-                        'icon' => 'fa fa-warning',
-                        'title' => 'Error',
-                        'return_msg' => 'Something went wrong, Please try again!',
-                    );
-                }
-            } else {
-                $response = array(
-                    'return_status' => 0,
-                    // 'type' => 'red', 
-                    // 'icon' => 'fa fa-warning', 
-                    // 'title' =>'Error',
-                    'return_msg' => $validator->errors()->all(),
-                );
-            }
-            return response()->json(
-                $response
-            );
-        } else {
-            return redirect('/')->with('message', 'UnAuthorized');
-        }
-    }
 }
+
+

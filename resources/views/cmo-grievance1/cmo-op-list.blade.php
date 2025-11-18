@@ -1,104 +1,138 @@
-<style>
-  .card-header-custom {
-    font-size: 16px;
-    background: linear-gradient(to right, #c9d6ff, #e2e2e2);
-    font-weight: bold;
-    font-style: italic;
-    padding: 15px 20px;
-    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
-  }
+<style type="text/css">
+    .has-error {
+        border-color: #cc0000;
+        background-color: #ffff99;
+    }
+
+    .preloader1 {
+        position: fixed;
+        top: 40%;
+        left: 52%;
+        z-index: 999;
+    }
+
+    .preloader1 {
+        background: transparent !important;
+    }
+
+    #loadingDi {
+        position: absolute;
+        top: 0px;
+        right: 0px;
+        width: 100%;
+        height: 100%;
+        background-color: #fff;
+        background-image: url('../images/ajaxgif.gif');
+        background-repeat: no-repeat;
+        background-position: center;
+        z-index: 10000000;
+        opacity: 0.4;
+        filter: alpha(opacity=40);
+        /* For IE8 and earlier */
+    }
+
+    .loadingDivModal {
+        position: absolute;
+        top: 0px;
+        right: 0px;
+        width: 100%;
+        height: 100%;
+        background-color: #fff;
+        background-image: url('../images/ajaxgif.gif');
+        background-repeat: no-repeat;
+        background-position: center;
+        z-index: 10000000;
+        opacity: 0.4;
+        filter: alpha(opacity=40);
+        /* For IE8 and earlier */
+    }
+
+    #updateDiv {
+        border: 1px solid #d9d9d9;
+        padding: 8px;
+        box-shadow: 0 1px 1px rgb(0 0 0 / 10%);
+    }
+
+    #name_div {
+        color: #0275d8;
+        font-weight: 400;
+    }
+
+    #av_name_response {
+        color: #5cb85c;
+        font-weight: 400;
+    }
+
+    /* #failed_reason_id{
+        color:#d9534f;
+        
+    } */
 </style>
 @extends('layouts.app-template-datatable')
 @section('content')
-<!-- Main content -->
-<div class="container-fluid">
-  <div class="row">
-    <div class="col-12 mt-4">
-      <form method="post" id="register_form"  class="submit-once">
-        {{ csrf_field() }}
-
-        <div class="tab-content" style="margin-top:16px;">
-          <div class="tab-pane active" id="personal_details">
-            <!-- Card with your design -->
-            <div class="card" id="res_div">
-              <div class="card-header card-header-custom">
-                <h4 class="card-title mb-0"><b>Sarasori Mukhyamantri (CMO Grievance) Entry List</b></h4>
-              </div>
-              <div class="card-body" style="padding: 20px;">
-                <!-- Alert Messages -->
-                <div class="alert-section">
-                  @if ( ($message = Session::get('success')) && ($id =Session::get('id')))
-                  <div class="alert alert-success alert-dismissible fade show" role="alert">
-                    <strong>{{ $message }} with Application ID: {{$id}}</strong>
-                    <button type="button" class="close" data-dismiss="alert">×</button>
-                  </div>
-                  @endif
-
-                  @if ($message = Session::get('error') )
-                  <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                    <strong>{{ $message }}</strong>
-                    <button type="button" class="close" data-dismiss="alert">×</button>
-                  </div>
-                  @endif
-
-                  @if(count($errors) > 0)
-                  <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                    <ul>
-                      @foreach($errors as $error)
-                      <li><strong> {{ $error }}</strong></li>
-                      @endforeach
-                    </ul>
-                    <button type="button" class="close" data-dismiss="alert">×</button>
-                  </div>
-                  @endif
-
-                  <div class="alert print-error-msg" style="display:none;" id="errorDivMain">
-                    <button type="button" class="close" aria-label="Close" onclick="closeError('errorDivMain')">
-                      <span aria-hidden="true">&times;</span>
-                    </button>
-                    <ul></ul>
-                  </div>
-                </div>
-
-          
-               
-                <!-- DataTable Section -->
-                <div class="table-container">
-                  <div class="table-responsive">
-                    <table id="example" class="display data-table" cellspacing="0" width="100%">
-                      <thead class="table-header-spacing">
-                        <th>Grievance ID</th>
-                        <th>Caller Name</th>
-                        <th>Caller Mobile No</th>
-                        <th>CMO Received Date</th>
-                        <th>Action</th>
-                      </thead>
-                      <tbody style="font-size: 14px;">
-                        <!-- DataTables will populate this dynamically -->
-                      </tbody>
-                    </table>
-                  </div>
-                </div>
-              </div>
+<section class="content-header">
+    <div class="container-fluid">
+        <div class="row mb-2">
+            <div class="col-sm-6">
+                <h1>Sarasori Mukhyamantri (CMO Grievance) Entry List</h1>
             </div>
-          </div>
         </div>
-      </form>
     </div>
-  </div>
-</div>
+</section>
 
+<section class="content">
+    <div class="container-fluid">
+        <div class="card card-default">
+            <div class="card-body">
+                <div id="loadingDi"></div>
 
+                <div id="res_div" style="display: none;">
+                    <div class="card card-primary card-outline">
+                        <div class="card-header py-2" id="panel_head" style="font-size:14px; font-weight:bold; font-style:italic;">
+                            List of Beneficiary
+                        </div>
 
+                        <div class="card-body p-2" style="font-size:14px;">
+                            <div class="table-responsive">
+                                <table id="example" class="table table-bordered table-hover table-striped align-middle" width="100%">
+                                    <thead class="table-light" style="font-size:12px;">
+                                        <tr>
+                                            <th>Grievance ID</th>
+                                            <th>Caller Name</th>
+                                            <th>Caller Mobile No</th>
+                                            <th>CMO Received Date</th>
+                                            {{-- <th>Description</th> --}}
+                                            <th>Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody style="font-size:14px;"></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div> <!-- /#res_div -->
+
+            </div>
+        </div>
+    </div>
+</section>
 @endsection
 
 @push('scripts')
+<script src="{{ URL::asset('js/master-data-v2.js') }}"></script>
 <script>
     $(document).ready(function() {
-      
+        var interval = setInterval(function() {
+            var momentNow = moment();
+            $('.date-part').html(momentNow.format('DD-MMMM-YYYY'));
+            $('.time-part').html(momentNow.format('hh:mm:ss A'));
+        }, 100);
         $('#loadingDi').hide();
         $('#search_btn').removeAttr('disabled');
-        tableLoaded();
+        $('#search_btn').click(function() {
+            tableLoaded();
+        });
+
         function tableLoaded() {
 
 
@@ -133,7 +167,7 @@
                     url: "{{ url('cmo-op_entryList1') }}",
                     type: "get",
                     data: function(d) {
-                        d._token = "{{ csrf_token() }}"
+                        d._token = "{{csrf_token()}}"
                     },
                     error: function(jqXHR, textStatus, errorThrown) {
                         $('#loadingDi').hide();
@@ -237,12 +271,12 @@
             var scheme_id = array[1];
             var grievance_mobile_no = array[2];
             var data = {
-                '_token': '{{ csrf_token() }}',
+                '_token': '{{csrf_token()}}',
                 'grievance_id': grievance_id,
                 'scheme_id': scheme_id,
                 'grievance_mobile_no': grievance_mobile_no
             };
-            redirectPost('{{ url('oap-wcd') }}', data, 'get');
+            redirectPost('{{url("oap-wcd")}}', data, 'get');
         });
         tableLoaded();
     });
@@ -262,5 +296,4 @@
         form.submit();
     }
 </script>
-
 @endpush

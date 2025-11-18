@@ -1,248 +1,254 @@
+<style type="text/css">
+    .has-error {
+        border-color: #cc0000;
+        background-color: #ffff99;
+    }
 
+    .preloader1 {
+        position: fixed;
+        top: 40%;
+        left: 52%;
+        z-index: 999;
+    }
+
+    .preloader1 {
+        background: transparent !important;
+    }
+
+    #loadingDi {
+        position: absolute;
+        top: 0px;
+        right: 0px;
+        width: 100%;
+        height: 100%;
+        background-color: #fff;
+        background-image: url('../images/ajaxgif.gif');
+        background-repeat: no-repeat;
+        background-position: center;
+        z-index: 10000000;
+        opacity: 0.4;
+        filter: alpha(opacity=40);
+        /* For IE8 and earlier */
+    }
+
+    .loadingDivModal {
+        position: absolute;
+        top: 0px;
+        right: 0px;
+        width: 100%;
+        height: 100%;
+        background-color: #fff;
+        background-image: url('../images/ajaxgif.gif');
+        background-repeat: no-repeat;
+        background-position: center;
+        z-index: 10000000;
+        opacity: 0.4;
+        filter: alpha(opacity=40);
+        /* For IE8 and earlier */
+    }
+
+    #updateDiv {
+        border: 1px solid #d9d9d9;
+        padding: 8px;
+        box-shadow: 0 1px 1px rgb(0 0 0 / 10%);
+    }
+
+    #name_div {
+        color: #0275d8;
+        font-weight: 400;
+    }
+
+    #av_name_response {
+        color: #5cb85c;
+        font-weight: 400;
+    }
+
+    /* #failed_reason_id{
+        color:#d9534f;
+        
+    } */
+    .text-danger {
+        color: red;
+        font-size: 13px;
+    }
+</style>
 @extends('layouts.app-template-datatable')
 @section('content')
-    <div class="content-wrapper">
-        <section class="content-header">
-            <h1>
-                Sarasori Mukhyamantri (CMO Grievance) List
-            </h1>
-            <ol class="breadcrumb">
-                <i class="fa fa-clock-o"></i> Date : <span style="font-size: 12px; font-weight: bold;"><span
-                        class='date-part'></span>&nbsp;&nbsp;<span class='time-part'></span></span>
-            </ol>
-        </section>
-        <section class="content">
-            <div class="box box-default">
-                <div class="box-body">
-                    <div id="loadingDi"></div>
-                    <div class="panel panel-default">
-                        <div class="panel-heading" style="font-size: 14px; font-weight: bold; font-style: italic;"><span
-                                id="panel-icon">Enter Filter Criteria</div>
-                        <div class="panel-body" style="padding: 5px;">
-                            <div class="row">
-                                <div class="col-md-12">
-                                    @if ($message = Session::get('success'))
-                                        <div class="alert alert-success alert-block">
-                                            <button type="button" class="close" data-dismiss="alert">×</button>
-                                            <strong>{{ $message }} </strong>
-                                        </div>
-                                    @endif
-                                    @if ($message = Session::get('message'))
-                                        <div class="alert alert-danger alert-block">
-                                            <button type="button" class="close" data-dismiss="alert">×</button>
-                                            <strong>{{ $message }}</strong>
-                                        </div>
-                                    @endif
-                                    @if ($message = Session::get('msg1'))
-                                        <div class="alert alert-danger alert-block">
-                                            <button type="button" class="close" data-dismiss="alert">×</button>
-                                            <strong>{{ $message }}</strong>
-                                        </div>
-                                    @endif
-                                    <div class="row">
-                                        <div class="col-md-12" style="margin-bottom: 10px;">
-                                            <div class="col-md-3">
-                                                <label class=" control-label">Process Type</label>
-                                                <select class="form-control select2" name="process_type" id='process_type'>
-
-                                                    @if (
-                                                        $mapLevel == 'BlockVerifier' ||
-                                                            $mapLevel == 'SubdivVerifier' ||
-                                                            $mapLevel == 'SubdivDelegated Verifier' ||
-                                                            $mapLevel == 'BlockDelegated Verifier')
-                                                        <option value="1">Pending</option>
-                                                        <option value="2">Marked but Approval Pending</option>
-                                                        <option value="3">Marked and Approved but Yet not send to CMO
-                                                        </option>
-                                                        <option value="5">Sent to Operator for New Entry</option>
-                                                        <option value="4">Marked and Approved and Send to CMO</option>
-                                                    @endif
-                                                    @if ($mapLevel == 'District')
-                                                        <option value="1">Pending</option>
-                                                        <option value="3">Marked and Approved but Yet not send to CMO
-                                                        </option>
-                                                        <option value="5">Sent to Operator for New Entry</option>
-                                                        <option value="6">Grivance List with No BLock/Municipality LGD
-                                                        </option>
-                                                        <option value="4">Marked and Approved and Send to CMO</option>
-                                                    @endif
-                                                    @if ($mapLevel == 'Department')
-                                                        <option value="7">Grivance List with No
-                                                            District/BLock/Municipality LGD</option>
-                                                        <option value="4">Marked and Approved and Send to CMO</option>
-                                                    @endif
-                                                    {{-- <option value="5">Block Change Request</option> --}}
-                                                </select>
-                                                <span class="text-danger" id="error_process_type"></span>
-                                            </div>
-                                            @if ($mapLevel == 'SubdivVerifier')
-                                                {{-- <div class="col-md-3">
-                                                    <label class=" control-label" >Jai Bangla Municipality</label>
-                                                    <select name="filter_1" id="filter_1" class="form-control select2 full-width js-municipality" >
-                                                    <option value="">-----All----</option>
-                                                    @foreach ($urban_bodys as $urban_body)
-                                                    <option value="{{$urban_body->urban_body_code}}" > {{$urban_body->urban_body_name}}</option>
-                                        @endforeach
-                                        </select>
-                                    </div> --}}
-                                                {{-- <div class="col-md-3">
-                                                    <label class=" control-label" >Jai Bangla Wards</label>
-                                                    <select name="filter_2" id="filter_2" class="form-control select2 full-width js-wards" >
-                                                    <option value="">-----All----</option>
-                                                    </select>
-                                                </div>  --}}
-                                                <input type="hidden" name="local_body" id="local_body"
-                                                    value={{ $local_body_code }}>
-                                            @elseif($mapLevel == 'BlockVerifier')
-                                                {{-- <div class="col-md-3">
-                                                    <label class=" control-label" > Jai Bangla Gram Panchayat</label>
-                                                    <select name="filter_1" id="filter_1" class="form-control select2 full-width" >
-                                                    <option value="">-----All----</option>
-                                                    @foreach ($gps as $gp)
-                                                        <option value="{{$gp->gram_panchyat_code}}" > {{$gp->gram_panchyat_name}}</option>
-                                    @endforeach
-                                    </select>
-                                </div> --}}
-                                                <input type="hidden" name="local_body" id="local_body"
-                                                    value={{ $local_body_code }}>
-                                            @elseif($mapLevel == 'District')
-                                                <input type="hidden" name="local_body" id="local_body" value="">
-                                            @endif
-                                            <input type="hidden" name="mapLevel" id="mapLevel" value={{ $mapLevel }}>
-                                            @if ($mapLevel != 'Department')
-                                                <input type="hidden" name="district_code" id="district_code"
-                                                    value="{{ $district_code }}">
-                                            @endif
-                                            <div class="col-md-3" style="margin-top: 24px;">
-                                                <button class="btn btn-primary" name="search_btn" id="search_btn"
-                                                    type="button" disabled><i class="fa fa-search"></i>
-                                                    Search</button>&nbsp;
-                                                {{-- <button class="btn btn-default" name="reset_btn" id="reset_btn" type="button" disabled><i class="fa fa-refresh"></i> Reset</button> --}}
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div id="res_div" style="display: none;">
-                        <div class="panel panel-default">
-                            <div class="panel-heading" id="panel_head"
-                                style="font-size: 14px; font-weight: bold; font-style: italic;">List of Beneficiary</div>
-                            <div class="panel-body" style="padding: 5px; font-size: 14px;">
-                                <div class="table-responsive">
-                                    <table id="example" class="table display" cellspacing="0" width="100%">
-                                        <thead style="font-size: 12px;">
-                                            <th>Grievance ID</th>
-                                            <th>Caller Name</th>
-                                            <th>Caller Mobile No</th>
-                                            <th>CMO Received Date(YYYY-MM-DD)</th>
-                                            <!-- <th >CMO GP/Ward Name</th> -->
-                                            {{-- <th> Description</th> --}}
-                                            <th>Action</th>
-                                        </thead>
-                                        <tbody style="font-size: 14px;"></tbody>
-                                    </table>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-    </div>
-    <div class="modal" id="mapbos" tabindex="-1" role="dialog">
-        <div class="modal-dialog modal-lg" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h2 class="modal-title">Map this user under <span id="dist-name"></span><button type="button"
-                            class="close" data-dismiss="modal" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                        </button></h2>
-                    <input type="hidden" class="dist_code">
-                    <input type="hidden" id="grievance_id">
-                </div>
-                <form id="mapUserForm">
-                    <div class="modal-body">
-                        <table class="table table-bordered table-responsive table-condensed table-striped"
-                            style="font-size: 14px;">
-                            <tr>
-                                <td>
-                                    <strong>Grievance Id: </strong>
-                                    <span id="gri_id_div"></span>
-                                </td>
-                                <td>
-                                    <strong>Grievance No: </strong>
-                                    <span id="gri_no_div"></span>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>
-                                    <strong>Applicant Name : </strong>
-                                    <span id="appli_name_div"></span>
-                                </td>
-                                <td>
-                                    <strong>Contact No: </strong>
-                                    <span id="con_div"></span>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>
-                                    <strong>Age.: </strong>
-                                    <span id="age_div"></span>
-                                </td>
-                                <td>
-                                    <strong>Description :</strong>
-                                    <span id="disc_div"></span>
-                                </td>
-                            </tr>
-                        </table>
-                        <div class="row">
-                            <div class="col-md-6">
-                                <label class="control-label">Rural/Urban<span style="color:#cc0000;">*<span></label>
-                                <select name="mapping_type" id="mapping_type" class="form-control">
-                                    <option value="">--Select--</option>
-                                    <option value="1">Rural</option>
-                                    <option value="2">Urban</option>
-                                </select>
-                                <span class="text-danger error-message" id="mapping_type_error"></span>
-                            </div>
-                            <div class="col-md-6" style="display: none;" id="blk_sub_div">
-                                <label class="control-label" id="blk_sub_txt"></label>
-                                <select name="blk_sub_value" id="blk_sub_value" class="form-control">
-                                </select>
-                                <span class="text-danger error-message" id="blk_sub_value_error"></span>
-                            </div>
-                            <!-- <div class="col-md-3" style="display: none;" id="mun_div">
-                                <label class="control-label">Municipality<span style="color:#cc0000;">*<span></label>
-                                <select name="municipality" id="municipality" class="form-control">
-                                </select>
-                                <span class="text-danger error-message" id="municipality_error"></span>
-                            </div> -->
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="submit" id="submitButton" name='btnSubmit' class="btn btn-primary"
-                            style="display:none;"></button>
-                        <img style="display:none;" src="{{ asset('images/ZKZg.gif') }}" id="btn_encolser_loader"
-                            width="100px">
-                    </div>
-                </form>
-            </div>
+<section class="content-header">
+    <div class="container-fluid">
+        <div class="d-flex justify-content-between align-items-center mb-2">
+            <h1 class="mb-0">Sarasori Mukhyamantri (CMO Grievance) List</h1>
         </div>
     </div>
+</section>
+
+<section class="content">
+    <div class="container-fluid">
+
+        <div id="loadingDi"></div>
+
+        <div class="card card-default">
+            <div class="card-header">
+                <h3 class="card-title fw-bold fst-italic">
+                    <i id="panel-icon"></i> Enter Filter Criteria
+                </h3>
+            </div>
+
+            <div class="card-body p-3">
+                @if ($message = Session::get('success'))
+                    <div class="alert alert-success alert-dismissible fade show" role="alert">
+                        <strong>{{ $message }}</strong>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                @endif
+
+                @if ($message = Session::get('message'))
+                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                        <strong>{{ $message }}</strong>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                @endif
+
+                @if ($message = Session::get('msg1'))
+                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                        <strong>{{ $message }}</strong>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                @endif
+
+                <div class="row mb-3">
+                    <div class="col-md-3">
+                        <label for="process_type" class="form-label fw-semibold">Process Type</label>
+                        <select class="form-select select2" name="process_type" id="process_type">
+                            @if($mapLevel=='BlockVerifier' || $mapLevel=='SubdivVerifier' || $mapLevel=='SubdivDelegated Verifier' || $mapLevel=='BlockDelegated Verifier')
+                                <option value="1">Pending</option>
+                                <option value="2">Marked but Approval Pending</option>
+                                <option value="3">Marked and Approved but Yet not send to CMO</option>
+                                <option value="5">Sent to Operator for New Entry</option>
+                                <option value="4">Marked and Approved and Send to CMO</option>
+                            @endif
+                            @if($mapLevel=='District')
+                                <option value="1">Pending</option>
+                                <option value="3">Marked and Approved but Yet not send to CMO</option>
+                                <option value="5">Sent to Operator for New Entry</option>
+                                <option value="6">Grievance List with No Block/Municipality LGD</option>
+                                <option value="4">Marked and Approved and Send to CMO</option>
+                            @endif
+                            @if($mapLevel=='Department')
+                                <option value="7">Grievance List with No District/Block/Municipality LGD</option>
+                                <option value="4">Marked and Approved and Send to CMO</option>
+                            @endif
+                        </select>
+                        <span class="text-danger" id="error_process_type"></span>
+                    </div>
+
+                    @if($mapLevel=='SubdivVerifier' || $mapLevel=='BlockVerifier' || $mapLevel=='District')
+                        <input type="hidden" name="local_body" id="local_body" value="{{ $local_body_code ?? '' }}">
+                    @endif
+                    <input type="hidden" name="mapLevel" id="mapLevel" value="{{ $mapLevel }}">
+                    @if($mapLevel!='Department')
+                        <input type="hidden" name="district_code" id="district_code" value="{{ $district_code }}">
+                    @endif
+
+                    <div class="col-md-3 align-self-end">
+                        <button class="btn btn-primary" id="search_btn" type="button" disabled>
+                            <i class="fa fa-search"></i> Search
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="res_div" style="display: none;">
+            <div class="card card-default">
+                <div class="card-header">
+                    <h3 class="card-title fw-bold fst-italic" id="panel_head">List of Beneficiary</h3>
+                </div>
+                <div class="card-body p-3">
+                    <div class="table-responsive">
+                        <table id="example" class="data-table table-bordered table-striped align-middle w-100">
+                            <thead class="table-light text-center">
+                                <tr>
+                                    <th>Grievance ID</th>
+                                    <th>Caller Name</th>
+                                    <th>Caller Mobile No</th>
+                                    <th>CMO Received Date (YYYY-MM-DD)</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody style="font-size: 14px;"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</section>
+
+<!-- Modal -->
+<div class="modal fade" id="mapbos" tabindex="-1" aria-labelledby="mapbosLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    Map this user under <span id="dist-name"></span>
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                <input type="hidden" class="dist_code">
+                <input type="hidden" id="grievance_id">
+            </div>
+
+            <form id="mapUserForm">
+                <div class="modal-body">
+                    <table class="table table-bordered table-striped table-sm">
+                        <tr>
+                            <td><strong>Grievance Id:</strong> <span id="gri_id_div"></span></td>
+                            <td><strong>Grievance No:</strong> <span id="gri_no_div"></span></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Applicant Name:</strong> <span id="appli_name_div"></span></td>
+                            <td><strong>Contact No:</strong> <span id="con_div"></span></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Age:</strong> <span id="age_div"></span></td>
+                            <td><strong>Description:</strong> <span id="disc_div"></span></td>
+                        </tr>
+                    </table>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <label for="mapping_type" class="form-label">Rural/Urban <span class="text-danger">*</span></label>
+                            <select name="mapping_type" id="mapping_type" class="form-select">
+                                <option value="">--Select--</option>
+                                <option value="1">Rural</option>
+                                <option value="2">Urban</option>
+                            </select>
+                            <span class="text-danger error-message" id="mapping_type_error"></span>
+                        </div>
+
+                        <div class="col-md-6 d-none" id="blk_sub_div">
+                            <label id="blk_sub_txt" class="form-label"></label>
+                            <select name="blk_sub_value" id="blk_sub_value" class="form-select"></select>
+                            <span class="text-danger error-message" id="blk_sub_value_error"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="submit" id="submitButton" name="btnSubmit" class="btn btn-primary d-none"></button>
+                    <img src="{{ asset('images/ZKZg.gif')}}" id="btn_encolser_loader" width="100px" class="d-none">
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
 @endsection
-{{-- <script src="{{ asset ("/bower_components/AdminLTE/plugins/jQuery/jquery-2.2.3.min.js") }}"></script> --}}
-<script src="{{ asset('/bower_components/AdminLTE/plugins/jQuery/jquery-3.7.1.min.js') }}"></script>
-<script src="{{ URL::asset('js/confirmation_of_bank_account_validation.js') }}"></script>
+@push('scripts')
 <script src="{{ URL::asset('js/master-data-v2.js') }}"></script>
 <script>
     $(document).ready(function() {
-        var interval = setInterval(function() {
-            var momentNow = moment();
-            $('.date-part').html(momentNow.format('DD-MMMM-YYYY'));
-            $('.time-part').html(momentNow.format('hh:mm:ss A'));
-        }, 100);
+
         $('#loadingDi').hide();
         $('#search_btn').removeAttr('disabled');
         var error_scheme_type = '';
@@ -289,7 +295,7 @@
                             d.local_body = $('#local_body').val(),
                             d.process_type = $('#process_type').val(),
                             d.district_code = $('#district_code').val(),
-                            d._token = "{{ csrf_token() }}"
+                            d._token = "{{csrf_token()}}"
                     },
                     error: function(jqXHR, textStatus, errorThrown) {
                         $('#loadingDi').hide();
@@ -323,24 +329,45 @@
                         extend: 'pdf',
                         footer: true,
                         pageSize: 'A4',
-                        //orientation: 'landscape',
                         pageMargins: [40, 60, 40, 60],
                         exportOptions: {
-                            columns: [0, 1, 2, 3, 4, 5, 6],
-
-                        }
+                            columns: [0, 1, 2, 3]
+                        },
+                        className: 'table-action-btn'
+                    },
+                    {
+                        extend: 'print',
+                        footer: true,
+                        exportOptions: {
+                            columns: [0, 1, 2, 3]
+                        },
+                        className: 'table-action-btn'
                     },
                     {
                         extend: 'excel',
-                        footer: true,
                         pageSize: 'A4',
-                        //orientation: 'landscape',
-                        pageMargins: [40, 60, 40, 60],
+                        footer: true,
                         exportOptions: {
-                            columns: [0, 1, 2, 3, 4, 5, 6],
-                            stripHtml: false,
-                        }
+                            columns: [0, 1, 2, 3]
+                        },
+                        className: 'table-action-btn'
                     },
+                    {
+                        extend: 'copy',
+                        footer: true,
+                        exportOptions: {
+                            columns: [0, 1, 2, 3]
+                        },
+                        className: 'table-action-btn'
+                    },
+                    {
+                        extend: 'csv',
+                        footer: true,
+                        exportOptions: {
+                            columns: [0, 1, 2, 3]
+                        },
+                        className: 'table-action-btn'
+                    }
                 ],
             });
         }
@@ -393,11 +420,11 @@
             var grievance_id = array[0];
             var grievance_mobile_no = array[2];
             var data = {
-                '_token': '{{ csrf_token() }}',
+                '_token': '{{csrf_token()}}',
                 'grievance_id': grievance_id,
                 'grievance_mobile_no': grievance_mobile_no
             };
-            redirectPost('{{ route('cmo-grievance-find1') }}', data, 'post');
+            redirectPost('{{route("cmo-grievance-find1")}}', data, 'post');
         });
         $(document).on('click', '.grivance_tag_applicant', function() {
             var val = $(this).val();
@@ -405,10 +432,10 @@
             var grievance_id = array[0];
             var grievance_mobile_no = array[2];
             var data = {
-                '_token': '{{ csrf_token() }}',
+                '_token': '{{csrf_token()}}',
                 'grievance_id': grievance_id
             };
-            redirectPost('{{ route('cmo-grievance-applicant-tag1') }}', data, 'post');
+            redirectPost('{{route("cmo-grievance-applicant-tag1")}}', data, 'post');
         });
         tableLoaded();
         $(document).on('click', '.mapbos', function() {
@@ -420,7 +447,7 @@
                 'grievance_id': grievance_id
             };
             $.ajax({
-                url: '{{ url('cmo-mapbosget') }}',
+                url: '{{url("cmo-mapbosget")}}',
                 data: data,
                 type: "GET",
                 success: function(response) {
@@ -454,7 +481,7 @@
                 $('#submitButton').text(button);
                 $('#blk_sub_txt').html(`${label}<span style="color:#cc0000;">*</span>`);
                 $.ajax({
-                    url: '{{ url('cmo-getblksublist') }}',
+                    url: '{{ url("cmo-getblksublist") }}',
                     method: 'GET',
                     data: {
                         dist_code: dist_code,
@@ -463,8 +490,7 @@
                     success: function(response) {
                         let options = '<option value="">-- Select --</option>';
                         $.each(response, function(index, item) {
-                            options += '<option value="' + item.id + '">' + item
-                                .name + '</option>';
+                            options += '<option value="' + item.id + '">' + item.name + '</option>';
                         });
                         $('#blk_sub_value').html(options);
                     },
@@ -487,7 +513,7 @@
         //         $('#municipality_error').text('');
         //         $('#mun_div').show();
         //         $.ajax({
-        //             url: '{{ url('getMunicipalityList') }}',
+        //             url: '{{ url("getMunicipalityList") }}',
         //             method: 'GET',
         //             data: {
         //                 subdivision_id: blk_sub_value
@@ -546,14 +572,14 @@
                                 $('#btn_encolser_loader').show();
                                 var grievance_id = $('#grievance_id').val();
                                 var data = {
-                                    '_token': '{{ csrf_token() }}',
+                                    '_token': '{{csrf_token()}}',
                                     'mapping_type': mapping_type,
                                     'blk_sub_value': blk_sub_value,
                                     // 'municipality':municipality,
                                     'grievance_id': grievance_id,
                                 };
                                 $.ajax({
-                                    url: '{{ url('cmo-mapbospost') }}',
+                                    url: '{{ url("cmo-mapbospost") }}',
                                     method: 'POST',
                                     data: data,
                                     success: function(response) {
@@ -564,41 +590,31 @@
                                                 title: response.title,
                                                 type: response.type,
                                                 icon: response.icon,
-                                                content: response
-                                                    .return_msg,
+                                                content: response.return_msg,
                                                 buttons: {
                                                     Ok: function() {
-                                                        window
-                                                            .location
-                                                            .reload();
+                                                        window.location.reload();
                                                     }
                                                 }
                                             });
-                                        } else if (response.return_status ==
-                                            2) {
+                                        } else if (response.return_status == 2) {
                                             $('#btn_encolser_loader').hide();
                                             $.confirm({
                                                 title: response.title,
                                                 type: response.type,
                                                 icon: response.icon,
-                                                content: response
-                                                    .return_msg,
+                                                content: response.return_msg,
                                                 buttons: {
                                                     Ok: function() {
-                                                        $('#mapbos')
-                                                            .modal(
-                                                                'hide'
-                                                                );
+                                                        $('#mapbos').modal('hide');
                                                     }
                                                 }
                                             });
                                         } else {
                                             $('#btn_encolser_loader').hide();
                                             $('#submitButton').show();
-                                            $('#blk_sub_value').addClass(
-                                                'is-invalid');
-                                            $('#blk_sub_value_error').text(
-                                                response.return_msg);
+                                            $('#blk_sub_value').addClass('is-invalid');
+                                            $('#blk_sub_value_error').text(response.return_msg);
                                         }
                                     },
                                     error: function() {}
@@ -633,3 +649,4 @@
         form.submit();
     }
 </script>
+@endpush

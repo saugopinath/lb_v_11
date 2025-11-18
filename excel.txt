@@ -1,0 +1,29 @@
+1.composer require maatwebsite/excel
+2.php artisan make:export BankFailedExport
+3.in BankFailedExport
+<?php
+namespace App\Exports;
+use Maatwebsite\Excel\Concerns\FromArray;
+class BankFailedExport implements FromArray
+{
+    protected $data;
+    public function __construct(array $data)
+    {
+        $this->data = $data;
+    }
+    public function array(): array
+    {
+        return $this->data;
+    }
+}
+4.in BankDetailsEditBandhanBankController
+use App\Exports\BankFailedExport;
+5.  // $file_name = 'Beneficiary Failed Data' . date('d/m/Y');
+    // Excel::create($file_name, function ($excel) use ($ben) {
+    //     $excel->setTitle('Beneficiary Failed Data');
+    //     $excel->sheet('Beneficiary Failed Data', function ($sheet) use ($ben) {
+    //         $sheet->fromArray($ben, null, 'A1', false, false);
+    //     });
+    // })->download('xlsx');
+    $file_name = 'Beneficiary_Failed_Data_' . date('d_m_Y');
+    return Excel::download(new BankFailedExport($ben), $file_name . '.xlsx');

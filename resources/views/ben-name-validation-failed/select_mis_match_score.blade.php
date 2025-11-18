@@ -1,127 +1,82 @@
-<!DOCTYPE html>
+<style>
+    .box {
+        width: 800px;
+        margin: 0 auto;
+    }
 
-<!--
-This is a starter template page. Use this page to start your new project from
-scratch. This page gets rid of all links and provides the needed markup only.
--->
-<html>
+    .active_tab1 {
+        background-color: #fff;
+        color: #333;
+        font-weight: 600;
+    }
 
-<head>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <title>SS | {{ Config::get('constants.site_title') }}</title>
-    <!-- Tell the browser to be responsive to screen width -->
-    <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
-    <!-- Bootstrap 3.3.6 -->
-    <link href="{{ asset('/bower_components/AdminLTE/bootstrap/css/bootstrap.min.css') }}" rel="stylesheet"
-        type="text/css" />
-    <link href="{{ asset('css/select2.min.css') }}" rel="stylesheet">
+    .inactive_tab1 {
+        background-color: #f5f5f5;
+        color: #333;
+        cursor: not-allowed;
+    }
 
-    <!-- Font Awesome -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.5.0/css/font-awesome.min.css">
-    <!-- Ionicons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/ionicons/2.0.1/css/ionicons.min.css">
-    <!-- Theme style -->
-    <link href="{{ asset('/bower_components/AdminLTE/dist/css/AdminLTE.min.css') }}" rel="stylesheet" type="text/css" />
-    <!-- AdminLTE Skins. We have chosen the skin-blue for this starter
-        page. However, you can choose any other skin. Make sure you
-        apply the skin class to the body tag so the changes take effect.
-  -->
-    <link href="{{ asset('/bower_components/AdminLTE/dist/css/skins/skin-blue.min.css') }}" rel="stylesheet"
-        type="text/css" />
+    .has-error {
+        border-color: #cc0000;
+        background-color: #ffff99;
+    }
 
-    <!-- bootstrap wysihtml5 - text editor -->
-    <!-- <link rel="stylesheet" href="{{ asset('/plugins/bootstrap-wysihtml5/bootstrap3-wysihtml5.min.css') }}"> -->
+    .select2 {
+        width: 100% !important;
+    }
 
-    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
-    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
-    <!--[if lt IE 9]>
-  <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
-  <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
-  <![endif]-->
-    <link href="{{ asset('/bower_components/AdminLTE/plugins/datatables/dataTables.bootstrap.css') }}" rel="stylesheet"
-        type="text/css" />
+    .select2 .has-error {
+        border-color: #cc0000;
+        background-color: #ffff99;
+    }
 
-    <style>
-        .box {
-            width: 800px;
-            margin: 0 auto;
-        }
+    .modal_field_name {
+        float: left;
+        font-weight: 700;
+        margin-right: 1%;
+        padding-top: 1%;
+        margin-top: 1%;
+    }
 
-        .active_tab1 {
-            background-color: #fff;
-            color: #333;
-            font-weight: 600;
-        }
+    .modal_field_value {
+        margin-right: 1%;
+        padding-top: 1%;
+        margin-top: 1%;
+    }
 
-        .inactive_tab1 {
-            background-color: #f5f5f5;
-            color: #333;
-            cursor: not-allowed;
-        }
+    .row {
+        margin-right: 0px !important;
+        margin-left: 0px !important;
+        margin-top: 1% !important;
+    }
 
-        .has-error {
-            border-color: #cc0000;
-            background-color: #ffff99;
-        }
+    .section1 {
+        border: 1.5px solid #9187878c;
+        margin: 2%;
+        padding: 2%;
+    }
 
-        .select2 {
-            width: 100% !important;
-        }
+    .color1 {
+        margin: 0% !important;
+        background-color: #5f9ea061;
+    }
 
-        .select2 .has-error {
-            border-color: #cc0000;
-            background-color: #ffff99;
-        }
+    .modal-header {
+        background-color: #7fffd4;
+    }
 
-        .modal_field_name {
-            float: left;
-            font-weight: 700;
-            margin-right: 1%;
-            padding-top: 1%;
-            margin-top: 1%;
-        }
+    .required-field::after {
+        content: "*";
+        color: red;
+    }
 
-        .modal_field_value {
-            margin-right: 1%;
-            padding-top: 1%;
-            margin-top: 1%;
-        }
-
-        .row {
-            margin-right: 0px !important;
-            margin-left: 0px !important;
-            margin-top: 1% !important;
-        }
-
-        .section1 {
-            border: 1.5px solid #9187878c;
-            margin: 2%;
-            padding: 2%;
-        }
-
-        .color1 {
-            margin: 0% !important;
-            background-color: #5f9ea061;
-        }
-
-        .modal-header {
-            background-color: #7fffd4;
-        }
-
-        .required-field::after {
-            content: "*";
-            color: red;
-        }
-
-        .imageSize {
-            font-size: 9px;
-            color: #333;
-        }
-    </style>
+    .imageSize {
+        font-size: 9px;
+        color: #333;
+    }
+</style>
 
 
-</head>
 <!--
 BODY TAG OPTIONS:
 =================
@@ -142,304 +97,207 @@ desired effect
 |               | sidebar-mini                            |
 |---------------------------------------------------------|
 -->
+@extends('layouts.app-template-datatable')
+@section('content')
 
-<body class="hold-transition skin-blue sidebar-mini">
-    <div class="wrapper">
+<section class="content">
+    <div class="container-fluid">
+        <div class="row">
 
-        <!-- Main Header -->
-        @include('layouts.header')
-        <!-- Sidebar -->
-        @include('layouts.sidebar')
+            <div class="col-md-12">
 
-        <!-- Content Wrapper. Contains page content -->
-        <div class="content-wrapper">
-            <!-- Content Header (Page header) -->
-            <section class="content">
-                <div class="row">
-                    <!-- left column -->
-                    <div class="col-md-12">
-                        <!-- general form elements -->
-                        <div> <!-- class="box box-primary" -->
+                {{-- SUCCESS MESSAGE --}}
+                @if (($message = Session::get('success')) && ($id = Session::get('id')))
+                <div class="alert alert-success alert-dismissible fade show">
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    <strong>{{ $message }} with Application ID: {{ $id }}</strong>
+                </div>
+                @endif
 
+                {{-- ERROR MESSAGE --}}
+                @if ($message = Session::get('error'))
+                <div class="alert alert-danger alert-dismissible fade show">
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    <strong>{{ $message }}</strong>
+                </div>
+                @endif
 
-                            <div>
-                                @if (($message = Session::get('success')) && ($id = Session::get('id')))
-                                    <div class="alert alert-success alert-block">
-                                        <button type="button" class="close" data-dismiss="alert">×</button>
-                                        <strong>{{ $message }} with Application ID: {{ $id }}</strong>
+                {{-- VALIDATION ERRORS --}}
+                @if (count($errors) > 0)
+                <div class="alert alert-danger alert-dismissible fade show">
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    <ul class="mb-0">
+                        @foreach ($errors->all() as $error)
+                        <li><strong>{{ $error }}</strong></li>
+                        @endforeach
+                    </ul>
+                </div>
+                @endif
 
+            </div>
 
-                                    </div>
-                                @endif
-                                @if ($message = Session::get('error'))
-                                    <div class="alert alert-danger alert-block">
-                                        <button type="button" class="close" data-dismiss="alert">×</button>
-                                        <strong>{{ $message }}</strong>
+            {{-- FORM START --}}
+            <form method="" id="register_form" action="#" class="submit-once">
+                {{ csrf_field() }}
 
+                <div class="tab-content mt-3">
 
-                                    </div>
-                                @endif
-                                @if (count($errors) > 0)
-                                    <div class="alert alert-danger alert-block">
-                                        <ul>
-                                            @foreach ($errors->all() as $error)
-                                                <li><strong> {{ $error }}</strong></li>
-                                            @endforeach
-                                        </ul>
-                                    </div>
-                                @endif
-                                <!--   @if ($message = Session::get('failure'))
-<div class="alert alert-success alert-block">
-                <button type="button" class="close" data-dismiss="alert">×</button>
-                      <strong>{{ $message }}</strong>
-              </div>
-@endif -->
+                    <div class="tab-pane active" id="personal_details">
+
+                        <div class="card card-default">
+                            <div class="card-header">
+                                <h4 class="card-title mb-0"><b>Name Minor Mismatch</b></h4>
                             </div>
-                            <!-- /.box-header -->
-                            <!-- form start -->
-                            <form method="" id="register_form" action="#" class="submit-once">
-                                {{ csrf_field() }}
 
-                                <div class="tab-content" style="margin-top:16px;">
+                            <div class="card-body">
 
-                                    <div class="tab-pane active" id="personal_details">
-                                        <div class="panel panel-default">
-                                            <div class="panel-heading">
-                                                <h4><b> Name Minor Mismatch</b></h4>
-                                            </div>
-                                            <div class="panel-body">
+                                <div class="row">
 
+                                    <div class="form-group col-md-4">
+                                        <label class="required-field">Select Matching Score</label>
+                                        <select name="matching_score" id="matching_score" class="form-control">
+                                            <option value="1" selected>90% - 100%</option>
+                                            <option value="2">40% - 89%</option>
+                                        </select>
+                                        <span id="error_phase_code" class="text-danger"></span>
+                                    </div>
 
+                                    <div class="col-md-12 text-center mt-3">
+                                        <button type="button" id="submitting" class="btn btn-success btn-lg modal-search form-submitted">GO</button>
 
-                                                <div class="row">
-
-
-                                                    <div class="form-group col-md-4">
-                                                        <label class="required-field">Select Matching Score</label>
-                                                        <select name="matching_score" id="matching_score"
-                                                            class="form-control" tabindex="6">
-                                                            <option value="1" selected> 90% - 100%</option>
-                                                            <option value="2"> 40% - 89%</option>
-                                                        </select>
-                                                        <span id="error_phase_code" class="text-danger"></span>
-
-                                                    </div>
-
-
-
-
-
-
-
-                                                    <br />
-                                                    <br />
-                                                    <div class="col-md-12" align="center">
-
-                                                        <button type="button" id="submitting" value="Submit"
-                                                            class="btn btn-success success btn-lg modal-search form-submitted">GO</button>
-
-                                                        <div class=""><img src="{{ asset('images/ZKZg.gif') }}"
-                                                                id="submit_loader1" width="50px" height="50px"
-                                                                style="display:none;"></div>
-
-                                                        <!--<button type="button" name="btn_personal_details" id="btn_personal_details" class="btn btn-info btn-lg">Next</button>-->
-                                                    </div>
-                                                    <br />
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        <div class="tab-content" style="margin-top:16px;">
-
-
-                                            <div class="alert print-error-msg" style="display:none;" id="errorDiv">
-                                                <button type="button" class="close" aria-label="Close"
-                                                    onclick="closeError('errorDiv')"><span
-                                                        aria-hidden="true">&times;</span></button>
-                                                <ul></ul>
-                                            </div>
-
-
-
-                                            <div class="tab-pane active" id="search_details" style="display:none;">
-                                                <div class="panel panel-default">
-                                                    <div class="panel-heading" id="heading_msg">
-                                                        <h4><b>Search Result</b></h4>
-                                                    </div>
-                                                    <div class="panel-body">
-
-                                                        <div class="pull-right">Report Generated
-                                                            on:<b><?php echo date('l jS \of F Y h:i:s A'); ?></b></div>
-
-
-                                                        <table id="example"
-                                                            class="table table-striped table-bordered"
-                                                            style="width:100%">
-                                                            <thead>
-                                                                <tr>
-                                                                    <th id="">Sl No.</th>
-                                                                    <th id="location_id" width="25%">District</th>
-                                                                    <th>Total Application</th>
-                                                                    <th>Pending Application For Action</th>
-                                                                    <th>Verified</th>
-                                                                    <th>Approved</th>
-                                                                    <th>Yet to be Approved</th>
-                                                                    <th>Rejected</th>
-                                                                </tr>
-
-                                                            </thead>
-                                                            <tbody>
-
-                                                            </tbody>
-                                                            <tfoot>
-                                                                <tr>
-                                                                    <th></th>
-                                                                    <th>Total</th>
-                                                                    <th>Total Application</th>
-                                                                    <th>Pending Application For Action</th>
-                                                                    <th>Verified</th>
-                                                                    <th>Approved</th>
-                                                                    <th>Yet to be Approved</th>
-                                                                    <th>Rejected</th>
-                                                                </tr>
-                                                            </tfoot>
-                                                        </table>
-
-
-
-
-                                                    </div>
-                                                </div>
-                                            </div>
-
-
+                                        <div>
+                                            <img src="{{ asset('images/ZKZg.gif') }}" id="submit_loader1" width="50px" height="50px" style="display:none;">
                                         </div>
                                     </div>
+
                                 </div>
 
-
-
-
-
+                            </div>
                         </div>
 
 
+                        {{-- ERROR DIV --}}
+                        <div class="tab-content mt-3">
+                            <div class="alert alert-danger print-error-msg d-none" id="errorDiv">
+                                <button type="button" class="btn-close" onclick="closeError('errorDiv')"></button>
+                                <ul></ul>
+                            </div>
 
+                            {{-- SEARCH RESULT --}}
+                            <div class="tab-pane active" id="search_details" style="display:none;">
+                                <div class="card card-default">
+                                    <div class="card-header" id="heading_msg">
+                                        <h4 class="card-title mb-0"><b>Search Result</b></h4>
+                                    </div>
 
+                                    <div class="card-body">
 
-                        </form>
+                                        <div class="float-end mb-2">
+                                            Report Generated on:
+                                            <b><?php echo date('l jS \of F Y h:i:s A'); ?></b>
+                                        </div>
+
+                                        <table id="example" class="table table-striped table-bordered table-hover w-100">
+                                            <thead>
+                                                <tr>
+                                                    <th>Sl No.</th>
+                                                    <th width="25%">District</th>
+                                                    <th>Total Application</th>
+                                                    <th>Pending Application For Action</th>
+                                                    <th>Verified</th>
+                                                    <th>Approved</th>
+                                                    <th>Yet to be Approved</th>
+                                                    <th>Rejected</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody></tbody>
+
+                                            <tfoot>
+                                                <tr>
+                                                    <th></th>
+                                                    <th>Total</th>
+                                                    <th>Total Application</th>
+                                                    <th>Pending Application For Action</th>
+                                                    <th>Verified</th>
+                                                    <th>Approved</th>
+                                                    <th>Yet to be Approved</th>
+                                                    <th>Rejected</th>
+                                                </tr>
+                                            </tfoot>
+                                        </table>
+
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+
                     </div>
-                    <!-- /.box -->
                 </div>
-                <!--/.col (left) -->
+
+            </form>
 
         </div>
-        <!--  @if (session()->has('success'))
-<div class="alert alert-success">
-            {{ session()->get('success') }}
-        </div>
-@endif -->
-        <!-- /.row -->
-
-
-        </section>
-
-        <!-- Main content -->
-        <!--  <section class="content">
-
-      Your Page Content Here
-
-
-
-    </section> -->
-        <!-- /.content -->
     </div>
-    <!-- /.content-wrapper -->
+</section>
 
-    <!-- Footer -->
-    @include('layouts.footer')
+@endsection
 
-    <!-- ./wrapper -->
 
-    <!-- REQUIRED JS SCRIPTS -->
+@push('scripts')
+<script src="{{ URL::asset('js/master-data-v2.js') }}"></script>
+<script>
+    $(document).ready(function() {
+        $('.sidebar-menu li').removeClass('active');
+        $('.sidebar-menu #minor-mismatch-main').addClass("active");
+        $('.sidebar-menu #select-minor-mismatch').addClass("active");
 
-    <!-- jQuery 2.1.3 -->
-    <script src="{{ asset('/bower_components/AdminLTE/plugins/jQuery/jquery-2.2.3.min.js') }}"></script>
-    <script src="{{ asset('/bower_components/AdminLTE/plugins/datatables/jquery.dataTables.min.js') }}"
-        type="text/javascript"></script>
-    <script src="{{ asset('/bower_components/AdminLTE/plugins/datatables/dataTables.bootstrap.min.js') }}"
-        type="text/javascript"></script>
-    <script src="{{ asset('js/select2.full.min.js') }}"></script>
+        $('.modal-search').on('click', function() {
+            var error_phase_code = '';
+            if ($.trim($('#matching_score').val()).length == 0) {
+                error_phase_code = 'Matching Score is required';
+                $('#error_phase_code').text(error_phase_code);
+                $('#matching_score').addClass('has-error');
+            } else {
+                error_phase_code = '';
+                $('#error_phase_code').text(error_phase_code);
+                $('#matching_score').removeClass('has-error');
+            }
 
-    <!-- Bootstrap 3.3.2 JS -->
-    <script src="{{ asset('/bower_components/AdminLTE/bootstrap/js/bootstrap.min.js') }}" type="text/javascript"></script>
-    <script src="{{ URL::asset('js/site.js') }}"></script>
+            var matching_score = $('#matching_score').val();
+            if (matching_score == 1) {
+                window.location.href = "edit-name-failed-90-to-100?type=1";
+            }
+            if (matching_score == 2) {
+                window.location.href = "edit-name-failed-90-to-100?type=2";
+            }
 
-    <script src="{{ URL::asset('js/master-data-v2.js') }}"></script>
-    <!-- AdminLTE App -->
-    <script src="{{ asset('/bower_components/AdminLTE/dist/js/app.min.js') }}" type="text/javascript"></script>
-    <script src="{{ asset('js/jquery.dataTables.min.js') }}"></script>
-    <script src="{{ asset('js/dataTables.buttons.min.js') }}"></script>
-    <script src="{{ asset('js/buttons.flash.min.js') }}"></script>
-    <script src="{{ asset('js/jszip.min.js') }}"></script>
-    <script src="{{ asset('js/pdfmake.min.js') }}"></script>
-    <script src="{{ asset('js/vfs_fonts.js') }}"></script>
-    <script src="{{ asset('js/buttons.html5.min.js') }}"></script>
-    <script src="{{ asset('js/buttons.print.min.js') }}"></script>
-    <script>
-        $(document).ready(function() {
-            $('.sidebar-menu li').removeClass('active');
-            $('.sidebar-menu #minor-mismatch-main').addClass("active");
-            $('.sidebar-menu #select-minor-mismatch').addClass("active");
-
-            $('.modal-search').on('click', function() {
-                var error_phase_code = '';
-                if ($.trim($('#matching_score').val()).length == 0) {
-                    error_phase_code = 'Matching Score is required';
-                    $('#error_phase_code').text(error_phase_code);
-                    $('#matching_score').addClass('has-error');
-                } else {
-                    error_phase_code = '';
-                    $('#error_phase_code').text(error_phase_code);
-                    $('#matching_score').removeClass('has-error');
-                }
-
-                var matching_score = $('#matching_score').val();
-                if (matching_score == 1) {
-                    window.location.href = "edit-name-failed-90-to-100?type=1";
-                }
-                if (matching_score == 2) {
-                    window.location.href = "edit-name-failed-90-to-100?type=2";
-                }
-
-            });
         });
+    });
 
-        function printMsg(msg, msgtype, divid) {
-            $("#" + divid).find("ul").html('');
-            $("#" + divid).css('display', 'block');
-            if (msgtype == '0') {
-                //alert('error');
-                $("#" + divid).removeClass('alert-success');
-                //$('.print-error-msg').removeClass('alert-warning');
-                $("#" + divid).addClass('alert-warning');
-            } else {
-                $("#" + divid).removeClass('alert-warning');
-                $("#" + divid).addClass('alert-success');
-            }
-            if (Array.isArray(msg)) {
-                $.each(msg, function(key, value) {
-                    $("#" + divid).find("ul").append('<li>' + value + '</li>');
-                });
-            } else {
-                $("#" + divid).find("ul").append('<li>' + msg + '</li>');
-            }
+    function printMsg(msg, msgtype, divid) {
+        $("#" + divid).find("ul").html('');
+        $("#" + divid).css('display', 'block');
+        if (msgtype == '0') {
+            //alert('error');
+            $("#" + divid).removeClass('alert-success');
+            //$('.print-error-msg').removeClass('alert-warning');
+            $("#" + divid).addClass('alert-warning');
+        } else {
+            $("#" + divid).removeClass('alert-warning');
+            $("#" + divid).addClass('alert-success');
         }
-
-        function closeError(divId) {
-            $('#' + divId).hide();
+        if (Array.isArray(msg)) {
+            $.each(msg, function(key, value) {
+                $("#" + divid).find("ul").append('<li>' + value + '</li>');
+            });
+        } else {
+            $("#" + divid).find("ul").append('<li>' + msg + '</li>');
         }
-    </script>
-</body>
+    }
 
-</html>
+    function closeError(divId) {
+        $('#' + divId).hide();
+    }
+</script>
+@endpush
