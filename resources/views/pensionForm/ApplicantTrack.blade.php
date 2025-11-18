@@ -1,264 +1,294 @@
-<style>
-  .card-header-custom {
-    font-size: 16px;
-    background: linear-gradient(to right, #c9d6ff, #e2e2e2);
-    font-weight: bold;
-    font-style: italic;
-    padding: 15px 20px;
-    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
-  }
-</style>
+@push('styles')
+  <link rel="stylesheet" href="{{ asset('AdminLTE_3/dist/css/adminlte.min.css') }}">
+  <style>
+    :root {
+      --primary: #0b3c9b;
+      --secondary: #2d80b5;
+      --success: #178f4f;
+      --light: #f7f9ff;
+    }
+
+    body {
+      background: var(--light);
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    /* Timeline Styles */
+    .timeline-wrap {
+      position: relative;
+      background: linear-gradient(135deg, #f5f7fa 0%, #ffffff 100%);
+      border: 1px solid #e0e8f1;
+      border-radius: 12px;
+      padding: 32px 24px;
+      overflow-x: auto;
+      overflow-y: hidden;
+      white-space: nowrap;
+      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+    }
+
+    .timeline-scroller {
+      overflow-x: auto;
+      white-space: nowrap;
+      padding: 0;
+      display: inline-block;
+      position: relative;
+      width: 100%;
+    }
+
+    .timeline {
+      display: flex;
+      gap: 24px;
+      min-height: 200px !important;
+      padding: 16px 8px;
+      position: relative;
+      align-items: flex-start;
+      justify-content: center;
+      margin-bottom: 10px;
+    }
+
+    .tl-card {
+      min-width: 260px;
+      max-width: 280px;
+      background: #ffffff;
+      border: 2px solid #e0e8f1;
+      border-radius: 10px;
+      padding: 18px 16px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+      transition: all 0.3s ease;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      word-wrap: break-word;
+      overflow: hidden;
+    }
+
+    .tl-card:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 8px 20px rgba(45, 128, 181, 0.15);
+      border-color: #2d80b5;
+    }
+
+    .tl-date {
+      font-weight: 700;
+      color: #0b3c9b;
+      margin-bottom: 12px;
+      font-size: 0.95rem;
+    }
+
+    .tl-text {
+      font-size: 0.9rem;
+      color: #4a5568;
+      margin: 8px 0 20px;
+      line-height: 1.5;
+      flex-grow: 1;
+      overflow-wrap: break-word;
+    }
+
+    .timeline::before {
+      content: '';
+      position: absolute;
+      top: 60px;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, #2d80b5 0%, #3aa0d2 50%, #2d80b5 100%);
+      z-index: 1;
+      border-radius: 2px;
+    }
+
+    .tick {
+      text-align: center;
+    }
+
+    @media (max-width: 768px) {
+      .tl-card {
+        min-width: 220px;
+      }
+    }
+  </style>
+@endpush
+
 @extends('layouts.app-template-datatable')
 @section('content')
-<!-- Main content -->
-<div class="container-fluid">
-  <div class="row">
-    <div class="col-12 mt-4">
-      <form method="post" id="register_form"  class="submit-once">
-        {{ csrf_field() }}
 
-        <div class="tab-content" style="margin-top:16px;">
-          <div class="tab-pane active" id="personal_details">
-            <!-- Card with your design -->
-            <div class="card" id="res_div">
-              <div class="card-header card-header-custom">
-                <h4 class="card-title mb-0"><b>Track Applicant</b></h4>
-              </div>
-              <div class="card-body" style="padding: 20px;">
-                <!-- Alert Messages -->
-                <div class="alert-section">
-                  @if ( ($message = Session::get('success')) && ($id =Session::get('id')))
-                  <div class="alert alert-success alert-dismissible fade show" role="alert">
-                    <strong>{{ $message }} with Application ID: {{$id}}</strong>
-                    <button type="button" class="close" data-dismiss="alert">×</button>
-                  </div>
-                  @endif
-
-                  @if ($message = Session::get('error') )
-                  <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                    <strong>{{ $message }}</strong>
-                    <button type="button" class="close" data-dismiss="alert">×</button>
-                  </div>
-                  @endif
-
-                  @if(count($errors) > 0)
-                  <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                    <ul>
-                      @foreach($errors as $error)
-                      <li><strong> {{ $error }}</strong></li>
-                      @endforeach
-                    </ul>
-                    <button type="button" class="close" data-dismiss="alert">×</button>
-                  </div>
-                  @endif
-
-                  <div class="alert print-error-msg" style="display:none;" id="errorDivMain">
-                    <button type="button" class="close" aria-label="Close" onclick="closeError('errorDivMain')">
-                      <span aria-hidden="true">&times;</span>
-                    </button>
-                    <ul></ul>
-                  </div>
+  <div class="container-fluid">
+    <div class="row">
+      <div class="col-12 mt-4">
+        <form id="track_form" method="POST">
+          @csrf
+          <div class="card">
+            <div class="card-header">
+              <h4 class="card-title mb-0"><b>Track Applicant</b></h4>
+            </div>
+            <div class="card-body">
+              <div class="row mb-3">
+                <div class="col-md-6">
+                  <label>Search Using</label>
+                  <select class="form-control" id="select_type" name="select_type">
+                    <option value="">--Select--</option>
+                    <option value="1">Application Id</option>
+                    <option value="2">Beneficiary Id</option>
+                    <option value="3">Mobile Number</option>
+                    <option value="4">Aadhar Card Number</option>
+                    <option value="5">Bank Account Number</option>
+                    <option value="6">Swasthyasathi Card No</option>
+                  </select>
+                  <span id="error_select_type" class="text-danger"></span>
                 </div>
 
-                <!-- Search Section -->
-                <div class="row mb-4">
-                <div class="col-md-12">
-                  <div class="form-row">
-                    <input type="hidden" name="scheme_code" id="scheme_code" value="{{ $scheme_id }}">
-                     <div class="form-group col-md-6">
-                          <label class="">Search Using</label>
-                          <select class="form-control" name="select_type" id="select_type" >
-                                    <option value="">--Select--</option>
-                                    <option value="1">Application Id</option>
-                                    <option value="2">Beneficiary Id</option>
-                                    <option value="3">Mobile Number</option>
-                                    <option value="4">Aadhar Card Number</option>
-                                    <option value="5">Bank Account Number</option>
-                                    <option value="6">Swasthyasathi Card No</option>
-                         
-                          </select>
-                          <span id="error_select_type" class="text-danger"></span>
+                <div class="col-md-6" id="input_val_div" style="display:none;">
+                  <label id="selectValueName">Value</label>
+                  <input type="text" id="applicant_id" name="applicant_id" class="form-control" placeholder="Enter value"
+                    autocomplete="off" />
+                  <span id="error_applicant_id" class="text-danger"></span>
+                </div>
+              </div>
+
+              <input type="hidden" id="scheme_code" name="scheme_code" value="{{ $scheme_id ?? '' }}">
+              <button type="button" id="searchbtn" class="btn btn-success">
+                <i class="fas fa-search"></i> Search
+              </button>
+            </div>
+          </div>
+
+          <!-- Result Section -->
+          <div id="ajaxData" class="mt-4" style="display:none;">
+            <div class="card shadow-sm card-outline card-primary">
+              <div class="card-header bg-light">
+                <h5 class="text-primary mb-0 fw-bold">
+                  Application Status (Name - <span id="span_ben_name"></span>,
+                  Beneficiary Id - <span class="span_ben_id"></span>,
+                  Application Id - <span id="span_app_id"></span>)
+                </h5>
+              </div>
+              <div class="card-body p-0">
+                <div id="timelineContainer">
+                  <!-- Timeline HTML from controller will be inserted here -->
+                </div>
+              </div>
+            </div>
+
+            <!-- Payment Section -->
+            <h4 class="text-center fw-bold text-success mb-3 paymentStatusDiv" style="display:none;">
+              Payment Status (Beneficiary Id - <span class="span_ben_id"></span>)
+            </h4>
+
+            <div class="accordion paymentStatusDiv" id="paymentAccordion" style="display:none;">
+              <div class="accordion-item">
+                <div id="collapseOne" class="accordion-collapse collapse show">
+                  <div class="accordion-body">
+                    <div class="row mb-3 align-items-center">
+                      <div class="col-md-6">
+                        <label>Select Financial Year</label>
                       </div>
-                       
-                       <div class="form-group col-md-6" id="input_val_div" style="display: none;">
-                        <label class="control-label"><span id="selectValueName">Value</span> <span
-                                        class="text-danger">*</span> </label>
-                                <input type="text" name="applicant_id" id="applicant_id" class="form-control"
-                                    placeholder="Enter value" autocomplete="off" style="font-size: 16px;"
-                                    onkeypress="if ( isNaN(String.fromCharCode(event.keyCode) )) return false;" />
-                                <span id="error_applicant_id" class="text-danger"></span>
-                       </div>
+                      <div class="col-md-6">
+                        <select class="form-select w-auto d-inline-block" onchange="changeFinancialYear(this.value)"
+                          id="fin_year">
+                          @foreach (Config::get('constants.fin_year') as $key => $fin_year)
+                            <option value="{{ $key }}" {{ $key == $currentFinYear ? 'selected' : '' }}>
+                              {{ $fin_year }}
+                            </option>
+                          @endforeach
+                        </select>
+                      </div>
+                    </div>
+
+                    <div id="div_payment_list" class="table-responsive">
+                      <table class="table table-bordered align-middle">
+                        <thead class="table-light">
+                          <tr>
+                            <th>Month</th>
+                            <th>Payment Status</th>
+                          </tr>
+                        </thead>
+                        <tbody></tbody>
+                      </table>
+                    </div>
                   </div>
                 </div>
-                <div class="form-group col-md-3 mb-0">
-                     <button type="button" name="submit" value="Submit" class="btn btn-success table-action-btn" id="searchbtn">
-                       <i class="fas fa-search"></i> Search
-                     </button>
-                 </div>
-              </div>
-               
-             <div id="ajaxData"></div>
               </div>
             </div>
           </div>
-        </div>
-      </form>
+        </form>
+      </div>
     </div>
   </div>
-</div>
-
-
 
 @endsection
 
 @push('scripts')
+  <script>
+    $(document).ready(function () {
+      $('#select_type').change(function () {
+        if ($(this).val() !== "") {
+          $('#input_val_div').show();
+          $('#selectValueName').text($("#select_type option:selected").text());
+        } else {
+          $('#input_val_div').hide();
+        }
+      });
 
-<script type="text/javascript">
-    $(document).ready(function() {
-        $('#loaderDiv').hide();
-        $('.sidebar-menu li').removeClass('active');
-        $('.sidebar-menu #lk-main').addClass("active");
-        $('.sidebar-menu #appplicantTrack').addClass("active");
-        var sessiontimeoutmessage = '{{ $sessiontimeoutmessage }}';
-        var base_url = '{{ url('/') }}';
-        var PleaseSelectScheme = '@lang('lang.PleaseSelectScheme')';
-        var PleaseEnterApplicationId = '@lang('lang.PleaseEnterApplicationId')';
-        $('#input_val_div').hide();
-        $('#search_msg').html('');
-        $('#select_type').change(function() {
-            $('#search_msg').html('');
-            if ($('#select_type').val() != "") {
-                $('#input_val_div').show();
-                $('#applicant_id').val('');
-                var selectedVal = $("#select_type option:selected").text();
-                $('#selectValueName').text(selectedVal);
-                $("#applicant_id").attr("placeholder", "Enter " + selectedVal);
-                $('#error_applicant_id').text('');
-            } else {
-                $('#input_val_div').hide();
-            }
+      $('#searchbtn').click(function () {
+        const scheme_code = $('#scheme_code').val();
+        const applicant_id = $('#applicant_id').val();
+        const select_type = $('#select_type').val();
+
+        if (!select_type) {
+          $('#error_select_type').text('Please select a filter');
+          return;
+        } else $('#error_select_type').text('');
+
+        if (!applicant_id) {
+          $('#error_applicant_id').text('This field is required');
+          return;
+        } else $('#error_applicant_id').text('');
+
+        $('#ajaxData').hide();
+        $('#timelineContainer').html('<div class="text-center p-4"><i class="fas fa-spinner fa-spin"></i> Loading...</div>');
+
+        $.ajax({
+          type: 'GET',
+          url: '{{ url('track-applicant-status') }}',
+          data: {
+            is_public: 0,
+            scheme_code: scheme_code,
+            applicant_id: applicant_id,
+            trackType: select_type,
+            _token: '{{ csrf_token() }}'
+          },
+          success: function (data) {
+            alert(data);
+            $('#ajaxData').show();
+            $('#timelineContainer').html(data);
+          },
+          error: function () {
+            $('#ajaxData').show();
+            $('#timelineContainer').html('<div class="alert alert-danger">Error fetching data. Please try again.</div>');
+          }
         });
-
-        var error_select_type = '';
-        var error_applicant_id = '';
-        $("#searchbtn").click(function() {
-            if ($.trim($('#select_type').val()).length == 0) {
-                error_select_type = 'Track filter is required';
-                $('#error_select_type').text(error_select_type);
-            } else {
-                error_select_type = '';
-                $('#error_select_type').text(error_select_type);
-            }
-
-            if ($.trim($('#applicant_id').val()).length == 0) {
-                error_applicant_id = 'This field is required';
-                $('#error_applicant_id').text(error_applicant_id);
-            } else {
-                error_applicant_id = '';
-                $('#error_applicant_id').text(error_applicant_id);
-            }
-
-            if (error_select_type == '' && error_applicant_id == '') {
-                
-                $('#resultDivPaymentStatus').hide();
-                var scheme_code = $("#scheme_code").val();
-                var applicant_id = $("#applicant_id").val();
-                var scheme_type = $('#select_type').val();
-
-                var selectedValueUsing = $("#select_type option:selected").text();
-                $('#search_msg').html('Search using with '+selectedValueUsing+' - '+applicant_id);
-
-                //console.log(application_type); 
-                var status1 = status2 = status3 = 0;
-                if (scheme_code == '' || typeof(scheme_code) === "undefined" || scheme_code === null) {
-                    $('#error_scheme_code').text(PleaseSelectScheme);
-                    status1 = 0;
-                } else {
-                    $('#error_scheme_code').text('');
-                    status1 = 1;
-                }
-                if (applicant_id == '' || typeof(applicant_id) === "undefined" || applicant_id ===
-                    null) {
-                    $('#error_applicant_id').text(PleaseEnterApplicationId);
-                    status1 = 0;
-                } else {
-                    $('#error_application_type').text('');
-                    status2 = 1;
-                }
-                //console.log(status1); console.log(status2);
-                if (status1 && status2) {
-                    var url = '{{ url('ajaxApplicationTrack') }}';
-                    var role_code = $('#role_code').val();
-                    // $('#ajaxData').html('<img align="center" src="{{ asset('images/ZKZg.gif') }}" width="50px" height="50px"/>');
-                    $('#ajaxData').html('');
-                    $('#loaderDiv').show();
-                    $.ajax({
-                        type: 'GET',
-                        url: url,
-                        data: {
-                            is_public: 0,
-                            scheme_code: scheme_code,
-                            applicant_id: applicant_id,
-                            trackType: scheme_type,
-                            _token: '{{ csrf_token() }}',
-                        },
-                        success: function(data) {
-                            $('#loaderDiv').hide();
-                            $("#modal_data").html('');
-                            $("#ajaxData").html(data);
-                        },
-                        error: function(ex) {
-                            $('#loaderDiv').hide();
-                            $("#modal_data").html('');
-                            $('#ajaxData').html('');
-                            alert('Timeout ..Please try again.');
-                            //location.reload();
-                        }
-                    });
-                }
-            } else {
-                return false;
-
-            }
-        });
-
+      });
     });
 
-    //------------------Beneficiary Payment Status Section------------------
+    // Payment Status AJAX
+    function changeFinancialYear(fin_year) {
+      const ben_id = $('.span_ben_id').text().trim();
+      if (!ben_id) return;
 
-
-    //########Change Financial Year########//
-    function changeFinancialYear(fin_year, beneficiary_id) {
-        $('#loaderDiv').show();
-        var finYear = fin_year;
-        // var ben_id = $('#ben_id_hidden').val();
-        $.ajax({
-            type: "POST",
-            url: "{{ route('getPaymentDetailsFinYearWiseInTrackApplication') }}",
-            data: {
-                _token: '{{ csrf_token() }}',
-                ben_id: beneficiary_id,
-                fin_year: finYear
-            },
-            success: function(response) {
-                $('#loaderDiv').hide();
-                $('#payment_details_' + response.personalDetails.ben_id).html('');
-                $('#payment_details_' + response.personalDetails.ben_id).html(response.paymentDetails);
-            },
-            error: function(jqXHR, textStatus, errorThrown) {
-                $('#loaderDiv').hide();
-                $('.ben_view_modal').modal('hide');
-                // ajax_error(jqXHR, textStatus, errorThrown);
-                $.alert({
-                    title: 'Error!!',
-                    type: 'red',
-                    icon: 'fa fa-warning',
-                    content: sessiontimeoutmessage,
-                });
-            }
-        });
-
+      $.ajax({
+        type: "POST",
+        url: "{{ route('getPaymentDetailsFinYearWiseInTrackApplicationPost') }}",
+        data: {
+          _token: '{{ csrf_token() }}',
+          ben_id: ben_id,
+          fin_year: fin_year
+        },
+        success: function (response) {
+          $('#div_payment_list tbody').html(response.paymentDetails || '');
+        },
+        error: function () {
+          alert('Error loading payment details.');
+        }
+      });
     }
-</script>
-
+  </script>
 @endpush
