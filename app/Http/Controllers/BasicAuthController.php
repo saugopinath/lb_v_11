@@ -258,8 +258,8 @@ class BasicAuthController extends Controller
                     'status' => 1, 'type' => 'blue', 'icon' => 'fa fa-info', 'title' => 'Info.', 'message' => 'No records found.'
                 ]);
             }
-            
-            
+
+
         } catch (\Exception $e) {
             return response()->json([
                 'status' => 400,
@@ -308,12 +308,12 @@ class BasicAuthController extends Controller
             $query2 = "select count(1) as updated_jnmp from jnmp.jnmp_data where is_details_callback=1";
             $query3 = "select count(1) filter(where jnmp_marked=1) as jnmp_mark,
             count(1) filter(where next_level_role_id=-94) as cur_jnmp_mark_as_death,
-            count(1) filter(where jnmp_marked=1 and next_level_role_id=0) as re_activate 
+            count(1) filter(where jnmp_marked=1 and next_level_role_id=0) as re_activate
             from lb_scheme.ben_personal_details";
 
             $query4 = "select count(1) filter(where jnmp_marked=1) as f_jnmp_mark,
             count(1) filter(where next_level_role_id=-94) as f_cur_jnmp_mark_as_death,
-            count(1) filter(where jnmp_marked=1 and next_level_role_id=0) as f_re_activate 
+            count(1) filter(where jnmp_marked=1 and next_level_role_id=0) as f_re_activate
             from lb_scheme.faulty_ben_personal_details";
 
             $getTotalJnmp = DB::select(DB::raw($query));
@@ -327,9 +327,9 @@ class BasicAuthController extends Controller
             // dd(1);
             $response = array(
                 'status' => 1, 'totalJnmp' =>   $getTotalJnmp[0]->total_count, 'remainingJnmp' => $getRemainJnmp[0]->remaining_count, 'updatedJnmp' => $getUpdatedJnmp[0]->updated_jnmp,
-                'data1' => (($getMainData[0]->jnmp_mark) + ($getFaultyData[0]->f_jnmp_mark)), 
-                'data2' => (($getMainData[0]->cur_jnmp_mark_as_death) + ($getFaultyData[0]->f_cur_jnmp_mark_as_death)), 
-                'data3' => (($getMainData[0]->re_activate) + ($getFaultyData[0]->f_re_activate)), 
+                'data1' => (($getMainData[0]->jnmp_mark) + ($getFaultyData[0]->f_jnmp_mark)),
+                'data2' => (($getMainData[0]->cur_jnmp_mark_as_death) + ($getFaultyData[0]->f_cur_jnmp_mark_as_death)),
+                'data3' => (($getMainData[0]->re_activate) + ($getFaultyData[0]->f_re_activate)),
                 'type' => 'green', 'icon' => 'fa fa-check', 'title' => 'Success'
             );
             // dd($response);

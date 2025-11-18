@@ -3,13 +3,13 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Models\GP;
 use App\Models\Configduty;
 use App\Models\District;
 use App\Models\UrbanBody;
 use App\Models\SubDistrict;
 use App\Models\Taluka;
 use App\Models\Ward;
-use App\Models\GP;
 use App\Models\User;
 use Redirect;
 use Illuminate\Support\Facades\Auth;
@@ -250,7 +250,7 @@ class jnmpController extends Controller
             return response()->json($response, $statusCode);
         }
         try {
-            
+// dd($request->all());
             $user_id = Auth::user()->id;
             $designation_id = Auth::user()->designation_id;
             $duty = Configduty::where('user_id', '=', $user_id)->where('is_active', 1)->first();
@@ -259,8 +259,9 @@ class jnmpController extends Controller
             $file_stop_payment = $request->file('file_stop_payment');
             $getModelFunc = new getModelFunc();
             $schemaname = $getModelFunc->getSchemaDetails();
-            // dd($schemaname);
+            // dd($beneficiary_id);
             $tableName = Helper::getTable($beneficiary_id);
+            // dd($tableName);
             $remarks = $request->remarks;
             $reactive_reason = $request->reactive_reason;
             $is_faulty = $request->is_faulty;
@@ -337,7 +338,7 @@ class jnmpController extends Controller
                   $valid = 0;
                   $return_msg = $validator->errors()->all();
                   $return_status = 0;
-    
+
                   $response = array(
                     'status' => 7, 'msg' => $return_msg,
                     'type' => 'red', 'icon' => 'fa fa-warning', 'title' => 'Error'
@@ -350,7 +351,7 @@ class jnmpController extends Controller
                     $extension = $upload_alive_document->getClientOriginalExtension();
                     $mime_type = $upload_alive_document->getMimeType();
                     $base64 = base64_encode($img_data);
-      
+
                     $tableNameDoc = Helper::getTable('', $application_id);
                     // dd($tableNameDoc['benDocTable']);
                     $insertIntoArchieve = "INSERT INTO lb_scheme.ben_attach_documents_arch(
@@ -651,7 +652,7 @@ class jnmpController extends Controller
             SELECT application_id, beneficiary_id, ben_fname, ben_mname, ben_lname, created_by_dist_code, mobile_no FROM lb_scheme.ben_personal_details WHERE payment_suspended = 1
             UNION ALL
             SELECT application_id, beneficiary_id, ben_fname, ben_mname, ben_lname, created_by_dist_code, mobile_no FROM lb_scheme.faulty_ben_personal_details WHERE payment_suspended = 1
-        ) t 
+        ) t
         JOIN (
             SELECT application_id, block_ulb_name, gp_ward_name FROM lb_scheme.ben_contact_details
             UNION ALL

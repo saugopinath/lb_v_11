@@ -8,6 +8,9 @@
     <link href="{{ asset('datatable/css/dataTables.bootstrap.min.css') }}" rel="stylesheet" type="text/css" />
     <link href="{{ asset('datatable/css/datatables.min.css') }}" rel="stylesheet" type="text/css" />
     <link href="{{ asset('css/YajradatatableCustom.css') }}" rel="stylesheet" type="text/css" />
+    <link href="{{ asset('css/bootstrap-datepicker.min.css') }}" rel="stylesheet" type="text/css" />
+    <link href="{{ asset('css/adminlte.min.css') }}" rel="stylesheet" type="text/css" />
+     <link rel="stylesheet" href="{{ asset('css/sweetalert2.min.css') }}" type="text/css" />
 @endpush
 
 <!-- Push datatable JS to library-scripts stack -->

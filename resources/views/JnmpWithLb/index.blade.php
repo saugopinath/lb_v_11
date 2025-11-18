@@ -9,6 +9,15 @@
         background-color: #ffff99;
     }
 
+    .card-header-custom {
+        font-size: 16px;
+        background: linear-gradient(to right, #c9d6ff, #e2e2e2);
+        font-weight: bold;
+        font-style: italic;
+        padding: 15px 20px;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+    }
+
     .preloader1 {
         position: fixed;
         top: 40%;
@@ -90,305 +99,207 @@
     }
 </style>
 
-@extends('layouts.app-template-datatable_new')
+@extends('layouts.app-template-datatable')
+
 @section('content')
 
-    <div class="content-wrapper">
-        <!-- Content Header (Page header) -->
-        <section class="content-header">
-            <h1>
-                Re Activate Death Incident <span class="label label-info" style="font-size: 14px;">(These beneficiaries were de-activated as per death incidents received from Janma Mrityu Portal.)</span>
-            </h1>
+    <div class="content-header">
+        <h1>
+            Re Activate Death Incident
+            <span class="badge bg-info" style="font-size: 14px;">
+                (These beneficiaries were de-activated as per death incidents received from Janma Mrityu Portal.)
+            </span>
+        </h1>
+    </div>
+    <div class="container-fluid">
+        <!-- Alerts -->
+        <div>
+            @if (($message = Session::get('success')) && ($id = Session::get('id')))
+                <div class="alert alert-success alert-dismissible fade show">
+                    <strong>{{ $message }} with Application ID: {{ $id }}</strong>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            @endif
 
-        </section>
-        <section class="content">
-            <div class="row">
-                <!-- left column -->
-                <div class="col-md-12">
-                    <!-- general form elements -->
-                    <div>
-                        <!-- class="box box-primary" -->
-                        {{-- <div class="box-header with-border">
-                            <h3 class="box-title"><b>
+            @if ($message = Session::get('error'))
+                <div class="alert alert-danger alert-dismissible fade show">
+                    <strong>{{ $message }}</strong>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            @endif
 
-                                    Mis Report
+            @if (count($errors) > 0)
+                <div class="alert alert-danger alert-dismissible fade show">
+                    <ul class="mb-0">
+                        @foreach ($errors->all() as $error)
+                            <li><strong>{{ $error }}</strong></li>
+                        @endforeach
+                    </ul>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            @endif
+        </div>
 
-                                </b></h3>
-                            <!-- <p><h3 class="box-title"><b>Bandhu Prakalpa (for SC)</b></h3></p> -->
-                        </div> --}}
-
-                        <div>
-                            @if (($message = Session::get('success')) && ($id = Session::get('id')))
-                                <div class="alert alert-success alert-block">
-                                    <button type="button" class="close" data-dismiss="alert">×</button>
-                                    <strong>{{ $message }} with Application ID: {{ $id }}</strong>
-
-
-                                </div>
-                            @endif
-                            @if ($message = Session::get('error'))
-                                <div class="alert alert-danger alert-block">
-                                    <button type="button" class="close" data-dismiss="alert">×</button>
-                                    <strong>{{ $message }}</strong>
-
-
-                                </div>
-                            @endif
-                            @if (count($errors) > 0)
-                                <div class="alert alert-danger alert-block">
-                                    <ul>
-                                        @foreach ($errors->all() as $error)
-                                            <li><strong> {{ $error }}</strong></li>
-                                        @endforeach
-                                    </ul>
-                                </div>
-                            @endif
-                        </div>
-
-
-
-
-
-                        <div class="tab-content" style="margin-top:16px;">
-
-
-
-
-
-
-                            <div class="tab-pane active" id="personal_details">
-                                <div class="panel panel-default">
-                                    <div class="panel-heading">
-                                        <h4><b>Search Criteria</b></h4>
-                                    </div>
-                                    <div class="panel-body">
-
-
-
-                                        <div class="row">
-                                            <div class="form-group col-md-4">
-                                                <label class="">Is Faulty</label>
-                                                <select name="is_faulty" id="is_faulty" class="form-control"
-                                                    tabindex="6">
-                                                    <option value="1">Yes</option>
-                                                    <option value="2">No</option>
-                                                </select>
-                                                <span id="error_is_faulty" class="text-danger"></span>
-
-                                            </div>
-
-                                            @if ($district_visible)
-                                                <div class="form-group col-md-4">
-                                                    <label class="">District</label>
-                                                    <select name="district" id="district" class="form-control"
-                                                        tabindex="6">
-                                                        <option value="">--All --</option>
-                                                        @foreach ($districts as $district)
-                                                            <option value="{{ $district->district_code }}"
-                                                                @if (old('district') == $district->district_code) selected @endif>
-                                                                {{ $district->district_name }}</option>
-                                                        @endforeach
-                                                    </select>
-                                                    <span id="error_district" class="text-danger"></span>
-
-                                                </div>
-                                            @else
-                                                <input type="hidden" name="district" id="district"
-                                                    value="{{ $district_code_fk }}" />
-                                            @endif
-                                            @if ($is_urban_visible)
-                                                <div class="form-group col-md-4" id="divUrbanCode">
-                                                    <label class="">Rural/ Urban</label>
-
-                                                    <select name="urban_code" id="urban_code" class="form-control"
-                                                        tabindex="11">
-                                                        <option value="">--All --</option>
-                                                        @foreach (Config::get('constants.rural_urban') as $key => $val)
-                                                            <option value="{{ $key }}"
-                                                                @if (old('urban_code') == $key) selected @endif>
-                                                                {{ $val }}</option>
-                                                        @endforeach
-
-                                                    </select>
-                                                    <span id="error_urban_code" class="text-danger"></span>
-                                                </div>
-                                            @else
-                                                <input type="hidden" name="urban_code" id="urban_code"
-                                                    value="{{ $rural_urban_fk }}" />
-
-                                            @endif
-                                            @if ($block_visible)
-                                                <div class="form-group col-md-4" id="divBodyCode">
-                                                    <label class="" id="blk_sub_txt">Block/Sub
-                                                        Division.</label>
-
-                                                    <select name="block" id="block" class="form-control"
-                                                        tabindex="16">
-                                                        <option value="">--All --</option>
-
-
-                                                    </select>
-                                                    <span id="error_block" class="text-danger"></span>
-                                                </div>
-                                            @else
-                                                <input type="hidden" name="block" id="block"
-                                                    value="{{ $block_munc_corp_code_fk }}" />
-                                            @endif
-
-                                            <div class="form-group col-md-4" id="municipality_div"
-                                                style="{{ $municipality_visible ? '' : 'display:none' }}">
-                                                <label class="">Municipality</label>
-
-                                                <select name="muncid" id="muncid" class="form-control" tabindex="16">
-                                                    <option value="">--All --</option>
-                                                    @foreach ($muncList as $munc)
-                                                        <option value="{{ $munc->urban_body_code }}">
-                                                            {{ $munc->urban_body_name }}</option>
-                                                    @endforeach
-
-                                                </select>
-                                                <span id="error_muncid" class="text-danger"></span>
-                                            </div>
-
-
-                                            <div class="form-group col-md-4" id="gp_ward_div"
-                                                style="{{ $gp_ward_visible ? '' : 'display:none' }}">
-                                                <label class="" id="gp_ward_txt">GP/Ward</label>
-
-                                                <select name="gp_ward" id="gp_ward" class="form-control"
-                                                    tabindex="17">
-                                                    <option value="">--All --</option>
-                                                    @foreach ($gpList as $gp)
-                                                        <option value="{{ $gp->gram_panchyat_code }}">
-                                                            {{ $gp->gram_panchyat_name }}</option>
-                                                    @endforeach
-
-                                                </select>
-                                                <span id="error_gp_ward" class="text-danger"></span>
-                                            </div>
-
-
-                                        </div>
-                                        <div class="col-md-12" align="center">
-
-                                            <button type="button" id="submitting" value="Submit"
-                                                class="btn btn-success success btn-lg modal-search form-submitted">Search
-                                            </button>
-
-                                            <div class=""><img src="{{ asset('images/ZKZg.gif') }}"
-                                                    id="submit_loader1" width="50px" height="50px"
-                                                    style="display:none;"></div>
-
-                                            <!--<button type="button" name="btn_personal_details" id="btn_personal_details" class="btn btn-info btn-lg">Next</button>-->
-                                        </div>
-                                        <br />
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="tab-content" style="margin-top:16px;">
-
-
-                                <div class="alert print-error-msg" style="display:none;" id="errorDiv">
-                                    <button type="button" class="close" aria-label="Close"
-                                        onclick="closeError('errorDiv')"><span aria-hidden="true">&times;</span></button>
-                                    <ul></ul>
-                                </div>
-
-
-
-                                <div class="tab-pane active" id="search_details" style="display:none;">
-                                    <div class="panel panel-default">
-                                        <div class="panel-heading" id="heading_msg">
-                                            <h4><b>Search Result</b></h4>
-                                        </div>
-                                        <div class="panel-body">
-
-                                            <div class="pull-right" id="report_generation_text">Report
-                                                Generated on:<b><?php echo date('l jS \of F Y h:i:s A'); ?></b></div>
-
-                                            <button class="btn btn-info exportToExcel" type="button">Export
-                                                to Excel</button><br /><br /><br />
-                                            <div id="divScrool">
-                                                <table id="example"
-                                                    class="table table-striped table-bordered table2excel"
-                                                    style="width:100%">
-                                                    <thead style="font-size: 12px;">
-                                                        <th>Application ID</th>
-                                                        <th>Beneficiary ID</th>
-                                                        <th>Name</th>
-                                                        <th>Father Name</th>
-                                                        <th>Block/Municipality</th>
-                                                        <th>GP/Ward</th>
-                                                        <th>Aadhar No.</th>
-                                                        <th>Mobile No.</th>
-                                                        <th>Action</th>
-                                                    </thead>
-                                                    <tbody style="font-size: 14px;">
-
-                                                    </tbody>
-                                                    <tfoot>
-                                                        <tr id="fotter_id"></tr>
-                                                        <tr>
-                                                            <td colspan="21" align="center" style="display:none;"
-                                                                id="fotter_excel">
-                                                                Heading</td>
-                                                        </tr>
-                                                    </tfoot>
-                                                </table>
-                                            </div>
-
-
-
-
-                                        </div>
-                                    </div>
-                                </div>
-
-
-                            </div>
-                        </div>
+        <!-- Search Criteria -->
+        <div class="card mt-4">
+            <div class="card-header card-header-custom">
+                <h4 class="mb-0"><b>Search Criteria</b></h4>
+            </div>
+            <div class="card-body">
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <label for="is_faulty" class="form-label">Is Faulty</label>
+                        <select name="is_faulty" id="is_faulty" class="form-select">
+                            <option value="1">Yes</option>
+                            <option value="2">No</option>
+                        </select>
+                        <span id="error_is_faulty" class="text-danger"></span>
                     </div>
 
+                    @if ($district_visible)
+                        <div class="col-md-4">
+                            <label for="district" class="form-label">District</label>
+                            <select name="district" id="district" class="form-select">
+                                <option value="">-- All --</option>
+                                @foreach ($districts as $district)
+                                    <option value="{{ $district->district_code }}" @if (old('district') == $district->district_code)
+                                    selected @endif>
+                                        {{ $district->district_name }}
+                                    </option>
+                                @endforeach
+                            </select>
+                            <span id="error_district" class="text-danger"></span>
+                        </div>
+                    @else
+                        <input type="hidden" name="district" id="district" value="{{ $district_code_fk }}">
+                    @endif
 
+                    @if ($is_urban_visible)
+                        <div class="col-md-4" id="divUrbanCode">
+                            <label class="form-label">Rural / Urban</label>
+                            <select name="urban_code" id="urban_code" class="form-select">
+                                <option value="">-- All --</option>
+                                @foreach (Config::get('constants.rural_urban') as $key => $val)
+                                    <option value="{{ $key }}" @if (old('urban_code') == $key) selected @endif>
+                                        {{ $val }}
+                                    </option>
+                                @endforeach
+                            </select>
+                            <span id="error_urban_code" class="text-danger"></span>
+                        </div>
+                    @else
+                        <input type="hidden" name="urban_code" id="urban_code" value="{{ $rural_urban_fk }}">
+                    @endif
 
+                    @if ($block_visible)
+                        <div class="col-md-4" id="divBodyCode">
+                            <label for="block" id="blk_sub_txt" class="form-label">Block/Sub Division</label>
+                            <select name="block" id="block" class="form-select">
+                                <option value="">-- All --</option>
+                            </select>
+                            <span id="error_block" class="text-danger"></span>
+                        </div>
+                    @else
+                        <input type="hidden" name="block" id="block" value="{{ $block_munc_corp_code_fk }}">
+                    @endif
 
+                    <div class="col-md-4" id="municipality_div" style="{{ $municipality_visible ? '' : 'display:none' }}">
+                        <label class="form-label">Municipality</label>
+                        <select name="muncid" id="muncid" class="form-select">
+                            <option value="">-- All --</option>
+                            @foreach ($muncList as $munc)
+                                <option value="{{ $munc->urban_body_code }}">{{ $munc->urban_body_name }}</option>
+                            @endforeach
+                        </select>
+                        <span id="error_muncid" class="text-danger"></span>
+                    </div>
 
+                    <div class="col-md-4" id="gp_ward_div" style="{{ $gp_ward_visible ? '' : 'display:none' }}">
+                        <label id="gp_ward_txt" class="form-label">GP/Ward</label>
+                        <select name="gp_ward" id="gp_ward" class="form-select">
+                            <option value="">-- All --</option>
+                            @foreach ($gpList as $gp)
+                                <option value="{{ $gp->gram_panchyat_code }}">
+                                    {{ $gp->gram_panchyat_name }}
+                                </option>
+                            @endforeach
+                        </select>
+                        <span id="error_gp_ward" class="text-danger"></span>
+                    </div>
                 </div>
 
-
-
-
-
-
+                <div class="text-center mt-4">
+                    <button type="button" id="submitting" class="btn btn-success btn-lg modal-search">
+                        Search
+                    </button>
+                    <img src="{{ asset('images/ZKZg.gif') }}" id="submit_loader1" width="50" height="50"
+                        style="display:none;">
+                </div>
             </div>
-            <!-- /.box -->
-    </div>
-    <!--/.col (left) -->
+        </div>
 
-    </div>
-  </div>
-    <div class="modal fade" id="modalUpdateAadhar" role="dialog">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span></button>
-                    <h4 class="modal-title">Beneficiary Details</h4>
+        <!-- Search Results -->
+        <div id="search_details" class="card mt-4" style="display:none;">
+            <div class="card-header card-header-custom  d-flex justify-content-between align-items-center">
+                <h4 class="mb-0"><b>Search Result</b></h4>
+                <div>Report Generated on: <b>{{ now()->format('l jS \\of F Y h:i:s A') }}</b></div>
+            </div>
+            <div class="card-body">
+                <button class="btn btn-info mb-3 exportToExcel" type="button">Export to Excel</button>
+                <div class="table-responsive" id="divScrool">
+                    <table id="example" class="data-table" style="width:100%">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>Application ID</th>
+                                <th>Beneficiary ID</th>
+                                <th>Name</th>
+                                <th>Father Name</th>
+                                <th>Block/Municipality</th>
+                                <th>GP/Ward</th>
+                                <th>Aadhar No.</th>
+                                <th>Mobile No.</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody style="font-size: 14px;"></tbody>
+                        <tfoot>
+                            <tr id="fotter_id"></tr>
+                            <tr>
+                                <td colspan="9" id="fotter_excel" style="display:none;">Heading</td>
+                            </tr>
+                        </tfoot>
+                    </table>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="modalUpdateAadhar" tabindex="-1" aria-labelledby="modalUpdateAadharLabel"
+        aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content">
+
+                <!-- Modal Header -->
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title" id="modalUpdateAadharLabel">Beneficiary Details</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                        aria-label="Close"></button>
+                </div>
+
+                <!-- Modal Body -->
                 <div class="modal-body">
                     <div id="loadingDivModal"></div>
-                    <div class="" id="updateDiv">
-                        <!-- <div class="panel-heading">Enter Bank Details</div>
-            <div class="panel-body"> -->
-                        <div class="row">
+
+                    <div id="updateDiv">
+                        <div class="row mb-3">
                             <div class="col-md-12">
-                                <h4 style="text-align: center;" class="text-primary">Beneficiary ID: <span
-                                        id="application_id"></span></h4>
+                                <h4 class="text-center text-primary">
+                                    Beneficiary ID: <span id="application_id"></span>
+                                </h4>
                             </div>
                         </div>
-                        <table class="table table-bordered table-responsive table-condensed table-striped"
-                            style="font-size: 14px;">
+
+                        <table class="table table-bordered table-striped" style="font-size:14px;">
                             <tr>
                                 <td>
                                     <strong>Name as JNMP Portal: </strong>
@@ -401,7 +312,7 @@
                             </tr>
                             <tr>
                                 <td>
-                                    <strong>Name : </strong>
+                                    <strong>Name: </strong>
                                     <span id="name_div"></span>
                                 </td>
                                 <td>
@@ -411,96 +322,93 @@
                             </tr>
                             <tr>
                                 <td>
-                                    <strong>Mobile NO.: </strong>
+                                    <strong>Mobile No.: </strong>
                                     <span id="mobile_div"></span>
                                 </td>
                                 <td>
-                                    <strong>Father's Name :</strong>
+                                    <strong>Father's Name: </strong>
                                     <span id="father_div"></span>
                                 </td>
                             </tr>
                         </table>
+
+                        <!-- Hidden Fields -->
                         <input type="hidden" name="pension_id" id="pension_id" value="">
                         <input type="hidden" name="ben_application_id" id="ben_application_id" value="">
                         <input type="hidden" name="update_scheme_id" id="update_scheme_id" value="">
-                        {{-- <input type="hidden" name="old_aadhar_no" id="old_aadhar_no" value=""> --}}
+
+                        <!-- File & Inputs -->
                         <div class="table-responsive">
-                            <table class="table table-bordered table-responsive table-condensed"
-                                style="width:100%; font-size: 14px;">
+                            <table class="table table-bordered" style="font-size:14px;">
                                 <tr>
                                     <th>Upload File: <span class="text-danger">*</span></th>
                                     <td>
-                                        <input type="file" name="file_stop_payment" class="form-control"
-                                            id="file_stop_payment">
-                                        <small class="text-info" style="font-weight: normal;"> (Only
-                                            jpeg,jpg,png,pdf file and maximum size should be less than 500
-                                            KB)</small>
-                                        <span class="text-danger" id="error_file"
-                                            style="font-size: 12px; font-weight: bold;"></span>
+                                        <input type="file" id="file_stop_payment" class="form-control">
+                                        <small class="text-muted">(Only jpeg, jpg, png, pdf — Max size: 500 KB)</small>
+                                        <span class="text-danger" id="error_file"></span>
                                     </td>
                                 </tr>
+
                                 <tr>
                                     <th>Re-active Reason: <span class="text-danger">*</span></th>
                                     <td>
-                                        <select name="reactive_reason" id="reactive_reason" class="form-control"
-                                                    tabindex="17">
+                                        <select id="reactive_reason" class="form-select">
                                             @foreach($reactive_reasons as $reactive_reason)
-                                                <option value="{{ $reactive_reason->id }}">{{ $reactive_reason->reactive_reason }}</option>
+                                                <option value="{{ $reactive_reason->id }}">
+                                                    {{ $reactive_reason->reactive_reason }}
+                                                </option>
                                             @endforeach
                                         </select>
-                                        <span class="text-danger" id="error_reactive_reason"
-                                            style="font-size: 12px; font-weight: bold;"></span>
+                                        <span class="text-danger" id="error_reactive_reason"></span>
                                     </td>
                                 </tr>
+
                                 <tr>
                                     <th>Remarks: <span class="text-danger">*</span></th>
                                     <td>
-                                        <input type="text" name="remarks" id="remarks" class="form-control"
-                                            value="" maxlength="100">
-                                        <small style="font-weight: normal;">Max 100 character allowed</small>
-                                        <span class="text-danger" id="error_remarks"
-                                            style="font-size: 12px; font-weight: bold;"></span>
+                                        <input type="text" id="remarks" class="form-control" maxlength="100">
+                                        <small class="text-muted">Max 100 characters allowed</small>
+                                        <span class="text-danger" id="error_remarks"></span>
                                     </td>
                                 </tr>
                             </table>
                         </div>
-                        <div class="row">
-                            <div class="col-md-12" style="text-align: center;"><input type="button" name="submit"
-                                    value="Save as alive" id="verifySubmit" class="btn btn-success btn-lg"></div>
+
+                        <!-- Submit Button -->
+                        <div class="text-center mt-3 mb-2">
+                            <button id="verifySubmit" class="btn btn-success btn-lg">
+                                Save as Alive
+                            </button>
                         </div>
-                        <!-- </div> -->
                     </div>
                 </div>
+
             </div>
-            <!-- /.modal-content -->
         </div>
-        <!-- /.modal-dialog -->
     </div>
-
-    </section>
-    </div>
-
 
 @endsection
-@section('script')
-    <script src="{{ URL::asset('js/master-data-v2.js') }}"></script>
-    <script src="{{ URL::asset("js/jquery.table2excel.js") }}"></script>
+
+@push("scripts")
+
     <script>
         var base_date = '{{ $base_date }}';
         var c_date = '{{ $c_date }}';
         //alert(base_date);
 
-        $(document).ready(function() {
+        $(document).ready(function () {
             $('.sidebar-menu li').removeClass('active');
             // $('.sidebar-menu #lk-main').addClass("active");
             $('.sidebar-menu #jnmpData').addClass("active");
             //loadDataTable();
-            $(".exportToExcel").click(function(e) {
+            $(".exportToExcel").click(function (e) {
+                {{--  alert('ok');  --}}
                 // var error_scheme_id = '';
                 // var error_search_for = '';
                 var error_district = '';
 
                 var district = $('#district').val();
+                
                 var urban_code = $('#urban_code').val();
                 var block = $('#block').val();
                 var gp_ward = $('#gp_ward').val();
@@ -519,7 +427,7 @@
                 };
                 redirectPost('generateExcel', data);
             });
-            $("#from_date").on('blur', function() {
+            $("#from_date").on('blur', function () {
                 var from_date = $('#from_date').val();
                 if (from_date != '') {
                     //alert(from_date);
@@ -530,7 +438,7 @@
                 }
             });
 
-            $('#district').change(function() {
+            $('#district').change(function () {
                 var district = $(this).val();
                 //alert(district);
                 $('#urban_code').val('');
@@ -538,7 +446,7 @@
                 $('#muncid').html('<option value="">--All --</option>');
             });
 
-            $('#urban_code').change(function() {
+            $('#urban_code').change(function () {
                 var urban_code = $(this).val();
                 if (urban_code == '') {
                     $('#muncid').html('<option value="">--All --</option>');
@@ -559,7 +467,7 @@
                         $("#blk_sub_txt").text('Block');
                         $("#gp_ward_txt").text('GP');
                         $("#municipality_div").hide();
-                        $.each(blocks, function(key, value) {
+                        $.each(blocks, function (key, value) {
                             if (value.district_code == select_district_code) {
                                 htmlOption += '<option value="' + value.id + '">' + value.text +
                                     '</option>';
@@ -569,7 +477,7 @@
                         $("#blk_sub_txt").text('Subdivision');
                         $("#gp_ward_txt").text('Ward');
                         $("#municipality_div").show();
-                        $.each(subDistricts, function(key, value) {
+                        $.each(subDistricts, function (key, value) {
                             if (value.district_code == select_district_code) {
                                 htmlOption += '<option value="' + value.id + '">' + value.text +
                                     '</option>';
@@ -582,7 +490,7 @@
                 }
 
             });
-            $('#block').change(function() {
+            $('#block').change(function () {
                 var block = $(this).val();
                 var district = $("#district").val();
                 var urban_code = $("#urban_code").val();
@@ -608,9 +516,9 @@
                             $('#muncid').html('<option value="">--All --</option>');
                             select_district_code = $('#district').val();
                             var htmlOption = '<option value="">--All--</option>';
-                            $.each(ulbs, function(key, value) {
+                            $.each(ulbs, function (key, value) {
                                 if ((value.district_code == select_district_code) && (value
-                                        .sub_district_code == sub_district_code)) {
+                                    .sub_district_code == sub_district_code)) {
                                     htmlOption += '<option value="' + value.id + '">' + value.text +
                                         '</option>';
                                 }
@@ -626,9 +534,9 @@
                         select_district_code = $('#district').val();
 
                         var htmlOption = '<option value="">--All--</option>';
-                        $.each(gps, function(key, value) {
+                        $.each(gps, function (key, value) {
                             if ((value.district_code == select_district_code) && (value
-                                    .block_code == block_code)) {
+                                .block_code == block_code)) {
                                 htmlOption += '<option value="' + value.id + '">' + value.text +
                                     '</option>';
                             }
@@ -647,7 +555,7 @@
                 }
 
             });
-            $('#muncid').change(function() {
+            $('#muncid').change(function () {
                 var muncid = $(this).val();
                 var district = $("#district").val();
                 var urban_code = $("#urban_code").val();
@@ -672,7 +580,7 @@
                         if (municipality_code != '') {
                             $('#gp_ward').html('<option value="">--All --</option>');
                             var htmlOption = '<option value="">--All--</option>';
-                            $.each(ulb_wards, function(key, value) {
+                            $.each(ulb_wards, function (key, value) {
                                 if (value.urban_body_code == municipality_code) {
                                     htmlOption += '<option value="' + value.id + '">' + value.text +
                                         '</option>';
@@ -691,8 +599,7 @@
                 }
 
             });
-            $('.modal-search').on('click', function() {
-                // alert('Table Load');
+            $('.modal-search').on('click', function () {
                 // loadDataTable();
                 var district = $('#district').val();
                 var urban_code = $('#urban_code').val();
@@ -730,7 +637,7 @@
                     "ajax": {
                         url: "{{ route('getJnmpData') }}",
                         type: "post",
-                        data: function(d) {
+                        data: function (d) {
                             d.district = district,
                                 d.urban_code = $('#urban_code').val(),
                                 d.block = $('#block').val(),
@@ -739,14 +646,14 @@
                                 d.is_faulty = $('#is_faulty').val(),
                                 d._token = "{{ csrf_token() }}"
                         },
-                        error: function(jqXHR, textStatus, errorThrown) {
+                        error: function (jqXHR, textStatus, errorThrown) {
                             $('#submit_btn').attr('disabled', false);
                             $('#loadingDiv').hide();
                             $('.preloader1').hide();
                             ajax_error(jqXHR, textStatus, errorThrown);
                         }
                     },
-                    "initComplete": function() {
+                    "initComplete": function () {
                         $('#loadingDiv').hide();
                         $("#submit_loader1").hide();
                         $("#submitting").show();
@@ -782,32 +689,32 @@
                         }
                     ],
                     "buttons": [{
-                            extend: 'pdf',
-                            footer: true,
-                            pageSize: 'A4',
-                            //orientation: 'landscape',
-                            pageMargins: [40, 60, 40, 60],
-                            exportOptions: {
-                                columns: [0, 1, 2, 3, 4, 5],
+                        extend: 'pdf',
+                        footer: true,
+                        pageSize: 'A4',
+                        //orientation: 'landscape',
+                        pageMargins: [40, 60, 40, 60],
+                        exportOptions: {
+                            columns: [0, 1, 2, 3, 4, 5],
 
-                            }
-                        },
-                        {
-                            extend: 'excel',
-                            footer: true,
-                            pageSize: 'A4',
-                            //orientation: 'landscape',
-                            pageMargins: [40, 60, 40, 60],
-                            exportOptions: {
-                                columns: [0, 1, 2, 3, 4, 5],
-                                stripHtml: false,
-                            }
-                        },
+                        }
+                    },
+                    {
+                        extend: 'excel',
+                        footer: true,
+                        pageSize: 'A4',
+                        //orientation: 'landscape',
+                        pageMargins: [40, 60, 40, 60],
+                        exportOptions: {
+                            columns: [0, 1, 2, 3, 4, 5],
+                            stripHtml: false,
+                        }
+                    },
                         // 'pdf'
                     ],
                 });
             });
-            $('#file_stop_payment').change(function() {
+            $('#file_stop_payment').change(function () {
                 var card_file = document.getElementById("file_stop_payment");
                 if (card_file.value != "") {
                     var attachment;
@@ -831,7 +738,7 @@
                 }
             });
         });
-        $(document).on('click', '#verifySubmit', function() {
+        $(document).on('click', '#verifySubmit', function () {
             var error_file = '';
             var error_remarks = '';
             var remarks = $('#remarks').val();
@@ -872,95 +779,95 @@
             if (error_file != '' || error_reactive_reason != '' || error_remarks != '') {
                 return false;
             } else {
-                // alert('OK');
-                $.confirm({
-                    type: 'orange',
+                Swal.fire({
                     title: 'Confirmation!',
-                    content: 'Are you want to active this beneficiary ? <br> <span style="color: black;"><b>Note: After activation this beneficiary will started to get payment.</b></span>',
-                    icon: 'fa fa-warning',
-                    buttons: {
-                        confirm: {
-                            text: 'Confirm',
-                            btnClass: 'btn-blue',
-                            keys: ['enter', 'shift'],
-                            action: function() {
-                                // alert('OK');
-                                var beneficiary_Id = $('#pension_id').val();
-                                var application_id = $('#ben_application_id').val();
-                                var is_faulty = $('#is_faulty').val();
-                                //   alert(application_id);
-                                var remarks = $('#remarks').val();
-                                var reactive_reason = $('#reactive_reason').val();
-                                var formData = new FormData();
-                                var files = $('#file_stop_payment')[0].files;
-                                formData.append('file_stop_payment', files[0]);
-                                formData.append('id', beneficiary_Id);
-                                formData.append('application_id', application_id);
-                                formData.append('remarks', remarks);
-                                formData.append('reactive_reason', reactive_reason);
-                                formData.append('is_faulty', is_faulty);
-                                formData.append('_token', '{{ csrf_token() }}');
-                                $('.loadingDivModal').show();
-                                $.ajax({
-                                    type: 'post',
-                                    url: "{{ route('activeJnmpBeneficiary') }}",
-                                    data: formData,
-                                    dataType: 'json',
-                                    processData: false,
-                                    contentType: false,
-                                    success: function(response) {
-                                        $('.loadingDivModal').hide();
-                                        if (response.return_status == 1) {
-                                            $.alert({
-                                                title: response.title,
-                                                type: response.type,
-                                                icon: response.icon,
-                                                content: response.msg
-                                            });
-                                            $('#modalUpdateAadhar').modal('hide');
-                                            $('#res_div').hide();
-                                            // $('#scheme_type').val('').trigger('change');
-                                            $('#submit_btn').trigger('click');
-                                            $("html, body").animate({
-                                                scrollTop: 0
-                                            }, "slow");
-                                        } else {
-                                            var html = '';
-                                            html += '<ul>';
-                                            if (Array.isArray(response.msg)) {
-                                                $.each(response.msg, function(key, value) {
-                                                    html += '<li>' + value +
-                                                        '</li>';
-                                                });
-                                            } else {
-                                                html = '<li>' + response.msg + '</li>';
-                                            }
-                                            html += '<ul>';
-                                            $.alert({
-                                                title: response.title,
-                                                type: response.type,
-                                                icon: response.icon,
-                                                content: html
-                                            });
-                                        }
-                                    },
-                                    error: function(jqXHR, textStatus, errorThrown) {
-                                        $('.loadingDivModal').hide();
-                                        console.log(textStatus);
-                                        console.log(errorThrown);
-                                        ajax_error(jqXHR, textStatus, errorThrown);
+                    html: 'Are you sure you want to activate this beneficiary?<br><br><span style="color: black;"><b>Note:</b> After activation, this beneficiary will start receiving payment.</span>',
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonText: 'Confirm',
+                    cancelButtonText: 'Cancel',
+                    confirmButtonColor: '#3085d6',
+                    cancelButtonColor: '#d33',
+                    reverseButtons: true
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        var beneficiary_Id = $('#pension_id').val();
+                        var application_id = $('#ben_application_id').val();
+                        var is_faulty = $('#is_faulty').val();
+                        var remarks = $('#remarks').val();
+                        var reactive_reason = $('#reactive_reason').val();
+                        var formData = new FormData();
+                        var files = $('#file_stop_payment')[0].files;
+                        formData.append('file_stop_payment', files[0]);
+                        formData.append('id', beneficiary_Id);
+                        formData.append('application_id', application_id);
+                        formData.append('remarks', remarks);
+                        formData.append('reactive_reason', reactive_reason);
+                        formData.append('is_faulty', is_faulty);
+                        formData.append('_token', '{{ csrf_token() }}');
+
+                        $('.loadingDivModal').show();
+
+                        $.ajax({
+                            type: 'post',
+                            url: "{{ route('activeJnmpBeneficiary') }}",
+                            data: formData,
+                            dataType: 'json',
+                            processData: false,
+                            contentType: false,
+                            success: function (response) {
+                                $('.loadingDivModal').hide();
+
+                                if (response.return_status == 1) {
+                                    Swal.fire({
+                                        title: response.title,
+                                        icon: response.type,
+                                        html: response.msg,
+                                        confirmButtonText: 'OK',
+                                        confirmButtonColor: '#3085d6'
+                                    }).then(() => {
+                                        $('#modalUpdateAadhar').modal('hide');
+                                        $('#res_div').hide();
+                                        $('#submit_btn').trigger('click');
+                                        $("html, body").animate({ scrollTop: 0 }, "slow");
+                                    });
+                                } else {
+                                    var html = '';
+                                    html += '<ul>';
+                                    if (Array.isArray(response.msg)) {
+                                        $.each(response.msg, function (key, value) {
+                                            html += '<li>' + value + '</li>';
+                                        });
+                                    } else {
+                                        html = '<li>' + response.msg + '</li>';
                                     }
-                                });
+                                    html += '</ul>';
+
+                                    Swal.fire({
+                                        title: response.title,
+                                        icon: response.type,
+                                        html: html,
+                                        confirmButtonColor: '#d33',
+                                        confirmButtonText: 'OK'
+                                    });
+                                }
+                            },
+                            error: function (jqXHR, textStatus, errorThrown) {
+                                $('.loadingDivModal').hide();
+                                console.log(textStatus);
+                                console.log(errorThrown);
+                                ajax_error(jqXHR, textStatus, errorThrown);
                             }
-                        },
-                        cancel: function() {},
+                        });
                     }
                 });
+
+
             }
         });
 
         function viewModalFunction(value) {
-            // alert(value);
+
             $('#loadingDivModal').show();
             $.ajax({
                 type: 'POST',
@@ -970,7 +877,7 @@
                     is_faulty: $('#is_faulty').val(),
                     _token: '{{ csrf_token() }}'
                 },
-                success: function(response) {
+                success: function (response) {
                     $('#loadingDivModal').hide();
                     if (response.status == 1) {
                         $.alert({
@@ -1012,7 +919,7 @@
                         $('#modalUpdateAadhar').modal('show');
                     }
                 },
-                error: function(jqXHR, textStatus, errorThrown) {
+                error: function (jqXHR, textStatus, errorThrown) {
                     $('#loadingDivModal').hide();
                     ajax_error(jqXHR, textStatus, errorThrown);
                 }
@@ -1032,7 +939,7 @@
                 $("#" + divid).addClass('alert-success');
             }
             if (Array.isArray(msg)) {
-                $.each(msg, function(key, value) {
+                $.each(msg, function (key, value) {
                     $("#" + divid).find("ul").append('<li>' + value + '</li>');
                 });
             } else {
@@ -1044,4 +951,4 @@
             $('#' + divId).hide();
         }
     </script>
-@stop
+@endpush

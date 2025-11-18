@@ -7,16 +7,16 @@ use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 
-use App\UrbanBody;
-use App\GP;
+use App\Models\UrbanBody;
+use App\Models\GP;
 use Validator;
 use App\Helpers\Helper;
 use Carbon\Carbon;
-use App\District;
-use App\SubDistrict;
-use App\Taluka;
-use App\Ward;
-use App\getModelFunc;
+use App\Models\District;
+use App\Models\SubDistrict;
+use App\Models\Taluka;
+use App\Models\Ward;
+use App\Models\getModelFunc;
 
 
 class NameValidationController extends Controller
@@ -174,7 +174,7 @@ class NameValidationController extends Controller
             if ($validator->passes()) {
                 $user_msg = "Name Validation Mis Report";
                 $title = $user_msg;
-                //dd($title);
+                // dd($title);
 
                 $data = array();
                 $return_status = 1;
@@ -251,15 +251,9 @@ class NameValidationController extends Controller
             dd($e);
         }
     }
-    public function getWardWise($district_code = NULL, $ulb_code = NULL, $block_ulb_code = NULL, $gp_ward_code = NULL, $fromdate = NULL, $todate = NULL, $caste = NULL, $ds_phase = NULL)
-    {
-    }
-    public function getGpWise($district_code = NULL, $ulb_code = NULL, $block_ulb_code = NULL, $gp_ward_code = NULL, $fromdate = NULL, $todate = NULL, $caste = NULL, $ds_phase = NULL)
-    {
-    }
-    public function getMuncWise($district_code = NULL, $ulb_code = NULL, $block_ulb_code = NULL, $gp_ward_code = NULL, $fromdate = NULL, $todate = NULL, $caste = NULL, $ds_phase = NULL)
-    {
-    }
+    public function getWardWise($district_code = NULL, $ulb_code = NULL, $block_ulb_code = NULL, $gp_ward_code = NULL, $fromdate = NULL, $todate = NULL, $caste = NULL, $ds_phase = NULL) {}
+    public function getGpWise($district_code = NULL, $ulb_code = NULL, $block_ulb_code = NULL, $gp_ward_code = NULL, $fromdate = NULL, $todate = NULL, $caste = NULL, $ds_phase = NULL) {}
+    public function getMuncWise($district_code = NULL, $ulb_code = NULL, $block_ulb_code = NULL, $gp_ward_code = NULL, $fromdate = NULL, $todate = NULL, $caste = NULL, $ds_phase = NULL) {}
     public function getBlockWise($district_code = NULL, $ulb_code = NULL, $block_ulb_code = NULL, $gp_ward_code = NULL, $fromdate = NULL, $todate = NULL, $caste = NULL, $ds_phase = NULL)
     {
         $whereMain = "where  district_code=" . $district_code;
@@ -271,21 +265,21 @@ class NameValidationController extends Controller
 
         $getModelFunc = new getModelFunc();
         $schemaname = $getModelFunc->getSchemaDetails();
-        $query1 = "select 
+        $query1 = "select
         count(1) filter(where f.edited_status <> 11 ) as total,
         count(1) filter(where f.edited_status=0 and f.legacy_validation_failed=false AND f.edited_status <> 11) as verification_pending_non_legacy,
         count(1) filter(where f.edited_status=0 and f.legacy_validation_failed=true AND f.edited_status <> 11) as verification_pending_legacy,
-        f.local_body_code from 
-        lb_main.failed_payment_details as f  JOIN  ".$schemaname.".ben_payment_details b ON f.ben_id=b.ben_id 
+        f.local_body_code from
+        lb_main.failed_payment_details as f  JOIN  " . $schemaname . ".ben_payment_details b ON f.ben_id=b.ben_id
         where f.dist_code=" . $district_code . " and f.failed_type in(3,4)  and b.ben_status=1
         group by f.local_body_code";
         $result3 = DB::connection('pgsql_payment')->select($query1);
         $result1 = array();
         if (!empty($result3) && count($result3) > 0) {
             foreach ($result3 as $arrt) {
-                $result1[$arrt->local_body_code] ['total']= $arrt->total;
-                $result1[$arrt->local_body_code] ['verification_pending_non_legacy']= $arrt->verification_pending_non_legacy;
-                $result1[$arrt->local_body_code] ['verification_pending_legacy']= $arrt->verification_pending_legacy;
+                $result1[$arrt->local_body_code]['total'] = $arrt->total;
+                $result1[$arrt->local_body_code]['verification_pending_non_legacy'] = $arrt->verification_pending_non_legacy;
+                $result1[$arrt->local_body_code]['verification_pending_legacy'] = $arrt->verification_pending_legacy;
             }
         }
         $query2 = "select main.location_id,main.location_name,
@@ -301,8 +295,8 @@ class NameValidationController extends Controller
         select block_code as location_id,'Block-'||block_name as location_name
         from public.m_block  " . $whereMain . "
       ) as main LEFT JOIN
-      ( 
-            select 
+      (
+            select
             count(1 )filter(where update_code=11 and A.next_level_role_id=5) as total_same_edited,
             count(1 )filter(where update_code=11 and A.next_level_role_id=0) as total_same_approved,
             count(1 )filter(where update_code=12 and A.next_level_role_id=5) as total_differ_edited,
@@ -310,9 +304,9 @@ class NameValidationController extends Controller
             count(1 )filter(where update_code=13 and A.next_level_role_id=5) as total_rej_edited,
             count(1 )filter(where update_code=13 and A.next_level_role_id=0) as total_rej_approved,
             count(B.application_id) filter(where B.next_level_role_id=-99 and A.next_level_role_id=5) as total_deactivate,
-            A.local_body_code	
+            A.local_body_code
             from lb_scheme.update_ben_details as A LEFT JOIN lb_scheme.ben_reject_details as B ON A.application_id=B.application_id
-            where A.dist_code=" . $district_code . " 
+            where A.dist_code=" . $district_code . "
             and  A.update_code IN (11,12,13) group by A.local_body_code
       ) as D ON main.location_id=D.local_body_code
       order by main.location_name";
@@ -330,8 +324,18 @@ class NameValidationController extends Controller
             $return_arr[$i]['total_rej_edited'] = $arr->total_rej_edited;
             $return_arr[$i]['total_rej_approved'] = $arr->total_rej_approved;
             $return_arr[$i]['total_deactivate'] = $arr->total_deactivate;
-            if (!empty($result1)) {
-                //dump('ok');
+            // if (!empty($result1)) {
+            //     //dump('ok');
+            //     $return_arr[$i]['total'] = $result1[$arr->location_id]['total'];
+            //     $return_arr[$i]['verification_pending_non_legacy'] = $result1[$arr->location_id]['verification_pending_non_legacy'];
+            //     $return_arr[$i]['verification_pending_legacy'] = $result1[$arr->location_id]['verification_pending_legacy'];
+            // } else {
+            //     // dump('okk');
+            //     $return_arr[$i]['total'] = 0;
+            //     $return_arr[$i]['verification_pending_non_legacy'] = 0;
+            //     $return_arr[$i]['verification_pending_legacy'] = 0;
+            // }
+            if (!empty($result1) && isset($result1[$arr->location_id])) {
                 $return_arr[$i]['total'] = $result1[$arr->location_id]['total'];
                 $return_arr[$i]['verification_pending_non_legacy'] = $result1[$arr->location_id]['verification_pending_non_legacy'];
                 $return_arr[$i]['verification_pending_legacy'] = $result1[$arr->location_id]['verification_pending_legacy'];
@@ -358,25 +362,25 @@ class NameValidationController extends Controller
         }
         $getModelFunc = new getModelFunc();
         $schemaname = $getModelFunc->getSchemaDetails();
-        /*$query1 = "select count(1) as total,f.local_body_code from 
-        lb_main.failed_payment_details as f 
-        where f.dist_code=" . $district_code . " AND f.failed_type in(3,4) AND f.edited_status <> 11 
+        /*$query1 = "select count(1) as total,f.local_body_code from
+        lb_main.failed_payment_details as f
+        where f.dist_code=" . $district_code . " AND f.failed_type in(3,4) AND f.edited_status <> 11
         group by f.local_body_code";*/
-        $query1 = "select 
+        $query1 = "select
         count(1) filter(where f.edited_status <> 11 ) as total,
         count(1) filter(where f.edited_status=0 and f.legacy_validation_failed=false AND f.edited_status <> 11) as verification_pending_non_legacy,
         count(1) filter(where f.edited_status=0 and f.legacy_validation_failed=true AND f.edited_status <> 11) as verification_pending_legacy,
-        f.local_body_code from 
-        lb_main.failed_payment_details as f  JOIN  ".$schemaname.".ben_payment_details b ON f.ben_id=b.ben_id 
+        f.local_body_code from
+        lb_main.failed_payment_details as f  JOIN  " . $schemaname . ".ben_payment_details b ON f.ben_id=b.ben_id
         where f.dist_code=" . $district_code . " and f.failed_type in(3,4)  and b.ben_status=1
         group by f.local_body_code";
         $result3 = DB::connection('pgsql_payment')->select($query1);
         $result1 = array();
         if (!empty($result3) && count($result3) > 0) {
             foreach ($result3 as $arrt) {
-                $result1[$arrt->local_body_code] ['total']= $arrt->total;
-                $result1[$arrt->local_body_code] ['verification_pending_non_legacy']= $arrt->verification_pending_non_legacy;
-                $result1[$arrt->local_body_code] ['verification_pending_legacy']= $arrt->verification_pending_legacy;
+                $result1[$arrt->local_body_code]['total'] = $arrt->total;
+                $result1[$arrt->local_body_code]['verification_pending_non_legacy'] = $arrt->verification_pending_non_legacy;
+                $result1[$arrt->local_body_code]['verification_pending_legacy'] = $arrt->verification_pending_legacy;
             }
         }
         $query2 = "select main.location_id,main.location_name,
@@ -390,10 +394,10 @@ class NameValidationController extends Controller
       from
       (
         select sub_district_code as location_id,'SubDivision-'||sub_district_name as location_name
-        from public.m_sub_district  " . $whereMain . " 
+        from public.m_sub_district  " . $whereMain . "
       ) as main LEFT JOIN
-      ( 
-            select 
+      (
+            select
             count(1 )filter(where update_code=11 and A.next_level_role_id=5) as total_same_edited,
             count(1 )filter(where update_code=11 and A.next_level_role_id=0) as total_same_approved,
             count(1 )filter(where update_code=12 and A.next_level_role_id=5) as total_differ_edited,
@@ -401,9 +405,9 @@ class NameValidationController extends Controller
             count(1 )filter(where update_code=13 and A.next_level_role_id=5) as total_rej_edited,
             count(1 )filter(where update_code=13 and A.next_level_role_id=0) as total_rej_approved,
             count(B.application_id) filter(where B.next_level_role_id=-99 and A.next_level_role_id=5) as total_deactivate,
-            A.local_body_code	
+            A.local_body_code
             from lb_scheme.update_ben_details as A LEFT JOIN lb_scheme.ben_reject_details as B ON A.application_id=B.application_id
-            where A.dist_code=" . $district_code . " 
+            where A.dist_code=" . $district_code . "
             and  A.update_code IN (11,12,13) group by A.local_body_code
       ) as D ON main.location_id=D.local_body_code
       order by main.location_name";
@@ -421,13 +425,22 @@ class NameValidationController extends Controller
             $return_arr[$i]['total_rej_edited'] = $arr->total_rej_edited;
             $return_arr[$i]['total_rej_approved'] = $arr->total_rej_approved;
             $return_arr[$i]['total_deactivate'] = $arr->total_deactivate;
-            if (!empty($result1)) {
-                //dump('ok');
+            // if (!empty($result1)) {
+            //     //dump('ok');
+            //     $return_arr[$i]['total'] = $result1[$arr->location_id]['total'];
+            //     $return_arr[$i]['verification_pending_non_legacy'] = $result1[$arr->location_id]['verification_pending_non_legacy'];
+            //     $return_arr[$i]['verification_pending_legacy'] = $result1[$arr->location_id]['verification_pending_legacy'];
+            // } else {
+            //     // dump('okk');
+            //     $return_arr[$i]['total'] = 0;
+            //     $return_arr[$i]['verification_pending_non_legacy'] = 0;
+            //     $return_arr[$i]['verification_pending_legacy'] = 0;
+            // }
+            if (!empty($result1) && isset($result1[$arr->location_id])) {
                 $return_arr[$i]['total'] = $result1[$arr->location_id]['total'];
                 $return_arr[$i]['verification_pending_non_legacy'] = $result1[$arr->location_id]['verification_pending_non_legacy'];
                 $return_arr[$i]['verification_pending_legacy'] = $result1[$arr->location_id]['verification_pending_legacy'];
             } else {
-                // dump('okk');
                 $return_arr[$i]['total'] = 0;
                 $return_arr[$i]['verification_pending_non_legacy'] = 0;
                 $return_arr[$i]['verification_pending_legacy'] = 0;
@@ -441,21 +454,21 @@ class NameValidationController extends Controller
     {
         $getModelFunc = new getModelFunc();
         $schemaname = $getModelFunc->getSchemaDetails();
-        $query1 = "select 
+        $query1 = "select
         count(1) filter(where f.edited_status <> 11 ) as total,
         count(1) filter(where f.edited_status=0 and f.legacy_validation_failed=false AND f.edited_status <> 11) as verification_pending_non_legacy,
         count(1) filter(where f.edited_status=0 and f.legacy_validation_failed=true AND f.edited_status <> 11) as verification_pending_legacy,
-        f.dist_code from 
-        lb_main.failed_payment_details as f  JOIN  ".$schemaname.".ben_payment_details b ON f.ben_id=b.ben_id 
+        f.dist_code from
+        lb_main.failed_payment_details as f  JOIN  " . $schemaname . ".ben_payment_details b ON f.ben_id=b.ben_id
         where f.failed_type in(3,4)  and b.ben_status=1
         group by f.dist_code";
         $result3 = DB::connection('pgsql_payment')->select($query1);
         $result1 = array();
         if (!empty($result3) && count($result3) > 0) {
             foreach ($result3 as $arrt) {
-                $result1[$arrt->dist_code] ['total']= $arrt->total;
-                $result1[$arrt->dist_code] ['verification_pending_non_legacy']= $arrt->verification_pending_non_legacy;
-                $result1[$arrt->dist_code] ['verification_pending_legacy']= $arrt->verification_pending_legacy;
+                $result1[$arrt->dist_code]['total'] = $arrt->total;
+                $result1[$arrt->dist_code]['verification_pending_non_legacy'] = $arrt->verification_pending_non_legacy;
+                $result1[$arrt->dist_code]['verification_pending_legacy'] = $arrt->verification_pending_legacy;
             }
         }
         $query2 = "select main.location_id,main.location_name,
@@ -469,10 +482,10 @@ class NameValidationController extends Controller
       from
       (
       select district_code as location_id,district_name as location_name
-      from public.m_district  
+      from public.m_district
       ) as main LEFT JOIN
-      ( 
-            select 
+      (
+            select
             count(1 )filter(where update_code=11 and A.next_level_role_id=5) as total_same_edited,
             count(1 )filter(where update_code=11 and A.next_level_role_id=0) as total_same_approved,
             count(1 )filter(where update_code=12 and A.next_level_role_id=5) as total_differ_edited,
@@ -480,8 +493,8 @@ class NameValidationController extends Controller
             count(1 )filter(where update_code=13 and A.next_level_role_id=5) as total_rej_edited,
             count(1 )filter(where update_code=13 and A.next_level_role_id=0) as total_rej_approved,
             count(B.application_id) filter(where B.next_level_role_id=-99 and A.next_level_role_id=5) as total_deactivate,
-            A.dist_code	
-            from lb_scheme.update_ben_details as A 
+            A.dist_code
+            from lb_scheme.update_ben_details as A
             LEFT JOIN lb_scheme.ben_reject_details as B ON A.application_id=B.application_id
             where A.update_code IN (11,12,13) group by A.dist_code
       ) as D ON main.location_id=D.dist_code
@@ -500,13 +513,22 @@ class NameValidationController extends Controller
             $return_arr[$i]['total_rej_edited'] = $arr->total_rej_edited;
             $return_arr[$i]['total_rej_approved'] = $arr->total_rej_approved;
             $return_arr[$i]['total_deactivate'] = $arr->total_deactivate;
-            if (!empty($result1)) {
-                //dump('ok');
+            // if (!empty($result1)) {
+            //     // dump('ok');
+            //     $return_arr[$i]['total'] = $result1[$arr->location_id]['total'];
+            //     $return_arr[$i]['verification_pending_non_legacy'] = $result1[$arr->location_id]['verification_pending_non_legacy'];
+            //     $return_arr[$i]['verification_pending_legacy'] = $result1[$arr->location_id]['verification_pending_legacy'];
+            // } else {
+            //     // dump('okk');
+            //     $return_arr[$i]['total'] = 0;
+            //     $return_arr[$i]['verification_pending_non_legacy'] = 0;
+            //     $return_arr[$i]['verification_pending_legacy'] = 0;
+            // }
+            if (!empty($result1) && isset($result1[$arr->location_id])) {
                 $return_arr[$i]['total'] = $result1[$arr->location_id]['total'];
                 $return_arr[$i]['verification_pending_non_legacy'] = $result1[$arr->location_id]['verification_pending_non_legacy'];
                 $return_arr[$i]['verification_pending_legacy'] = $result1[$arr->location_id]['verification_pending_legacy'];
             } else {
-                // dump('okk');
                 $return_arr[$i]['total'] = 0;
                 $return_arr[$i]['verification_pending_non_legacy'] = 0;
                 $return_arr[$i]['verification_pending_legacy'] = 0;

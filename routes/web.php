@@ -8,6 +8,7 @@ use App\Http\Controllers\{
     AuthenticationController,
     BankDetailsEditBandhanBankController,
     BeneficiaryCommonController,
+    BasicAuthController,
     UserManualController,
     DashboardController,
     CaptchaController,
@@ -70,6 +71,12 @@ use App\Http\Controllers\{
     DeactivatedBeneficiaryController,
     DrilldownFaultyReportController,
     MisReportController
+    jnmpController,
+    DeactivatedBeneficiaryController,
+    DsMisReportController,
+    FinancialAssistancePaybleController,
+    LotReportController,
+    NameValidationController,
 };
 
 Route::get('refresh-captcha', [CaptchaController::class, 'refreshCaptcha'])->name('refresh-captcha');
@@ -843,24 +850,89 @@ Route::controller(DrilldownFaultyReportController::class)->group(function () {
 // Route::post('getFaultyDistAppData', 'DrilldownFaultyReportController@getFaultyDistAppData')->name('getFaultyDistAppData');
 // Route::post('getFaultyBlockSubdivAppData', 'DrilldownFaultyReportController@getFaultyBlockSubdivAppData')->name('getFaultyBlockSubdivAppData');
 
+Route::controller(BasicAuthController::class)->group(function () {
+    Route::get('jnmp-fetch-callback-api', 'index')->name('jnmp-fetch-callback-api');
+    Route::post('jnmpDataMarkasDeathInLB', 'jnmpDataMarkasDeathInLB')->name('jnmpDataMarkasDeathInLB');
+    Route::post('totalJnmp', 'totalJnmp')->name('totalJnmp');
+    Route::post('jnmpInsertData', 'getData')->name('jnmpInsertData');
+    Route::post('jnmpDataCallbackDetails', 'detailsCallBack')->name('jnmpDataCallbackDetails');
+    Route::get('jnmpMarkedProcess', 'jnmpMarkedProcess')->name('jnmpMarkedProcess');
+});
 
 
 
-Route::get('select-financial-year-payment-assistance', 'FinancialAssistancePaybleController@selectFinancialYearForPaymentAssistance')->name('select-financial-year-payment-assistance');
-Route::get('financial-assistance-payable', 'FinancialAssistancePaybleController@lotGeneratedPendingIndex')->name('financial-assistance-payable');
-Route::post('lotGeneratedPendingAmountReport', 'FinancialAssistancePaybleController@lotGeneratedPendingAmountReport')->name('lotGeneratedPendingAmountReport');
-// Route::get('financial-assistance-payable', 'LotReportController@lotGeneratedPendingIndex')->name('financial-assistance-payable');
-// Route::post('lotGeneratedPendingAmountReport', 'LotReportController@lotGeneratedPendingAmountReport')->name('lotGeneratedPendingAmountReport');
-Route::post('paymentlotGeneratedPendingAmountReport', 'LotReportController@paymentlotGeneratedPendingAmountReport')->name('paymentlotGeneratedPendingAmountReport');
-// Route::get('select-financial-year-payment-assistance', 'LotReportController@selectFinancialYearForPaymentAssistance')->name('select-financial-year-payment-assistance');
-Route::get('previous-financial-assistance-payable', 'LotReportController@previousFinancialAssistancePayable')->name('previous-financial-assistance-payable');
-Route::post('getPreviousFinancialAssistancePayable', 'LotReportController@getPreviousFinancialAssistancePayable')->name('getPreviousFinancialAssistancePayable');
 
-// Monthly Disbursement Report Based on the Lot Pushed date to the Bank
-Route::get('monthly-disbursement', 'LotReportController@monthlyDisbursementIndex')->name('monthly-disbursement');
-Route::post('monthly-disbursement-report', 'LotReportController@monthlyDisbursement')->name('monthly-disbursement-report');
 
 
 
 // Route::get('misReport-faulty', 'MisReportController@faulty');
 // Route::post('misReport-faulty-Post', 'MisReportController@getData_faulty')->name('misReport-faulty-Post');
+Route::controller(jnmpController::class)->group(function () {
+    // Janma Mrityu Integration
+    Route::get('jnmp-data', 'index')->name('jnmp-data');
+    Route::post('getJnmpData', 'getJnmpData')->name('getJnmpData');
+    Route::post('modalDataView', 'modalDataView')->name('modalDataView');
+    Route::post('activeJnmpBeneficiary', 'activeBeneficiary')->name('activeJnmpBeneficiary');
+    Route::post('generateExcel', 'generateExcel')->name('generateExcel');
+
+    // JNMP List at HOD
+    Route::get('jnmp-marked-data', 'jnmpMarkedDataAtHOD')->name('jnmp-marked-data');
+    Route::post('jnmpMarkedData', 'jnmpMarkedData')->name('jnmpMarkedData');
+    Route::post('generateJnmpDataHodExcel', 'generateJnmpDataHodExcel')->name('generateJnmpDataHodExcel');
+});
+
+// De-activated Beneficiary
+Route::controller(DeactivatedBeneficiaryController::class)->group(function () {
+    Route::get('de-activate-beneficiary', 'index')->name('de-active-beneficiary');
+    Route::post('get-linelisting-deactive', 'getData')->name('get-linelisting-deactive');
+    Route::post('getBeneficiaryPersonalData', 'getBeneficiaryPersonalData')->name('getBeneficiaryPersonalData');
+    Route::post('updateStopPaymentFinal', 'updateStopPaymentFinal')->name('updateStopPaymentFinal');
+    Route::get('de-activated-list', 'deActivatedReport')->name('de-activated-list');
+    Route::post('getDeActivatedBenDataList', 'getDeActivatedBenDataList')->name('getDeActivatedBenDataList');
+});
+
+Route::controller(DsMisReportController::class)->group(function () {
+    Route::get('dsreportphaseselect', 'dsReportphaseCommon')->name('dsreportphaseselect');
+    Route::post('dsMisReport', 'index')->name('dsMisReport');
+    Route::post('dsMisReportPost', 'getData')->name('dsMisReportPost');
+});
+
+// Financial Assistance Payble As On current Date
+
+Route::controller(LotReportController::class)->group(function () {
+    // Month wise payment report
+    Route::get('monthwise-payment-report', 'getMonthWisePayReport')->name('monthwise-payment-report');
+    Route::post('totalMonthwisePaymentReport', 'totalMonthwisePaymentReport')->name('totalMonthwisePaymentReport');
+    // Route::get('financial-assistance-payable', 'lotGeneratedPendingIndex')->name('financial-assistance-payable');
+    // Route::post('lotGeneratedPendingAmountReport', 'lotGeneratedPendingAmountReport')->name('lotGeneratedPendingAmountReport');
+    Route::post('paymentlotGeneratedPendingAmountReport', 'paymentlotGeneratedPendingAmountReport')->name('paymentlotGeneratedPendingAmountReport');
+    // Route::get('select-financial-year-payment-assistance', 'selectFinancialYearForPaymentAssistance')->name('select-financial-year-payment-assistance');
+    Route::get('previous-financial-assistance-payable', 'previousFinancialAssistancePayable')->name('previous-financial-assistance-payable');
+    Route::post('getPreviousFinancialAssistancePayable', 'getPreviousFinancialAssistancePayable')->name('getPreviousFinancialAssistancePayable');
+
+    // Monthly Disbursement Report Based on the Lot Pushed date to the Bank
+    Route::get('monthly-disbursement', 'monthlyDisbursementIndex')->name('monthly-disbursement');
+    Route::post('monthly-disbursement-report', 'monthlyDisbursement')->name('monthly-disbursement-report');
+
+    //HOD Report
+    Route::any('report-validation-lot', 'reportValidationLot')->name('report-validation-lot');
+    Route::any('report-payment-lot', 'reportPaymentLot')->name('report-payment-lot');
+    Route::any('report-name-mismatch-validation-list', 'getNameMismatchValidationList')->name('getNameMismatchValidationList');
+    Route::post('getNameMismatchExcelList', 'getNameMismatchExcelList')->name('getNameMismatchExcelList');
+    Route::any('datewise-lot-report', 'reportDatewiseLot')->name('reportDatewiseLot');
+
+    // Legacy Validation Report
+    Route::get('legacy-validation-report', 'legacyValidationReport')->name('legacy-validation-report');
+    Route::post('legacyValidationLotReport', 'legacyValidationLotReport')->name('legacyValidationLotReport');
+});
+
+Route::controller(FinancialAssistancePaybleController::class)->group(function () {
+    // Financial Assistance Payble As On current Date
+    Route::get('select-financial-year-payment-assistance', 'selectFinancialYearForPaymentAssistance')->name('select-financial-year-payment-assistance');
+    Route::get('financial-assistance-payable', 'lotGeneratedPendingIndex')->name('financial-assistance-payable');
+    Route::post('lotGeneratedPendingAmountReport', 'lotGeneratedPendingAmountReport')->name('lotGeneratedPendingAmountReport');
+});
+Route::controller(NameValidationController::class)->group(function () {
+Route::get('misReport-nameValidation', 'misReport');
+Route::get('misReport-nameValidation-Post', 'getData')->name('misReport-nameValidation-Post');
+});

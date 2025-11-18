@@ -4,12 +4,12 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Configduty;
-use App\Models\District;
-use App\Models\UrbanBody;
 use App\Models\SubDistrict;
 use App\Models\Taluka;
-use App\Models\Ward;
 use App\Models\GP;
+use App\Models\Ward;
+use App\Models\District;
+use App\Models\UrbanBody;
 use App\Models\User;
 use Redirect;
 use Auth;
@@ -98,7 +98,7 @@ class DsMisReportController extends Controller
             $base_date  = $phase_arr->base_date;
             }
             else{
-                $base_date  =$c_date;  
+                $base_date  =$c_date;
             }
         if (!empty($district_code)) {
             $district_visible = 0;
@@ -211,7 +211,7 @@ class DsMisReportController extends Controller
         $attributes['to_date'] = 'To Date';
         $attributes['muncid'] = 'Municipality';
         $attributes['gp_ward'] = 'GP/Ward';
-       
+
         $validator = Validator::make($request->all(), $rules, $messages, $attributes);
         if ($validator->passes()) {
             $user_msg = "Duare Sarkar Report";
@@ -350,7 +350,7 @@ class DsMisReportController extends Controller
         location_name,
         MV.*
         from (
-            select block_code as location_id,block_name ||'-Block' as location_name from public.m_block  
+            select block_code as location_id,block_name ||'-Block' as location_name from public.m_block
             where  district_code=" . $district_code . " " . $location_id_block . "
         ) as main
         LEFT JOIN
@@ -380,7 +380,7 @@ class DsMisReportController extends Controller
             if (Auth::user()->designation_id == 'Verifier' || Auth::user()->designation_id == 'Delegated Verifier') {
                 if (!empty($ulb_code) && empty($block_ulb_code)) {
                     $location_id_munc = "  and sub_district_code =" . $ulb_code . " ";
-                    
+
                 }
                 if (!empty($ulb_code) && !empty($block_ulb_code)) {
                     $location_id_munc = "  and urban_body_code =" . $block_ulb_code . " ";
@@ -401,7 +401,7 @@ class DsMisReportController extends Controller
         location_name,
         MV.*
         from (
-            select urban_body_code as location_id,urban_body_name ||'-Municipality' as location_name from 
+            select urban_body_code as location_id,urban_body_name ||'-Municipality' as location_name from
         public.m_urban_body where  district_code=" . $district_code . " " . $location_id_munc . "
         ) as main
         LEFT JOIN
@@ -417,7 +417,7 @@ class DsMisReportController extends Controller
         // echo $query;die;
         $result = DB::connection('pgsql_appwrite')->select($query);
 
-        
+
         return $result;
     }
     public function getWardWise($district_code = NULL, $ulb_code = NULL, $block_ulb_code = NULL, $gp_ward_code = NULL, $fromdate = NULL, $todate = NULL, $caste = NULL, $ds_phase = NULL, $base_date = NULL)
@@ -430,8 +430,8 @@ class DsMisReportController extends Controller
             $whereCon .= " and gp_ward_code=" . $gp_ward_code;
             $whereMain .= " and urban_body_ward_code=" . $gp_ward_code;
         }
-       
-    
+
+
 
 
         $query ="select
@@ -455,7 +455,7 @@ class DsMisReportController extends Controller
         //echo $query;die;
         $result = DB::connection('pgsql_appwrite')->select($query);
 
-        
+
         return $result;
     }
 }
