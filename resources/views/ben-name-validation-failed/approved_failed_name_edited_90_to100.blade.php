@@ -410,7 +410,8 @@
             ],
             // lengthMenu: [[20, 50,100,500,1000, -1], [20, 50,100,500,1000, 'All']],
             processing: true,
-            serverSide: true,
+            serverSide: false,
+            searchable: true,
             "oLanguage": {
                 "sProcessing": '<div class="preloader1" align="center"><img src="images/ZKZg.gif" width="150px"></div>'
             },
@@ -481,41 +482,62 @@
                 },
             ],
             "columnDefs": [{
-                "targets": [7, 8],
+                "targets": [0, 5, 6, 7, 8],
                 "orderable": false,
                 "searchable": false
             }],
 
             "buttons": [{
                     extend: 'pdf',
-                    title: "Approve Edited Bank Details  Report Generated On-{{ date('F j, Y g:i:a') }}",
+                    title: "Name Validation Failed Report - Generated On {{ date('F j, Y g:i:a') }}",
                     messageTop: "Date: {{ date('F j, Y g:i:a') }}",
                     footer: true,
-                    pageSize: 'A4',
                     orientation: 'landscape',
                     pageMargins: [40, 60, 40, 60],
                     exportOptions: {
-                        columns: [0, 1, 2, 3, 4, 5, 6, 7, 8],
-                    }
+                        columns: [0, 1, 2, 3, 4, 5, 6]
+                    },
+                    className: 'table-action-btn'
+                },
+                {
+                    extend: 'print',
+                    title: "Name Validation Failed Report - Generated On {{ date('F j, Y g:i:a') }}",
+                    messageTop: "Date: {{ date('F j, Y g:i:a') }}",
+                    footer: true,
+                    exportOptions: {
+                        columns: [0, 1, 2, 3, 4, 5, 6]
+                    },
+                    className: 'table-action-btn'
                 },
                 {
                     extend: 'excel',
-                    title: "Approve Edited Bank Details  Report Generated On-{{ date('F j, Y g:i:a') }}",
+                    title: "Name Validation Failed Report - Generated On {{ date('F j, Y g:i:a') }}",
                     messageTop: "Date: {{ date('F j, Y g:i:a') }}",
                     footer: true,
-                    pageSize: 'A4',
-                    //orientation: 'landscape',
-                    pageMargins: [40, 60, 40, 60],
                     exportOptions: {
-                        columns: [0, 1, 2, 3, 4, 5, 6, 7, 8],
-                        stripHtml: false,
-                        format: {
-                            body: function(data, row, column, node) {
-                                return column === 4 || column === 3 || column === 6 ? "\0" +
-                                    data : data;
-                            }
-                        },
-                    }
+                        columns: [0, 1, 2, 3, 4, 5, 6]
+                    },
+                    className: 'table-action-btn'
+                },
+                {
+                    extend: 'copy',
+                    title: "Name Validation Failed Report - Generated On {{ date('F j, Y g:i:a') }}",
+                    messageTop: "Date: {{ date('F j, Y g:i:a') }}",
+                    footer: true,
+                    exportOptions: {
+                        columns: [0, 1, 2, 3, 4, 5, 6]
+                    },
+                    className: 'table-action-btn'
+                },
+                {
+                    extend: 'csv',
+                    title: "Name Validation Failed Report - Generated On {{ date('F j, Y g:i:a') }}",
+                    messageTop: "Date: {{ date('F j, Y g:i:a') }}",
+                    footer: true,
+                    exportOptions: {
+                        columns: [0, 1, 2, 3, 4, 5, 6]
+                    },
+                    className: 'table-action-btn'
                 }
             ],
         });
