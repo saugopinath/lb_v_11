@@ -19,7 +19,7 @@ use App\Http\Controllers\{
     MasterDataController,
     DeactivatedBeneficiaryController,
     StopBeneficiaryController,
-    CmoGrivanceWorkflowController1
+    CmoGrivanceWorkflowController1,
     userDutymanagementController,
     FinancialAssistancePaybleController,
     UpdateAadhaarDetailsController,
