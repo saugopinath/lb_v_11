@@ -625,6 +625,6 @@ class BeneficiaryCommonController extends Controller
       //$diff = $this->ageCalculate($dob);
       $diff = Carbon::parse($dob)->diffInYears($this->base_dob_chk_date);
     }
-    return $diff;
+    return intval($diff);
   }
 }

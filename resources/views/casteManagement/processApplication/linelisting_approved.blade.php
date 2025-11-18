@@ -44,11 +44,6 @@
     border-radius: 5px;
     margin-bottom: 20px;
   }
-
-  .table-action-btn {
-    min-width: 120px;
-  }
-
   .accordion-button:not(.collapsed) {
     background-color: #e7f1ff;
     color: #0c63e4;
@@ -66,7 +61,7 @@
 
 <div class="container-fluid">
   <!-- Content Header (Page header) -->
-  <section class="content-header">
+  <section class="content-header ">
     <div class="container-fluid">
       <div class="row mb-2">
         <div class="col-sm-8">
@@ -109,7 +104,7 @@
 
               <!-- Filter Section -->
               <div class="filter-section">
-                <div class="row mb-4">
+                <div class="row mb-2">
                   <input type="hidden" name="dist_code" id="dist_code" value="{{ $dist_code }}" class="js-district_1">
 
                   <div class="col-md-3 mb-3">
@@ -703,7 +698,8 @@ $(document).ready(function() {
         pageMargins: [ 40, 60, 40, 60 ],
         exportOptions: {
           columns: [0,1,2,3,4,5],
-        }
+        },
+        className: 'table-action-btn'
       },
       {
         extend: 'excel',
@@ -712,6 +708,7 @@ $(document).ready(function() {
         footer: true,
         pageSize:'A4',
         pageMargins: [ 40, 60, 40, 60 ],
+        className: 'table-action-btn btn-danger',
         exportOptions: {
           format: {
             body: function (data, row, column, node ) {

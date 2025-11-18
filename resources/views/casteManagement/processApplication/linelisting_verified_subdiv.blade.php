@@ -128,7 +128,7 @@
 
           <!-- Applications List -->
           <div class="card mt-2">
-            <div class="card-header">
+            <div class="card-header card-header-custom">
               <h5 class="card-title mb-0">List of New Applicants</h5>
             </div>
             <div class="card-body">

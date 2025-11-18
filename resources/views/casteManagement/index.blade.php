@@ -118,7 +118,7 @@
                           <th>Mobile No.</th>
                           <th>Application Id</th>
                           <th>Message</th>
-                          <th width="300px">Action</th>
+                          <th width="25%">Action</th>
                         </tr>
                       </thead>
                       <tbody>
@@ -129,15 +129,15 @@
                           <td>{{$row['mobile_no']}}</td>
                           <td>{{$row['application_id']}}</td>
                           <td>{{$row['msg']}}</td>
-                          <td>
+                          <td class="text-center">
                             @if($row['can_update_edit']==1)
-                            <a class="btn btn-info btn-sm table-action-btn mb-1" href="{{url('changeCaste')}}?id={{$row['beneficiary_id']}}&is_faulty={{intval($row['is_faulty'])}}&caste_change_type=1">
+                            <a class="btn btn-info btn-sm table-action-btn d-block mb-2" href="{{url('changeCaste')}}?id={{$row['beneficiary_id']}}&is_faulty={{intval($row['is_faulty'])}}&caste_change_type=1">
                               <i class="fas fa-edit"></i> Caste Info Change
                             </a>
                             @endif
 
                             @if($row['can_update_switch']==1)
-                            <a class="btn btn-danger btn-sm table-action-btn mb-1" href="{{url('changeCaste')}}?id={{$row['beneficiary_id']}}&is_faulty={{intval($row['is_faulty'])}}&caste_change_type=2">
+                            <a class="btn btn-danger btn-sm table-action-btn mb-2" href="{{url('changeCaste')}}?id={{$row['beneficiary_id']}}&is_faulty={{intval($row['is_faulty'])}}&caste_change_type=2">
                               <i class="fas fa-exchange-alt"></i> Caste Change
                             </a>
                             @endif

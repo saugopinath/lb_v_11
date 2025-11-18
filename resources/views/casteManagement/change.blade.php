@@ -155,7 +155,7 @@
                 </div>
                 <div class="col-md-4">
                   <div class="modal_field_name">Pin Code:</div>
-                  <div class="modal_field_value" id="pin_code_modal">{{trim($row_contact->pincode)?? '')?: 'N/A' }}</div>
+                  <div class="modal_field_value" id="pin_code_modal">{{trim($row_contact->pincode ?? '')?: 'N/A' }}</div>
                 </div>
               </div>
 
@@ -384,45 +384,46 @@
     return true;
   }
 
-  function submitForm() {
+function submitForm() {
     var caste_category = $("#caste_category").val();
     var caste_certificate_no = $("#caste_certificate_no").val();
     var old_caste = $("#old_caste").val();
     var old_caste_certificate_no = $("#old_caste_certificate_no").val();
 
-    // Check if caste information is same as previous
     if ((caste_category == old_caste) && (caste_certificate_no == old_caste_certificate_no)) {
-      Swal.fire({
-        title: 'No Changes Detected',
-        text: 'Caste Information remains same as previous. Please change at least one field.',
-        icon: 'warning',
-        confirmButtonText: 'OK',
-        confirmButtonColor: '#3085d6'
-      });
-      return false;
+        $.alert({
+            title: 'No Changes Detected',
+            content: 'Caste Information remains same as previous. Please change at least one field.',
+            type: 'red'
+        });
+        return false;
     }
 
-    // Show confirmation dialog
-    Swal.fire({
-      title: 'Confirm Submission',
-      text: 'Are you sure you want to submit the caste modification?',
-      icon: 'question',
-      showCancelButton: true,
-      confirmButtonColor: '#3085d6',
-      cancelButtonColor: '#d33',
-      confirmButtonText: 'Yes, Submit!',
-      cancelButtonText: 'Cancel'
-    }).then((result) => {
-      if (result.isConfirmed) {
-        // Disable button and show loader
-        $("#btn_apply").prop("disabled", true);
-        $("#btn_personal_details_loader").removeClass('d-none');
-        
-        // Submit the form
-        $("#personal").submit();
-      }
+    $.confirm({
+        title: 'Confirm Submission',
+        content: 'Are you sure you want to submit the caste modification?',
+        type: 'blue',
+        theme: 'modern',
+
+        buttons: {
+            confirm: {
+                text: 'Yes, Submit!',
+                btnClass: 'btn-blue',
+                action: function () {
+                    $("#btn_apply").prop("disabled", true);
+                    $("#btn_personal_details_loader").removeClass('d-none');
+                    $("#personal").submit();
+                }
+            },
+            cancel: {
+                text: 'Cancel',
+                btnClass: 'btn-red',
+                action: function () {}
+            }
+        }
     });
-  }
+}
+
 
   function View_encolser_modal(doc_name, doc_type, is_profile_pic) {
     var application_id = $('#personal #application_id').val();
@@ -459,14 +460,23 @@
           <i class="fas fa-exclamation-triangle"></i> Failed to load document
         </div>
       `);
-      Swal.fire({
-        title: 'Error!',
-        text: 'Failed to load document. Please try again.',
-        icon: 'error',
-        confirmButtonText: 'OK'
+
+      // jQuery Confirm alert box
+      $.alert({
+          title: 'Error!',
+          content: 'Failed to load document. Please try again.',
+          type: 'red',
+          theme: 'modern',
+          buttons: {
+              ok: {
+                  text: 'OK',
+                  btnClass: 'btn-red'
+              }
+          }
       });
     });
-  }
+}
+
 
   function closeError(divId) {
     $('#' + divId).hide();

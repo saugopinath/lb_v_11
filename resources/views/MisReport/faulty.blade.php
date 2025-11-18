@@ -540,13 +540,13 @@
               "dom": 'Bfrtip',
               "buttons": [
                 
-                // {
-                  // extend: 'csv',
-                  // footer: true,
-                  // title: data.title,
-                  // messageTop: data.heading_msg,
-                  // className: 'table-action-btn'
-                // },
+                {
+                  extend: 'csv',
+                  footer: true,
+                  title: data.title,
+                  messageTop: data.heading_msg,
+                  className: 'table-action-btn'
+                },
                 {
                   extend: 'pdf',
                   title: data.title,
