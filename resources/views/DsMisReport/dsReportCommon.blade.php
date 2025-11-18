@@ -192,7 +192,7 @@
                                             <b>{{ date("l jS \\of F Y h:i:s A") }}</b>
                                         </div>
 
-                                        <table id="example" class="data-table table-bordered table-striped"
+                                        <table id="example" class="data-table"
                                                style="width:100%;">
                                             <thead>
                                                 <tr>

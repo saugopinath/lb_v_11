@@ -229,7 +229,7 @@
                                         <br><br>
 
                                         <div id="divScrool">
-                                            <table id="example" class="data-table table-striped table-bordered table2excel" style="width:100%">
+                                            <table id="example" class="data-table table2excel" style="width:100%">
                                                 <thead>
                                                     <tr>
                                                         <td colspan="21" class="text-center d-none" id="heading_excel">Heading</td>

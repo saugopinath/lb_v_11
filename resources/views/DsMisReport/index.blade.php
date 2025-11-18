@@ -4,7 +4,7 @@
         margin: 0 auto;
     }
 
-     .card-header-custom {
+    .card-header-custom {
         font-size: 16px;
         background: linear-gradient(to right, #c9d6ff, #e2e2e2);
         font-weight: bold;
@@ -96,9 +96,7 @@
 
                 <div>
 
-                    <a href="{{ url('dsreportphaseselect') }}">
-                        <img width="50px;" class="float-end" src="{{ asset('images/back.png') }}" alt="Back">
-                    </a>
+
 
                     <div class="mt-3">
                         @if (($message = Session::get('success')) && ($id = Session::get('id')))
@@ -137,9 +135,20 @@
                             <div class="tab-pane fade show active" id="personal_details">
 
                                 <div class="card">
-                                    <div class="card-header card-header-custom">
-                                        <h5><b>Duare Sarkar Report of {{ $phase_arr->phase_des }}</b></h5>
+                                    <div
+                                        class="card-header card-header-custom d-flex justify-content-between align-items-center">
+
+                                        <h5 class="mb-0">
+                                            <b>Duare Sarkar Report of {{ $phase_arr->phase_des }}</b>
+                                        </h5>
+
+                                        <a href="{{ url('dsreportphaseselect') }}" class="ms-auto">
+                                            <img width="40px" class="img-fluid" src="{{ asset('images/back.png') }}"
+                                                alt="Back">
+                                        </a>
+
                                     </div>
+
 
                                     <div class="card-body">
 
@@ -278,7 +287,8 @@
 
                                                 <br><br>
 
-                                                <table id="example" class="data-table table-striped table-bordered table2excel">
+                                                <table id="example"
+                                                    class="data-table table2excel">
 
                                                     <thead>
                                                         <tr>
