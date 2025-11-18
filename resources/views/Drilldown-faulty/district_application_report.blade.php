@@ -23,10 +23,10 @@
     border:0;
 }
 .card-title>a, .card-title>a:active{
-    display:block;
-    padding:5px;
+  display:block;
+  padding:5px;
   color:#555;
-  font-size:12px;
+  font-size:8px;
   font-weight:bold;
     text-transform:uppercase;
     letter-spacing:1px;
