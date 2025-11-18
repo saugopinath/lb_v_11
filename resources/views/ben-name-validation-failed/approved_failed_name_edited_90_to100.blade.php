@@ -215,7 +215,7 @@
                         </div>
                         <div class="card-body" style="padding: 5px; font-size: 14px;">
                             <div class="table-responsive">
-                                <table id="example" class="table table-striped" cellspacing="0" width="100%">
+                                <table id="example" class="data-table table-striped" cellspacing="0" width="100%">
                                     <thead style="font-size: 12px;">
                                         <tr>
                                             <th>Sl No</th>

@@ -166,7 +166,7 @@
                 </div>
                 <div class="card-body p-3">
                     <div class="table-responsive">
-                        <table id="example" class="table table-bordered table-striped align-middle w-100">
+                        <table id="example" class="data-table table-bordered table-striped align-middle w-100">
                             <thead class="table-light text-center">
                                 <tr>
                                     <th>Grievance ID</th>
