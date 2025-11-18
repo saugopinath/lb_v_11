@@ -782,7 +782,7 @@ $(document).ready(function() {
             error: function (jqXHR, textStatus, errorThrown) {
               $('#loader_img_personal').hide();
               $('.ben_view_button').removeAttr('disabled',true);
-            alert(sessiontimeoutmessage);
+           alert(sessiontimeoutmessage);
             window.location.href=base_url;
             }
             });

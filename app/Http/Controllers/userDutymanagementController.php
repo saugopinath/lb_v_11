@@ -1,0 +1,1694 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use Illuminate\Http\Request;
+use App\Models\User;
+use App\Models\Designation;
+use App\Models\Department;
+use App\Models\District;
+use App\Models\SubDistrict;
+use App\Models\UrbanBody;
+use App\Models\Taluka;
+use App\Models\Schemetype;
+use App\Models\Scheme;
+use App\Models\MapLavel;
+use App\Models\Service_designation;
+use App\Models\User_level;
+use App\Models\Configduty;
+use App\Models\Users_audit_trail;
+use App\Models\Employee;
+use Config;
+use Exception;
+use Carbon;
+use DB;
+use Validator;
+use Auth;
+use Excel;
+
+
+
+class userDutymanagementController  extends Controller
+{
+
+    public function __construct()
+    {
+        $this->middleware('auth');
+        $this->middleware(function ($request, $next) {
+            $designation_id = Auth::user()->designation_id;
+            $has_role = 0;
+            $mapping_level_duty = NULL;
+            $mapping_level = $district_code = $is_urban = $urban_body_code = $taluka_code = NULL;
+            if ($designation_id == 'Admin') {
+                $has_role = 1;
+                $role_loop = 0;
+                $mapping_level = NULL;
+                $is_urban =  NULL;
+                $district_code = NULL;
+                $urban_body_code = NULL;
+                $taluka_code = NULL;
+                $mapping_level_duty = 'State';
+            }            else if ($designation_id == 'HOD' || $designation_id == 'HOP') {
+                $has_role = 1;
+                $role_loop = 0;
+                $mapping_level = NULL;
+                $is_urban =  NULL;
+                $district_code = NULL;
+                $urban_body_code = NULL;
+                $taluka_code = NULL;
+                $mapping_level_duty = 'State';
+            } else {
+                $roleArray = $request->session()->get('role');
+                //dd($roleArray);
+                if (count($roleArray) > 0) {
+                    $has_role = 1;
+                    $role_loop = 1;
+                } else {
+                    $has_role = 0;
+                    $role_loop = 0;
+                }
+            }
+            if ($has_role) {
+                if ($role_loop) {
+
+                    $mapping_level_duty = $roleArray[0]['mapping_level'];
+                    $mapping_level =  $roleArray[0]['mapping_level'];
+                    if ($roleArray[0]['mapping_level'] == 'State') {
+                        $is_urban =  NULL;
+                        $district_code = NULL;
+                        $urban_body_code = NULL;
+                        $taluka_code = NULL;
+                    } else if ($roleArray[0]['mapping_level'] == 'District') {
+                        $mapping_level = NULL;
+                        $is_urban =  NULL;
+                        $district_code = $roleArray[0]['district_code'];
+                        $urban_body_code = NULL;
+                        $taluka_code = NULL;
+                    } else if ($roleArray[0]['mapping_level'] == 'Subdiv') {
+                        $mapping_level = NULL;
+                        $is_urban =  1;
+                        $district_code = $roleArray[0]['district_code'];
+                        //$urban_body_code =  $roleArray[0]['taluka_code'];
+                        $urban_body_code = $roleArray[0]['urban_body_code'];
+                        $request->session()->put('subdiv_code', $urban_body_code);
+
+                        $taluka_code = NULL;
+                    } else if ($roleArray[0]['mapping_level'] == 'Block') {
+                        $mapping_level = 'Block';
+                        $is_urban =  2;
+                        $district_code = $roleArray[0]['district_code'];
+                        $urban_body_code = NULL;
+                        $taluka_code = $roleArray[0]['taluka_code'];
+                        $request->session()->put('block_munc_corp_code', $taluka_code);
+                    }
+                }
+            }
+            $this->designation_id = $designation_id;
+            $request->session()->put('designation_id', $designation_id);
+            $this->has_role = $has_role;
+            $this->mapping_level = $mapping_level;
+            $this->mapping_level_duty = $mapping_level_duty;
+            $this->is_urban = $is_urban;
+            $this->role_loop = $role_loop;
+            //dd($district_code);
+            $this->district_code = $district_code;
+            $this->urban_body_code = $urban_body_code;
+            $this->taluka_code = $taluka_code;
+            return $next($request);
+        });
+    }
+    public function index(Request $request)
+    {
+        if ($this->has_role) {
+            $designation_id = $this->designation_id;
+            if ($designation_id == 'Operator' || $designation_id == 'Delegated Verifier'  || $designation_id == 'MisState' || $designation_id == 'Dashboard'){
+                return redirect("/")->with('success', 'Not Allowded');
+            }
+            $user_id = Auth::user()->id;
+
+            $errormsg = Config::get('constants.errormsg');
+            $departments = Department::where('is_active', 1)->get();
+            $district_visible=1;
+            $is_urban_visible=0;
+            $block_visible=0;
+            $subdiv_visible=0;
+            $mapping_visible=1;
+            $stake_level_home='';
+            $role_visible=1;
+            $designation_id_home='';
+            if ($designation_id == 'Admin'){
+                $schemes = Scheme::where('is_active', 1)->where('is_active', 1)->get();
+                $mapping_visible=1;
+                $role_visible=1;
+            }
+            else if ($designation_id == 'HOD' || $designation_id == 'HOP'){
+                $schme_id_in = Configduty::select('scheme_id')->where('user_id', $user_id)->get()->pluck('scheme_id')->toArray();
+                $schemes = Scheme::where('is_active', 1)->whereIn('id', $schme_id_in)->get();
+                $mapping_visible=1;
+                $role_visible=1;
+            }
+
+            else {
+                $schme_id_in = Configduty::select('scheme_id')->where('user_id', $user_id)->get()->pluck('scheme_id')->toArray();
+                $schemes = Scheme::where('is_active', 1)->whereIn('id', $schme_id_in)->get();
+                if ($designation_id == 'Approver') {
+                    $mapping_visible=1;
+                    $role_visible=0;
+                    $stake_level_home='';
+                    $designation_id_home='';
+                }
+                else if ($designation_id == 'Verifier') {
+                    $mapping_visible=0;
+                    $role_visible=0;
+                    if($this->is_urban ==1)
+                    $stake_level_home='Subdiv';
+                    if($this->is_urban ==2)
+                    $stake_level_home='Block';
+                    $designation_id_home='Operator';
+                }
+                else if ($designation_id == 'Operator') {
+                    $mapping_visible=1;
+                    $role_visible=1;
+                }
+            }
+            $role_arr = Designation::where('is_active', 1)->get();
+            $where = [];
+            if (!empty($this->district_code))
+                $districts = District::where('district_code', $this->district_code)->get();
+            else
+                $districts = District::get();
+
+            $user_level = User_level::where('is_active', 1)->orderby('rank')->get();
+            $levels =Config::get('constants.rural_urban');
+            $mapping_level_duty = $this->mapping_level_duty;
+            //dd($mapping_level_duty);
+            if ($mapping_level_duty == 'State') {
+                $is_urban_visible=1;
+                $block_visible=1;
+                if ($designation_id == 'HOD' || $designation_id == 'HOP') {
+                    $role_arr = $role_arr->whereIn('rank', array(30, 35, 40,22));
+                    //dd($role_arr);
+                    $user_level = $user_level;
+                } else {
+                    $role_arr = $role_arr;
+                    $user_level = $user_level;
+                }
+            } else if ($mapping_level_duty == 'District') {
+                $district_visible=0;
+                $is_urban_visible=1;
+                $block_visible=1;
+               
+                if ($designation_id == 'Approver') {
+                    $role_arr = $role_arr->filter(function ($item) {
+                        return ($item->name == 'Delegated Approver' || $item->name == 'Verifier' || $item->name == 'Operator' || $item->name == 'MIS User');
+                    });
+                    $user_level = $user_level->filter(function ($item) {
+                        return ($item->rank > 20);
+                    });
+                }else if ($designation_id == 'Delegated Approver') {
+                    $role_arr = $role_arr->filter(function ($item) {
+                        return ($item->name == 'Operator');
+                    });
+                    $user_level = $user_level->filter(function ($item) {
+                        return ($item->rank > 20);
+                    });
+                } else if ($designation_id == 'Verifier') {
+                    $role_arr = $role_arr->filter(function ($item) {
+                        return ($item->name == 'Operator' || $item->name == 'Delegated Verifier');
+                    });
+                    $user_level = $user_level->filter(function ($item) {
+                        return ($item->id > 2);
+                    });
+                } else if ($designation_id == 'Operator') {
+                    $role_arr = collect([]);
+                    $user_level = collect([]);
+                }
+            } else if ($mapping_level_duty == 'Subdiv') {
+                $district_visible=0;
+                $is_urban_visible=0;
+                $block_visible=0;
+                
+                if ($designation_id == 'Approver') {
+                    $role_arr = $role_arr->filter(function ($item) {
+                        return ($item->name == 'Verifier' || $item->name == 'Delegated Approver' || $item->name == 'Operator' || $item->name == 'MIS User');
+                    });
+                    $user_level = $user_level->filter(function ($item) {
+                        return ($item->rank >= 30);
+                    });
+                } else if ($designation_id == 'Verifier') {
+                    $role_arr = $role_arr->filter(function ($item) {
+                        return ($item->name == 'Operator' || $item->name == 'Delegated Verifier');
+                    });
+                    $user_level = $user_level->filter(function ($item) {
+                        return ($item->rank >= 30 && $item->rank != 40);
+                    });
+                } else if ($designation_id == 'Operator') {
+                    $role_arr = collect([]);
+                    $user_level = collect([]);
+                }
+            } else if ($mapping_level_duty == 'Block') {
+                $district_visible=0;
+                $is_urban_visible=0;
+                $block_visible=0;
+                if ($designation_id == 'Approver') {
+                    $role_arr = $role_arr->filter(function ($item) {
+                        return ($item->name == 'Verifier'  || $item->name == 'Delegated Approver' || $item->name == 'Operator' || $item->name == 'MIS User');
+                    });
+                    $user_level = $user_level->filter(function ($item) {
+                        return ($item->rank >= 40);
+                    });
+                } else if ($designation_id == 'Verifier') {
+                    $role_arr = $role_arr->filter(function ($item) {
+                        return ($item->name == 'Operator' || $item->name == 'Delegated Verifier');
+                    });
+                    $user_level = $user_level->filter(function ($item) {
+                        return ($item->rank >= 40);
+                    });
+                } else if ($designation_id == 'Operator') {
+                    $role_arr = collect([]);
+                    $user_level = collect([]);
+                }
+            }
+            $heading="List of Users";
+            if($designation_id == 'Delegated Approver'){
+                $heading="List of Users with Operator Role";   
+            }
+            return view('userDutymgmt/index', [
+                'districts' => $districts,
+                'departments' => $departments,
+                'user_levels' => $user_level,
+                'levels' => $levels,
+                'designation_id' => $designation_id,
+                'roles' => $role_arr,
+                'schemes' => $schemes,
+                'sessiontimeoutmessage' => $errormsg['sessiontimeOut'],
+                'mapping_visible' => $mapping_visible,
+                'stake_level_home' => $stake_level_home,
+                'role_visible' => $role_visible,
+                'designation_id_home' => $designation_id_home,
+                'district_visible' => $district_visible,
+                'is_urban_visible' => $is_urban_visible,
+                'block_visible' => $block_visible,
+                'district_code' =>$this->district_code,
+                'heading' =>$heading
+            ]);
+        } else {
+            return redirect("/")->with('success', 'No Duty Assignment assigned yet');
+        }
+    }
+    
+    public function Search(Request $request)
+{
+    $user_id = Auth::user()->id;
+    $designation_id = $this->designation_id;
+
+    if ($designation_id == 'Admin') {
+        $schme_id_in = Scheme::select('id')->where('is_active', 1)->get()->pluck('id')->toArray();
+    } else {
+        $schme_id_in = Configduty::select('scheme_id')->where('user_id', $user_id)->where('is_active', 1)->get()->pluck('scheme_id')->toArray();
+    }
+
+    $schemes = Scheme::where('is_active', 1)->whereIn('id', $schme_id_in)->get();
+    $limit = (int)$request->input('length', 10);
+    $offset = (int)$request->input('start', 0);
+    $totalRecords = 0;
+    $filterRecords = 0;
+
+    // Build base userQuery depending on designation
+    if ($designation_id == 'HOD' || $designation_id == 'HOP') {
+        $userQuery = User::with(['employee', 'duty'])->whereNotNull('mobile_no');
+        $userQuery = $userQuery->whereHas('duty', function ($query1) use ($schme_id_in) {
+            $query1->whereIn('scheme_id', $schme_id_in);
+        });
+    } else {
+        $designation_rank_arr = Designation::where('name', $designation_id)->first();
+        $designation_id_in = [];
+        if ($designation_rank_arr) {
+            $designation_id_in = Designation::where('is_active', 1)
+                ->where('rank', '>', $designation_rank_arr->rank)
+                ->get()->pluck('name')->toArray();
+        }
+
+        $userQuery = User::with(['employee', 'duty'])->whereNotNull('mobile_no');
+        $userQuery = $userQuery->whereHas('duty', function ($query1) use ($schme_id_in) {
+            $query1->whereIn('scheme_id', $schme_id_in);
+        });
+
+        if (!empty($this->mapping_level)) {
+            $mapping_level = $this->mapping_level;
+            $userQuery = $userQuery->whereHas('duty', function ($query1) use ($mapping_level) {
+                $query1->where('mapping_level', '=', $mapping_level);
+            });
+        }
+        if (!empty($this->is_urban)) {
+            $is_urban = $this->is_urban;
+            $userQuery = $userQuery->whereHas('duty', function ($query1) use ($is_urban) {
+                $query1->where('is_urban', '=', $is_urban);
+            });
+        }
+        if (!empty($this->district_code)) {
+            $district_code = $this->district_code;
+            $userQuery = $userQuery->whereHas('duty', function ($query1) use ($district_code) {
+                $query1->where('district_code', '=', $district_code);
+            });
+        }
+        if (!empty($this->urban_body_code)) {
+            $urban_body_code = $this->urban_body_code;
+            $userQuery = $userQuery->whereHas('duty', function ($query1) use ($urban_body_code) {
+                $query1->where('urban_body_code', '=', $urban_body_code);
+            });
+        }
+        if (!empty($this->taluka_code)) {
+            $taluka_code = $this->taluka_code;
+            $userQuery = $userQuery->whereHas('duty', function ($query1) use ($taluka_code) {
+                $query1->where('taluka_code', '=', $taluka_code);
+            });
+        }
+    }
+
+    // Incoming filters from POST
+    $mapping_level = $request->get('mapping_level');
+    $scheme_id = $request->get('scheme_id');
+    $district_code = $request->get('district_code');
+    $is_urban = $request->get('is_urban');
+    $block_code = $request->get('block_code');
+    $designation_id_post = $request->get('designation_id');
+
+    if (!empty($mapping_level)) {
+        $userQuery = $userQuery->whereHas('duty', function ($query1) use ($mapping_level) {
+            $query1->where('mapping_level', '=', $mapping_level);
+        });
+    }
+
+    if (!empty($designation_id_post)) {
+        if ($designation_id == 'Verifier') {
+            $userQuery = $userQuery->whereIn('designation_id', ['Delegated Verifier']);
+        } else {
+            $userQuery = $userQuery->where('designation_id', '=', trim($designation_id_post));
+        }
+    }
+
+    if (!empty($designation_id_in)) {
+        $userQuery = $userQuery->whereIn('designation_id', $designation_id_in);
+    }
+
+    if (!empty($scheme_id)) {
+        $userQuery = $userQuery->whereHas('duty', function ($query1) use ($scheme_id) {
+            $query1->where('scheme_id', $scheme_id);
+        });
+    }
+    if (!empty($district_code)) {
+        $userQuery = $userQuery->whereHas('duty', function ($query1) use ($district_code) {
+            $query1->where('district_code', $district_code);
+        });
+    }
+    if (!empty($is_urban)) {
+        $userQuery = $userQuery->whereHas('duty', function ($query1) use ($is_urban) {
+            $query1->where('is_urban', $is_urban);
+        });
+    }
+    if (!empty($block_code)) {
+        $userQuery = $userQuery->whereHas('duty', function ($query1) use ($block_code, $is_urban) {
+            if ($is_urban == 1) {
+                $query1->where('urban_body_code', $block_code);
+            }
+            if ($is_urban == 2) {
+                $query1->where('taluka_code', $block_code);
+            }
+        });
+    }
+
+    if ($designation_id == 'Delegated Approver') {
+        $userQuery = $userQuery->where('designation_id', 'Operator');
+    }
+
+    // ---- Search handling ----
+    $serachvalue = $request->input('search.value', null);
+
+    // totalRecords BEFORE search (clone query)
+    $totalRecords = (int) (clone $userQuery)->count();
+
+    if (!empty($serachvalue)) {
+        if (is_numeric($serachvalue)) {
+            // compare mobile_no as text to avoid integer overflow when DB column is integer
+            $userQuery = $userQuery->whereRaw("CAST(mobile_no AS TEXT) = ?", [$serachvalue]);
+        } else {
+            // you didn't have a non-numeric search before except not handling it; keep it minimal:
+            // if username/searching by name is desired, you can add: ->orWhere('username','ilike', $serachvalue.'%')
+            $userQuery = $userQuery->where(function ($q) use ($serachvalue) {
+                $q->where('username', 'ilike', $serachvalue . '%')
+                  ->orWhere('email', 'ilike', $serachvalue . '%');
+            });
+        }
+    }
+
+    // filtered count AFTER applying search (before pagination)
+    $filterRecords = (int) (clone $userQuery)->count();
+
+    // fetch paginated results
+    $data = $userQuery->orderBy('username')->offset($offset)->limit($limit)->get();
+
+    // prepare and return datatables response (keep your addColumn logic)
+    return datatables()
+        ->of($data)
+        ->setTotalRecords($totalRecords)
+        ->setFilteredRecords($filterRecords)
+        ->skipPaging()
+        ->addColumn('username', function ($userArray) {
+            return $userArray->username;
+        })->addColumn('id', function ($userArray) {
+            return $userArray->id;
+        })->addColumn('is_active_db', function ($userArray) {
+            return $userArray->is_active;
+        })
+        ->addColumn('designation_id', function ($userArray) {
+            return $userArray->designation_id;
+        })
+        ->addColumn('mobile_no', function ($userArray) {
+            return $userArray->mobile_no;
+        })
+        ->addColumn('email', function ($userArray) {
+            return $userArray->email;
+        })
+        ->addColumn('location', function ($userArray) use ($designation_id) {
+            $location_text = '';
+            if (!empty($userArray->duty)) {
+                $district_in = [];
+                $block_in = [];
+                $sdo_in = [];
+
+                foreach ($userArray->duty as $location_item) {
+                    if ($location_item->mapping_level == 'State' || $location_item->mapping_level == 'Department') {
+                        $location_text = 'NA';
+                        break;
+                    } else {
+                        if (in_array($location_item->mapping_level, ['District', 'Block', 'Subdiv'])) {
+                            if (!empty($location_item->district_code)) {
+                                $district_in[] = $location_item->district_code;
+                            }
+                        }
+                        if ($location_item->mapping_level == 'Block') {
+                            if (!empty($location_item->taluka_code)) {
+                                $block_in[] = $location_item->taluka_code;
+                            }
+                        }
+                        if ($location_item->mapping_level == 'Subdiv') {
+                            if (!empty($location_item->urban_body_code)) {
+                                $sdo_in[] = $location_item->urban_body_code;
+                            }
+                        }
+                    }
+                }
+
+                if (count($district_in) > 0) {
+                    $district_in = array_unique($district_in);
+                    $district_list = District::whereIn('district_code', $district_in)->pluck('district_name');
+                    $district_list_implode = $district_list->implode(',');
+                    $location_text = $location_text . ' District: ' . $district_list_implode;
+                    $location_text .= "<br/>";
+                }
+                if (count($block_in) > 0) {
+                    $block_in = array_unique($block_in);
+                    $block_list = Taluka::whereIn('block_code', $block_in)->pluck('block_name');
+                    $block_list_implode = $block_list->implode(',');
+                    $location_text = $location_text . ' Block: ' . $block_list_implode;
+                    $location_text .= "<br/>";
+                }
+                if (count($sdo_in) > 0) {
+                    $sdo_in = array_unique($sdo_in);
+                    $sdo_list = SubDistrict::whereIn('sub_district_code', $sdo_in)->pluck('sub_district_name');
+                    $sdo_list_implode = $sdo_list->implode(',');
+                    $location_text = $location_text . ' Sub Div: ' . $sdo_list_implode;
+                    $location_text .= "<br/>";
+                }
+            }
+            return $location_text;
+        })->addColumn('is_active', function ($userArray) {
+            return ($userArray->is_active == 1) ? '<button type="button" class="btn btn-success toggleStatus" title="Active" id="toggleActivate_' . $userArray->id . '"><i class="fas fa-check"></i></button>'
+                : '<button type="button" class="btn btn-warning toggleStatus" title="Inactive" id="toggleActivate_' . $userArray->id . '"><i class="fas fa-times"></i></button>';
+        })->addColumn('CanUpdate', function ($userArray) use ($schme_id_in, $schemes, $designation_id) {
+            if ($designation_id == 'Admin') {
+                $canUpdate = 1;
+            } else {
+                $user_update_list = [];
+                $canUpdate = 0;
+                $scheme_in_active_list = [];
+                if (!empty($userArray->duty)) {
+                    foreach ($userArray->duty as $scheme_item) {
+                        if ($scheme_item->is_active == 1) {
+                            $scheme_in_active_list[] = $scheme_item->scheme_id;
+                        }
+                        $user_update_list[] = $scheme_item->scheme_id;
+                    }
+                } else {
+                    $canUpdate = 1;
+                }
+
+                if (count($user_update_list) > 0) {
+                    $user_update_list_u = array_unique($user_update_list);
+                    $user_update_list_s = Scheme::select('id')->whereIn('id', $user_update_list_u)->where('is_active', 1)->get()->pluck('id')->toArray();
+                    $result = array_intersect($schme_id_in, $user_update_list_s);
+
+                    if (array_diff($user_update_list_s, $result) == []) {
+                        $canUpdate = 1;
+                    } else {
+                        if (count($scheme_in_active_list) == 0) {
+                            $canUpdate = 1;
+                        } else {
+                            $canUpdate = 0;
+                        }
+                    }
+                } else {
+                    $canUpdate = 1;
+                }
+            }
+            return $canUpdate;
+        })->addColumn('action', function ($userArray) {
+            $action = '<button type="button" class="btn btn-info"  style="cursor:pointer" onClick="return UpdateUserForm(' . $userArray->id . ')" title="Update"><i class="fas fa-edit"></i></button>';
+            return $action;
+        })
+        ->rawColumns(['is_active', 'location', 'schemes', 'action'])
+        ->make(true);
+}
+  
+    public function toggleActivate(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'id' => 'required|integer',
+        ]);
+        
+        if ($validator->passes()) {
+            $errormsg = Config::get('constants.errormsg');
+            $designation_id = $this->designation_id;
+            $user_id_session = Auth::user()->id;
+            $c_time = date('Y-m-d H:i:s', time());
+            if ($designation_id == 'Admin' || $designation_id == 'HOD' || $designation_id == 'HOP' || $designation_id == 'Verifier' || $designation_id == 'Approver' || $designation_id == 'Delegated Approver' ) {
+                $id = $request[trim('id')];
+                $mytime = Carbon\Carbon::now();
+                $user_audit_trail_codearr = Config::get('constants.user_audit_trail_code');
+                $userArr = User::where('id', $id)->first();
+                $dutyarr = Configduty::where('user_id', $id)->get();
+                $dutyCount = count($dutyarr);
+                if ($userArr->id) {
+                    $toggleStatus = TRUE;
+                    $toggleMsg = "";
+                    if ($userArr->is_active) {
+                        $toggleStatus = FALSE;
+                        $toggleMsg = "Inactive";
+                        $duPlicate = 0;
+                    } else {
+                        $toggleMsg = "Active";
+                        $duPlicate = User::where([
+                            ['id', '!=', $id],
+                            ['is_active', '=', 1],
+                            ['mobile_no', '=', $userArr->mobile_no]
+                        ])->count();
+                    }
+                    if ($duPlicate == 0) {
+                        $user_model = User::find($id);
+                        $configduty_model = Configduty::where('user_id', $id)->first();
+                        DB::beginTransaction();
+                        $user_model->is_active = $toggleStatus;
+                        $user_model->updated_at = $c_time;
+                        $user_model->updated_by = $user_id_session;
+                        $user_model->action_by = Auth::user()->id;
+                        $user_model->action_ip_address = request()->ip();
+                        $user_model->action_type = class_basename(request()->route()->getAction()['controller']);
+                        $affetced1 =$user_model->save();
+                       
+                        if ($dutyCount) {
+                            $configduty_model->is_active = $toggleStatus;
+                            $configduty_model->decative_date = $c_time;
+                            $configduty_model->updated_at = $c_time;
+                            $configduty_model->updated_by = $user_id_session;
+                            $configduty_model->action_by = Auth::user()->id;
+                            $configduty_model->action_ip_address = request()->ip();
+                            $configduty_model->action_type = class_basename(request()->route()->getAction()['controller']);
+                            $affetced2 =  $configduty_model->save();
+                        } else {
+                            $affetced2 = 1;
+                        }
+                        $inserttrail = array(
+                            'old_user_data' => json_encode($userArr->toArray()),
+                            'old_duty_data' => json_encode($dutyarr->toArray()),
+                            'operation_type' => $user_audit_trail_codearr['Update'],
+                            'unique_id' => $id,
+                            'operate_by' => Auth::user()->id,
+                            'operate_by_stake_level' => trim($this->mapping_level),
+                            'operate_by_ruralurbancode' => intval($this->is_urban),
+                            'ip_address' => request()->ip(),
+                            'user_agent' => $request->header('User-Agent'),
+                            'operation_time' => $mytime
+                        );
+                        $trailSave = Users_audit_trail::create($inserttrail);
+                        $trail_id = $trailSave->id;
+                        if ($affetced1 && $affetced2 && $trail_id) {
+                            DB::commit();
+                            $return_status = 1;
+                            $return_msg = $userArr->username . " status successfully changed";
+                        } else {
+                            DB::rollback();
+                            $return_status = 0;
+                            $return_text = $errormsg['roolback'];
+                            $return_msg = array("" . $return_text);
+                        }
+                    } else {
+                        $return_status = 0;
+                        $return_text = "Duplicate Mobile Number";
+                        $return_msg = array("" . $return_text);
+                    }
+                } else {
+                    $return_status = 0;
+                    $return_text = "No User Exist with this Id";
+                    $return_msg = array("" . $return_text);
+                }
+            } else {
+                $return_status = 0;
+                $return_text = $errormsg['notauthorized'];
+                $return_msg = array("" . $return_text);
+            }
+        } else {
+            $return_status = 0;
+            $return_msg = $validator->errors()->all();
+        }
+        return response()->json(['return_status' => $return_status, 'return_msg' => $return_msg]);
+    }
+    public function adduser(Request $request)
+    {
+        
+            $designation_id = $this->designation_id;
+            if ($designation_id == 'Operator' || $designation_id == 'Delegated Verifier' || $designation_id == 'MisState' || $designation_id == 'Dashboard'){
+                return redirect("/")->with('success', 'Not Allowded');
+            }
+            $user_id = Auth::user()->id;
+            $errormsg = Config::get('constants.errormsg');
+            $district_visible=1;
+            $is_urban_visible=0;
+            $block_visible=0;
+            $subdiv_visible=0;
+            $mapping_visible=1;
+            $stake_level='';
+            $role_visible=1;
+            $designation_id_sel='';
+            $selected_role='Approver';
+            if ($designation_id == 'Admin'){
+                $schemes = Scheme::where('is_active', 1)->get();
+                $selected_role='HOD';
+                $district_visible=0;
+                $is_urban_visible=0;
+                $block_visible=0;
+            }
+            if ($designation_id == 'HOD' || $designation_id == 'HOP'){
+                $schme_id_in = Configduty::select('scheme_id')->where('user_id', $user_id)->get()->pluck('scheme_id')->toArray();
+                $schemes = Scheme::where('is_active', 1)->whereIn('id', $schme_id_in)->get();
+            }
+            else {
+                $schme_id_in = Configduty::select('scheme_id')->where('user_id', $user_id)->get()->pluck('scheme_id')->toArray();
+                $schemes = Scheme::where('is_active', 1)->whereIn('id', $schme_id_in)->get();
+                if ($designation_id == 'Approver') {
+                    $mapping_visible=1;
+                    $role_visible=1;
+                    $stake_level='';
+                    $designation_id_sel='';
+                }
+                else if ($designation_id == 'Verifier') {
+                    $mapping_visible=0;
+                    $role_visible=0;
+                    if($this->is_urban ==1)
+                    $stake_level='Subdiv';
+                    if($this->is_urban ==2)
+                    $stake_level='Block';
+                    $designation_id_sel='Operator';
+                }
+                else if ($designation_id == 'Operator') {
+                    $mapping_visible=1;
+                    $role_visible=1;
+                }
+            }
+            $role_arr = Designation::where('is_active', 1)->get();
+            $where = [];
+            if (!empty($this->district_code))
+                $districts = District::where('district_code', $this->district_code)->get();
+            else
+                $districts = District::get();
+
+            $user_level = User_level::where('is_active', 1)->orderby('rank')->get();
+            $levels =Config::get('constants.rural_urban');
+            $mapping_level_duty = $this->mapping_level_duty;
+            //dd($mapping_level_duty);
+            if ($mapping_level_duty == 'State') {
+                $is_urban_visible=1;
+                $block_visible=1;
+                if($designation_id == 'Admin'){
+                    $selected_role='HOD';
+                    $district_visible=0;
+                    $is_urban_visible=0;
+                    $block_visible=0;
+                }
+                else
+                $selected_role='Approver';
+                if ($designation_id == 'HOD' || $designation_id == 'HOP') {
+                    $role_arr = $role_arr->whereIn('rank', array(30, 35, 40,22));
+                    //dd($role_arr);
+                    $user_level = $user_level;
+                } else {
+                    $role_arr = $role_arr;
+                    $user_level = $user_level;
+                }
+            } else if ($mapping_level_duty == 'District') {
+                $district_visible=0;
+                $is_urban_visible=1;
+                $block_visible=1;
+                $selected_role='Verifier';
+                if ($designation_id == 'Approver') {
+                    $role_arr = $role_arr->filter(function ($item) {
+                        return ($item->name == 'Delegated Approver' || $item->name == 'Verifier' || $item->name == 'Operator' || $item->name == 'MIS User');
+                    });
+                    $user_level = $user_level->filter(function ($item) {
+                        return ($item->rank > 20);
+                    });
+                } else if ($designation_id == 'Delegated Approver') {
+                    $role_arr = $role_arr->filter(function ($item) {
+                        return ($item->name == 'Operator');
+                    });
+                    $user_level = $user_level->filter(function ($item) {
+                        return ($item->rank > 20);
+                    });
+                }else if ($designation_id == 'Verifier') {
+                    $role_arr = $role_arr->filter(function ($item) {
+                        return ($item->name == 'Operator');
+                    });
+                    $user_level = $user_level->filter(function ($item) {
+                        return ($item->id > 2);
+                    });
+                } else if ($designation_id == 'Operator') {
+                    $role_arr = collect([]);
+                    $user_level = collect([]);
+                }
+            } else if ($mapping_level_duty == 'Subdiv') {
+                $district_visible=0;
+                $is_urban_visible=0;
+                $block_visible=0;
+                //dd('ok');
+                if ($designation_id == 'Approver') {
+                    $role_arr = $role_arr->filter(function ($item) {
+                        return ($item->name == 'Verifier' || $item->name == 'Operator');
+                    });
+                    $user_level = $user_level->filter(function ($item) {
+                        return ($item->rank >= 30);
+                    });
+                } else if ($designation_id == 'Verifier') {
+                    $selected_role='Operator';
+                    $role_arr = $role_arr->filter(function ($item) {
+                        return ($item->name == 'Delegated Verifier');
+                    });
+                    $user_level = $user_level->filter(function ($item) {
+                        return ($item->rank >= 30 && $item->rank != 40);
+                    });
+                } else if ($designation_id == 'Operator') {
+                    $role_arr = collect([]);
+                    $user_level = collect([]);
+                }
+            } else if ($mapping_level_duty == 'Block') {
+                $district_visible=0;
+                $is_urban_visible=0;
+                $block_visible=0;
+                if ($designation_id == 'Approver') {
+                    $role_arr = $role_arr->filter(function ($item) {
+                        return ($item->name == 'Verifier' || $item->name == 'Operator');
+                    });
+                    $user_level = $user_level->filter(function ($item) {
+                        return ($item->rank >= 40);
+                    });
+                } else if ($designation_id == 'Verifier') {
+                    $selected_role='Operator';
+                    $role_arr = $role_arr->filter(function ($item) {
+                        return ($item->name == 'Delegated Verifier');
+                    });
+                    $user_level = $user_level->filter(function ($item) {
+                        return ($item->rank >= 40);
+                    });
+                } else if ($designation_id == 'Operator') {
+                    $role_arr = collect([]);
+                    $user_level = collect([]);
+                }
+            }
+           if($this->is_urban==1){
+            $new_block_ulb_code= $this->urban_body_code;
+           }
+           else if($this->is_urban==2){
+            $new_block_ulb_code= $this->taluka_code;
+           }
+           else{
+            $new_block_ulb_code='';
+           }
+          //dd($selected_role);
+        return view('userDutymgmt/adduser', [
+            'selected_role' => $selected_role,
+            'districts' => $districts,
+            'levels' => $levels,
+            'designation_id' => $designation_id,
+            'roles' => $role_arr,
+            'schemes' => $schemes,
+            'sessiontimeoutmessage' => $errormsg['sessiontimeOut'],
+            'district_visible' => $district_visible,
+            'is_urban_visible' => $is_urban_visible,
+            'is_urban' => $this->is_urban,
+            'block_visible' => $block_visible,
+            'block_code' => $new_block_ulb_code,
+            'district_code' =>$this->district_code,
+            'mapping_visible' => $mapping_visible,
+            'stake_level' => $stake_level,
+            'role_visible' => $role_visible,
+            'designation_id_sel' => $designation_id_sel,
+        ]);
+    }
+    public function adduserpost(Request $request)
+    {
+        $designation_id = Auth::user()->designation_id;
+        if ($designation_id == 'Operator' || $designation_id == 'Delegated Verifier'  || $designation_id == 'MisState' || $designation_id == 'Dashboard'){
+            return redirect("/")->with('success', 'Not Allowded');
+        }
+        $user_id = Auth::user()->id;
+        $assign_designation_id = trim($request->designation_id);
+        
+        //dd($assign_designation_id);
+        if (!in_array($designation_id,array('Admin','HOD','Approver','Verifier','Delegated Approver'))){
+            $msg = 'Not Allowded.';
+            return redirect('/adduser')->with('error', $msg);
+        }
+        if ($designation_id == 'Admin'){
+            if (!in_array($assign_designation_id,array('Special LAO','StatusCheckerDistrict','Delegated DDO','DDO','HOD','HOP','Approver','Verifier','Operator','SpecialStatusCheck'))){
+                $msg = 'Not Allowded..';
+                return redirect('/adduser')->with('error', $msg);
+            }
+        }
+        if ($designation_id == 'HOD'){
+            if (!in_array($assign_designation_id,array('Approver','Verifier','Operator','MisState','Dashboard'))){
+                $msg = 'Not Allowded..';
+                return redirect('/adduser')->with('error', $msg);
+            }
+        }
+        else if ($designation_id == 'Approver'){
+            if (!in_array($assign_designation_id,array('Delegated Approver','Verifier','Operator','MIS User'))){
+                $msg = 'Not Allowded...';
+                return redirect('/adduser')->with('error', $msg);
+            }
+        } else if ($designation_id == 'Delegated Approver'){
+            if (!in_array($assign_designation_id,array('Operator'))){
+                $msg = 'Not Allowded...';
+                return redirect('/adduser')->with('error', $msg);
+            }
+        }
+        else if ($designation_id == 'Verifier'){
+            if (!in_array($assign_designation_id,array('Delegated Verifier'))){
+                $msg = 'Not Allowded....';
+                return redirect('/adduser')->with('error', $msg);
+            }
+        }
+        $attributes = array();
+        $messages = array();
+        $rules = [
+            'full_name' => 'required|max:200',
+            'full_name_as_in_aadhar' => 'required|max:200',
+            'designation_id' => 'required',
+            'username' => 'required',
+            'email' => 'required|email',
+            'mobile' => 'required|digits:10',
+        ];
+        $attributes['full_name'] = 'Full Name';
+        $attributes['full_name_as_in_aadhar'] = 'Full Name as in Aadhaar';
+        $attributes['designation_id'] = 'Role';
+        $attributes['username'] = 'Display Name';
+        $attributes['email'] = 'Email';
+        $attributes['mobile'] = 'Mobile No';
+        $attributes['schemelist'] = 'Scheme';
+        $attributes['dist_code'] = 'District';
+        if (in_array($assign_designation_id,array('HOD','MisState','Dashboard'))){
+           
+        }
+
+        if (in_array($assign_designation_id,array('Approver'))){
+            $rules['dist_code'] = 'required';
+            $attributes['dist_code'] = 'District';
+            
+        }
+        if (in_array($assign_designation_id,array('Delegated Approver'))){
+           
+        }
+        if (in_array($assign_designation_id,array('Delegated Verifier'))){
+           
+        }
+        if (in_array($assign_designation_id,array('Verifier','Operator','MIS User'))){
+            $rules['is_urban'] = 'required';
+            $rules['block_code'] = 'required';
+            $attributes['is_urban'] = 'Rural/Urban';
+            $attributes['block_code'] = 'Block/Sub Div';
+            $rules['dist_code'] = 'required';
+            $attributes['dist_code'] = 'District';
+            
+        }
+        $validator = Validator::make($request->all(), $rules, $messages, $attributes);
+        // dd($validator);
+        if (!$validator->passes()) {
+            $error_msg = array();
+            foreach ($validator->errors()->all() as $error) {
+                array_push($error_msg, $error);
+            }
+           //dd( $error_msg);
+            return redirect('/adduser')->with('errors', $error_msg);
+        } 
+        if (in_array($assign_designation_id,array('Approver','Verifier','Operator','MIS User'))){
+            $district_check=District::where('district_code', trim($request->dist_code))->count();
+            if ($district_check==0){
+                $msg = 'District Code is invalid';
+                return redirect('/adduser')->with('error', $msg);
+            }
+        }
+        
+        if (in_array($assign_designation_id,array('Verifier','Operator','MIS User'))){
+            if (!in_array(trim($request->is_urban),array_keys(Config::get('constants.rural_urban')))){
+                $msg = 'Rural/Urban is invalid';
+                return redirect('/adduser')->with('error', $msg);
+            }
+            if(trim($request->is_urban)==1){
+                $ulb_code_check=SubDistrict::where('sub_district_code', trim($request->block_code))->count();
+                if ($ulb_code_check==0){
+                    $msg = 'Sub District Code is invalid';
+                    return redirect('/adduser')->with('error', $msg);
+                }
+            }
+            else if(trim($request->is_urban)==1){
+                $ulb_code_check=Taluka::where('block_code', trim($request->block_code))->count();
+                if ($ulb_code_check==0){
+                    $msg = 'Block Code is invalid';
+                    return redirect('/adduser')->with('error', $msg);
+                }
+            }
+        }
+        if ($designation_id == 'Admin'){
+            $scheme_arr = Scheme::where('is_active',1)->first();
+            $scheme_id=$scheme_arr->id;
+        }
+        else{
+        $scheme_arr = Scheme::where('is_active',1)->first();
+        $scheme_id=$scheme_arr->id;
+            $duty_count=Configduty::where('user_id',$user_id)->where('scheme_id',$scheme_id)->count();
+            if($duty_count==0){
+                $msg = 'Not Allowded.....';
+                return redirect('/adduser')->with('error', $msg);
+                
+
+            }
+        }
+      
+      
+        $designation_arr = Designation::where('name', $assign_designation_id)->first();
+        if (empty($designation_arr)){
+            $msg = 'Designation Code is invalid';
+            return redirect('/adduser')->with('error', $msg);
+        }
+        try {
+            $mobile_count=User::where('is_active',1)->where('mobile_no',trim($request['mobile']))->count();
+            if ($mobile_count>0){
+                $msg = 'Mobile No.. with '.$request['mobile'].' already exists.. please try different';
+                return redirect('/adduser')->with('error', $msg);
+            }
+            $email_count=User::where('is_active',1)->where('email',trim($request['email']))->count();
+            if ($email_count>0){
+                $msg = 'Email  with '.$request['email'].' already exists.. please try different';
+                return redirect('/adduser')->with('error', $msg);
+            }
+            if (in_array($assign_designation_id,array('Delegated DDO'))){
+                
+                $userQuery = User::with(['duty'])->where('designation_id','Delegated DDO')->where('is_active', 1);
+                $config_arr = Configduty::where('user_id', $user_id)->where('is_active', 1)->first(); 
+                $userQuery = $userQuery->whereHas('duty', function ($query1) use ($scheme_id) {
+                    $query1->where('scheme_id',$scheme_id)->where('is_active', 1);
+                });
+                
+                $count_pre=$userQuery->count();
+                if ($count_pre>=3){
+                    $msg = 'Maximum no. of Delegated DDO User Can be 3';
+                    return redirect('/adduser')->with('error', $msg);
+                }
+            }
+            if (in_array($assign_designation_id,array('MisState'))){
+                
+                $userQuery = User::with(['duty'])->where('designation_id','MisState')->where('is_active', 1);
+                $config_arr = Configduty::where('user_id', $user_id)->where('is_active', 1)->first(); 
+                $userQuery = $userQuery->whereHas('duty', function ($query1) use ($scheme_id) {
+                    $query1->where('scheme_id',$scheme_id)->where('is_active', 1);
+                });
+                
+                $count_pre=$userQuery->count();
+                if ($count_pre>=3){
+                    $msg = 'Maximum no. of MisState User Can be 3';
+                    return redirect('/adduser')->with('error', $msg);
+                }
+            }
+            if (in_array($assign_designation_id,array('Dashboard'))){
+                
+                $userQuery = User::with(['duty'])->where('designation_id','Dashboard')->where('is_active', 1);
+                $config_arr = Configduty::where('user_id', $user_id)->where('is_active', 1)->first(); 
+                $userQuery = $userQuery->whereHas('duty', function ($query1) use ($scheme_id) {
+                    $query1->where('scheme_id',$scheme_id)->where('is_active', 1);
+                });
+                
+                $count_pre=$userQuery->count();
+                if ($count_pre>=3){
+                    $msg = 'Maximum no. of Dashboard User Can be 3';
+                    return redirect('/adduser')->with('error', $msg);
+                }
+            }
+            if (in_array($assign_designation_id,array('Delegated Approver'))){
+                
+                $userQuery = User::with(['duty'])->where('designation_id','Delegated Approver')->where('is_active', 1);
+                $config_arr = Configduty::where('user_id', $user_id)->where('is_active', 1)->first(); 
+                $district_code=$config_arr->district_code;
+                $userQuery = $userQuery->whereHas('duty', function ($query1) use ($scheme_id,$district_code) {
+                    $query1->where('scheme_id',$scheme_id)->where('district_code',$district_code)->where('is_active', 1);
+                });
+                
+                $count_pre=$userQuery->count();
+                if ($count_pre>=3){
+                    $msg = 'Maximum no. of Delegated Approver is 3';
+                    return redirect('/adduser')->with('error', $msg);
+                }
+            }
+            if (in_array($assign_designation_id,array('Delegated Verifier'))){         
+                $userQuery = User::with(['duty'])->where('designation_id','Delegated Verifier')->where('is_active', 1);
+                $config_arr = Configduty::where('user_id', $user_id)->where('is_active', 1)->first();  
+                $district_code=$config_arr->district_code;
+                if($config_arr->mapping_level == 'Subdiv'){
+                    $block_ulb_code = $config_arr->urban_body_code;
+                    $userQuery = $userQuery->whereHas('duty', function ($query1) use ($scheme_id,$district_code,$block_ulb_code) {
+                        $query1->where('scheme_id',$scheme_id)->where('district_code',$district_code)->where('urban_body_code',$block_ulb_code)->where('is_active', 1);
+                    });
+                }
+                if($config_arr->mapping_level == 'Block'){
+                    $block_ulb_code = $config_arr->taluka_code;
+                    $userQuery = $userQuery->whereHas('duty', function ($query1) use ($scheme_id,$district_code,$block_ulb_code) {
+                        $query1->where('scheme_id',$scheme_id)->where('district_code',$district_code)->where('taluka_code',$block_ulb_code)->where('is_active', 1);
+                    });
+                }
+              
+              
+                $count_pre=$userQuery->count();
+               // dd($count_pre);
+                if ($count_pre>=3){
+                    $msg = 'Maximum no. of Delegated Verifier is 3';
+                    return redirect('/adduser')->with('error', $msg);
+                }
+            }
+            $c_time = date('Y-m-d H:i:s', time());
+            DB::beginTransaction();
+            $Employee_Model = new Employee;
+            $Employee_Model->created_at = $user_id;
+            $Employee_Model->full_name = trim($request->full_name);
+            $Employee_Model->full_name_as_in_aadhar = trim($request->full_name_as_in_aadhar);
+            $Employee_Model->designation_id =  $designation_arr->id;
+            if($Employee_Model->save()){
+                $User_Model = new User;
+                $User_Model->is_active = 1;
+                $User_Model->username = trim($request['username']);
+                $User_Model->email = trim($request['email']);
+                $User_Model->emp_id = $Employee_Model->id;
+                $User_Model->designation_id = $assign_designation_id;
+                $User_Model->mobile_no = trim($request['mobile']);
+                $User_Model->login_otp =  random_int(100000, 999999);
+                $User_Model->created_by = $user_id;
+           
+                $user = $User_Model->save(); 
+           
+            
+             if(!empty($User_Model->id)){
+                $i=0;
+                $scheme_inputs = request()->input('schemelist');
+
+                        $Configduty = new Configduty;
+                        $Configduty->created_at = $c_time;
+                        $Configduty->created_by = $user_id;
+                        $Configduty->user_id = $User_Model->id;
+                        if (in_array($assign_designation_id,array('HOD','DDO','Delegated DDO','SpecialStatusCheck','MisState','Dashboard'))){
+                            $mapping_level='Department';
+                        }
+                        if (in_array($assign_designation_id,array('Approver','Special LAO'))){
+                            $mapping_level='District';
+                        }
+                        if (in_array($assign_designation_id,array('Delegated Approver'))){
+                            $mapping_level='District';
+                            $duty_row=Configduty::where('user_id',$user_id)->where('scheme_id',$scheme_id)->first();
+                            $Configduty->district_code = $duty_row->district_code;
+
+                        }
+                        if (in_array($assign_designation_id,array('Delegated Verifier','Approver','Verifier','Operator','MIS User'))){
+                         $Configduty->district_code = $request->input('dist_code');
+                        }
+                        if (in_array($assign_designation_id,array('Delegated Verifier','Verifier','Operator','MIS User'))){
+                            $Configduty->is_urban = $request->input('is_urban');
+                            if( $request->input('is_urban')==1){
+                                $Configduty->urban_body_code = $request->input('block_code');
+                                $mapping_level='Subdiv';
+                            }
+                            else if($request->input('is_urban')==2){
+                                $Configduty->taluka_code = $request->input('block_code');
+                                $mapping_level='Block';
+                            }
+                            
+                        }
+                        $Configduty->mapping_level =  $mapping_level;
+                        $Configduty->is_active = 1;
+                        $Configduty->scheme_id = $scheme_id;
+                        $Configduty->action_by = Auth::user()->id;
+                        $Configduty->action_ip_address=request()->ip();
+                        $Configduty->action_type =class_basename(request()->route()->getAction()['controller']);
+                        if($Configduty->save()){
+                         $i++;
+                        }
+                    
+                   
+                        $inserttrail = array(
+                            'operation_type' => 3,
+                            'operate_by' => $user_id,
+                            'operate_to_user_id' => $Employee_Model->id,
+                            'ip_address' => request()->ip(),
+                            'user_agent' => $request->header('User-Agent'),
+                            'operation_time' => $c_time
+                        );
+                        $trailSave = Users_audit_trail::create($inserttrail);
+                        $trail_id = $trailSave->id;
+                        if($trail_id){
+                            $msg = 'The User with Mobile Number ' . $request['mobile'] . ' Succesfully Added';
+                            DB::commit();
+                            return redirect('userDutymanagement')->with('success', $msg); 
+
+                        }
+                  
+             }
+             else{
+                DB::rollback();
+                $msg = 'Some Error.. Please try later...';
+                return redirect('/adduser')->with('error', $msg); 
+              }
+          }
+          else{
+            DB::rollback();
+            $msg = 'Some Error.. Please try later....';
+            return redirect('/adduser')->with('error', $msg); 
+          }
+        }
+        catch (\Exception $e) {
+            dd($e);
+            DB::rollback();
+            $msg = 'Some Error.. Please try later';
+            return redirect('/adduser')->with('error', $msg);
+        }
+      
+       
+          
+    }
+    public function getUserInfo(Request $request)
+    {
+        $id = $request->id;
+        $userarrList = array();
+        $rules = array(
+            'id' => 'required|integer'
+        );
+        $attributes = [
+            'id' => 'User Id',
+        ];
+        $messages = [
+            'required' => 'The :attribute field is required.',
+            'integer' => 'Only integer allowed for :attribute'
+        ];
+        $validator = Validator::make($request->all(), $rules, $messages, $attributes);
+        if ($validator->passes()) {
+            $id = $request->id;
+            $userarr = DB::table('users as A')
+                ->leftJoin('employees as B', 'A.emp_id', '=', 'B.id')
+                ->select(
+                    'A.username',
+                    'A.designation_id',
+                    'B.full_name',
+                    'B.full_name_as_in_aadhar',
+                    'B.address',
+                    'B.department_id',
+                    'A.mobile_no',
+                    'B.picture',
+                    'A.email'
+                )->where('A.id', '=', $id)->first();
+            if (empty($userarr->username)) {
+                $return_status = 0;
+                $return_text = "No user Found";
+                $return_msg = array("" . $return_text);
+                $userarrList = array();
+            } else {
+                $return_status = 1;
+                $return_msg = '';
+                $userarrList = json_decode(json_encode($userarr), true);
+            }
+        } else {
+            $return_status = 0;
+            $return_msg = $validator->errors()->all();
+        }
+        return response()->json(['return_status' => $return_status, 'return_msg' => $return_msg, 'userarr' => $userarrList]);
+    }
+    public function Update(Request $request)
+    {
+        //$request->merge(array_map('trim', $request->all()));
+        $rules = array(
+            'full_name' => 'required|max:200',
+            'full_name_as_in_aadhar' => 'required|max:200',
+            'username' => 'required|max:200',
+            'email' => 'required|email',
+            'mobile_no' => 'required|size:10'
+        );
+        $attributes = [
+            'full_name' => 'Full Name',
+            'full_name_as_in_aadhar' => 'Full Name as in Aadhaar',
+            'email' => 'Email Address',
+            'mobile_no' => 'Mobile Number'
+        ];
+        $messages = [
+            'required' => 'The :attribute field is required.',
+            'integer' => 'Only integer allowed for :attribute',
+            'max' => 'Maximum of :size characters allowed for :attribute',
+            'size' => 'The :attribute must be exactly :size.',
+        ];
+        $validator = Validator::make($request->all(), $rules, $messages, $attributes);
+        if ($validator->passes()) {
+            $errormsg = Config::get('constants.errormsg');
+            $designation_id = $this->designation_id;
+            $user_id_session = Auth::user()->id;
+            $c_time = date('Y-m-d H:i:s', time());
+            if ($designation_id == 'Admin' || $designation_id == 'HOD' || $designation_id == 'HOP' || $designation_id == 'Verifier' || $designation_id == 'Approver' || $designation_id == 'Delegated Approver' ) {
+                $id = $request['id'];
+                $schemeArray = $request['schemeArray'];
+                $roleArray = $request['roleArray'];
+                // dump($schemeArray);
+                $mappinglevelArray = $request['mappinglevelArray'];
+                $districtArray = $request['districtArray'];
+                $subdivArray = $request['subdivArray'];
+                $isurbanArray = $request['isurbanArray'];
+                $blockmunccorpArray = $request['blockmunccorpArray'];
+                if (empty($request['department_id']))
+                    $department_id = NULL;
+                else
+                    $department_id = $request['department_id'];
+                $duPlicateChek = User::where('mobile_no', $request['mobile_no'])->first();
+                if ($id) {
+                    $userArr = User::where('id', $id)->first();
+                    //dd($userArr);
+                    if (!empty($userArr->username)) {
+                        $duPlicate = User::where([
+                            ['id', '!=', $id],
+                            ['mobile_no', '=', $request['mobile_no']],
+                        ])->count();
+
+                        $dupemail=User::where('is_active',1)->where('id', '!=', $id)->where('email',trim($request['email']))->count();
+                        // dd($dupemail);
+                        if ($dupemail>0){
+                            $return_msg = 'Email  with '.$request['email'].' already exists.. please try different';
+                            $return_status = 0;
+                            return response()->json(['return_status' => $return_status, 'return_msg' => $return_msg]);
+                        }
+
+
+                        if ($duPlicate == 0) {
+                            $is_acces=1;
+                            if($designation_id=='Admin'){
+                                $is_acces=1;
+                            }
+                            else if($designation_id=='HOD' && $userArr->designation_id=='HOD'){
+                                $is_acces=0;
+                            }
+                            else if($designation_id=='Approver' && ($userArr->designation_id=='Approver' || $userArr->designation_id=='HOD')){
+                                $is_acces=0;
+                            }
+                            else if($designation_id=='Verifier' && ($userArr->designation_id=='Verifier' || $userArr->designation_id=='Approver' || $userArr->designation_id=='HOD')){
+                                $is_acces=0;
+                            }
+                            else if($designation_id=='Operator' && ($userArr->designation_id=='Operator' || $userArr->designation_id=='Verifier' || $userArr->designation_id=='Approver' || $userArr->designation_id=='HOD')){
+                                $is_acces=0;
+                            }
+                            if($is_acces==0){
+                            $return_status = 0;
+                            $return_text = "Not Allowded";
+                            $return_msg = array("" . $return_text);
+                            return response()->json(['return_status' => $return_status, 'return_msg' => $return_msg]);
+                            }
+                            $is_final = 0;
+                            if ($request['parent_id'] == 0) {
+                                $is_final = 1;
+                            }
+                            $updatearremp = array(
+                                'full_name' => trim($request['full_name']),
+                                'full_name_as_in_aadhar' => trim($request['full_name_as_in_aadhar']),
+                                'address' => trim($request['address']),
+                                'department_id' => $department_id,
+                                'updated_by' => $user_id_session,
+                                'updated_at' => $c_time
+                            );
+                            $updatearrmain = array(
+                                'username' => trim($request['username']),
+                                'email' => trim($request['email']),
+                                'mobile_no' => trim($request['mobile_no']),
+                                'updated_by' => $user_id_session,
+                                'updated_at' => $c_time,
+                                'action_by' => Auth::user()->id,
+                                'action_ip_address' => request()->ip(),
+                                'action_type' => class_basename(request()->route()->getAction()['controller'])
+
+                            );
+                            if ($request['password'] != null && strlen($request['password']) > 0) {
+                                $updatearrmain['password'] = bcrypt($request['password']);
+                            }
+                            $user_model = User::find($id);
+                            $user_model->username = trim($request['username']);
+                            $user_model->email = trim($request['email']);
+                            $user_model->mobile_no = trim($request['mobile_no']);
+                            $user_model->updated_by = $user_id_session;
+                            $user_model->updated_at = $c_time;
+                            $user_model->action_by = Auth::user()->id;
+                            $user_model->action_ip_address =request()->ip();
+                            $user_model->action_type = class_basename(request()->route()->getAction()['controller']);
+                            $user_affected =$user_model->save();
+                            if (!empty($userArr->emp_id)){
+                            $employee_model = Employee::find($userArr->emp_id);
+                                $employee_model->full_name = trim($request['full_name']);
+                                $employee_model->full_name_as_in_aadhar = trim($request['full_name_as_in_aadhar']);
+                                $employee_model->address = trim($request['address']);
+                                $employee_model->department_id = $department_id;
+                                $employee_model->updated_by = $user_id_session;
+                                $employee_model->updated_at = $c_time;
+                                if($employee_model->save()){
+                                    $emp_affected =1;
+                                }
+                                else{
+                                    $emp_affected =0; 
+                                }
+                            }
+                            else
+                                $emp_affected = 1;
+                           
+                            $user_audit_trail_codearr = Config::get('constants.user_audit_trail_code');
+                            $mytime = Carbon\Carbon::now();
+                            $inserttrail = array(
+                                'old_user_data' => json_encode($userArr->toArray()),
+                                'operation_type' => $user_audit_trail_codearr['Update'],
+                                'unique_id' => $id,
+                                'operate_by' => Auth::user()->id,
+                                'operate_by_stake_level' => trim($this->mapping_level),
+                                'operate_by_ruralurbancode' => intval($this->is_urban),
+                                'ip_address' => request()->ip(),
+                                'user_agent' => $request->header('User-Agent'),
+                                'operation_time' => $mytime
+                            );
+                            $trailSave = Users_audit_trail::create($inserttrail);
+                            $trail_id = $trailSave->id;
+                            if ($user_affected && $emp_affected) {
+                                $return_status = $id;
+                                $return_msg = "User with mobile number ". $userArr->mobile_no." Successfully Updated";
+                            } else {
+                                $return_status = 0;
+                                $return_text = $errormsg['roolback'];
+                                //$return_text = "Error Occur .. Please try again";
+                                $return_msg = array("" . $return_text);
+                                //Session::flash('error',$return_text);
+                            }
+                        } else {
+                            $return_status = 0;
+                            $return_text = "Mobile Number with " . $request['mobile_no'] . " already tagged with the user " . $duPlicateChek->username;
+                            $return_msg = array("" . $return_text);
+                        }
+                    } else {
+                        $return_status = 0;
+                        $return_text = "User Not Found";
+                        $return_msg = array("" . $return_text);
+                    }
+                }
+            } else {
+                $return_status = 0;
+                $return_text = $errormsg['notauthorized'];
+                $return_msg = array("" . $return_text);
+            }
+        } else {
+            $return_status = 0;
+            $return_msg = $validator->errors()->all();
+        }
+        return response()->json(['return_status' => $return_status, 'return_msg' => $return_msg]);
+    }
+    public function toggleDuty(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'user_id' => 'required|integer',
+            'scheme_id' => 'required|integer',
+        ]);
+        if ($validator->passes()) {
+            $errormsg = Config::get('constants.errormsg');
+            $designation_id = $this->designation_id;
+            $user_id_session = Auth::user()->id;
+            $c_time = date('Y-m-d H:i:s', time());
+            if ($designation_id == 'Admin' || $designation_id == 'HOD'  || $designation_id == 'HOP' || $designation_id == 'Verifier' || $designation_id == 'Approver' || $designation_id == 'Operator') {
+                $user_id = $request[trim('user_id')];
+                $scheme_id = $request[trim('scheme_id')];
+                $user_audit_trail_codearr = Config::get('constants.user_audit_trail_code');
+                $mytime = Carbon\Carbon::now();
+                $DutyArr = Configduty::where('user_id', $user_id)->where('scheme_id', $scheme_id)->first();
+                if (!empty( $DutyArr)) {
+                    $toggleStatus = TRUE;
+                    $toggleMsg = "";
+                    $duplicate = false;
+                    if ($DutyArr->is_active) {
+                        $toggleStatus = FALSE;
+                        $toggleMsg = "Inactive";
+                    } else {
+                        $toggleMsg = "Active";
+                        $chk = array();
+                        $chk['user_id'] = $DutyArr->user_id;
+                        $chk['is_active'] = 1;
+                        $chk['designation_id'] = $DutyArr->user->designation_id;
+                        $chk['scheme_id'] = $DutyArr->scheme_id;
+                        $chk['district_code'] = $DutyArr->district_code;
+                        $chk['mapping_level'] = $DutyArr->mapping_level;
+                        $chk['urban_body_code'] = $DutyArr->urban_body_code;
+                        $chk['taluka_code'] = $DutyArr->taluka_code;
+                        $chk['is_urban'] = $DutyArr->is_urban;
+                        $check = $this->checkDuplicate($chk);
+                        if ($check) {
+                            $duplicate = false;
+                        } else {
+                            $duplicate = true;
+                        }
+                    }
+                    if ($duplicate == false) {
+                        // DB::beginTransaction();
+                        $affetced = Configduty::where('user_id', $user_id)->where('scheme_id', $scheme_id)->update(['action_by' => Auth::user()->id,
+            'action_ip_address' => request()->ip(),
+            'action_type' => class_basename(request()->route()->getAction()['controller']),'is_active' => $toggleStatus, 'decative_date' => $mytime, 'updated_at' => $c_time, 'updated_by' => $user_id_session]);
+                        $inserttrail = array(
+                            'old_duty_data' => json_encode($DutyArr->toArray()),
+                            'operation_type' => $user_audit_trail_codearr['Update'],
+                            'unique_id' => $DutyArr->id,
+                            'operate_by' => Auth::user()->id,
+                            'operate_by_stake_level' => trim($this->mapping_level),
+                            'operate_by_ruralurbancode' => intval($this->is_urban),
+                            'ip_address' => request()->ip(),
+                            'user_agent' => $request->header('User-Agent'),
+                            'operation_time' => $mytime
+                        );
+                        $trailSave = Users_audit_trail::create($inserttrail);
+                        $trail_id = $trailSave->id;
+                        if ($affetced &&  $trail_id) {
+                            DB::commit();
+                            $return_status = 1;
+                            $return_msg = "Duty status successfully changed";
+                        } else {
+                            DB::rollback();
+                            $return_status = 0;
+                            $return_text = $errormsg['roolback'];
+                            $return_msg = array("" . $return_text);
+                        }
+                    } else {
+                        $return_status = 0;
+                        $return_text = "Duplicate Data";
+                        $return_msg = array("" . $return_text);
+                    }
+                } else {
+                    $return_status = 0;
+                    $return_text = "No Duty Exist with this Id";
+                    $return_msg = array("" . $return_text);
+                }
+            } else {
+                $return_status = 0;
+                $return_text = $errormsg['notauthorized'];
+                $return_msg = array("" . $return_text);
+            }
+        } else {
+            $return_status = 0;
+            $return_msg = $validator->errors()->all();
+        }
+        return response()->json(['return_status' => $return_status, 'return_msg' => $return_msg]);
+    }
+    function checkDuplicate($arr)
+    {
+        $where = [];
+        if ($arr['user_id'] != '')
+            $where[] = ['user_id', '=', $arr['user_id']];
+        if ($arr['is_active'] != '')
+            $where[] = ['is_active', '=', $arr['is_active']];
+        if ($arr['scheme_id'] != '')
+            $where[] = ['scheme_id', '=', $arr['scheme_id']];
+        if ($arr['district_code'] != '')
+            $where[] = ['district_code', '=', $arr['district_code']];
+        if ($arr['mapping_level'] != '')
+            $where[] = ['mapping_level', '=', $arr['mapping_level']];
+        if ($arr['urban_body_code'] != '')
+            $where[] = ['urban_body_code', '=', $arr['urban_body_code']];
+        if ($arr['taluka_code'] != '')
+            $where[] = ['taluka_code', '=', $arr['taluka_code']];
+        if ($arr['is_urban'] != '')
+            $where[] = ['is_urban', '=', $arr['is_urban']];
+        $query = Configduty::with(['user'])->where($where);
+        $designation_id =  $arr['designation_id'];
+
+        if (!empty($designation_id)) {
+            $query = $query->whereHas('user', function ($query1) use ($designation_id) {
+                $query1->where('designation_id', $designation_id);
+            });
+        }
+        //dd($designation_id);
+        if ($query->count() == 0)
+            return true;
+        else
+            return false;
+    }
+    public function mapNewScheme(Request $request)
+    {
+        $return_status=0;
+        $return_msg='';
+        $validator = Validator::make($request->all(), [
+            'user_id' => 'required|integer',
+            'scheme_id_list' => 'required'
+        ]);
+        if ($validator->passes()) {
+            $designation_id = $this->designation_id;
+            $user_id_session = Auth::user()->id;
+            $scheme_id=$request->scheme_id_list;
+            $post_user_id=$request->user_id;
+            //$scheme_id_in=explode (",", $scheme_id); 
+            $scheme_id_in=$scheme_id; 
+
+           
+            //dd($scheme_id_in);
+            $cnt = Configduty::where('user_id', $user_id_session)
+            ->whereIn('scheme_id', $scheme_id_in)
+            ->count(DB::raw('DISTINCT scheme_id'));
+
+            // if($post_user_id=='3713')
+            // {
+
+            //     dd($cnt, $scheme_id_in);
+            // }
+            if($cnt!==count($scheme_id_in)){
+                return response()->json(['return_status' => 0, 'return_msg' => 'Not Allowded1']);
+            }
+            $user_row=User::where('id',$post_user_id)->first();
+            if(empty($user_row)){
+                return response()->json(['return_status' => 0, 'return_msg' => 'User Not Found']);
+            }
+            if($user_row->is_active==0){
+                return response()->json(['return_status' => 0, 'return_msg' => 'User is inActive']);
+            }
+            $assign_designation_id=$user_row->designation_id;
+            if ($designation_id == 'HOD'){
+                if (!in_array($assign_designation_id,array('Approver','Verifier','Operator','MisState','Dashboard'))){
+                    return response()->json(['return_status' => 0, 'return_msg' => 'Not Allowded2']);
+                }
+
+            } 
+            elseif ($designation_id == 'Approver'){
+                if (!in_array($assign_designation_id,array('Verifier','Operator'))){
+                    return response()->json(['return_status' => 0, 'return_msg' => 'Not Allowded3']);
+                }
+                
+            } 
+           elseif ($designation_id == 'Verifier'){
+              if (!in_array($assign_designation_id,array('Operator'))){
+                return response()->json(['return_status' => 0, 'return_msg' => 'Not Allowded4']);
+              }
+            } 
+            $duty_row=Configduty::where('user_id',$post_user_id)->first();
+            $errormsg = Config::get('constants.errormsg');
+            $c_time = date('Y-m-d H:i:s', time());
+            DB::beginTransaction();
+            $i=0;
+            foreach ($scheme_id_in as $input) {
+                $Configduty = new Configduty;
+                $Configduty->created_at = $c_time;
+                $Configduty->created_by = $user_id_session;
+                $Configduty->user_id = $user_row->id;
+                if (in_array($assign_designation_id,array('HOD','MisState','Dashboard'))){
+                    $mapping_level='Department';
+                }
+                if (in_array($assign_designation_id,array('Approver'))){
+                    $mapping_level='District';
+                }
+                if (in_array($assign_designation_id,array('Approver','Verifier','Operator'))){
+                 $Configduty->district_code = $duty_row->district_code;
+                }
+                if (in_array($assign_designation_id,array('Verifier','Operator'))){
+                    $Configduty->is_urban = $duty_row->is_urban;
+                    if( $duty_row->is_urban==1){
+                        $Configduty->urban_body_code = $duty_row->urban_body_code;
+                        $mapping_level='Subdiv';
+                    }
+                    else if($duty_row->is_urban==2){
+                        $Configduty->taluka_code = $duty_row->taluka_code;
+                        $mapping_level='Block';
+                    }
+                    
+                }
+                $Configduty->mapping_level =  $mapping_level;
+                $Configduty->is_active = 1;
+                $Configduty->scheme_id = $input;
+                $Configduty->action_by = Auth::user()->id;
+                $Configduty->action_ip_address=request()->ip();
+                $Configduty->action_type =class_basename(request()->route()->getAction()['controller']);
+                if($Configduty->save()){
+                 $i++;
+                }
+            }
+            if(count($scheme_id_in)==$i){
+                $inserttrail = array(
+                    'operation_type' => 3,
+                    'operate_by' => $user_id_session,
+                    'operate_to_user_id' => $user_row->id,
+                    'ip_address' => request()->ip(),
+                    'user_agent' => $request->header('User-Agent'),
+                    'operation_time' => $c_time
+                );
+                $trailSave = Users_audit_trail::create($inserttrail);
+                $trail_id = $trailSave->id;
+                if($trail_id){
+                    $msg = 'Schemes has been added to the Duty for User with Mobile Number ' . $user_row->mobile_no;
+                    DB::commit();
+                    return response()->json(['return_status' => 1, 'return_msg' => $msg]);
+
+                }
+            }
+            else{
+                DB::rollback();
+                $msg = 'Some Error.. Please try later';
+                return response()->json(['return_status' => $return_status, 'return_msg' => $msg]);
+            }
+        }
+        else{
+            $return_status = 0;
+            $return_msg = $validator->errors()->all();
+            return response()->json(['return_status' => $return_status, 'return_msg' => $return_msg]);
+        }
+        return response()->json(['return_status' => $return_status, 'return_msg' => $return_msg]);
+    }
+}

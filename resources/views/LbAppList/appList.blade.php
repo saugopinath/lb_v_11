@@ -8,8 +8,6 @@
     padding: 15px 20px;
     border-bottom: 1px solid rgba(0, 0, 0, 0.1);
   }
-  
-  
 </style>
 @extends('layouts.app-template-datatable')
 @section('content')
@@ -78,7 +76,7 @@
                           @foreach($ds_phase_list as $ds_row)
                             <option value="{{$ds_row->phase_code}}">{{$ds_row->phase_des}}</option>
                           @endforeach 
-                           <option value="">Normal Entry</option>
+                           <option value="0">Normal Entry</option>
                           </select>
                           <span id="error_ds_phase" class="text-danger"></span>
                       </div>
@@ -392,7 +390,7 @@ function initializeDataTable() {
       }
 
       dataTable = $('#example').DataTable({
-        // dom: 'Blfrtip',
+        dom: 'Blfrtip',
         "paging": true,
         "pageLength": 20,
         "lengthMenu": [
@@ -411,9 +409,9 @@ function initializeDataTable() {
           "zeroRecords": "No matching records found"
         },
         "ajax": {
-        
-          "url": "{{ URL('lb-applicant-list/'.$list_type )}}",
-          "type": "POST",
+         // "url": "{{url('lb-applicant-list')}}",
+          "url": "{{ URL('lb-applicant-list-datatable/'.$list_type )}}",
+          "type": "GET",
           "data": function(d) {
             d.ds_phase = $("#ds_phase").val();
             d.rural_urbanid = $("#rural_urbanid").val();
@@ -425,7 +423,7 @@ function initializeDataTable() {
             console.error("DataTables AJAX error:", thrown);
             if (xhr.status === 401 || xhr.status === 419) {
               alert(sessiontimeoutmessage);
-               window.location.href = base_url;
+              window.location.href = base_url;
             } else {
               alert("An error occurred while loading data: " + thrown);
             }
@@ -433,19 +431,15 @@ function initializeDataTable() {
         },
         "columns": [{
             "data": "application_id",
-            "className": "text-center",
-            "searchable": false
-
+            "className": "text-center"
           },
           {
             "data": "name",
-            "className": "text-center",
-            "searchable": true
+            "className": "text-center"
           },
           {
             "data": "mobile_no",
-            "className": "text-center",
-            "searchable": false
+            "className": "text-center"
           },
             {
             "data": "father_name",
@@ -458,10 +452,101 @@ function initializeDataTable() {
             "searchable": false
           }
         ],
-       
-    });  
-  }
-function closeError(divId) {
+        "buttons": [{
+            extend: 'pdf',
+            footer: true,
+            exportOptions: {
+              columns: [0, 1, 2, 3]
+            },
+            className: 'table-action-btn'
+          },
+          {
+            extend: 'print',
+            footer: true,
+            exportOptions: {
+              columns: [0, 1, 2, 3]
+            },
+            className: 'table-action-btn'
+          },
+          {
+            extend: 'excel',
+            footer: true,
+            exportOptions: {
+              columns: [0, 1, 2, 3]
+            },
+            className: 'table-action-btn'
+          },
+          {
+            extend: 'copy',
+            footer: true,
+            exportOptions: {
+              columns: [0, 1, 2, 3]
+            },
+            className: 'table-action-btn'
+          },
+          {
+            extend: 'csv',
+            footer: true,
+            exportOptions: {
+              columns: [0, 1, 2, 3]
+            },
+            className: 'table-action-btn'
+          }
+        ]
+      });
+    }
+
+    initializeDataTable();
+
+    $('#search_sws').click(function() {
+      dataTable.ajax.reload();
+    });
+    $('#munc_id').change(function() {
+      var muncid=$(this).val();
+      if(muncid!=''){
+          var htmlOption='<option value="">--All--</option>';
+          $.each(ulb_wards, function (key, value) {
+                if(value.urban_body_code==muncid){
+                    htmlOption+='<option value="'+value.id+'">'+value.text+'</option>';
+                }
+            });
+        $('#ward_id').html(htmlOption);
+      }
+      else{
+         $('#ward_id').html('<option value="">--All --</option>');
+      }
+    
+    });
+    $(document).on('click', '.rej-btn', function() {
+      var benid = $(this).val();
+      $('#faultyReject #application_id').val(benid);
+      $('#application_text_approve').text(benid);
+      $('#modalReject').modal('show');
+    });
+
+    $('.modal-submitapprove').on('click', function(e) {
+      e.preventDefault();
+      var reject_cause = $("#reject_cause").val();
+      if (reject_cause != '') {
+        $(".modal-submitapprove").hide();
+        $("#submittingapprove").show();
+        $("#faultyReject").submit();
+      } else {
+        alert('Please Select Rejection Cause');
+        $("#reject_cause").focus();
+        return false;
+      }
+    });
+
+    $('#modalReject').on('hidden.bs.modal', function() {
+      $(".modal-submitapprove").show();
+      $("#submittingapprove").hide();
+      $("#reject_cause").val('');
+    });
+  });
+
+
+  function closeError(divId) {
     $('#' + divId).hide();
   }
 

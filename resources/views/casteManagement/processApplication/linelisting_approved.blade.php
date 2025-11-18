@@ -744,7 +744,8 @@ $('#check_all_btn').on('change', function () {
       var benid_explode=benidArr.split('_');
       var benid=benid_explode[0];
       var is_faulty=benid_explode[1];
-     // alert(is_faulty);
+    //  alert(is_faulty);
+    //  alert(benid);
       $('#fullForm #application_id').val(benid);
       $('#fullForm #is_faulty').val(is_faulty);
       $('.applicant_id_modal').html(benid);

@@ -37,10 +37,10 @@ class User extends Authenticatable implements Auditable
 
     public function employee()
     {
-        return $this->belongsTo('App\Employee', 'emp_id', 'id');
+        return $this->belongsTo('App\Models\Employee', 'emp_id', 'id');
     }
     public function duty()
     {
-        return $this->hasMany('App\Configduty', 'user_id', 'id');
+        return $this->hasMany('App\Models\Configduty', 'user_id', 'id');
     }
 }

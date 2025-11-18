@@ -26,30 +26,26 @@
         overflow-y: hidden;
         white-space: nowrap;
         box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
-        display: flex;
     }
 
     .timeline-scroller {
-
         overflow-x: auto;
         white-space: nowrap;
         padding: 0;
-        display: flex;
+        display: inline-block;
         position: relative;
         width: 100%;
-        padding-top: 10px;
     }
 
     .timeline {
         display: flex;
         gap: 24px;
         min-height: 200px !important;
-        /* padding: 16px 8px; */
+        padding: 16px 8px;
         position: relative;
         align-items: flex-start;
         justify-content: center;
-        padding-top: 10px;
-        margin: 0% !important;
+        margin-bottom: 10px;
     }
 
     .tl-card {
@@ -278,8 +274,7 @@
         </div>
     </div>
     <hr>
-
-
+    <!-- Payment Status Section -->
      <h4 class="text-center fw-bold text-success mb-3 paymentStatusDiv" style="display:none;">Payment Status (Beneficiary Id- <span class="span_ben_id"></span>)</h4>
      <div class="alert alert-danger" role="alert" id="payment_error_msg_div" style="display:none;"></div>
 
@@ -289,17 +284,17 @@
                 
               </h2>
               <div
-
                 id="collapseOne"
-                class="accordion-collapse collapse"
-                data-parent="#paymentAccordion">
+                class="accordion-collapse collapse show"
+                data-bs-parent="#paymentAccordion"
+              >
                 <div class="accordion-body">
-                    <div class="row mb-3 align-items-center">
-                        <div class="col-md-6">
-                            <label>Which financial year you want to view payment
-                                status?</label>
-                        </div>
-                       
+                  <div class="row mb-3 align-items-center">
+                    <div class="col-md-6">
+                      <label
+                        >Which financial year you want to view payment
+                        status?</label
+                      >
                     </div>
                     <div class="col-md-6">
                       <select class="form-select w-auto d-inline-block"  onchange="changeFinancialYear(this.value)" id="fin_year">
@@ -343,9 +338,9 @@
                     </table>
                   </div>
                 </div>
+              </div>
             </div>
-        </div>
-    </div>
+          </div>
 </div>
 
 @push('scripts')
@@ -578,61 +573,11 @@
             document.body.innerHTML = originalContents;
         }
    
-
-
-    // Delegated click handler for accordion toggle
-    $('#paymentAccordion').on('click', '.accordion-button', function(e) {
-        e.preventDefault();
-
-        const $btn = $(this);
-
-        // Accept data-target, data-bs-target or aria-controls (with/without #)
-        let targetSelector = $btn.attr('data-target') || $btn.attr('data-bs-target') || null;
-        if (!targetSelector) {
-            const aria = $btn.attr('aria-controls');
-            if (aria) targetSelector = '#' + aria;
-        }
-
-        if (!targetSelector) return; // nothing to do
-        // normalize to selector string beginning with '#'
-        if (targetSelector.charAt(0) !== '#') targetSelector = '#' + targetSelector;
-
-        const $target = $(targetSelector);
-        if ($target.length === 0) return;
-
-        // If visible -> collapse it
-        if ($target.is(':visible')) {
-            $target.slideUp(200, function() {
-                $target.removeClass('show').hide();
-            });
-            $btn.addClass('collapsed').attr('aria-expanded', 'false');
-
-        } else {
-            // Close other panels in the same accordion
-            const parentAccordionId = $btn.closest('.accordion').attr('id');
-            if (parentAccordionId) {
-                // find visible panes and hide them
-                $('#' + parentAccordionId + ' .accordion-collapse').not($target).each(function() {
-                    const $other = $(this);
-                    if ($other.is(':visible')) {
-                        $other.slideUp(200, function() {
-                            $other.removeClass('show').hide();
-                        });
-                        buttonsForPaneId(this.id).addClass('collapsed').attr('aria-expanded', 'false');
-                    }
-                });
-            }
-
-            // Open the target pane
-            $target.slideDown(200, function() {
-                $target.addClass('show');
-            });
-            $btn.removeClass('collapsed').attr('aria-expanded', 'true');
-        }
+    $(document).ready(function() {
+        $('.open-payment-modal-btn').on('click', function() {
+            $('#ben_payment_view_modal').modal('show');
+        });
     });
-
-
 </script>
 @endpush
-
 @endsection

@@ -13,7 +13,7 @@ class DataSourceCommon extends Model implements Auditable
     use \OwenIt\Auditing\Auditable;
     protected $connection = 'pgsql';
 
-    protected $primaryKey = 'application_id';
+    protected $primaryKey = 'id';
 
     protected $guarded = [];
     public function getBenidAttribute()
