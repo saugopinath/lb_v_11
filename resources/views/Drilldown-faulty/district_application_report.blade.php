@@ -18,35 +18,30 @@
     background: transparent !important;
   }
 
-.card-header {
-  padding: 0;
+/* .card-header { */
+  /* padding: 0;
     border:0;
-}
+} */
 .card-title>a, .card-title>a:active{
   display:block;
   padding:5px;
   color:#555;
   font-size:8px;
   font-weight:bold;
-    text-transform:uppercase;
-    letter-spacing:1px;
+  text-transform:uppercase;
+  letter-spacing:1px;
   word-spacing:3px;
-    text-decoration:none;
+  text-decoration:none;
 }
-.card-header  a:before {
-   font-family: 'Glyphicons Halflings';
-   content: "\e114";
-   float: right;
-   transition: all 0.5s;
-}
+
 .card-header.active a:before {
     -webkit-transform: rotate(180deg);
     -moz-transform: rotate(180deg);
     transform: rotate(180deg);
 } 
-#enCloserTable tbody tr td{
+/* #enCloserTable tbody tr td{
   padding:10px 10px 10px 10px;
-}
+} */
 
 .modal-open {
 overflow: visible !important;
