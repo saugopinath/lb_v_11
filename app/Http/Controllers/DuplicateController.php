@@ -206,7 +206,7 @@ class DuplicateController extends Controller
         $data = $query->get();
         $data = $data->each(function ($item) {
             try {
-                 if (!empty($item['encoded_aadhar'])) {
+                if (!empty($item['encoded_aadhar'])) {
                     $item['original_aadhar'] = Crypt::decryptString($item['encoded_aadhar']);
                 } else {
                     $item['original_aadhar'] = '';
@@ -576,11 +576,11 @@ class DuplicateController extends Controller
             $condition[$contact_table . ".created_by_dist_code"] = $district_code;
             $condition[$aadhar_table . ".created_by_dist_code"] = $district_code;
             $condition[$personal_table . ".next_level_role_id"] = 0;
-            $limit = $request->input('length');
-            $offset = $request->input('start');
-            $totalRecords = 0;
-            $filterRecords = 0;
-            $data = array();
+            // $limit = $request->input('length');
+            // $offset = $request->input('start');
+            // $totalRecords = 0;
+            // $filterRecords = 0;
+            // $data = array();
             if (!empty($request->search['value']))
                 $serachvalue = $request->search['value'];
             else
@@ -613,9 +613,9 @@ class DuplicateController extends Controller
             }
             if (empty($serachvalue)) {
                 //$totalRecords = $query->count();
-                $totalRecords = $query->count($personal_table . '.application_id');
-                $data = $query->orderBy($personal_table . '.ben_fname')->orderBy($contact_table . '.gp_ward_name')->offset($offset)->limit($limit)->select('ben_fname', 'ben_mname', 'ben_lname', 'mobile_no', 'age_ason_01012021', 'ss_card_no', 'duare_sarkar_registration_no', 'gp_ward_name', 'block_ulb_name', $personal_table . '.application_id as application_id', $personal_table . '.beneficiary_id as beneficiary_id', $aadhar_table . '.encoded_aadhar', $aadhar_table . '.dup_modification')->get();
-                $filterRecords = count($data);
+                // $totalRecords = $query->count($personal_table . '.application_id');
+                $data = $query->orderBy($personal_table . '.ben_fname')->orderBy($contact_table . '.gp_ward_name')->select('ben_fname', 'ben_mname', 'ben_lname', 'mobile_no', 'age_ason_01012021', 'ss_card_no', 'duare_sarkar_registration_no', 'gp_ward_name', 'block_ulb_name', $personal_table . '.application_id as application_id', $personal_table . '.beneficiary_id as beneficiary_id', $aadhar_table . '.encoded_aadhar', $aadhar_table . '.dup_modification');
+                // $filterRecords = count($data);
             } else {
                 if (preg_match('/^[0-9]*$/', $serachvalue)) {
                     $query = $query->where(function ($query1) use ($serachvalue, $personal_table) {
@@ -630,23 +630,23 @@ class DuplicateController extends Controller
                         }
                     });
                     //$totalRecords = $query->count();
-                    $totalRecords = $query->count($personal_table . '.application_id');
-                    $data = $query->orderBy($personal_table . '.ben_fname')->orderBy($contact_table . '.gp_ward_name')->offset($offset)->limit($limit)->select('ben_fname', 'ben_mname', 'ben_lname', 'mobile_no', 'age_ason_01012021', 'ss_card_no', 'duare_sarkar_registration_no', 'gp_ward_name', 'block_ulb_name', $personal_table . '.application_id as application_id', $personal_table . '.beneficiary_id as beneficiary_id', $aadhar_table . '.encoded_aadhar', $aadhar_table . '.dup_modification')->get();
+                    // $totalRecords = $query->count($personal_table . '.application_id');
+                    $data = $query->orderBy($personal_table . '.ben_fname')->orderBy($contact_table . '.gp_ward_name')->select('ben_fname', 'ben_mname', 'ben_lname', 'mobile_no', 'age_ason_01012021', 'ss_card_no', 'duare_sarkar_registration_no', 'gp_ward_name', 'block_ulb_name', $personal_table . '.application_id as application_id', $personal_table . '.beneficiary_id as beneficiary_id', $aadhar_table . '.encoded_aadhar', $aadhar_table . '.dup_modification');
                 } else {
                     $query = $query->where(function ($query1) use ($serachvalue, $personal_table, $contact_table) {
                         $query1->where($personal_table . '.ben_fname', 'like', $serachvalue . '%')
                             ->orWhere($contact_table . '.block_ulb_name', 'like', $serachvalue . '%');
                     });
                     //$totalRecords = $query->count();
-                    $totalRecords = $query->count($personal_table . '.application_id');
-                    $data = $query->orderBy($personal_table . '.ben_fname')->orderBy($contact_table . '.gp_ward_name')->offset($offset)->limit($limit)->select('ben_fname', 'ben_mname', 'ben_lname', 'mobile_no', 'age_ason_01012021', 'ss_card_no', 'duare_sarkar_registration_no', 'gp_ward_name', 'block_ulb_name', $personal_table . '.application_id as application_id', $personal_table . '.beneficiary_id as beneficiary_id', $aadhar_table . '.encoded_aadhar', $aadhar_table . '.dup_modification')->get();
+                    // $totalRecords = $query->count($personal_table . '.application_id');
+                    $data = $query->orderBy($personal_table . '.ben_fname')->orderBy($contact_table . '.gp_ward_name')->select('ben_fname', 'ben_mname', 'ben_lname', 'mobile_no', 'age_ason_01012021', 'ss_card_no', 'duare_sarkar_registration_no', 'gp_ward_name', 'block_ulb_name', $personal_table . '.application_id as application_id', $personal_table . '.beneficiary_id as beneficiary_id', $aadhar_table . '.encoded_aadhar', $aadhar_table . '.dup_modification');
                 }
-                $filterRecords = count($data);
+                // $filterRecords = count($data);
             }
             return datatables()->of($data)
-                ->setTotalRecords($totalRecords)
-                ->setFilteredRecords($filterRecords)
-                ->skipPaging()
+                // ->setTotalRecords($totalRecords)
+                // ->setFilteredRecords($filterRecords)
+                // ->skipPaging()
                 ->addColumn('view', function ($data) {
 
                     if ($data->dup_modification == 2) {

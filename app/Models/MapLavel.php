@@ -18,22 +18,22 @@ class MapLavel extends Model
 
     public function schemename()
     {
-        return $this->belongsTo('App\Scheme','scheme_id','id');
+        return $this->belongsTo('App\Models\Scheme','scheme_id','id');
     }
 
     public function designationname()
     {
-        return $this->belongsTo('App\Designation','role_id','id');
+        return $this->belongsTo('App\Models\Designation','role_id','id');
     }
 
     public function parentdesignationname()
     {
-        return $this->belongsTo('App\MapLavel','parent_id','id');
+        return $this->belongsTo('App\Models\MapLavel','parent_id','id');
     }
 
     public function parent()
     {
-        return $this->hasOne('App\MapLavel','id','parent_id');
+        return $this->hasOne('App\Models\MapLavel','id','parent_id');
     }    
 
 }

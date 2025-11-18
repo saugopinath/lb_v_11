@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Http\Controllers;
+use App\Models\Configduty;
 use Illuminate\Http\Request;
 use App\Models\User;
 use App\Http\Requests\LoginRequest;
@@ -81,6 +82,8 @@ Government of West Bengal.';
             $snd_sms = $this->sendsmsService->sendSms($userData['mobile_no'], $message);
             $smsTrack = $this->sendsmsService->SmstrackInsert($userObj->id, $userData['mobile_no'], $otp, $message);
             $lastOtpStore = $this->authenticationService->userLastOtpStore($userObj->id, $otp);
+
+            
             if ($snd_sms && $smsTrack && $lastOtpStore) {
                 DB::commit();
                 return redirect()->route('otp-validate', ['source_type' => Crypt::encrypt(2), 'token_id' => Crypt::encrypt($userObj->id)])->with('success', __('messages.otpsend'));
@@ -120,6 +123,7 @@ Government of West Bengal.';
             $smsTrack = $this->sendsmsService->SmstrackInsert($user_obj->id, $userData['mobile_no'], $otp, $message);
             $lastOtpStore = $this->authenticationService->userLastOtpStore($user_obj->id, $otp);
             //dump($snd_sms);dump($smsTrack);dd($lastOtpStore);
+            $this->sessionPut($user_obj->id);
             if ($snd_sms && $smsTrack && $lastOtpStore) {
                 DB::commit();
                 return redirect()->route('otp-validate', ['source_type' => Crypt::encrypt(1), 'token_id' => Crypt::encrypt($user_obj->id)])->with('success', __('messages.otpsend'));
@@ -128,7 +132,7 @@ Government of West Bengal.';
                 return back()->withErrors(['errors' => [__('messages.dbroolback')]]);
             }
         } catch (\Exception $e) {
-            dd($e);
+            // dd($e);
             return back()->withErrors(['errors' => [__('messages.dbroolback')]]);
 
         }
@@ -282,7 +286,7 @@ Government of West Bengal.';
 
         return redirect('/login');
     }
-     public function login1()
+    public function login1()
     {
         if (Auth::check()) {
             // dd('ok');
@@ -293,16 +297,24 @@ Government of West Bengal.';
     }
     public function login1Post(Login1Request $request)
     {
-         $userData = $request->validated();
-         $userObj = $this->userService->findbyMobileandOtp($userData['mobile_no'],$userData['login_otp']);
-         if (is_null($userObj)) {
-                    $valid = 0;
-                    return back()->withErrors(['mobile_no' => [__('messages.mobilenonotregister')]]);
-         }   
-         $user = User::where('id', $userObj->id)->where('is_active', 1)->first();
-         $request->session()->flush();
-         Auth::login($user);
-         return redirect('/dashboard');  
+        $userData = $request->validated();
+        $userObj = $this->userService->findbyMobileandOtp($userData['mobile_no'], $userData['login_otp']);
+        if (is_null($userObj)) {
+            $valid = 0;
+            return back()->withErrors(['mobile_no' => [__('messages.mobilenonotregister')]]);
+        }
+        $user = User::where('id', $userObj->id)->where('is_active', 1)->first();
+        $request->session()->flush();
+        Auth::login($user);
+        $this->sessionPut($user->id);
+        return redirect('/dashboard');
+    }
+
+    public function sessionPut($user_id){
+        session()->put('role_id', $user_id);
+        session()->put('scheme_id', 20);
+        $role = Configduty::where('user_id', '=', $user_id)->where('is_active', 1)->get();
+        session()->put('role', $role);
     }
 
 }

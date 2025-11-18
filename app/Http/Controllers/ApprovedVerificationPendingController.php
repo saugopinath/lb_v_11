@@ -3,9 +3,9 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\User;
-use App\District;
-use App\Scheme;
+use App\Models\User;
+use App\Models\District;
+use App\Models\Scheme;
 use Redirect;
 use Auth;
 use Illuminate\Support\Facades\Input;
@@ -14,24 +14,24 @@ use Illuminate\Support\Facades\DB;
 use Validator;
 use DateTime;
 use Config;
-use App\Configduty;
+use App\Models\Configduty;
 use Maatwebsite\Excel\Facades\Excel;
 use Maatwebsite\Excel\Concerns\WithProperties;
-use App\DataSourceCommon;
-use App\getModelFunc;
+use App\Models\DataSourceCommon;
+use App\Models\getModelFunc;
 use Illuminate\Support\Facades\Crypt;
-use App\RejectRevertReason;
-use App\AadharDuplicateTrail;
-use App\SubDistrict;
-use App\Taluka;
-use App\DocumentType;
+use App\Models\RejectRevertReason;
+use App\Models\AadharDuplicateTrail;
+use App\Models\SubDistrict;
+use App\Models\Taluka;
+use App\Models\DocumentType;
 use Illuminate\Support\Facades\Storage;
-use App\SchemeDocMap;
+use App\Models\SchemeDocMap;
 use File;
-use App\BankDetails;
-use App\UrbanBody;
-use App\Ward;
-use App\GP;
+use App\Models\BankDetails;
+use App\Models\UrbanBody;
+use App\Models\Ward;
+use App\Models\GP;
 use Carbon\Carbon;
 use App\Helpers\Helper;
 
@@ -50,6 +50,7 @@ class ApprovedVerificationPendingController extends Controller
     {
         $designation = Auth::user()->designation_id;
         $userId = Auth::user()->id;
+        // dd($userId);
         $duty = Configduty::where('user_id', $userId)->where('district_code', 315)->first();
         if (($designation == 'Approver' || $designation == 'Delegated Approver') && $duty->district_code == 315) {
             $gpWardLists = Ward::where('district_code', 315)

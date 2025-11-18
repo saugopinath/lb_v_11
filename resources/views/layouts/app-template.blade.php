@@ -34,9 +34,9 @@
     <link rel="stylesheet" href="{{ asset('AdminLTE_3/plugins/fontawesome-free/css/all.min.css') }}">
     <link rel="stylesheet" href="{{ asset('AdminLTE_3/dist/css/adminlte.min.css') }}">
     <link rel="stylesheet" href="{{ asset('bootstrap-5/css/bootstrap.min.css') }}" type="text/css" />
-    <!-- <link rel="stylesheet" href="{{ asset('css/jquery-confirm.min.css') }}" type="text/css" /> -->
+    <link rel="stylesheet" href="{{ asset('css/jquery-confirm.min.css') }}" type="text/css" />
     <link rel="stylesheet" href="{{ asset('css/global.css') }}" type="text/css" />
-    <link rel="stylesheet" href="{{ asset('css/sweetalert2.min.css') }}" type="text/css" />
+    <!-- <link rel="stylesheet" href="{{ asset('css/sweetalert2.min.css') }}" type="text/css" /> -->
 
 
 
@@ -68,8 +68,9 @@
     <script src="{{ asset('js/jquery-3.7.1.min.js') }}"></script>
     <script src="{{ asset('bootstrap-5/js/bootstrap.bundle.min.js') }}"></script>
     <script src="{{ asset('AdminLTE_3/dist/js/adminlte.js') }}"></script>
-    <!-- <script src="{{ asset('js/jquery-confirm.min.js') }}"></script> -->
-    <script src="{{ asset('js/sweetalert2.all.min.js') }}"></script>
+    <script src="{{ asset('js/jquery-confirm.min.js') }}"></script>
+    <script src="{{ asset('js/jquery.validate.min.js') }}"></script>
+    <!-- <script src="{{ asset('js/sweetalert2.all.min.js') }}"></script> -->
 
 
 
@@ -81,6 +82,10 @@
     @stack('scripts')
 
     <script>
+        var s = document.createElement('script');
+        s.src = "{{ asset('js/jquery-confirm.min.js') }}";
+        document.head.appendChild(s);
+
 
         $(document).ready(function () {
             //         $.alert({
@@ -132,68 +137,7 @@
             });
         }
     </script>
-    <script>
-        // Global function to replace $.confirm with SweetAlert2
-        window.showConfirm = function (options) {
 
-            Swal.fire({
-                title: options.title || '',
-                html: options.content || '',
-                icon: convertToSwalIcon(options.type),
-                showCancelButton: options.buttons && options.buttons.Cancel ? true : false,
-                confirmButtonText: options.buttons && options.buttons.Ok ? 'Ok' : 'OK',
-                cancelButtonText: 'Cancel'
-            }).then((result) => {
-
-                if (result.isConfirmed && options.buttons && typeof options.buttons.Ok === "function") {
-                    options.buttons.Ok();
-                }
-
-                if (result.dismiss === Swal.DismissReason.cancel &&
-                    options.buttons &&
-                    typeof options.buttons.Cancel === "function") {
-                    options.buttons.Cancel();
-                }
-            });
-        };
-
-        // Global function to replace $.alert with SweetAlert2
-        window.showAlert = function (options) {
-
-            Swal.fire({
-                title: options.title || '',
-                html: options.content || '',
-                icon: convertToSwalIcon(options.type),
-                iconColor: options.type === 'red' ? '#ff0000' : '',
-                confirmButtonText: 'OK'
-            });
-        };
-
-        // Convert old jquery-confirm icon types to SweetAlert2 types
-        function convertToSwalIcon(type) {
-            switch (type) {
-                case 'red':
-                case 'error':
-                    return 'error';
-
-                case 'green':
-                case 'success':
-                    return 'success';
-
-                case 'orange':
-                case 'warning':
-                    return 'warning';
-
-                case 'blue':
-                case 'info':
-                    return 'info';
-
-                default:
-                    return 'question';
-            }
-        }
-
-    </script>
 </body>
 
 </html>
