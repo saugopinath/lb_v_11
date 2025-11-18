@@ -2450,7 +2450,7 @@ class casteManagementController extends Controller
             } else
                 $return_msg = "Beneficiary Caste Modification with Application Id:" . $row->application_id . " " . $message;
         } catch (\Exception $e) {
-            // dd($e);
+            dd($e);
             $return_status = 0;
             $return_msg = $errormsg['roolback'];
             $return_msg = $e;

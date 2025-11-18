@@ -131,22 +131,22 @@
               <div class="row mb-2">
                 <div class="col-md-4">
                   <div class="modal_field_name">Police Station:</div>
-                  <div class="modal_field_value" id="police_station_modal">{{trim($row_contact->police_station)}}</div>
+                  <div class="modal_field_value" id="police_station_modal">{{trim($row_contact->police_station ?? '')?: 'N/A' }}</div>
                 </div>
                 <div class="col-md-4">
                   <div class="modal_field_name">Block/Municipality/Corp:</div>
-                  <div class="modal_field_value" id="block_modal">{{trim($row_contact->block_ulb_name)}}</div>
+                  <div class="modal_field_value" id="block_modal">{{trim($row_contact->block_ulb_name?? '')?: 'N/A' }}</div>
                 </div>
                 <div class="col-md-4">
                   <div class="modal_field_name">GP/Ward No.:</div>
-                  <div class="modal_field_value" id="gp_ward_modal">{{trim($row_contact->gp_ward_name)}}</div>
+                  <div class="modal_field_value" id="gp_ward_modal">{{trim($row_contact->gp_ward_name?? '')?: 'N/A' }}</div>
                 </div>
               </div>
 
               <div class="row mb-4">
                 <div class="col-md-4">
                   <div class="modal_field_name">Village/Town/City:</div>
-                  <div class="modal_field_value" id="village_modal">{{trim($row_contact->village_town_city )}}</div>
+                  <div class="modal_field_value" id="village_modal">{{trim($row_contact->village_town_city ?? '')?: 'N/A' }}</div>
                 </div>
                 <div class="col-md-4">
                   <div class="modal_field_name">House / Premise No:</div>
@@ -155,7 +155,7 @@
                 </div>
                 <div class="col-md-4">
                   <div class="modal_field_name">Pin Code:</div>
-                  <div class="modal_field_value" id="pin_code_modal">{{trim($row_contact->pincode)}}</div>
+                  <div class="modal_field_value" id="pin_code_modal">{{trim($row_contact->pincode)?? '')?: 'N/A' }}</div>
                 </div>
               </div>
 

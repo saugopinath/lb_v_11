@@ -1125,7 +1125,7 @@ $(document).ready(function() {
     var is_bulk = $('#is_bulk').val();
     var id = $('#id').val();
     var valid=1;
-    
+    // alert(opreation_type);
     if(opreation_type=='R' || opreation_type=='T'){
       if(reject_cause==''){
         $.alert({
@@ -1139,6 +1139,7 @@ $(document).ready(function() {
     }
     
     if(valid==1){
+      // alert('ok');
       $.confirm({
         title: 'Warning',
         type: 'orange',

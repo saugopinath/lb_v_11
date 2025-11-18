@@ -184,8 +184,7 @@
                         <td id="aadhar_no_encrypt" width="30%">-</td>
                         <td id="aadhar_no_original" style="display:none;" width="30%">-</td>
                         <td width="20%">
-                          <button class="btn btn-outline-info btn-sm showhideAadhar" id="show_hide_aadhar">Show Original Aadhaar
-                          </button>
+                          <button class="btn btn-outline-info btn-sm showhideAadhar" id="show_hide_aadhar">Show Original Aadhaar</button>
                         </td>
                       </tr>
                       <tr>
