@@ -1,7 +1,7 @@
 <?php
 namespace App\Traits;
-use App\getModelFunc;
-use App\DataSourceCommon;
+use App\Models\getModelFunc;
+use App\Models\DataSourceCommon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Cache;
 trait TraitAadharUpdate{
