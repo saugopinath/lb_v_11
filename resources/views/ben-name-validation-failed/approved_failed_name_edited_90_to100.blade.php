@@ -410,7 +410,7 @@
             ],
             // lengthMenu: [[20, 50,100,500,1000, -1], [20, 50,100,500,1000, 'All']],
             processing: true,
-            serverSide: false,
+            serverSide: true,
             searchable: true,
             "oLanguage": {
                 "sProcessing": '<div class="preloader1" align="center"><img src="images/ZKZg.gif" width="150px"></div>'
@@ -484,7 +484,7 @@
             "columnDefs": [{
                 "targets": [0, 5, 6, 7, 8],
                 "orderable": false,
-                "searchable": false
+                // "searchable": false
             }],
 
             "buttons": [{
