@@ -179,7 +179,7 @@
 
             <div class="card-body p-2" style="font-size:14px;">
               <div class="table-responsive">
-                <table id="example" class="table table-bordered table-hover table-striped align-middle" width="100%">
+                <table id="example" class="data-table table-bordered table-hover table-striped align-middle" width="100%">
                   <thead class="table-light" style="font-size:12px;">
                     <tr>
                       <th>Grievance ID</th>
