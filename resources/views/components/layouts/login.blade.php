@@ -6,14 +6,14 @@
     <meta name="viewport" content="width=device-width, minimum-scale=0.1, initial-scale=1.0" />
     <title>Lakshmir Bhandar | Government of West Bengal</title>
     <link rel="icon" type="image/png" sizes="32x32" href="images/biswofab.png" />
-    <link href="https://fonts.googleapis.com/css?family=Open+Sans:400,600&display=swap" rel="stylesheet" />
     <link href="{{ asset('bootstrap-5.3.8-dist/css/bootstrap.min.css') }}" rel="stylesheet">
-    <!-- <link rel="stylesheet" href="{{ asset('css/fontawesome-free-5.15.4-web/css/all.min.css') }}" /> -->
-    <link rel="stylesheet" href="{{ asset('AdminLTE_3/plugins/fontawesome-free/css/all.min.css') }}" />
+     <link rel="stylesheet" href="{{ asset('css/fontawesome-free-5.15.4-web/css/all.min.css') }}" />
+    <link rel="stylesheet" href="{{ asset('css/fonts.css') }}" />
     <style>
+
         body {
             font-family: 'Open Sans', sans-serif;
-            background: url(images/background-cover.jpg) no-repeat center center fixed;
+            background: url(../images/background-cover.jpg) no-repeat center center fixed;
             background-size: cover;
             transition: background 0.5s ease, color 0.3s ease;
         }
@@ -22,7 +22,7 @@
         .inner-container {
             margin-top: 50px;
             width: 100%;
-            background: url(images/Login_Page_new.png) no-repeat center center;
+            background: url(../images/Login_Page_new.png) no-repeat center center;
             background-size: cover;
             padding: 20px;
             border-radius: 8px;
@@ -143,13 +143,13 @@
 
         /* Dark Mode */
         body.dark {
-            background: url(images/testimonial-bg_dr.png) no-repeat center center fixed;
+            background: url(../images/testimonial-bg_dr.png) no-repeat center center fixed;
             background-size: cover;
             color: #ffff00;
         }
 
         body.dark .inner-container {
-            background: url(images/Login_Page_dr.png) no-repeat center center;
+            background: url(../images/Login_Page_dr.png) no-repeat center center;
             background-size: cover;
         }
 
@@ -229,6 +229,7 @@
         .fa-sun {
             color: yellow;
         }
+
     </style>
 </head>
 
@@ -321,7 +322,7 @@
     <script src="{{ asset('bootstrap-5.3.8-dist/js/bootstrap.bundle.min.js') }}"></script>
     <script src="{{ asset('js/jquery-3.7.1.min.js') }}"></script>
 
-    <script>
+    <script type="text/javascript">
         // Input validation
         $('#mobile_no').on('input', function() {
             this.value = this.value.replace(/[^0-9]/g, '');
