@@ -22,15 +22,15 @@ use App\getModelFunc;
 use Illuminate\Support\Facades\Crypt;
 use App\RejectRevertReason;
 use App\AadharDuplicateTrail;
-use App\SubDistrict;
-use App\Taluka;
+use App\Models\SubDistrict;
+use App\Models\Taluka;
 use App\DocumentType;
 use Illuminate\Support\Facades\Storage;
 use App\SchemeDocMap;
 use File;
 use App\BankDetails;
 use App\Models\UrbanBody;
-use App\Ward;
+use App\Models\Ward;
 use App\Models\GP;
 use Carbon\Carbon;
 use App\Helpers\Helper;
@@ -102,56 +102,57 @@ class CmoGrivanceWorkflowController1 extends Controller
     }
     public function listing(Request $request)
     {
-        // dd($request->all());
-        if ($request->ajax()) {
-            $user_id = Auth::user()->id;
-            $designation = Auth::user()->designation_id;
-            $scheme_id = $this->scheme_id;
-            $mapObj = DB::connection('pgsql_mis')
-                ->table('public.duty_assignement')
-                ->where('user_id', $user_id)
-                ->where('is_active', 1)
-                ->first();
-            if ($designation == 'Verifier' || $designation == 'Delegated Verifier') {
-                $created_by_district_code = $mapObj->district_code;
-                if ($mapObj->is_urban == 1) {
-                    $mapLevel = 'SubdivVerifier';
-                    $created_by_local_body_code = $mapObj->urban_body_code;
+        try {
+            // dd($request->all());
+            if ($request->ajax()) {
+                $user_id = Auth::user()->id;
+                $designation = Auth::user()->designation_id;
+                $scheme_id = $this->scheme_id;
+                $mapObj = DB::connection('pgsql_mis')
+                    ->table('public.duty_assignement')
+                    ->where('user_id', $user_id)
+                    ->where('is_active', 1)
+                    ->first();
+                if ($designation == 'Verifier' || $designation == 'Delegated Verifier') {
+                    $created_by_district_code = $mapObj->district_code;
+                    if ($mapObj->is_urban == 1) {
+                        $mapLevel = 'SubdivVerifier';
+                        $created_by_local_body_code = $mapObj->urban_body_code;
+                    } else {
+                        $mapLevel = 'BlockVerifier';
+                        $created_by_local_body_code = $mapObj->taluka_code;
+                    }
+                } else if ($designation == 'Approver' || $designation == 'Delegated Approver') {
+                    $created_by_district_code = $mapObj->district_code;
+                    $mapLevel = 'DistrictApprover';
+                } else if ($designation == 'HOD') {
+                    $mapLevel = 'Department';
                 } else {
-                    $mapLevel = 'BlockVerifier';
-                    $created_by_local_body_code = $mapObj->taluka_code;
-                }
-            } else if ($designation == 'Approver' || $designation == 'Delegated Approver') {
-                $created_by_district_code = $mapObj->district_code;
-                $mapLevel = 'DistrictApprover';
-            } else if ($designation == 'HOD') {
-                $mapLevel = 'Department';
-            } else {
-                return redirect('/')->with('success', 'UnAuthorized');
-            }
-
-            $process_type = $request->process_type;
-            $whereCondition = ' 1=1 ';
-
-            if ($mapLevel == 'BlockVerifier' || $mapLevel == 'SubdivVerifier') {
-                $whereCondition = $whereCondition . " and lb_dist_code='" . $created_by_district_code . "'";
-                $whereCondition = $whereCondition . " and lb_local_body_code='" . $created_by_local_body_code . "'";
-                if ($process_type == 1) {
-                    $whereCondition = $whereCondition . ' and is_processed = 0 and send_to_op = 0';
-                } else if ($process_type == 2) {
-                    $whereCondition = $whereCondition . ' and is_processed = 1';
-                } else if ($process_type == 3) {
-                    $whereCondition = $whereCondition . ' and is_processed = 2';
-                } else if ($process_type == 4) {
-                    $whereCondition = $whereCondition . ' and is_processed = 3';
-                } else if ($process_type == 5) {
-                    $whereCondition = $whereCondition . ' and send_to_op = 1 and is_processed = 0';
+                    return redirect('/')->with('success', 'UnAuthorized');
                 }
 
+                $process_type = $request->process_type;
+                $whereCondition = ' 1=1 ';
 
-                $query = "Select grievance_id,applicant_name,pri_cont_no,created_on,is_processed,is_redressed,is_mark,is_change_block,lb_dist_code,lb_local_body_code, send_to_op from cmo.cmo_sm_data  where  " . $whereCondition . "";
-            }
-            /*elseif ($mapLevel == 'SubdivVerifier') {
+                if ($mapLevel == 'BlockVerifier' || $mapLevel == 'SubdivVerifier') {
+                    $whereCondition = $whereCondition . " and lb_dist_code='" . $created_by_district_code . "'";
+                    $whereCondition = $whereCondition . " and lb_local_body_code='" . $created_by_local_body_code . "'";
+                    if ($process_type == 1) {
+                        $whereCondition = $whereCondition . ' and is_processed = 0 and send_to_op = 0';
+                    } else if ($process_type == 2) {
+                        $whereCondition = $whereCondition . ' and is_processed = 1';
+                    } else if ($process_type == 3) {
+                        $whereCondition = $whereCondition . ' and is_processed = 2';
+                    } else if ($process_type == 4) {
+                        $whereCondition = $whereCondition . ' and is_processed = 3';
+                    } else if ($process_type == 5) {
+                        $whereCondition = $whereCondition . ' and send_to_op = 1 and is_processed = 0';
+                    }
+
+
+                    $query = "Select grievance_id,applicant_name,pri_cont_no,created_on,is_processed,is_redressed,is_mark,is_change_block,lb_dist_code,lb_local_body_code, send_to_op from cmo.cmo_sm_data  where  " . $whereCondition . "";
+                }
+                /*elseif ($mapLevel == 'SubdivVerifier') {
 
                 $whereCondition = $whereCondition . " and lb_dist_code='" . $created_by_district_code . "'";
                 $munlist = UrbanBody::where('sub_district_code', $created_by_local_body_code)->get()->toArray();
@@ -177,138 +178,141 @@ class CmoGrivanceWorkflowController1 extends Controller
 
             } */ elseif ($mapLevel == 'DistrictApprover') {
 
-                $whereCondition = $whereCondition . " and lb_dist_code='" . $created_by_district_code . "'";
-                if ($process_type == 1) {
-                    $whereCondition = $whereCondition . ' and is_processed=1';
-                } else if ($process_type == 3) {
-                    $whereCondition = $whereCondition . ' and is_processed = 2';
-                } else if ($process_type == 4) {
-                    $whereCondition = $whereCondition . ' and is_processed = 3';
-                } else if ($process_type == 5) {
-                    $whereCondition = $whereCondition . ' and send_to_op = 1 and is_processed = 0';
-                } else if ($process_type == 6) {
-                    $whereCondition = $whereCondition . " and (lb_local_body_code is null OR TRIM(lb_local_body_code) = '')";
+                    $whereCondition = $whereCondition . " and lb_dist_code='" . $created_by_district_code . "'";
+                    if ($process_type == 1) {
+                        $whereCondition = $whereCondition . ' and is_processed=1';
+                    } else if ($process_type == 3) {
+                        $whereCondition = $whereCondition . ' and is_processed = 2';
+                    } else if ($process_type == 4) {
+                        $whereCondition = $whereCondition . ' and is_processed = 3';
+                    } else if ($process_type == 5) {
+                        $whereCondition = $whereCondition . ' and send_to_op = 1 and is_processed = 0';
+                    } else if ($process_type == 6) {
+                        $whereCondition = $whereCondition . " and (lb_local_body_code is null OR TRIM(lb_local_body_code) = '')";
+                    }
+
+                    $query = "Select grievance_id,applicant_name,pri_cont_no,created_on,is_processed,is_redressed,is_mark,is_change_block,lb_dist_code,lb_local_body_code, send_to_op from cmo.cmo_sm_data  where  " . $whereCondition . "";
+                } elseif ($mapLevel == 'Department') {
+
+                    if ($process_type == 7) {
+                        $whereCondition = $whereCondition . ' and is_processed = 0 and lb_dist_code is null and lb_local_body_code is null';
+                    } else if ($process_type == 4) {
+                        $whereCondition = $whereCondition . ' and is_processed = 3';
+                    }
+                    $query = "Select grievance_id,applicant_name,pri_cont_no,created_on,is_processed,is_redressed,is_mark,is_change_block,lb_dist_code,lb_local_body_code, send_to_op from cmo.cmo_sm_data  where  " . $whereCondition . "";
+                } else {
+                    return redirect('/')->with('success', 'UnAuthorized');
                 }
 
-                $query = "Select grievance_id,applicant_name,pri_cont_no,created_on,is_processed,is_redressed,is_mark,is_change_block,lb_dist_code,lb_local_body_code, send_to_op from cmo.cmo_sm_data  where  " . $whereCondition . "";
-            } elseif ($mapLevel == 'Department') {
+                //   dd($query);
+                $data = DB::select($query);
+                // dd($data);
+                return datatables()
+                    ->of($data)
+                    ->addColumn('view', function ($data) use ($scheme_id, $mapLevel, $process_type) {
+                        $action = '';
+                        if ($mapLevel == 'BlockVerifier' || $mapLevel == 'SubdivVerifier') {
+                            if ($process_type == 1) {
+                                if ($data->is_processed == 0) {
+                                    $action = '<button value="' . $data->grievance_id . '_' . $scheme_id . '_' . $data->pri_cont_no . '" class="btn btn-xs btn-info find_applicant"><i class="glyphicon glyphicon-edit"></i>Find</button>';
+                                } else {
+                                    $action = '';
+                                }
+                            } else if ($process_type == 2) {
+                                if ($data->is_processed == 1) {
+                                    $action = 'Marked but Approval Pending';
+                                } else
+                                    $action = '';
+                            } else if ($process_type == 3) {
+                                if ($data->is_processed == 2) {
+                                    $action = 'Marked and Approved but Yet not send to CMO';
+                                } else
+                                    $action = '';
+                            } else if ($process_type == 4) {
+                                if ($data->is_processed == 3) {
+                                    $action = 'Marked and Approved and Send to CMO';
+                                } else
+                                    $action = '';
+                            } else if ($process_type == 5) {
+                                if ($data->send_to_op == 1 && $data->is_processed == 0) {
+                                    $action = 'Sent to Operator for New Entry';
+                                } else
+                                    $action = '';
+                            }
+                        }
 
-                if ($process_type == 7) {
-                    $whereCondition = $whereCondition . ' and is_processed = 0 and lb_dist_code is null and lb_local_body_code is null';
-                } else if ($process_type == 4) {
-                    $whereCondition = $whereCondition . ' and is_processed = 3';
-                }
-                $query = "Select grievance_id,applicant_name,pri_cont_no,created_on,is_processed,is_redressed,is_mark,is_change_block,lb_dist_code,lb_local_body_code, send_to_op from cmo.cmo_sm_data  where  " . $whereCondition . "";
-            } else {
-                return redirect('/')->with('success', 'UnAuthorized');
+                        if ($mapLevel == 'DistrictApprover') {
+                            if ($process_type == 1) {
+                                if ($data->is_processed == 1) {
+                                    $action = '<button value="' . $data->grievance_id . '_' . $scheme_id . '_' . $data->pri_cont_no . '" class="btn btn-xs btn-info grivance_tag_applicant"><i class="glyphicon glyphicon-edit"></i>Details</button>';
+                                } else {
+                                    $action = '';
+                                }
+                            } else if ($process_type == 3) {
+                                if ($data->is_processed == 2) {
+                                    $action = 'Marked and Approved but Yet not send to CMO';
+                                } else
+                                    $action = '';
+                            } else if ($process_type == 4) {
+                                if ($data->is_processed == 3) {
+                                    $action = 'Marked and Approved and Send to CMO';
+                                } else
+                                    $action = '';
+                            } else if ($process_type == 5) {
+                                if ($data->send_to_op == 1 && $data->is_processed == 0) {
+                                    $action = 'Sent to Operator for New Entry';
+                                } else
+                                    $action = '';
+                            } else if ($process_type == 6) {
+                                if ($data->is_processed == 0) {
+                                    // $action = '<button value="' . $data->grievance_id . '_' . $scheme_id . '_' . $data->pri_cont_no . '" class="btn btn-xs btn-info find_applicant"><i class="glyphicon glyphicon-edit"></i>Find</button>';
+                                    $action = '<button value="' . $data->grievance_id . '_' . $scheme_id . '_' . $data->pri_cont_no . '_' . $data->lb_dist_code . '" class="btn btn-xs btn-info mapbos"><i class=""></i>Map Block/Sub-Division</button>';
+                                } else
+                                    $action = '';
+                            }
+                        }
+                        if ($mapLevel == 'Department') {
+                            if ($process_type == 7) {
+                                if ($data->is_processed == 0) {
+                                    $action = '<button value="' . $data->grievance_id . '_' . $scheme_id . '_' . $data->pri_cont_no . '" class="btn btn-xs btn-info find_applicant"><i class="glyphicon glyphicon-edit"></i>Find</button>';
+                                } else {
+                                    $action = '';
+                                }
+                            } else if ($process_type == 4) {
+                                if ($data->is_processed == 3) {
+                                    $action = 'Marked and Approved and Send to CMO';
+                                } else
+                                    $action = '';
+                            }
+                        }
+
+
+                        return $action;
+                    })
+                    ->addColumn('grievance_id', function ($data) {
+                        return $data->grievance_id;
+                    })
+                    ->addColumn('grievance_name', function ($data) {
+                        return $data->applicant_name;
+                    })
+                    ->addColumn('sm_mobile_no', function ($data) {
+                        return $data->pri_cont_no;
+                    })
+                    ->addColumn('cmo_receive_date', function ($data) {
+                        list($date) = explode("T", $data->created_on);
+                        return $date;
+                    })
+                    // ->addColumn('gp_ward_name', function ($data) {
+                    //     return $data->gram_panchyat_name;
+                    // })
+                    // ->addColumn('description', function ($data) {
+                    //     return $data->complain_description;
+                    // })
+                    ->rawColumns(['view', 'grievance_id', 'grievance_name', 'sm_mobile_no', 'cmo_receive_date'])
+                    ->make(true);
             }
-
-            //   dd($query);
-            $data = DB::select($query);
-            // dd($data);
-            return datatables()
-                ->of($data)
-                ->addColumn('view', function ($data) use ($scheme_id, $mapLevel, $process_type) {
-                    $action = '';
-                    if ($mapLevel == 'BlockVerifier' || $mapLevel == 'SubdivVerifier') {
-                        if ($process_type == 1) {
-                            if ($data->is_processed == 0) {
-                                $action = '<button value="' . $data->grievance_id . '_' . $scheme_id . '_' . $data->pri_cont_no . '" class="btn btn-xs btn-info find_applicant"><i class="glyphicon glyphicon-edit"></i>Find</button>';
-                            } else {
-                                $action = '';
-                            }
-                        } else if ($process_type == 2) {
-                            if ($data->is_processed == 1) {
-                                $action = 'Marked but Approval Pending';
-                            } else
-                                $action = '';
-                        } else if ($process_type == 3) {
-                            if ($data->is_processed == 2) {
-                                $action = 'Marked and Approved but Yet not send to CMO';
-                            } else
-                                $action = '';
-                        } else if ($process_type == 4) {
-                            if ($data->is_processed == 3) {
-                                $action = 'Marked and Approved and Send to CMO';
-                            } else
-                                $action = '';
-                        } else if ($process_type == 5) {
-                            if ($data->send_to_op == 1 && $data->is_processed == 0) {
-                                $action = 'Sent to Operator for New Entry';
-                            } else
-                                $action = '';
-                        }
-                    }
-
-                    if ($mapLevel == 'DistrictApprover') {
-                        if ($process_type == 1) {
-                            if ($data->is_processed == 1) {
-                                $action = '<button value="' . $data->grievance_id . '_' . $scheme_id . '_' . $data->pri_cont_no . '" class="btn btn-xs btn-info grivance_tag_applicant"><i class="glyphicon glyphicon-edit"></i>Details</button>';
-                            } else {
-                                $action = '';
-                            }
-                        } else if ($process_type == 3) {
-                            if ($data->is_processed == 2) {
-                                $action = 'Marked and Approved but Yet not send to CMO';
-                            } else
-                                $action = '';
-                        } else if ($process_type == 4) {
-                            if ($data->is_processed == 3) {
-                                $action = 'Marked and Approved and Send to CMO';
-                            } else
-                                $action = '';
-                        } else if ($process_type == 5) {
-                            if ($data->send_to_op == 1 && $data->is_processed == 0) {
-                                $action = 'Sent to Operator for New Entry';
-                            } else
-                                $action = '';
-                        } else if ($process_type == 6) {
-                            if ($data->is_processed == 0) {
-                                // $action = '<button value="' . $data->grievance_id . '_' . $scheme_id . '_' . $data->pri_cont_no . '" class="btn btn-xs btn-info find_applicant"><i class="glyphicon glyphicon-edit"></i>Find</button>';
-                                $action = '<button value="' . $data->grievance_id . '_' . $scheme_id . '_' . $data->pri_cont_no . '_' . $data->lb_dist_code . '" class="btn btn-xs btn-info mapbos"><i class=""></i>Map Block/Sub-Division</button>';
-                            } else
-                                $action = '';
-                        }
-                    }
-                    if ($mapLevel == 'Department') {
-                        if ($process_type == 7) {
-                            if ($data->is_processed == 0) {
-                                $action = '<button value="' . $data->grievance_id . '_' . $scheme_id . '_' . $data->pri_cont_no . '" class="btn btn-xs btn-info find_applicant"><i class="glyphicon glyphicon-edit"></i>Find</button>';
-                            } else {
-                                $action = '';
-                            }
-                        } else if ($process_type == 4) {
-                            if ($data->is_processed == 3) {
-                                $action = 'Marked and Approved and Send to CMO';
-                            } else
-                                $action = '';
-                        }
-                    }
-
-
-                    return $action;
-                })
-                ->addColumn('grievance_id', function ($data) {
-                    return $data->grievance_id;
-                })
-                ->addColumn('grievance_name', function ($data) {
-                    return $data->applicant_name;
-                })
-                ->addColumn('sm_mobile_no', function ($data) {
-                    return $data->pri_cont_no;
-                })
-                ->addColumn('cmo_receive_date', function ($data) {
-                    list($date) = explode("T", $data->created_on);
-                    return $date;
-                })
-                // ->addColumn('gp_ward_name', function ($data) {
-                //     return $data->gram_panchyat_name;
-                // })
-                // ->addColumn('description', function ($data) {
-                //     return $data->complain_description;
-                // })
-                ->rawColumns(['view', 'grievance_id', 'grievance_name', 'sm_mobile_no', 'cmo_receive_date'])
-                ->make(true);
+        } catch (\Exception $e) {
+            dd($e);
         }
     }
     public function find(Request $request)
@@ -388,7 +392,7 @@ class CmoGrivanceWorkflowController1 extends Controller
                     ->where('is_processed', 0)
                     ->where('is_redressed', 0)
                     ->update($updateDetails);
-                    // dd($is_update);
+                // dd($is_update);
                 if ($is_update) {
                     DB::commit();
                     $response = [
@@ -2164,7 +2168,7 @@ class CmoGrivanceWorkflowController1 extends Controller
         $result = DB::connection('pgsql_appwrite')->select($query);
         return $result;
     }
-    /*public function getSubDivWise($district_code = NULL, $ulb_code = NULL, $block_ulb_code = NULL, $gp_ward_code = NULL)
+    public function getSubDivWise($district_code = NULL, $ulb_code = NULL, $block_ulb_code = NULL, $gp_ward_code = NULL)
     {
         $whereMain = " WHERE district_code =" . $district_code;
 
@@ -2205,50 +2209,6 @@ class CmoGrivanceWorkflowController1 extends Controller
             from cmo.cmo_sm_data  
             where TRIM(lb_dist_code) = '" . $district_code . "'
             and (lb_local_body_code is null OR TRIM(lb_local_body_code) = '')";
-        $result = DB::connection('pgsql_appwrite')->select($query);
-        return $result;
-    }*/
-    public function getSubDivWise($district_code = NULL, $ulb_code = NULL, $block_ulb_code = NULL, $gp_ward_code = NULL)
-    {
-        $whereMain = " WHERE district_code =" . $district_code;
-
-        $query = "SELECT 
-        A.location_id,
-        A.location_name,
-        COALESCE(cmo.total_grievance, 0) AS total_grievance,
-        COALESCE(cmo.total_verification_pending, 0) AS total_verification_pending, 
-        COALESCE(cmo.total_verified, 0) AS total_verified, 
-        COALESCE(cmo.total_approved, 0) AS total_approved,
-        COALESCE(cmo.total_grievance_back, 0) AS total_grievance_back
-        FROM (
-            SELECT 
-                sub.sub_district_code AS location_id,
-                'SubDiv-' || sub.sub_district_name AS location_name
-            FROM public.m_sub_district sub
-            " . $whereMain . "
-        ) AS A
-        LEFT JOIN (
-        SELECT 
-            COUNT(1) AS total_grievance,
-            count(1) filter(where is_processed = 0) as total_verification_pending,
-            count(1) filter(where is_processed = 1) as total_verified,
-            count(1) filter(where is_processed = 2) as total_approved,
-            count(1) filter(where is_processed = 3) as total_grievance_back,
-            lb_local_body_code
-                from cmo.cmo_sm_data where lb_dist_code = '" . $district_code . "' 
-         and lb_local_body_code::text ~ '^\d+$' group by lb_local_body_code) as cmo ON A.location_id=lb_local_body_code::int
-         UNION ALL
-            select 
-            -1 as location_id, 
-            'Unmapped (Block & Sub-Div null)' as location_name,
-            COUNT(1) AS total_grievance,
-            count(1) filter(where is_processed = 0) as total_verification_pending,
-            count(1) filter(where is_processed = 1) as total_verified,
-            count(1) filter(where is_processed = 2) as total_approved,
-            count(1) filter(where is_processed = 3) as total_grievance_back
-            from cmo.cmo_sm_data  
-            where lb_dist_code = '" . $district_code . "'
-            and (lb_local_body_code is null OR lb_local_body_code = null)";
         $result = DB::connection('pgsql_appwrite')->select($query);
         return $result;
     }
