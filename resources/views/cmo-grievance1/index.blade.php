@@ -96,24 +96,24 @@
 
             <div class="card-body p-3">
                 @if ($message = Session::get('success'))
-                    <div class="alert alert-success alert-dismissible fade show" role="alert">
-                        <strong>{{ $message }}</strong>
-                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                    </div>
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    <strong>{{ $message }}</strong>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
                 @endif
 
                 @if ($message = Session::get('message'))
-                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                        <strong>{{ $message }}</strong>
-                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                    </div>
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <strong>{{ $message }}</strong>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
                 @endif
 
                 @if ($message = Session::get('msg1'))
-                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                        <strong>{{ $message }}</strong>
-                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                    </div>
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <strong>{{ $message }}</strong>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
                 @endif
 
                 <div class="row mb-3">
@@ -121,33 +121,33 @@
                         <label for="process_type" class="form-label fw-semibold">Process Type</label>
                         <select class="form-select select2" name="process_type" id="process_type">
                             @if($mapLevel=='BlockVerifier' || $mapLevel=='SubdivVerifier' || $mapLevel=='SubdivDelegated Verifier' || $mapLevel=='BlockDelegated Verifier')
-                                <option value="1">Pending</option>
-                                <option value="2">Marked but Approval Pending</option>
-                                <option value="3">Marked and Approved but Yet not send to CMO</option>
-                                <option value="5">Sent to Operator for New Entry</option>
-                                <option value="4">Marked and Approved and Send to CMO</option>
+                            <option value="1">Pending</option>
+                            <option value="2">Marked but Approval Pending</option>
+                            <option value="3">Marked and Approved but Yet not send to CMO</option>
+                            <option value="5">Sent to Operator for New Entry</option>
+                            <option value="4">Marked and Approved and Send to CMO</option>
                             @endif
                             @if($mapLevel=='District')
-                                <option value="1">Pending</option>
-                                <option value="3">Marked and Approved but Yet not send to CMO</option>
-                                <option value="5">Sent to Operator for New Entry</option>
-                                <option value="6">Grievance List with No Block/Municipality LGD</option>
-                                <option value="4">Marked and Approved and Send to CMO</option>
+                            <option value="1">Pending</option>
+                            <option value="3">Marked and Approved but Yet not send to CMO</option>
+                            <option value="5">Sent to Operator for New Entry</option>
+                            <option value="6">Grievance List with No Block/Municipality LGD</option>
+                            <option value="4">Marked and Approved and Send to CMO</option>
                             @endif
                             @if($mapLevel=='Department')
-                                <option value="7">Grievance List with No District/Block/Municipality LGD</option>
-                                <option value="4">Marked and Approved and Send to CMO</option>
+                            <option value="7">Grievance List with No District/Block/Municipality LGD</option>
+                            <option value="4">Marked and Approved and Send to CMO</option>
                             @endif
                         </select>
                         <span class="text-danger" id="error_process_type"></span>
                     </div>
 
                     @if($mapLevel=='SubdivVerifier' || $mapLevel=='BlockVerifier' || $mapLevel=='District')
-                        <input type="hidden" name="local_body" id="local_body" value="{{ $local_body_code ?? '' }}">
+                    <input type="hidden" name="local_body" id="local_body" value="{{ $local_body_code ?? '' }}">
                     @endif
                     <input type="hidden" name="mapLevel" id="mapLevel" value="{{ $mapLevel }}">
                     @if($mapLevel!='Department')
-                        <input type="hidden" name="district_code" id="district_code" value="{{ $district_code }}">
+                    <input type="hidden" name="district_code" id="district_code" value="{{ $district_code }}">
                     @endif
 
                     <div class="col-md-3 align-self-end">
@@ -227,17 +227,18 @@
                             <span class="text-danger error-message" id="mapping_type_error"></span>
                         </div>
 
-                        <div class="col-md-6 d-none" id="blk_sub_div">
-                            <label id="blk_sub_txt" class="form-label"></label>
-                            <select name="blk_sub_value" id="blk_sub_value" class="form-select"></select>
+                        <div class="col-md-6" style="display: none;" id="blk_sub_div">
+                            <label class="control-label" id="blk_sub_txt"></label>
+                            <select name="blk_sub_value" id="blk_sub_value" class="form-control">
+                            </select>
                             <span class="text-danger error-message" id="blk_sub_value_error"></span>
                         </div>
                     </div>
                 </div>
 
                 <div class="modal-footer">
-                    <button type="submit" id="submitButton" name="btnSubmit" class="btn btn-primary d-none"></button>
-                    <img src="{{ asset('images/ZKZg.gif')}}" id="btn_encolser_loader" width="100px" class="d-none">
+                    <button type="submit" id="submitButton" name='btnSubmit' class="btn btn-primary" style="display:none;"></button>
+                    <img style="display:none;" src="{{ asset('images/ZKZg.gif')}}" id="btn_encolser_loader" width="100px">
                 </div>
             </form>
         </div>
