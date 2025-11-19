@@ -3183,7 +3183,7 @@ class DuplicateControllerBank extends Controller
             } else {
                 $whereCon = " WHERE ben_status IN(101, 200, -98, -99) AND is_approved = 1";
             }
-            $query = $this->getQueryResult($district_code, $blockCode, $block, $gp_ward, $muncid, $rural_urban, $whereCon);
+            $query = $this->getQueryResult($district_code = NULL, $blockCode = NULL, $block = NULL, $gp_ward = NULL, $muncid = NULL, $rural_urban, $whereCon);
             // dd($query);
             $result = DB::connection('pgsql_payment')->select($query);
             return datatables()->of($result)
@@ -3269,7 +3269,7 @@ class DuplicateControllerBank extends Controller
         } else {
             $whereCon = " WHERE ben_status IN(101, 200, -98, -99) AND is_approved = 1";
         }
-        $query = $this->getQueryResult($district_code, $blockCode, $block, $gp_ward, $muncid, $rural_urban, $whereCon);
+        $query = $this->getQueryResult($district_code = NULL, $blockCode = NULL, $block = NULL, $gp_ward = NULL, $muncid = NULL, $rural_urban = NULL, $whereCon);
         $result = DB::connection('pgsql_payment')->select($query);
 
         $excelarr[] = array(
@@ -3315,7 +3315,7 @@ class DuplicateControllerBank extends Controller
             });
         })->download('xlsx');
     }
-    private function getQueryResult($district_code, $blockCode, $block, $gp_ward, $muncid, $rural_urban, $whereCon)
+    private function getQueryResult($district_code = NULL, $blockCode = NULL, $block, $gp_ward = NULL, $muncid, $rural_urban = NULL, $whereCon)
     {
         $query = "SELECT d.ben_id, d.ben_name, b.block_name, g.gram_panchyat_name, d.new_last_accno, d.new_last_ifsc, d.last_accno, d.last_ifsc, d.mobile_no, ben_status, is_approved
                     FROM lb_main.ben_payment_details_bank_code_dup d 
