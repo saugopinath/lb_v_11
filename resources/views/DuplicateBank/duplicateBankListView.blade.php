@@ -214,7 +214,7 @@
 
             <!-- TABLE SECTION -->
             <div class="table-responsive">
-              <table id="example" class="table table-bordered table-striped w-100">
+              <table id="example" class="data-table">
 
                 <thead style="font-size:12px;">
                   <tr>
@@ -267,6 +267,7 @@
       var sessiontimeoutmessage = '{{$sessiontimeoutmessage}}';
       var base_url = '{{ url(' / ') }}';
       $('#example').DataTable({
+        "dom": 'lfrtip',
         "paging": true,
         "searchable": true,
         "ordering": false,

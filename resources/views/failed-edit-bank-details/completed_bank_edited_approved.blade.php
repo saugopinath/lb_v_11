@@ -176,7 +176,7 @@
             <div class="card-body p-2">
 
               <div class="table-responsive">
-                <table id="example" class="table table-bordered table-striped w-100">
+                <table id="example" class="data-table">
                   <thead style="font-size: 12px;">
                     <tr>
                       <th>Serial No</th>

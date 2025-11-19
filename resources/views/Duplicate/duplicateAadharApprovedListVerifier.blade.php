@@ -166,89 +166,89 @@
 @section('content')
   <!-- <div class="content-wrapper"> -->
 
-    <section class="content">
+  <section class="content">
 
-      <div class="card card-default">
-        <div class="card-body">
+    <div class="card card-default">
+      <div class="card-body">
 
-          <!-- Main Card -->
-          <div class="card card-default">
-            <div class="card-body" style="padding:5px; font-size:14px;">
+        <!-- Main Card -->
+        <div class="card card-default">
+          <div class="card-body" style="padding:5px; font-size:14px;">
 
-              {{-- SUCCESS MESSAGE --}}
-              @if ($message = Session::get('success'))
-                <div class="row">
-                  <div class="alert alert-success alert-dismissible fade show" style="margin:10px 30px;">
-                    <strong>{{ $message }}</strong>
-                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                  </div>
+            {{-- SUCCESS MESSAGE --}}
+            @if ($message = Session::get('success'))
+              <div class="row">
+                <div class="alert alert-success alert-dismissible fade show" style="margin:10px 30px;">
+                  <strong>{{ $message }}</strong>
+                  <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                 </div>
-              @endif
-
-              {{-- ERROR MESSAGE --}}
-              @if ($error = Session::get('error'))
-                <div class="row">
-                  <div class="alert alert-danger alert-dismissible fade show" style="margin:10px 30px;">
-                    <strong>{{ $error }}</strong>
-                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                  </div>
-                </div>
-              @endif
-
-              {{-- PRINT ERROR (AJAX) --}}
-              <div class="alert alert-danger print-error-msg" id="errorDiv" style="display:none;">
-                <button type="button" class="btn-close" onclick="closeError('errorDiv')"></button>
-                <ul></ul>
               </div>
+            @endif
 
-              <!-- TABLE -->
-              <div class="table-responsive">
-                <table id="example" class="table table-bordered table-striped w-100">
+            {{-- ERROR MESSAGE --}}
+            @if ($error = Session::get('error'))
+              <div class="row">
+                <div class="alert alert-danger alert-dismissible fade show" style="margin:10px 30px;">
+                  <strong>{{ $error }}</strong>
+                  <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+              </div>
+            @endif
 
-                  <thead style="font-size:12px;">
+            {{-- PRINT ERROR (AJAX) --}}
+            <div class="alert alert-danger print-error-msg" id="errorDiv" style="display:none;">
+              <button type="button" class="btn-close" onclick="closeError('errorDiv')"></button>
+              <ul></ul>
+            </div>
+
+            <!-- TABLE -->
+            <div class="table-responsive">
+              <table id="example" class="data-table">
+
+                <thead style="font-size:12px;">
+                  <tr>
+                    <th>Aadhaar No.</th>
+                    <th>Duplicate Count</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+
+                <tbody style="font-size:14px;">
+                  @if(count($data) > 0)
+                    @foreach ($data as $key => $value)
+                                  <?php
+                      if (!empty($key))
+                        $encrpted_aadhar_no = Crypt::encrypt($key);
+                      else
+                        $encrpted_aadhar_no = '';
+                                                                                  ?>
+                                  <tr>
+                                    <td>********{{ substr($key, -4) }}</td>
+                                    <td>{{ $value }}</td>
+                                    <td>
+                                      <a href="dedupAadhaarView?aadhar_no={{ $encrpted_aadhar_no }}" class="btn btn-primary btn-sm">
+                                        De-duplicate
+                                      </a>
+                                    </td>
+                                  </tr>
+                    @endforeach
+                  @else
                     <tr>
-                      <th>Aadhaar No.</th>
-                      <th>Duplicate Count</th>
-                      <th>Action</th>
+                      <td colspan="3" class="text-center">No Duplicate Record Found.</td>
                     </tr>
-                  </thead>
+                  @endif
+                </tbody>
 
-                  <tbody style="font-size:14px;">
-                    @if(count($data) > 0)
-                      @foreach ($data as $key => $value)
-                                      <?php
-                        if (!empty($key))
-                          $encrpted_aadhar_no = Crypt::encrypt($key);
-                        else
-                          $encrpted_aadhar_no = '';
-                                                                ?>
-                                      <tr>
-                                        <td>********{{ substr($key, -4) }}</td>
-                                        <td>{{ $value }}</td>
-                                        <td>
-                                          <a href="dedupAadhaarView?aadhar_no={{ $encrpted_aadhar_no }}" class="btn btn-primary btn-sm">
-                                            De-duplicate
-                                          </a>
-                                        </td>
-                                      </tr>
-                      @endforeach
-                    @else
-                      <tr>
-                        <td colspan="3" class="text-center">No Duplicate Record Found.</td>
-                      </tr>
-                    @endif
-                  </tbody>
+              </table>
+            </div>
 
-                </table>
-              </div>
+          </div><!-- card-body -->
+        </div><!-- card -->
 
-            </div><!-- card-body -->
-          </div><!-- card -->
+      </div><!-- card-body -->
+    </div><!-- card -->
 
-        </div><!-- card-body -->
-      </div><!-- card -->
-
-    </section>
+  </section>
 
   <!-- </div> -->
 
@@ -262,13 +262,15 @@
       var sessiontimeoutmessage = '{{$sessiontimeoutmessage}}';
       var base_url = '{{ url('/') }}';
       $('#example').DataTable({
+        "dom": "frtip",
         "paging": true,
         "searchable": false,
         "paging": false,
         "ordering": false,
         "bFilter": false,
         "bInfo": true,
-        "pageLength": 20
+        "pageLength": 20,
+        
       });
     });
 

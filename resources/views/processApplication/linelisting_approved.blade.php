@@ -194,7 +194,7 @@
           <div class="card-body" style="padding:5px; font-size:14px;">
             <div class="table-responsive">
 
-              <table id="example" class="table table-bordered table-striped">
+              <table id="example" class="data-table">
                 <thead style="font-size: 12px;">
                   <tr>
                     <th>Application ID</th>
@@ -223,82 +223,152 @@
 
 
     <!-- MODAL START -->
-    <div class="modal fade bd-example-modal-lg ben_view_modal" tabindex="-1">
+    <div class="modal fade ben_view_modal" tabindex="-1">
       <div class="modal-dialog modal-lg">
         <div class="modal-content">
 
-          <div class="modal-header singleInfo">
+          <!-- HEADER -->
+          <div class="modal-header bg-primary text-white">
             <h3 class="modal-title">
               Applicant Details (<span class="applicant_id_modal"></span>)
             </h3>
             <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
           </div>
 
+          <!-- BODY -->
           <div class="modal-body ben_view_body">
 
             <!-- PERSONAL DETAILS -->
-            <div class="card card-default">
+            <div class="card card-primary card-outline mb-3">
               <div class="card-header">
-                <a data-bs-toggle="collapse" href="#collapsePersonal">Personal Details</a>
+                <a class="text-primary fw-bold" data-bs-toggle="collapse" href="#collapsePersonal">
+                  Personal Details
+                </a>
               </div>
 
-              <div id="collapsePersonal" class="collapse show">
+              <div id="collapsePersonal singleInfo" class="card card-secondary card-outline mb-3">
                 <div class="card-body">
-                  <table class="table table-bordered">
+                  <table class="table table-bordered table-striped">
                     <tbody>
                       <tr>
                         <th>Swasthya Sathi Card No.</th>
                         <td id="sws_card_txt"></td>
+
                         <th>Aadhaar No.</th>
                         <td id="aadhar_no_encrypt"></td>
+
                         <td id="aadhar_no_original" style="display:none;"></td>
+
                         <td>
-                          <button class="btn btn-info showhideAadhar" id="show_hide_aadhar">
+                          <button class="btn btn-info btn-sm showhideAadhar" id="show_hide_aadhar">
                             Show Original Aadhaar
                           </button>
                         </td>
                       </tr>
+
                       <tr>
                         <th>Duare Sarkar / Samasyaa Samadhan Reg No</th>
                         <td id="duare_sarkar_registration_no"></td>
+
                         <th>Date</th>
                         <td id="duare_sarkar_date"></td>
                       </tr>
+
                       <tr>
                         <th>Name</th>
                         <td id="ben_fullname"></td>
                       </tr>
+
                       <tr>
                         <th>Mobile No.</th>
                         <td id="mobile_no"></td>
+
                         <th>Email</th>
                         <td id="email_id"></td>
                       </tr>
+
                       <tr>
                         <th>Gender</th>
                         <td id="gender"></td>
+
                         <th>DOB</th>
                         <td id="dob"></td>
+
                         <th>Age (as on {{$dob_base_date}})</th>
                         <td id="ben_age"></td>
                       </tr>
+
                       <tr>
                         <th>Father Name</th>
                         <td id="father_fullname"></td>
                       </tr>
+
                       <tr>
                         <th>Mother Name</th>
                         <td id="mother_fullname"></td>
                       </tr>
+
                       <tr>
                         <th>Spouse Name</th>
                         <td id="spouse_name"></td>
                       </tr>
+
                       <tr>
                         <th>Caste</th>
                         <td id="caste"></td>
-                        <th class="caste">SC/ST Certificate No.</th>
-                        <td id="caste_certificate_no" class="caste"></td>
+
+                        <th>SC/ST Certificate No.</th>
+                        <td id="caste_certificate_no"></td>
+                      </tr>
+
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+
+            <!-- ADDRESS DETAILS -->
+            <div class="card card-secondary card-outline mb-3 singleInfo">
+              <div class="card-header">
+                <a class="collapsed text-secondary fw-bold" data-bs-toggle="collapse" href="#collapseContact">
+                  Address Details
+                </a>
+              </div>
+
+              <div id="collapseContact" class="collapse">
+                <div class="card-body">
+                  <table class="table table-bordered">
+                    <tbody>
+                      <tr>
+                        <th>District Name</th>
+                        <td id="dist_name"></td>
+
+                        <th>Police Station</th>
+                        <td id="police_station"></td>
+                      </tr>
+
+                      <tr>
+                        <th>Block / Municipality</th>
+                        <td id="block_ulb_name"></td>
+
+                        <th>GP / Ward Name</th>
+                        <td id="gp_ward_name"></td>
+                      </tr>
+
+                      <tr>
+                        <th>Village/Town/City</th>
+                        <td id="village_town_city"></td>
+
+                        <th>House / Premise No</th>
+                        <td id="house_premise_no"></td>
+                      </tr>
+
+                      <tr>
+                        <th>Post Office</th>
+                        <td id="post_office"></td>
+
+                        <th>Pincode</th>
+                        <td id="pincode"></td>
                       </tr>
                     </tbody>
                   </table>
@@ -306,53 +376,99 @@
               </div>
             </div>
 
-            <!-- ADDRESS, BANK, ENCLOSURE sections remain same, only card/collapse updated similarly -->
-
-            <!-- ACTION PANEL -->
-            <div class="card card-default mt-3">
+            <!-- BANK DETAILS -->
+            <div class="card card-success card-outline mb-3 singleInfo">
               <div class="card-header">
-                <a>Action</a>
+                <a class="collapsed fw-bold text-success" data-bs-toggle="collapse" href="#collapseBank">
+                  Bank Details
+                </a>
               </div>
 
-              <div class="collapse show">
-                <div class="card-body row">
+              <div id="collapseBank" class="collapse">
+                <div class="card-body">
+                  <table class="table table-bordered">
+                    <tbody>
+                      <tr>
+                        <th>Bank Name</th>
+                        <td id="bank_name"></td>
 
-                  <div class="form-group col-md-4">
-                    <label>Select Operation</label>
-                    <select name="opreation_type" id="opreation_type" class="form-control form-select">
-                      <!-- <option value="A">Approve</option> -->
-                      <option value="R">Rejected</option>
-                      <option value="T">Reverted</option>
-                    </select>
-                  </div>
+                        <th>Branch Name</th>
+                        <td id="branch_name"></td>
+                      </tr>
 
-                  <div class="form-group col-md-4" id="div_rejection" style="display:none;">
-                    <label>Select Reject/Reverted Cause</label>
-                    <select name="reject_cause" id="reject_cause" class="form-control form-select">
-                      <option value="">--Select--</option>
-                      @foreach($reject_revert_reason as $r_arr)
-                        <option value="{{$r_arr->id}}">{{$r_arr->reason}}</option>
-                      @endforeach
-                    </select>
-                  </div>
+                      <tr>
+                        <th>Bank IFSC</th>
+                        <td id="bank_ifsc"></td>
 
-                  <div class="form-group col-md-4">
-                    <label>Enter Remarks</label>
-                    <textarea name="accept_reject_comments" id="accept_reject_comments" class="form-control"
-                      rows="2"></textarea>
-                  </div>
-
+                        <th>Bank Account No.</th>
+                        <td id="bank_code"></td>
+                      </tr>
+                    </tbody>
+                  </table>
                 </div>
+              </div>
+            </div>
+
+            <!-- ENCLOSURE DETAILS -->
+            <div class="card card-info card-outline mb-3 singleInfo">
+              <div class="card-header">
+                <a class="collapsed fw-bold text-info" data-bs-toggle="collapse" href="#collapseEncloser">
+                  Enclosure Details
+                </a>
+              </div>
+
+              <div id="collapseEncloser" class="collapse">
+                <div class="card-body">
+                  <table id="enCloserTable" class="table table-bordered">
+                    <tbody></tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+
+            <!-- ACTION PANEL -->
+            <div class="card card-dark card-outline">
+              <div class="card-header">
+                <strong>Action</strong>
+              </div>
+
+              <div class="card-body row">
+
+                <div class="form-group col-md-4">
+                  <label>Select Operation</label>
+                  <select name="opreation_type" id="opreation_type" class="form-control form-select opreation_type">
+                    <option value="R">Rejected</option>
+                    <option value="T">Reverted</option>
+                  </select>
+                </div>
+
+                <div class="form-group col-md-4" id="div_rejection" style="display:none;">
+                  <label>Reject / Reverted Cause</label>
+                  <select name="reject_cause" id="reject_cause" class="form-control form-select">
+                    <option value="">--Select--</option>
+                    @foreach($reject_revert_reason as $r_arr)
+                      <option value="{{$r_arr->id}}">{{$r_arr->reason}}</option>
+                    @endforeach
+                  </select>
+                </div>
+
+                <div class="form-group col-md-4">
+                  <label>Enter Remarks</label>
+                  <textarea name="accept_reject_comments" id="accept_reject_comments" class="form-control"
+                    rows="2"></textarea>
+                </div>
+
               </div>
             </div>
 
           </div>
 
-
+          <!-- FOOTER -->
           <div class="modal-footer">
 
             <form method="POST" action="{{ route('application-details-read-only') }}" target="_blank" id="fullForm">
-              <input type="hidden" name="_token" value="{{ csrf_token() }}">
+              @csrf
+
               <input type="hidden" id="is_bulk" name="is_bulk" value="0" />
               <input type="hidden" id="scheme_id" name="scheme_id" value="{{$scheme_id}}" />
               <input type="hidden" id="id" name="id" />
@@ -360,20 +476,26 @@
               <input type="hidden" id="is_draft" name="is_draft" value="1" />
               <input type="hidden" name="applicantId[]" id="applicantId" value="" />
 
-              <button type="submit" class="btn btn-primary">View Full Details</button>
+              <button type="submit" class="btn btn-primary">
+                View Full Details
+              </button>
 
-              <button type="button" class="btn btn-success" id="verifyReject">Approve</button>
+              <button type="button" class="btn btn-success" id="verifyReject">
+                Approve
+              </button>
 
               <button type="button" id="submitting" class="btn btn-success" disabled style="display:none;">
-                Processing Please Wait
+                Processing... Please Wait
               </button>
 
             </form>
-
           </div>
+
         </div>
       </div>
     </div>
+    <!-- MODAL END -->
+
 
 
     <!-- ENCLOSURE MODAL -->
@@ -403,15 +525,7 @@
     $(document).ready(function () {
       var sessiontimeoutmessage = '{{$sessiontimeoutmessage}}';
       var base_url = '{{ url('/') }}';
-      // $('.panel-collapse').on('show.bs.collapse', function () {
-
-      // $("#check_all_btn").click(function () {
-      //       $('#example tbody input[type="checkbox"]').prop('checked', this.checked);
-      //   });
       $(document).on('show.bs.collapse', '.panel-collapse', function () {
-
-
-
         var id = $(this).attr('id');
         var application_id = $('#fullForm #application_id').val();
         //alert(application_id);
@@ -1029,7 +1143,9 @@
         });
         //$(".ben_view_modal").animate({ scrollTop: 0 }, "slow");
       });
+
       $(document).on('click', '.opreation_type', function () {
+        // alert($(this).val());
         if ($(this).val() == 'T' || $(this).val() == 'R') {
           $('#div_rejection').show();
           if ($(this).val() == 'T')
@@ -1069,100 +1185,122 @@
 
           }
           else {
-            Swal.fire({
+            $.alert({
               title: 'Error!!',
-              icon: 'warning',
-              html: '<strong>Please Select Cause</strong>',
-              iconColor: '#ff0000',
-              confirmButtonText: 'OK',
-              customClass: {
-                icon: 'fa fa-warning'
+              icon: 'fa fa-warning',
+              type: 'red',
+              content: '<strong>Please Select Cause</strong>',
+              buttons: {
+                ok: {
+                  text: 'OK',
+                  btnClass: 'btn-red'
+                }
               }
             });
+
 
             return false;
           }
 
         }
         if (valid == 1) {
-          Swal.fire({
+          $.confirm({
             title: 'Warning',
-            html: '<strong>Are you sure to proceed?</strong>',
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonText: 'Ok',
-            cancelButtonText: 'Cancel',
-          }).then((result) => {
-            if (result.isConfirmed) {
+            content: '<strong>Are you sure to proceed?</strong>',
+            icon: 'fa fa-warning',
+            type: 'orange',
+            buttons: {
+              ok: {
+                text: 'Ok',
+                btnClass: 'btn-orange',
+                action: function () {
 
-              $("#submitting").show();
-              $("#verifyReject").hide();
-              var id = $('#id').val();
-              var ds_phase = $('#ds_phase').val();
+                  $("#submitting").show();
+                  $("#verifyReject").hide();
+                  var id = $('#id').val();
+                  var ds_phase = $('#ds_phase').val();
 
-              if (ds_phase == 0) {
-                var url = "{{ url('verifyDatawtSws') }}";
-              } else {
-                var url = "{{ url('verifyDatawtSws') }}";
-              }
-
-              $.ajax({
-                type: 'POST',
-                url: url,
-                data: {
-                  scheme_id: scheme_id,
-                  reject_cause: reject_cause,
-                  opreation_type: opreation_type,
-                  accept_reject_comments: accept_reject_comments,
-                  id: id,
-                  is_bulk: is_bulk,
-                  applicantId: applicantId,
-                  _token: '{{ csrf_token() }}',
-                },
-                success: function (data) {
-                  if (data.return_status) {
-
-                    dataTable.ajax.reload(null, false);
-                    $('.ben_view_modal').modal('hide');
-
-                    Swal.fire({
-                      title: 'Success',
-                      html: data.return_msg,
-                      icon: 'success',
-                      confirmButtonText: 'Ok'
-                    }).then(() => {
-                      $("#submitting").hide();
-                      $("#verifyReject").show();
-                      $("html, body").animate({ scrollTop: 0 }, "slow");
-                    });
-
+                  if (ds_phase == 0) {
+                    var url = "{{ url('verifyDatawtSws') }}";
                   } else {
-                    $("#submitting").hide();
-                    $("#verifyReject").show();
-                    $('#errorDiv').animate({ scrollTop: 0 }, 'slow');
-
-                    Swal.fire({
-                      title: 'Error',
-                      icon: 'error',
-                      html: 'Something went wrong in the approval process .. Please Check the data.'
-                    }).then(() => {
-                      window.location.href = base_url;
-                    });
+                    var url = "{{ url('verifyDatawtSws') }}";
                   }
-                },
-                error: function (jqXHR, textStatus, errorThrown) {
-                  Swal.fire({
-                    title: 'Error',
-                    icon: 'error',
-                    html: 'Something went wrong in the approval process .. Please Check the data.',
-                    confirmButtonText: 'Ok'
-                  }).then(() => {
-                    location.reload();
+
+                  $.ajax({
+                    type: 'POST',
+                    url: url,
+                    data: {
+                      scheme_id: scheme_id,
+                      reject_cause: reject_cause,
+                      opreation_type: opreation_type,
+                      accept_reject_comments: accept_reject_comments,
+                      id: id,
+                      is_bulk: is_bulk,
+                      applicantId: applicantId,
+                      _token: '{{ csrf_token() }}',
+                    },
+                    success: function (data) {
+                      if (data.return_status) {
+
+                        dataTable.ajax.reload(null, false);
+                        $('.ben_view_modal').modal('hide');
+
+                        $.alert({
+                          title: 'Success',
+                          content: data.return_msg,
+                          icon: 'fa fa-check',
+                          type: 'green',
+                          buttons: {
+                            ok: function () {
+                              $("#submitting").hide();
+                              $("#verifyReject").show();
+                              $("html, body").animate({ scrollTop: 0 }, "slow");
+                            }
+                          }
+                        });
+
+                      } else {
+
+                        $("#submitting").hide();
+                        $("#verifyReject").show();
+                        $('#errorDiv').animate({ scrollTop: 0 }, 'slow');
+
+                        $.alert({
+                          title: 'Error',
+                          content: 'Something went wrong in the approval process .. Please Check the data.',
+                          icon: 'fa fa-times',
+                          type: 'red',
+                          buttons: {
+                            ok: function () {
+                              window.location.href = base_url;
+                            }
+                          }
+                        });
+                      }
+                    },
+                    error: function (jqXHR, textStatus, errorThrown) {
+                      $.alert({
+                        title: 'Error',
+                        content: 'Something went wrong in the approval process .. Please Check the data.',
+                        icon: 'fa fa-times',
+                        type: 'red',
+                        buttons: {
+                          ok: function () {
+                            location.reload();
+                          }
+                        }
+                      });
+                    }
                   });
                 }
-              });
+              },
+              cancel: {
+                text: 'Cancel',
+                btnClass: 'btn-default'
+              }
             }
           });
+
 
 
         }
