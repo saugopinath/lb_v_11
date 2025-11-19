@@ -2168,7 +2168,7 @@ class CmoGrivanceWorkflowController1 extends Controller
         $result = DB::connection('pgsql_appwrite')->select($query);
         return $result;
     }
-    /*public function getSubDivWise($district_code = NULL, $ulb_code = NULL, $block_ulb_code = NULL, $gp_ward_code = NULL)
+    public function getSubDivWise($district_code = NULL, $ulb_code = NULL, $block_ulb_code = NULL, $gp_ward_code = NULL)
     {
         $whereMain = " WHERE district_code =" . $district_code;
 
@@ -2209,50 +2209,6 @@ class CmoGrivanceWorkflowController1 extends Controller
             from cmo.cmo_sm_data  
             where TRIM(lb_dist_code) = '" . $district_code . "'
             and (lb_local_body_code is null OR TRIM(lb_local_body_code) = '')";
-        $result = DB::connection('pgsql_appwrite')->select($query);
-        return $result;
-    }*/
-    public function getSubDivWise($district_code = NULL, $ulb_code = NULL, $block_ulb_code = NULL, $gp_ward_code = NULL)
-    {
-        $whereMain = " WHERE district_code =" . $district_code;
-
-        $query = "SELECT 
-        A.location_id,
-        A.location_name,
-        COALESCE(cmo.total_grievance, 0) AS total_grievance,
-        COALESCE(cmo.total_verification_pending, 0) AS total_verification_pending, 
-        COALESCE(cmo.total_verified, 0) AS total_verified, 
-        COALESCE(cmo.total_approved, 0) AS total_approved,
-        COALESCE(cmo.total_grievance_back, 0) AS total_grievance_back
-        FROM (
-            SELECT 
-                sub.sub_district_code AS location_id,
-                'SubDiv-' || sub.sub_district_name AS location_name
-            FROM public.m_sub_district sub
-            " . $whereMain . "
-        ) AS A
-        LEFT JOIN (
-        SELECT 
-            COUNT(1) AS total_grievance,
-            count(1) filter(where is_processed = 0) as total_verification_pending,
-            count(1) filter(where is_processed = 1) as total_verified,
-            count(1) filter(where is_processed = 2) as total_approved,
-            count(1) filter(where is_processed = 3) as total_grievance_back,
-            lb_local_body_code
-                from cmo.cmo_sm_data where lb_dist_code = '" . $district_code . "' 
-         and lb_local_body_code::text ~ '^\d+$' group by lb_local_body_code) as cmo ON A.location_id=lb_local_body_code::int
-         UNION ALL
-            select 
-            -1 as location_id, 
-            'Unmapped (Block & Sub-Div null)' as location_name,
-            COUNT(1) AS total_grievance,
-            count(1) filter(where is_processed = 0) as total_verification_pending,
-            count(1) filter(where is_processed = 1) as total_verified,
-            count(1) filter(where is_processed = 2) as total_approved,
-            count(1) filter(where is_processed = 3) as total_grievance_back
-            from cmo.cmo_sm_data  
-            where lb_dist_code = '" . $district_code . "'
-            and (lb_local_body_code is null OR lb_local_body_code = null)";
         $result = DB::connection('pgsql_appwrite')->select($query);
         return $result;
     }
