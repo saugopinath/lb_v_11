@@ -1,0 +1,219 @@
+
+        body {
+            font-family: 'Open Sans', sans-serif;
+            background: url(images/background-cover.jpg) no-repeat center center fixed;
+            background-size: cover;
+            transition: background 0.5s ease, color 0.3s ease;
+        }
+
+        /* Container Styles */
+        .inner-container {
+            margin-top: 50px;
+            width: 100%;
+            background: url(images/Login_Page_new.png) no-repeat center center;
+            background-size: cover;
+            padding: 20px;
+            border-radius: 8px;
+        }
+
+        .paschimbanga_sarkar h2 {
+            color: #115e28;
+            font-size: 35px;
+            font-weight: bold;
+        }
+
+        .paschimbanga_sarkar h3 {
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            font-weight: 600;
+            color: #341c90;
+            margin-top: -6px;
+            font-size: 20px;
+        }
+
+        .bg_blue {
+            background-color: #003399;
+            padding: 10px;
+            border-radius: 12px;
+            width: auto;
+            text-align: center;
+            margin: 0 auto;
+        }
+
+        .bg_blue h2 {
+            color: #fff;
+            font-weight: 500;
+            margin: 0;
+        }
+
+        .pb_wb h4 {
+            font-size: 15px;
+            margin-top: 10px;
+        }
+
+        .pb_wb h3 {
+            margin-top: -8px;
+            font-size: 17px;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            font-weight: 600;
+            color: #341c90;
+        }
+
+        .nic {
+            color: #fff
+        }
+
+
+        /* Font Controls + Dark Toggle */
+        .bar {
+            display: inline-flex;
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .bar li {
+            padding: 5px 7px;
+            border: 1px solid #fff;
+            margin-right: 5px;
+            color: #fff;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+
+        .bar li.last_one {
+            border: none;
+        }
+
+        .bar li.last_one a {
+            color: #fff;
+            text-decoration: none;
+        }
+
+        .float-end {
+            margin-top: -25px;
+        }
+
+        /* Toggle Switch */
+        .checkbox {
+            opacity: 0;
+            position: absolute;
+        }
+
+        .label {
+            width: 45px;
+            height: 22px;
+            background-color: #20425f;
+            display: flex;
+            border-radius: 50px;
+            align-items: center;
+            justify-content: space-between;
+            padding: 5px;
+            position: relative;
+            cursor: pointer;
+        }
+
+        .ball {
+            width: 15px;
+            height: 15px;
+            background-color: white;
+            position: absolute;
+            top: 3px;
+            left: 3px;
+            border-radius: 50%;
+            transition: transform 0.2s linear;
+        }
+
+        .checkbox:checked+.label .ball {
+            transform: translateX(24px);
+        }
+
+        /* Dark Mode */
+        body.dark {
+            background: url(images/testimonial-bg_dr.png) no-repeat center center fixed;
+            background-size: cover;
+            color: #ffff00;
+        }
+
+        body.dark .inner-container {
+            background: url(images/Login_Page_dr.png) no-repeat center center;
+            background-size: cover;
+        }
+
+        body.dark .paschimbanga_sarkar h2,
+        body.dark .paschimbanga_sarkar h3,
+        body.dark .pb_wb h4,
+        body.dark .pb_wb h3,
+        body.dark .bg_blue h2 {
+            color: #ffff00;
+        }
+
+        body.dark .bg_blue {
+            background-color: #000;
+        }
+
+        body.dark .form-control {
+            background-color: #555;
+            color: #ffff00;
+        }
+
+        body.dark .btn {
+            background-color: #000;
+            color: #ffff00;
+            border-color: #ffff00;
+        }
+
+        body.dark .bar li {
+            border: 1px solid #ffff00;
+            color: #ffff00;
+        }
+
+        body.dark .bar li.last_one a {
+            color: #ffff00;
+        }
+
+        body.dark .footer {
+            background-color: #000;
+            color: #ffff00;
+        }
+
+        body.dark .nic {
+            color: #ffff00
+        }
+
+        /* Responsive Adjustments */
+        @media (max-width: 767px) {
+            .paschimbanga_sarkar h2 {
+                font-size: 24px;
+            }
+
+            .paschimbanga_sarkar h3 {
+                font-size: 14px;
+            }
+
+            .bg_blue {
+                width: 160px;
+            }
+
+            .bg_blue h2 {
+                font-size: 16px;
+            }
+        }
+
+        /* Footer */
+        .footer {
+            background-color: blue;
+            color: #fff;
+            text-align: center;
+            padding: 8px;
+            font-size: 12px;
+        }
+
+        .footer a {
+            text-decoration: none;
+        }
+
+        .fa-sun {
+            color: yellow;
+        }
