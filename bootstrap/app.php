@@ -15,8 +15,8 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware) {
         $middleware->alias(['2fa' => TwofaMiddleware::class]);
-       // $middleware->append(XSS::class);
-        // $middleware->append(SecureHeaders::class);
+        $middleware->append(XSS::class);
+        $middleware->append(SecureHeaders::class);
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //
