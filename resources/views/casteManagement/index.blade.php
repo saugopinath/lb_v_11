@@ -118,7 +118,7 @@
                           <th>Mobile No.</th>
                           <th>Application Id</th>
                           <th>Message</th>
-                          <th width="25%">Action</th>
+                          <th width="30%">Action</th>
                         </tr>
                       </thead>
                       <tbody>
@@ -131,7 +131,7 @@
                           <td>{{$row['msg']}}</td>
                           <td class="text-center">
                             @if($row['can_update_edit']==1)
-                            <a class="btn btn-info btn-sm table-action-btn d-block mb-2" href="{{url('changeCaste')}}?id={{$row['beneficiary_id']}}&is_faulty={{intval($row['is_faulty'])}}&caste_change_type=1">
+                            <a class="btn btn-info btn-sm table-action-btn" href="{{url('changeCaste')}}?id={{$row['beneficiary_id']}}&is_faulty={{intval($row['is_faulty'])}}&caste_change_type=1">
                               <i class="fas fa-edit"></i> Caste Info Change
                             </a>
                             @endif
