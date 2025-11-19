@@ -390,7 +390,7 @@
 @endsection
 
 @push("scripts")
-
+    <script src="{{ URL::asset('js/master-data-v2.js') }}"></script>
     <script>
         var base_date = '{{ $base_date }}';
         var c_date = '{{ $c_date }}';
@@ -402,22 +402,21 @@
             $('.sidebar-menu #jnmpData').addClass("active");
             //loadDataTable();
             $(".exportToExcel").click(function (e) {
-                {{--  alert('ok');  --}}
-                // var error_scheme_id = '';
-                // var error_search_for = '';
-                var error_district = '';
 
+                // Collect filter values
                 var district = $('#district').val();
-                
                 var urban_code = $('#urban_code').val();
                 var block = $('#block').val();
                 var gp_ward = $('#gp_ward').val();
                 var muncid = $('#muncid').val();
                 var is_faulty = $('#is_faulty').val();
+
+                // CSRF token
                 var token = "{{ csrf_token() }}";
+
+                // Data to send
                 var data = {
-                    '_token': token,
-                    // scheme_id: scheme_code,
+                    _token: token,
                     district: district,
                     urban_code: urban_code,
                     block: block,
@@ -425,8 +424,36 @@
                     muncid: muncid,
                     is_faulty: is_faulty
                 };
+
+                // Local redirectPost function (merged here)
+                function redirectPost(url, postData = {}) {
+                    let form = document.createElement('form');
+                    form.method = 'POST';
+                    form.action = url;
+
+                    // Ensure CSRF is included
+                    if (!postData._token) {
+                        postData._token = "{{ csrf_token() }}";
+                    }
+
+                    for (let key in postData) {
+                        if (postData.hasOwnProperty(key)) {
+                            let input = document.createElement('input');
+                            input.type = 'hidden';
+                            input.name = key;
+                            input.value = postData[key];
+                            form.appendChild(input);
+                        }
+                    }
+
+                    document.body.appendChild(form);
+                    form.submit();
+                }
+
+                // Call the function
                 redirectPost('generateExcel', data);
             });
+
             $("#from_date").on('blur', function () {
                 var from_date = $('#from_date').val();
                 if (from_date != '') {

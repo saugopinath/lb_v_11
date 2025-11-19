@@ -89,81 +89,98 @@
     }
 </style>
 
-@extends('layouts.app-template-datatable_new')
+@extends('layouts.app-template-datatable')
 @section('content')
 
-    <div class="content-wrapper">
-        <!-- Content Header (Page header) -->
-        <section class="content-header">
-            <h1>
-                Janma Mrityu Death Cases in LB <span class="label label-info" style="font-size: 14px;">(These beneficiaries were de-activated as per death incidents received from Janma Mrityu Portal.)</span>
-            </h1>
+<!-- Content Header (Page header) -->
+<section class="content-header">
+    <div class="container-fluid">
+        <h1>
+            Janma Mrityu Death Cases in LB
+            <span class="badge bg-info" style="font-size: 14px;">
+                (These beneficiaries were de-activated as per death incidents received from Janma Mrityu Portal.)
+            </span>
+        </h1>
+    </div>
+</section>
 
-        </section>
-        <section class="content">
-            <div class="box box-default">
-                <div class="box-body">
+<section class="content">
+    <div class="container-fluid">
 
+        <div class="card card-default">
+            <div class="card-body">
 
-                    <div class="panel panel-default">
-                        <div class="panel-heading"><span id="panel-icon">Filter Here</div>
-                        <div class="panel-body" style="padding: 5px;">
-                            <div class="row">
-                                @if ($message = Session::get('success'))
-                                    <div class="alert alert-success alert-block">
-                                        <button type="button" class="close" data-dismiss="alert">×</button>
-                                        <strong>{{ $message }}</strong>
+                <!-- Filter Panel -->
+                <div class="card card-primary card-outline">
+                    <div class="card-header">
+                        <span id="panel-icon">Filter Here</span>
+                    </div>
 
-                                    </div>
-                                @endif
-                                @if (count($errors) > 0)
-                                    <div class="alert alert-danger alert-block">
-                                        <ul>
-                                            @foreach ($errors->all() as $error)
-                                                <li><strong> {{ $error }}</strong></li>
-                                            @endforeach
-                                        </ul>
-                                    </div>
-                                @endif
-                            </div>
-                            <div class="form-group col-md-4">
-                                <label class="">District</label>
-                                <select name="district" id="district" class="form-control" tabindex="6">
+                    <div class="card-body" style="padding: 5px;">
+
+                        <div class="row">
+                            @if ($message = Session::get('success'))
+                                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                                    <strong>{{ $message }}</strong>
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                                </div>
+                            @endif
+
+                            @if (count($errors) > 0)
+                                <div class="alert alert-danger alert-dismissible fade show">
+                                    <ul class="mb-0">
+                                        @foreach ($errors->all() as $error)
+                                            <li><strong>{{ $error }}</strong></li>
+                                        @endforeach
+                                    </ul>
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                                </div>
+                            @endif
+                        </div>
+
+                        <div class="row">
+
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label">District</label>
+                                <select name="district" id="district" class="form-select" tabindex="6">
                                     <option value="">--- All ---</option>
                                     @foreach ($districts as $district)
-                                        <option value="{{ $district->district_code }}">{{ $district->district_name }}
+                                        <option value="{{ $district->district_code }}">
+                                            {{ $district->district_name }}
                                         </option>
                                     @endforeach
                                 </select>
                                 <span id="error_district" class="text-danger"></span>
                             </div>
-                            <div class="form-group col-md-3">
-                                <label class="control-label">&nbsp;</label><br />
-                                <button type="button" name="filter" id="filter" class="btn btn-primary"><i
-                                        class="fa fa-search"></i> Search</button>
-                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                                <button type="button" name="excel_btn" id="excel_btn" class="btn btn-success"><i
-                                        class="fa fa-file-excel-o"></i> Get Excel</button>
-                                {{-- <button type="button" name="reset" id="reset" class="btn btn-warning">Reset</button> --}}
+
+                            <div class="col-md-3 mb-3 d-flex align-items-end">
+                                <button type="button" name="filter" id="filter" class="btn btn-primary me-3">
+                                    <i class="fa fa-search"></i> Search
+                                </button>
+
+                                <button type="button" name="excel_btn" id="excel_btn" class="btn btn-success">
+                                    <i class="fa fa-file-excel-o"></i> Get Excel
+                                </button>
                             </div>
 
                         </div>
+
+                    </div>
+                </div>
+
+                <!-- List Panel -->
+                <div class="card card-default mt-3" id="list_div" style="display: none;">
+                    <div class="card-header" id="panel_head">
+                        List of beneficiaries
                     </div>
 
-                    <div class="panel panel-default" id="list_div" style="display: none;">
-                        <div class="panel-heading" id="panel_head">List of beneficiaries
-                            {{-- &nbsp;&nbsp;[ Total completed:- <span id="completed_bank"></span>, Total Pending:- <span id="pending_bank_edit"></span>] --}}
-                        </div>
-                        <div class="panel-body" style="padding: 5px; font-size: 14px;">
-                            <div id="loadingDiv">
-                            </div>
-                            <div class="table-responsive">
-                                {{-- <div class="form-group" style="font-weight:bold; font-size:25px;">
-                <label class="control-label">Check All</label>
-              <input type="checkbox" id='check_all_btn' style="width:48px;">
-              </div> --}}
-                                <table id="example" class="display" cellspacing="0" width="100%">
-                                    <thead style="font-size: 12px;">
+                    <div class="card-body" style="padding: 5px; font-size: 14px;">
+                        <div id="loadingDiv"></div>
+
+                        <div class="table-responsive">
+                            <table id="example" class="table table-bordered table-striped" width="100%">
+                                <thead style="font-size: 12px;">
+                                    <tr>
                                         <th>Sl No</th>
                                         <th>Application ID</th>
                                         <th>Beneficiary ID</th>
@@ -172,20 +189,24 @@
                                         <th>Block/Municipality</th>
                                         <th>GP/Ward</th>
                                         <th>Mobile No.</th>
-                                    </thead>
-                                    <tbody style="font-size: 14px;"></tbody>
-                                </table>
-                            </div>
+                                    </tr>
+                                </thead>
+                                <tbody style="font-size: 14px;"></tbody>
+                            </table>
                         </div>
+
                     </div>
                 </div>
-            </div>
-        </section>
-    </div>
 
+            </div>
+        </div>
+
+    </div>
+</section>
 
 @endsection
-@section('script')
+
+@push('script')
     <script src="{{ URL::asset('js/master-data-v2.js') }}"></script>
     <script>
         $(document).ready(function() {
@@ -195,7 +216,7 @@
             $('#excel_btn').click(function() {
                 var token = "{{ csrf_token() }}";
                 var district = $('#district').val();
-                
+
                 //    var student_roll_no = $('#student_roll_no').val();
 
                 var data = {
@@ -212,7 +233,7 @@
             $('.sidebar-menu li').removeClass('active');
             $('.sidebar-menu #bankTrFailed').addClass("active");
             $('.sidebar-menu #JnmpDataListHod').addClass("active");
- 
+
             //$('#loadingDiv').hide();
             var dataTable = "";
 
@@ -357,9 +378,9 @@
                 });
             }
             $('#filter').click(function() {
-                
+
                     loadDatatable();
-                
+
             });
         });
 
@@ -378,4 +399,4 @@
             form.submit();
         }
     </script>
-@stop
+@endpush
