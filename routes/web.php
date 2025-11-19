@@ -1,4 +1,5 @@
 <?php
+
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\{
     ApprovedVerificationPendingController,
@@ -73,7 +74,6 @@ Route::controller(AuthenticationController::class)->group(function () {
     Route::post('/logout', 'logout')->name('logout');
     Route::get('/login1', 'login1')->name('login1');
     Route::post('/login1Post', 'login1Post')->name('login1Post');
-
 });
 
 // Route::get('/force-logout', function () {
@@ -127,17 +127,17 @@ Route::controller(LakkhiBhandarWCDformController::class)->group(function () {
     Route::any('lb-applicant-list-datatable/{list_type}', 'applicantListDatatable');
     Route::get('downaloadEncloser', 'viewimage');
     Route::post('partialReject', 'partialReject')->name('partialReject');
+    Route::any('application-details-read-only/{id}', 'applicantreadonlyview')->name('application-details-read-only');
     Route::any('application-details-read-only', 'applicantreadonlyview')->name('application-details-read-only');
-
-    //Route::any('application-list-common', 'applicationStatusList');
 });
+
+
 Route::controller(LegacyProcessController::class)->group(function () {
     Route::any('legacy/getBankDetails', 'getBankDetails');
     Route::post('bankIfsc', 'bankIfsc')->name('bankIfsc');
 });
 Route::controller(PensionCommonController::class)->group(function () {
     Route::any('applicant/track/', 'applicantTrack');
-
 });
 Route::controller(PensionformReportController::class)->group(function () {
     Route::any('application-list-common', 'applicationStatusList');
@@ -166,11 +166,8 @@ Route::controller(casteManagementController::class)->group(function () {
     Route::get('lb-caste-revert-edit', 'revertedit')->name('lb-caste-revert-edit');
     Route::post('lb-caste-revert-edit-post', 'reverteditPost')->name('lb-caste-revert-edit-post');
     Route::get('caste-matched-report', 'casteMatchedReport')->name('caste-matched-report');
-    Route::any('application-details-read-only/{id}', 'applicantreadonlyview')->name('application-details-read-only');
-    Route::any('application-details-read-only', 'applicantreadonlyview')->name('application-details-read-only');
 });
-// Route::any('application-details-read-only/{id}', 'LakkhiBhandarWCDformController@applicantreadonlyview')->name('application-details-read-only');
-// Route::any('application-details-read-only', 'LakkhiBhandarWCDformController@applicantreadonlyview')->name('application-details-read-only');
+
 
 Route::controller(MasterDataController::class)->group(function () {
     Route::post('masterDataAjax/getUrban', 'getUrban');
@@ -425,8 +422,6 @@ Route::controller(ApproveEditedFailedBenNameController::class)->group(function (
     Route::post('updateFailedNameApprove90to100', 'updateFailedNameApprove90to100')->name('updateFailedNameApprove90to100');
     Route::get('mis-report-of-90-to-100', 'indexMisReport')->name('mis-report-of-90-to-100');
     Route::post('getMis90to100', 'getMis90to100')->name('getMis90to100');
-
-
 });
 
 Route::controller(NameValidationController::class)->group(function () {
@@ -473,10 +468,6 @@ Route::controller(WorkflowController::class)->group(function () {
 });
 
 
-Route::controller(LakkhiBhandarWCDformController::class)->group(function () {
-    Route::any('application-details-read-only/{id}', 'applicantreadonlyview')->name('application-details-read-only');
-    Route::any('application-details-read-only', 'applicantreadonlyview')->name('application-details-read-only');
-});
 
 
 Route::controller(WorkflowController::class)->group(function () {
@@ -491,7 +482,6 @@ Route::controller(WorkflowController::class)->group(function () {
     Route::post('getBenViewBankData', 'getBenViewBankData')->name('getBenViewBankData');
     Route::post('getBenViewEncloserData', 'getBenViewEncloserData')->name('getBenViewEncloserData');
     Route::post('getBenViewAadharData', 'getBenViewAadharData')->name('getBenViewAadharData');
-
 });
 
 // Beneficiary Log Report
