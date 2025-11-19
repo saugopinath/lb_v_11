@@ -55,17 +55,22 @@ class LakkhiBhandarWCDformController extends Controller
     }
      public function applicantList(Request $request)
     {
-        try {
+       try {
         // dd('ok');
-        if(is_null($request->list_type)){
-          return redirect("/")->with('error', 'Undefine Report');
+        if (is_null($request->list_type)) {
+            return redirect("/")->with('error', 'Undefine Report');
         }
-        $list_type=$request->list_type;
-        if (!in_array($list_type, array(1, 2,3))) {
-         return redirect("/")->with('error', 'Undefine Report');
+        $list_type = (int) $request->list_type;
+        if (!is_int($list_type)) {
+            //dd('ok');
+             return redirect("/")->with('error', 'Undefine Report');
         }
-        
-        $ds_phase_list = DsPhase::orderBy('phase_code','DESC')->get();
+        $report_type_arr=DB::table('public.m_list_report_type')->where('id',$list_type)->first();
+        if (empty($report_type_arr)) {
+            return redirect("/")->with('error', 'Undefine Report');
+        }
+       
+        $ds_phase_list = DsPhase::orderBy('phase_code', 'DESC')->get();
         $cur_ds_phase_arr = $ds_phase_list->where('is_current', TRUE)->first();
         if (!empty($cur_ds_phase_arr)) {
             $cur_ds_phase = $cur_ds_phase_arr->phase_code;
@@ -75,19 +80,35 @@ class LakkhiBhandarWCDformController extends Controller
         $designation_id = Auth::user()->designation_id;
         $user_id = Auth::user()->id;
         $is_active = 0;
-        $munc_list=collect([]);
-        $gp_list=collect([]);
+        $block_munc_list = collect([]);
+        $block_munc_visible=0;
+        $gp_ward_list = collect([]);
+        $distCode='';
+        $is_rural_visible=0;
+        $block_ulb_code='';
+        $block_munc_text='Block/Municipality';
+        $gp_ward_text='GP/WARD';
         foreach ($roleArray as $roleObj) {
             if ($roleObj['scheme_id'] == $scheme_id) {
                 $is_active = 1;
+                $mapping_level = $roleObj['mapping_level'];
+                if($mapping_level=='District'){
+                  $is_rural_visible=1;
+                  $block_munc_visible=1;
+                }
                 $is_urban = $roleObj['is_urban'];
                 $distCode = $roleObj['district_code'];
                 if ($roleObj['is_urban'] == 1) {
+                    $block_munc_visible=1;
+                    $block_munc_text='Municipality';
+                    $gp_ward_text='WARD';
                     $blockCode = $roleObj['urban_body_code'];
-                    $munc_list=UrbanBody::where('sub_district_code',$blockCode)->get();
-                } else {
+                    $block_munc_list = UrbanBody::select('urban_body_code as code','urban_body_name as name')->where('sub_district_code', $blockCode)->get();
+                } else if ($roleObj['is_urban'] == 2) {
+                    $gp_ward_text='GP';
                     $blockCode = $roleObj['taluka_code'];
-                    $gp_list=GP::where('block_code',$blockCode)->get();
+                    $block_ulb_code=$blockCode;
+                    $gp_ward_list = GP::select('gram_panchyat_code as code','gram_panchyat_name as name')->where('block_code', $blockCode)->get();
                 }
                 break;
             }
@@ -95,39 +116,147 @@ class LakkhiBhandarWCDformController extends Controller
         if ($is_active == 0 || empty($distCode)) {
             return redirect("/")->with('error', 'User Disabled. ');
         }
-        if (!in_array($designation_id, array('Operator'))) {
+        if (in_array($list_type, array(1,2,3)) && !in_array($designation_id, array('Operator'))) {
             return redirect("/")->with('error', 'Not Allowed');
         }
+        $modelName = new DataSourceCommon;
+        $getModelFunc = new getModelFunc();
+        $personal_table =  'lb_scheme.'.$report_type_arr->p_table_name;
+        $contact_table =  'lb_scheme.'.$report_type_arr->c_table_name;
+        $report_type = $report_type_arr->report_name;
+        $base_condition = $report_type_arr->base_condition;
+        $edit_button_visible = $report_type_arr->edit_button_visible;
+        $modelName->setConnection('pgsql_appread');
+        $modelName->setTable('' . $personal_table);
+        $condition = array();
+        $condition[$personal_table . ".created_by_dist_code"] = $distCode;
+        if(in_array($designation_id, array('Operator','Verifier','Delegated Verifier'))){
+            $condition[$personal_table . ".created_by_local_body_code"] = $blockCode;
+        }
+       
         $reject_revert_reason = RejectRevertReason::where('status', true)->get();
+        // dd($condition);
+        //$entry_allowed_main = BlkUrbanlEntryMapping::where('main_entry', true)->where('block_ulb_code',  $blockCode)->count();
+      
+       if (request()->ajax()) {
+            $searchValue = trim($request->search['value'] ?? '');
+            $ds_phase    = trim($request->ds_phase ?? '');
+            $rural_urbanid     = trim($request->rural_urbanid ?? '');
+            $block_ulb_code     = trim($request->block_ulb_code ?? '');
+            $gp_ward_code  = trim($request->gp_ward_code ?? '');
+            if (in_array($list_type, array(7,10))) {
+              $query = $modelName
+                ->where($condition)
+                ->select([
+                    $personal_table . '.created_by_dist_code as created_by_dist_code',
+                    $personal_table . '.application_id as application_id',
+                    $personal_table . '.ben_fname as ben_fname',
+                    $personal_table . '.father_fname as father_fname',
+                    $personal_table . '.mobile_no as mobile_no',
+
+                ]);
+            }
+           else{
+                $query = $modelName
+                ->where($condition)
+                ->leftJoin($contact_table, $contact_table . '.application_id', '=', $personal_table . '.application_id')
+                ->select([
+                    $personal_table . '.created_by_dist_code as created_by_dist_code',
+                    $personal_table . '.application_id as application_id',
+                    $personal_table . '.ben_fname as ben_fname',
+                    $personal_table . '.father_fname as father_fname',
+                    $personal_table . '.mobile_no as mobile_no',
+
+                ]);
+             }
+
+           
+            $query->whereRaw(" ($base_condition) ");
+            if ($ds_phase !== '') {
+                if($ds_phase==0){
+                 $query->whereRaw(" (".$personal_table.".ds_phase=0 or ".$personal_table.".ds_phase IS NULL");
+                }
+                $query->whereRaw(" (".$personal_table.".ds_phase=".$ds_phase." or ".$personal_table.".mark_ds_phase=".$ds_phase."");
+            }
+            if (!empty($rural_urbanid)) {
+                $query->where($contact_table . ".rural_urban_id", $rural_urbanid);
+            }
+            if (!empty($block_ulb_code)) {
+                $query->where($contact_table . ".block_ulb_code", $block_ulb_code);
+            }
+            if (!empty($gp_ward_code)) {
+                $query->where($contact_table . ".gp_ward_code", $gp_ward_code);
+            }
+            return DataTables::eloquent($query)
+                ->filter(function ($q) use ($searchValue, $personal_table) {
+                    if ($searchValue == '') {
+                        return;
+                    }   
+
+                    
+                    if (is_numeric($searchValue)) {
+                        
+                       $q->where(function ($q) use ($personal_table, $searchValue) {
+                            // Cast columns to TEXT and compare as string to avoid integer overflow
+                            $q->whereRaw("CAST({$personal_table}.application_id AS TEXT) = ?", [$searchValue])
+                                ->orWhereRaw("CAST({$personal_table}.mobile_no AS TEXT) = ?", [$searchValue]);
+                        });
+                        // dd($q->tosql());
+                    } else {
+                        // dd('kii');
+                        $q->Where(function ($q) use ($personal_table, $searchValue) {
+                            $q->orWhere($personal_table . '.ben_fname', 'ilike', $searchValue . '%');
+                        });
+                        return $q;
+                        // dd($q->tosql());
+                    }
+                    // dd($q->tosql());
+                }, true)
+                ->addColumn('name', fn($r) => trim($r->ben_fname ?? ''))
+                ->addColumn('father_name', fn($r) => trim($r->father_fname ?? ''))
+                ->addColumn('Action', function ($r) use ($edit_button_visible) {
+                    $appId = $r->application_id ?? '';
+                    if($edit_button_visible==1){
+                    $action = '<a href="/lb-entry-draft-edit?application_id=' . $appId . '" class="btn btn-sm btn-primary"><i class="glyphicon glyphicon-edit"></i> Edit</a>';
+                    $action .= '&nbsp;&nbsp;&nbsp;&nbsp;<button value="' . $appId . '" id="rej_' . $appId . '" class="btn btn-danger btn-sm rej-btn" type="button">Reject</button>';
+                    }
+                    else{
+                       $action=''; 
+                    }
+                    return $action;
+                })
+                ->rawColumns(['Action'])
+                ->make(true);
         
+            }
+
+
+        // non-ajax: return the view
         $errormsg = Config::get('constants.errormsg');
-        if($list_type==1){
-         $report_type='Draft';
-         $condition["is_final"] = false;
-
+        return view('LbAppList.appList', [
+            'sessiontimeoutmessage' => $errormsg['sessiontimeOut'],
+            'reject_revert_reason' => $reject_revert_reason,
+            'ds_phase_list' => $ds_phase_list,
+            'list_type' => $list_type,
+            'report_type' => $report_type,
+            'report_type' => $report_type,
+            'district_code' => $distCode,
+            'is_rural_visible' => $is_rural_visible,
+            'is_urban' => $is_urban,
+            'block_munc_list' => $block_munc_list,
+            'block_munc_visible' => $block_munc_visible,
+            'block_ulb_code' => $block_ulb_code,
+            'gp_ward_list' => $gp_ward_list,
+            'block_munc_text' => $block_munc_text,
+            'gp_ward_text' => $gp_ward_text,
+            'designation_id' => $designation_id,
+            
+        ]);
+    }
+    catch (\Exception $e) {
+            dd($e);
         }
-        if($list_type==2){
-          $report_type='Submitted';
-          $condition["is_final"] = true;
-        }
-        if($list_type==3){
-          $report_type='Reverted';
-          $condition["is_final"] = true;
-        }
-        return view(
-            'LbAppList.appList',
-            [
-                'sessiontimeoutmessage' => $errormsg['sessiontimeOut'],
-                'reject_revert_reason' => $reject_revert_reason,
-                'ds_phase_list' => $ds_phase_list,
-                'list_type' => $list_type,
-                'report_type' => $report_type,
-                'is_urban' => $is_urban,
-                'munc_list' => $munc_list,
-                'gp_list' => $gp_list,
-
-            ]
-        );
+    
        
     }
     public function applicantListDatatable(Request $request)
@@ -160,15 +289,23 @@ class LakkhiBhandarWCDformController extends Controller
         if ($is_active == 0 || empty($distCode)) {
             return redirect("/")->with('error', 'User Disabled. ');
         }
-        if (in_array($list_type, array(1,2,3)) && !in_array($designation_id, array('Operator'))) {
-            return redirect("/")->with('error', 'Not Allowed');
+         if (is_null($request->list_type)) {
+            return redirect("/")->with('error', 'Undefine Report');
         }
-       if(is_null($request->list_type)){
-          return redirect("/")->with('error', 'Undefine Report');
+        $list_type = (int) $request->list_type;
+        if (!is_int($list_type)) {
+            //dd('ok');
+             return redirect("/")->with('error', 'Undefine Report');
         }
-        $list_type=$request->list_type;
-        if (!in_array($list_type, array(1, 2,3))) {
-         return redirect("/")->with('error', 'Undefine Report');
+        $report_type_arr=DB::table('public.m_list_report_type')->where('id',$list_type)->first();
+        if (empty($report_type_arr)) {
+            return redirect("/")->with('error', 'Undefine Report');
+        }
+       
+        $ds_phase_list = DsPhase::orderBy('phase_code', 'DESC')->get();
+        $cur_ds_phase_arr = $ds_phase_list->where('is_current', TRUE)->first();
+        if (!empty($cur_ds_phase_arr)) {
+            $cur_ds_phase = $cur_ds_phase_arr->phase_code;
         }
         
         $modelName = new DataSourceCommon;

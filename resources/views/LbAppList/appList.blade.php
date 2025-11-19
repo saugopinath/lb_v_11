@@ -211,12 +211,7 @@
 <script src="{{ URL::asset('js/master-data-v2.js') }}"></script>
 <script type="text/javascript">
   $(document).ready(function() {
-    // Sidebar menu activation
-    $('.sidebar-menu li').removeClass('active');
-    $('.sidebar-menu #lk-main').addClass("active");
-    $('.sidebar-menu #lb-draft-list').addClass("active");
-
-    // Variables
+   
     var sessiontimeoutmessage = '{{$sessiontimeoutmessage}}';
     var base_url = '{{ url("/") }}'; 
     var dataTable;
@@ -410,7 +405,7 @@ function initializeDataTable() {
         },
         "ajax": {
          // "url": "{{url('lb-applicant-list')}}",
-          "url": "{{ URL('lb-applicant-list-datatable/'.$list_type )}}",
+          "url": "{{ URL('lb-applicant-list/'.$list_type )}}",
           "type": "GET",
           "data": function(d) {
             d.ds_phase = $("#ds_phase").val();
@@ -543,7 +538,7 @@ function initializeDataTable() {
       $("#submittingapprove").hide();
       $("#reject_cause").val('');
     });
-  });
+
 
 
   function closeError(divId) {

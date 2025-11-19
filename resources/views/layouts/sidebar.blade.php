@@ -1,12 +1,41 @@
 <style>
-    .nav-treeview > .nav-item > .nav-link {
-    padding-left: 2rem;
-}
+    .nav-treeview>.nav-item>.nav-link {
+        padding-left: 2rem;
+    }
 
-.nav-treeview .nav-icon {
-    margin-left: 0.5rem;
-}
+    .nav-treeview .nav-icon {
+        margin-left: 0.5rem;
+    }
 </style>
+@php
+    // Returns the request path without leading slash
+    function currentPath()
+    {
+        return trim(request()->path(), '/');
+    }
+
+    // Check if a link is active (supports query strings too)
+    function isActiveLink($url)
+    {
+        $clean = trim(parse_url($url, PHP_URL_PATH), '/');
+        return request()->is($clean) || request()->is($clean . '/*') ? 'active' : '';
+    }
+
+    // Check if ANY child is active, to expand parent
+    function isMenuOpen($children)
+    {
+        foreach ($children as $child) {
+            $childUrl = $child['url_type'] == 2 ? route($child['link_url']) : url($child['link_url']);
+            $clean = trim(parse_url($childUrl, PHP_URL_PATH), '/');
+
+            if (request()->is($clean) || request()->is($clean . '/*')) {
+                return 'menu-open';
+            }
+        }
+        return '';
+    }
+@endphp
+
 
 <aside class="main-sidebar sidebar-dark-primary elevation-4">
     <!-- Brand Logo -->
@@ -43,14 +72,13 @@
 
         <!-- Sidebar Menu -->
         <nav class="mt-2">
-            <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu"
-                data-accordion="false">
+            <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
 
                 @php
                     $designation_id = Auth::user()->designation_id;
                 @endphp
                 <li class="nav-item">
-                    <a href="{{ url('/backendlogin') }}" class="nav-link active">
+                    <a href="{{ url('/backendlogin') }}" class="nav-link ">
                         <i class="nav-icon fa fa-link"></i>
                         <p>Dashboard</p>
                     </a>
@@ -66,27 +94,44 @@
 
                     @foreach ($menu_contents as $mymenu)
                         @if (empty($mymenu['child_menu']))
+                            @php
+                                $url = $mymenu['url_type'] == 2 ? route($mymenu['link_url']) : url($mymenu['link_url']);
+                            @endphp
+
                             <li class="nav-item">
-                                <a href="{{ $mymenu['url_type'] == '2' ? route($mymenu['link_url']) : url($mymenu['link_url']) }}"
-                                    class="nav-link" title="{{ $mymenu['menu_name'] }}">
+                                <a href="{{ $url }}" class="nav-link {{ isActiveLink($url) }}">
                                     <i class="nav-icon {{ $mymenu['icon'] }}"></i>
-                                    <span>{{ $mymenu['menu_name'] }}</span>
+                                    <p>{{ $mymenu['menu_name'] }}</p>
                                 </a>
                             </li>
+
                         @else
-                            <li class="nav-item has-treeview">
-                                <a href="#" class="nav-link">
+                            @php
+                                $menuOpen = isMenuOpen($mymenu['child_menu']);
+                                $parentActive = $menuOpen ? 'active' : '';
+                            @endphp
+
+                            <li class="nav-item has-treeview {{ $menuOpen }}">
+                                <a href="#" class="nav-link {{ $parentActive }}">
                                     <i class="nav-icon {{ $mymenu['icon'] }}"></i>
                                     <p>
                                         {{ $mymenu['menu_name'] }}
                                         <i class="right fas fa-angle-left"></i>
                                     </p>
                                 </a>
-                                <ul class="nav nav-treeview" style="display: none;">
+
+                                <ul class="nav nav-treeview" style="{{ $menuOpen ? 'display:block;' : 'display:none;' }}">
                                     @foreach ($mymenu['child_menu'] as $mysubmenu)
+                                        @php
+                                            $childUrl = $mysubmenu['url_type'] == 2
+                                                ? route($mysubmenu['link_url'])
+                                                : url($mysubmenu['link_url']);
+
+                                            $activeChild = isActiveLink($childUrl);
+                                        @endphp
+
                                         <li class="nav-item">
-                                            <a href="{{ $mysubmenu['url_type'] == 2 ? route($mysubmenu['link_url']) : url($mysubmenu['link_url']) }}"
-                                                class="nav-link" title="{{ $mysubmenu['menu_name'] }}">
+                                            <a href="{{ $childUrl }}" class="nav-link {{ $activeChild }}">
                                                 <i class="far fa-circle nav-icon {{ $mysubmenu['icon'] }}"></i>
                                                 <p>{{ $mysubmenu['menu_name'] }}</p>
                                             </a>
@@ -96,6 +141,7 @@
                             </li>
                         @endif
                     @endforeach
+
                 @endif
             </ul>
         </nav>
