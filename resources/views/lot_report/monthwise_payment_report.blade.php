@@ -172,7 +172,7 @@
 @endsection
 
 @push('scripts')
-<script src="{{ URL::asset('js/master-data-v2.js') }}"></script>
+<script src="{{ asset('js/master-data-v2.js') }}"></script>
     <script>
         $(document).ready(function () {
             // Live Clock
