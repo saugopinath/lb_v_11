@@ -167,11 +167,11 @@
         </form>
 
         {{-- Bulk Action Button (For District/Approver) --}}
-        @if($verifier_type == 'District' && $designation_id == 'Approver')
+        {{-- @if($verifier_type == 'District' && $designation_id == 'Approver')
           <button id="confirm" class="btn btn-success mt-4 px-5 shadow-lg rounded-3 fw-bold" disabled>
             <i class="bi bi-check-circle-fill me-2"></i> Bulk Approve
           </button>
-        @endif
+        @endif --}}
       </div>
     </div>
 
@@ -236,175 +236,175 @@
 @endsection
 
 @push('scripts')
+<script src="{{ URL::asset('js/master-data-v2.js') }}"></script>
   <script>
-    $(document).ready(function () {
-
-      let table;
-
-      function loadTable(block_ulb_code = '', gp_ward_code = '', application_type = '') {
-        let scheme_id = $("#scheme_id").val();
-        let created_by_local_body_code = $('#created_by_local_body_code').val();
-        let rural_urban_code = $('#rural_urban_code').val();
-
-        // This check determines if the Block/ULB column should be displayed
-        let show_block_ulb = "{{ $verifier_type }}" === 'Subdiv' || "{{ $verifier_type }}" === 'District';
-
-        if ($.fn.DataTable.isDataTable('#example')) {
-          table.destroy();
-        }
-
-        let columns = [
-          { data: "application_id", searchable: true },
-          { data: "ben_name" },
-          { data: "mobile_no" },
-          { data: "dob" }
-        ];
-
-        if (show_block_ulb) columns.push({ data: "block_ulb_name" });
-
-        columns.push(
-          { data: "gp_ward_name" },
-          { data: "action", orderable: false, searchable: true }
-        );
-        dataTable = $('#example').DataTable({
-          dom: 'Blfrtip',
-          "paging": true,
-          "pageLength": 20,
-          "lengthMenu": [
-            [10, 20, 50, 80, 120],
-            [10, 20, 50, 80, 120]
-          ],
-          "serverSide": true,
-          "deferRender": true,
-          "processing": true,
-          "bRetrieve": true,
-          "ordering": false,
-          "searching": true,
-          "language": {
-            "processing": "Processing...",
-            "emptyTable": "No data available in table",
-            "zeroRecords": "No matching records found"
-          },
-          ajax: {
+  $(document).ready(function() {
+    $("#confirm").hide();
+    $("#submittingapprove").hide();
+    
+    var base_url='{{ url('/') }}';
+    var block_ulb_code=$("#block_ulb_code").val();
+    var gp_ward_code=$("#gp_ward_code").val();
+    var application_type=$("#application_type").val();
+  fill_datatable(block_ulb_code,gp_ward_code,application_type);
+  function fill_datatable(block_ulb_code = '',gp_ward_code = '',application_type = ''){
+    //console.log(process_type);
+       var scheme_id=$("#scheme_id").val();
+        var dataTable=$('#example').DataTable( {
+      dom: 'Bfrtip',
+      paging: true,
+      pageLength:20,
+      ordering: false,
+      lengthMenu: [[20, 50,100,500,1000, -1], [20, 50,100,500,1000, 'All']],
+      processing: true,
+      serverSide: true,
+      ajax:{
             url: "{{ url('backfromjb') }}",
             type: "GET",
-            data: {
-              block_ulb_code: block_ulb_code,
-              gp_ward_code: gp_ward_code,
-              scheme_id: scheme_id,
-              application_type: application_type,
-              created_by_local_body_code: created_by_local_body_code,
-              rural_urban_code: rural_urban_code,
+            data:function(d){
+                 d.block_ulb_code= block_ulb_code,
+                 d.gp_ward_code= gp_ward_code,
+                 d.scheme_id= scheme_id,
+                 d.type= $('#type').val(),
+                 d.application_type= application_type,
+                 d._token= "{{csrf_token()}}"
             },
-            error: function (xhr) { console.error("DataTable AJAX Error:", xhr.responseText); }
-          },
-          "buttons": [{
-            extend: 'pdf',
-            footer: true,
-            exportOptions: {
-              columns: [0, 1, 2, 3]
-            },
-            className: 'table-action-btn'
-          },
-          {
-            extend: 'print',
-            footer: true,
-            exportOptions: {
-              columns: [0, 1, 2, 3]
-            },
-            className: 'table-action-btn'
-          },
-          {
-            extend: 'csv',
-            footer: true,
-            exportOptions: {
-              columns: [0, 1, 2, 3]
-            },
-            className: 'table-action-btn'
-          }
+            error: function (ex) {
+              //console.log(ex);
+             alert('Session time out..Please login again');
+            window.location.href=base_url;
+           }                       
+      },
+      columns: [
+                
+        { "data": "application_id" },
+        { "data": "name" },
+        { "data": "mobile_no" },
+        { "data": "dob"},
+        @if($verifier_type=='Subdiv' || $verifier_type=='District')
+        { "data": "block_ulb_name" },
+        @endif
+        { "data": "gp_ward_name" },
+        { "data": "action" },
+       
+       // { "data": "check" },
+              
+      ],          
+    
+    } );
+   }
 
-          ],
-          columns: columns
-        });
-
-        // Enable/Disable the Bulk Approve button based on loaded data / application type
-        // Assuming bulk approval is only possible when 'Verified but Approval Pending' (value '2') is selected
-        table.on('draw.dt', function () {
-          let appType = $('#application_type').val();
-          let isApproverRole = "{{ $verifier_type }}" === 'District' && "{{ $designation_id }}" === 'Approver';
-
-          if (isApproverRole && appType == '2') {
-            $('#confirm').prop('disabled', false);
-          } else {
-            $('#confirm').prop('disabled', true);
-          }
-        });
-      }
-
-      // Initial load
-      // The initial load should use the default value of the dropdowns
-      loadTable($('#block_ulb_code').val(), $('#gp_ward_code').val(), $('#application_type').val());
-
-      // Filter
-      $('#filter').click(function () {
-        let block_ulb_code = $('#block_ulb_code').val();
-        let gp_ward_code = $('#gp_ward_code').val();
-        let application_type = $('#application_type').val();
-
-        if (!application_type) {
-          $('#error_application_type').text('Application Type is required');
-          return;
-        } else {
-          $('#error_application_type').text('');
+    $('#filter').click(function(){
+        var block_ulb_code = $('#block_ulb_code').val();
+        var gp_ward_code = $('#gp_ward_code').val();
+        var application_type = $('#application_type').val();
+        var designation_id = $('#designation_id').val();
+        var error_application_type='';
+        var error_process_type='';
+        if(application_type=='')
+        {
+          error_application_type = 'Application Type is required';
+          $('#error_application_type').text(error_application_type);
+          $('#application_type').addClass('has-error');
         }
-
-        loadTable(block_ulb_code, gp_ward_code, application_type);
-      });
-
-      // Reset
-      $('#reset').click(function () {
-        // Reset filter inputs to default values
-        $('#application_type').val('1').trigger('change');
-        $('#block_ulb_code').val('').trigger('change');
-        $('#gp_ward_code').val('').trigger('change');
-        $('#rural_urban_code').val('').trigger('change');
-        $('#created_by_local_body_code').val('').trigger('change');
-
-        loadTable();
-      });
-
-      // Handle Municipaliy/Ward logic for Subdiv (AJAX required here)
-      $('#block_ulb_code').on('change', function () {
-        // TODO: Implement AJAX call here to fetch Wards based on selected Municipality (this.value)
-        // and populate the #gp_ward_code dropdown.
-      });
-
-      // Confirm approve modal
-      $('#confirm').click(function () {
-        // Reset modal buttons before showing
-        $('#confirm_yes').show();
-        $("#submittingapprove").addClass('d-none');
-        $('#modalConfirm').modal('show');
-      });
-
-      // Submit action from modal
-      $('#confirm_yes').click(function () {
-        // Show loader, hide OK button
-        $(this).hide();
-        $("#submittingapprove").removeClass('d-none');
-        $('#action_type').val('2');
-        $("#register_form").submit();
-      });
-      $('#rural_urban_code').on('change', function () {
-        let selectedValue = $(this).val();
-        if (selectedValue == 'R') {
-          $('#blk_sub_txt').text('Block');
-        } else if (selectedValue == 'U') {
-          $('#blk_sub_txt').text('Municipality/ULB');
-        } else {
-          $('#blk_sub_txt').text('Block/Sub Division');
+        else
+        {
+          error_application_type = '';
+          $('#error_application_type').text(error_application_type);
+          $('#application_type').removeClass('has-error');
         }
-      }).trigger('change'); // Trigger on load to set initial label
+        
+        if(error_application_type=='' ){
+          //console.log(process_type);
+          $('#example').DataTable().destroy();
+          fill_datatable(block_ulb_code,gp_ward_code,application_type);
+        }
+        
+       
     });
-  </script>
+    $('#block_ulb_code').change(function() {
+      var municipality_code=$(this).val();
+       if(municipality_code!=''){
+        $('#gp_ward').html('<option value="">--All --</option>');
+        var htmlOption='<option value="">--All--</option>';
+          $.each(ulb_wards, function (key, value) {
+                if(value.urban_body_code==municipality_code){
+                    htmlOption+='<option value="'+value.id+'">'+value.text+'</option>';
+                }
+            });
+        $('#gp_ward_code').html(htmlOption);
+       }
+       else{
+          $('#gp_ward_code').html('<option value="">--All --</option>');
+       } 
+    });
+    $('#rural_urban_code').change(function() {
+       var urban_code=$(this).val();
+        if(urban_code==''){
+          $('#created_by_local_body_code').html('<option value="">--All --</option>'); 
+        }
+        $('#created_by_local_body_code').html('<option value="">--All --</option>'); 
+        select_district_code= $('#dist_code').val();
+       //console.log(select_district_code);
+        
+        select_body_type= urban_code;
+        var htmlOption='<option value="">--All--</option>';
+        if(select_body_type==2){
+            $("#blk_sub_txt").text('Block');
+            $.each(blocks, function (key, value) {
+                if(value.district_code==select_district_code){
+                    htmlOption+='<option value="'+value.id+'">'+value.text+'</option>';
+                }
+            });
+        }else if(select_body_type==1){
+            $("#blk_sub_txt").text('Subdivision');
+            $.each(subDistricts, function (key, value) {
+                if(value.district_code==select_district_code){
+                    htmlOption+='<option value="'+value.id+'">'+value.text+'</option>';
+                }
+            });
+        } 
+        else{
+          $("#blk_sub_txt").text('Block/Subdivision');
+        }   
+        $('#created_by_local_body_code').html(htmlOption);
+        
+
+    });
+      $('#reset').click(function(){
+        $('#application_type').val('');
+        $('#gp_code').val('');
+        $('#gp_code').val('');
+        $('#example').DataTable().destroy();
+        fill_datatable();
+    });
+    $('#confirm').click(function(){      
+      $('#modalConfirm').modal();
+    });
+    $('#confirm_yes').on('click',function(){
+        $("#confirm_yes").hide();
+        $("#submittingapprove").show();
+        $("#register_form").submit();
+        
+       
+      });
+
+  } );
+  function controlCheckBox(){
+    //console.log('ok');
+    var anyBoxesChecked = false;
+    $(' input[type="checkbox"]').each(function() {
+      if ($(this).is(":checked")) {
+        anyBoxesChecked = true;
+      }
+    });
+    if (anyBoxesChecked == true) {
+      $("#confirm").show();
+      document.getElementById('confirm').disabled = false;
+    } else{
+      $("#confirm").hide();
+      document.getElementById('confirm').disabled = true;
+    }
+  }
+</script>
 @endpush

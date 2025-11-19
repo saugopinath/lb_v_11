@@ -265,8 +265,8 @@
   </section>
 @endsection
 @push('scripts')
+<script src="{{ URL::asset('js/master-data-v2.js') }}"></script>
   <script>
-
     $(document).ready(function () {
       $('.sidebar-menu li').removeClass('active');
       $('.sidebar-menu #lb-aadhar').addClass("active");
