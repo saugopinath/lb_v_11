@@ -107,7 +107,7 @@ class DuplicateController extends Controller
 
         }
         $getModelFunc = new getModelFunc();
-        $aadhar_table = $getModelFunc->getTable($district_code, '', 2);
+        $aadhar_table = $getModelFunc->getTable($district_code = NULL, '', 2);
         $model = new DataSourceCommon;
         $model->setTable('' . $aadhar_table);
         $condition["is_dup"] = 1;
@@ -185,11 +185,11 @@ class DuplicateController extends Controller
         $aadhar_no = (trim($aadhar_no, ';'));
         $aadhar_no = (int) $aadhar_no;
         $getModelFunc = new getModelFunc();
-        $aadhar_table = $getModelFunc->getTable($district_code, '', 2);
+        $aadhar_table = $getModelFunc->getTable($district_code = NULL, '', 2);
         $model = new DataSourceCommon;
         $model->setTable('' . $aadhar_table);
-        $personal_table = $getModelFunc->getTable($district_code, '', 1);
-        $bank_table = $getModelFunc->getTable($district_code, '', 4);
+        $personal_table = $getModelFunc->getTable($district_code = NULL, '', 1);
+        $bank_table = $getModelFunc->getTable($district_code = NULL, '', 4);
         $condition[$aadhar_table . ".is_dup"] = 1;
         $condition[$aadhar_table . ".created_by_dist_code"] = $district_code;
         $condition[$aadhar_table . ".created_by_local_body_code"] = $urban_body_code;
@@ -301,10 +301,10 @@ class DuplicateController extends Controller
         }
         $getModelFunc = new getModelFunc();
         $personal_model = new DataSourceCommon;
-        $Table = $getModelFunc->getTable($district_code, $this->source_type, 1);
+        $Table = $getModelFunc->getTable($district_code = NULL, $this->source_type, 1);
         $personal_model->setTable('' . $Table);
         $pension_details_aadhar = new DataSourceCommon;
-        $Table = $getModelFunc->getTable($district_code, $this->source_type, 2);
+        $Table = $getModelFunc->getTable($district_code = NULL, $this->source_type, 2);
         $pension_details_aadhar->setTable('' . $Table);
         $row = $personal_model->where('next_level_role_id', 0)->where('application_id', $request->application_id)->where('created_by_dist_code', $district_code)->where('created_by_local_body_code', $urban_body_code)->first();
         //dd($row->beneficiary_id);
@@ -315,7 +315,7 @@ class DuplicateController extends Controller
         try {
 
             $accept_reject_model = new DataSourceCommon;
-            $Table = $getModelFunc->getTable($district_code, $this->source_type, 9);
+            $Table = $getModelFunc->getTable($district_code = NULL, $this->source_type, 9);
             $accept_reject_model->setTable('' . $Table);
             $accept_reject_model->op_type = 'AR';
             $accept_reject_model->application_id = $row->application_id;
@@ -423,13 +423,13 @@ class DuplicateController extends Controller
         }
         $getModelFunc = new getModelFunc();
         $personal_model = new DataSourceCommon;
-        $Table = $getModelFunc->getTable($district_code, $this->source_type, 1);
+        $Table = $getModelFunc->getTable($district_code = NULL, $this->source_type, 1);
         $personal_model->setTable('' . $Table);
         $pension_details_aadhar = new DataSourceCommon;
-        $Table = $getModelFunc->getTable($district_code, $this->source_type, 2);
+        $Table = $getModelFunc->getTable($district_code = NULL, $this->source_type, 2);
         $pension_details_aadhar->setTable('' . $Table);
         $pension_details_encloser1 = new DataSourceCommon;
-        $TableEnc = $getModelFunc->getTable($district_code, $this->source_type, 6, 1);
+        $TableEnc = $getModelFunc->getTable($district_code = NULL, $this->source_type, 6, 1);
         $pension_details_encloser1->setConnection('pgsql_encwrite');
         $pension_details_encloser1->setTable('' . $TableEnc);
         $row = $personal_model->where('next_level_role_id', 0)->where('application_id', $request->application_id)->where('created_by_dist_code', $district_code)->where('created_by_local_body_code', $urban_body_code)->first();
@@ -473,7 +473,7 @@ class DuplicateController extends Controller
         try {
             // Insert accept_reject_info table.
             $accept_reject_model = new DataSourceCommon;
-            $Table = $getModelFunc->getTable($district_code, $this->source_type, 9);
+            $Table = $getModelFunc->getTable($district_code = NULL, $this->source_type, 9);
             $accept_reject_model->setTable('' . $Table);
             $accept_reject_model->op_type = 'AadharModified';
             $accept_reject_model->application_id = $row->application_id;
@@ -564,11 +564,11 @@ class DuplicateController extends Controller
             $condition = array();
 
             $getModelFunc = new getModelFunc();
-            $personal_table = $getModelFunc->getTable($district_code, '', 1);
+            $personal_table = $getModelFunc->getTable($district_code = NULL, '', 1);
             $personal_modal = new DataSourceCommon;
             $personal_modal->setTable('' . $personal_table);
-            $contact_table = $getModelFunc->getTable($district_code, '', 3);
-            $aadhar_table = $getModelFunc->getTable($district_code, '', 2);
+            $contact_table = $getModelFunc->getTable($district_code = NULL, '', 3);
+            $aadhar_table = $getModelFunc->getTable($district_code = NULL, '', 2);
             $condition[$personal_table . ".created_by_dist_code"] = $district_code;
             $condition[$contact_table . ".created_by_dist_code"] = $district_code;
             $condition[$aadhar_table . ".created_by_dist_code"] = $district_code;
@@ -742,10 +742,10 @@ class DuplicateController extends Controller
             $getModelFunc = new getModelFunc();
             $schemaname = $getModelFunc->getSchemaDetails();
             $personal_model = new DataSourceCommon;
-            $Table = $getModelFunc->getTable($district_code, $this->source_type, 1);
+            $Table = $getModelFunc->getTable($district_code = NULL, $this->source_type, 1);
             $personal_model->setTable('' . $Table);
             $pension_details_aadhar = new DataSourceCommon;
-            $Table = $getModelFunc->getTable($district_code, $this->source_type, 2);
+            $Table = $getModelFunc->getTable($district_code = NULL, $this->source_type, 2);
             $pension_details_aadhar->setTable('' . $Table);
             if ($is_bulk == 0) {
                 $row = $personal_model->where('next_level_role_id', 0)->where('application_id', $request->application_id)->where('created_by_dist_code', $district_code)->first();
@@ -800,7 +800,7 @@ class DuplicateController extends Controller
                 if ($is_bulk == 0) {
                     // Insert accept_reject_info table.
                     $accept_reject_model = new DataSourceCommon;
-                    $Table = $getModelFunc->getTable($district_code, $this->source_type, 9);
+                    $Table = $getModelFunc->getTable($district_code = NULL, $this->source_type, 9);
                     $accept_reject_model->setTable('' . $Table);
                     $accept_reject_model->op_type = 'AadharApproved';
                     $accept_reject_model->application_id = $row->application_id;
@@ -853,7 +853,7 @@ class DuplicateController extends Controller
                     foreach ($arr as $app) {
                         // Insert accept_reject_info table.
                         $accept_reject_model = new DataSourceCommon;
-                        $Table = $getModelFunc->getTable($district_code, $this->source_type, 9);
+                        $Table = $getModelFunc->getTable($district_code = NULL, $this->source_type, 9);
                         $accept_reject_model->setTable('' . $Table);
                         $accept_reject_model->op_type = 'AadharApproved';
                         $accept_reject_model->application_id = $row->application_id;
@@ -1403,11 +1403,11 @@ class DuplicateController extends Controller
             return redirect("/")->with('success', 'User Disabled. ');
         }
         $getModelFunc = new getModelFunc();
-        $personal_table = $getModelFunc->getTable($district_code, '', 1);
+        $personal_table = $getModelFunc->getTable($district_code = NULL, '', 1);
         $personal_modal = new DataSourceCommon;
         $personal_modal->setTable('' . $personal_table);
-        $contact_table = $getModelFunc->getTable($district_code, '', 3);
-        $aadhar_table = $getModelFunc->getTable($district_code, '', 2);
+        $contact_table = $getModelFunc->getTable($district_code = NULL, '', 3);
+        $aadhar_table = $getModelFunc->getTable($district_code = NULL, '', 2);
 
         $filter = $request->search_for;
         $block = $request->block_ulb_code;
@@ -1428,7 +1428,7 @@ class DuplicateController extends Controller
             } else {
                 //
             }
-            $result = $this->getQueryResult($district_code, $blockCode, $block, $gp_ward, $muncid, $rural_urban, $whereCon);
+            $result = $this->getQueryResult($district_code = NULL, $blockCode = NULL, $block = NULL, $gp_ward = NULL, $muncid = NULL, $rural_urban, $whereCon);
             // dd($result);
             // $result = DB::connection('pgsql_appwrite')->select($query);
             return datatables()->of($result)
@@ -1478,11 +1478,11 @@ class DuplicateController extends Controller
             return redirect("/")->with('success', 'User Disabled. ');
         }
         $getModelFunc = new getModelFunc();
-        $personal_table = $getModelFunc->getTable($district_code, '', 1);
+        $personal_table = $getModelFunc->getTable($district_code = NULL, '', 1);
         $personal_modal = new DataSourceCommon;
         $personal_modal->setTable('' . $personal_table);
-        $contact_table = $getModelFunc->getTable($district_code, '', 3);
-        $aadhar_table = $getModelFunc->getTable($district_code, '', 2);
+        $contact_table = $getModelFunc->getTable($district_code = NULL, '', 3);
+        $aadhar_table = $getModelFunc->getTable($district_code = NULL, '', 2);
 
         $filter = $request->search_for;
         $block = $request->block_ulb_code;
@@ -1501,7 +1501,7 @@ class DuplicateController extends Controller
             $whereCon[$aadhar_table . ".dup_modification"] = 2;
             $whereCon[$aadhar_table . ".is_dup"] = null;
         }
-        $result = $this->getQueryResult($district_code, $blockCode, $block, $gp_ward, $muncid, $rural_urban, $whereCon);
+        $result = $this->getQueryResult($district_code = NULL, $blockCode = NULL, $block = NULL, $gp_ward = NULL, $muncid = NULL, $rural_urban, $whereCon);
         $excelarr[] = array(
             'Beneficiary ID',
             'Beneficiary Name',
@@ -1527,16 +1527,16 @@ class DuplicateController extends Controller
         })->download('xlsx');
     }
 
-    private function getQueryResult($district_code, $blockCode, $block, $gp_ward, $muncid, $rural_urban, $whereCon)
+    private function getQueryResult($district_code = NULL, $blockCode, $block = NULL, $gp_ward = NULL, $muncid = NULL, $rural_urban, $whereCon)
     {
         $condition = array();
 
         $getModelFunc = new getModelFunc();
-        $personal_table = $getModelFunc->getTable($district_code, '', 1);
+        $personal_table = $getModelFunc->getTable($district_code = NULL, '', 1);
         $personal_modal = new DataSourceCommon;
         $personal_modal->setTable('' . $personal_table);
-        $contact_table = $getModelFunc->getTable($district_code, '', 3);
-        $aadhar_table = $getModelFunc->getTable($district_code, '', 2);
+        $contact_table = $getModelFunc->getTable($district_code = NULL, '', 3);
+        $aadhar_table = $getModelFunc->getTable($district_code = NULL, '', 2);
         $condition[$personal_table . ".created_by_dist_code"] = $district_code;
         $condition[$contact_table . ".created_by_dist_code"] = $district_code;
         $condition[$aadhar_table . ".created_by_dist_code"] = $district_code;

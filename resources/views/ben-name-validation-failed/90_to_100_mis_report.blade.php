@@ -1,489 +1,259 @@
-<!DOCTYPE html>
-
-<!--
-This is a starter template page. Use this page to start your new project from
-scratch. This page gets rid of all links and provides the needed markup only.
--->
-<html>
-
-<head>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <title>SS | {{ Config::get('constants.site_title') }}</title>
-    <!-- Tell the browser to be responsive to screen width -->
-    <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
-    <!-- Bootstrap 3.3.6 -->
-    <link href="{{ asset('/bower_components/AdminLTE/bootstrap/css/bootstrap.min.css') }}" rel="stylesheet"
-        type="text/css" />
-    <link href="{{ asset('css/select2.min.css') }}" rel="stylesheet">
-
-    <!-- Font Awesome -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.5.0/css/font-awesome.min.css">
-    <!-- Ionicons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/ionicons/2.0.1/css/ionicons.min.css">
-    <!-- Theme style -->
-    <link href="{{ asset('/bower_components/AdminLTE/dist/css/AdminLTE.min.css') }}" rel="stylesheet" type="text/css" />
-    <!-- AdminLTE Skins. We have chosen the skin-blue for this starter
-        page. However, you can choose any other skin. Make sure you
-        apply the skin class to the body tag so the changes take effect.
-  -->
-    <link href="{{ asset('/bower_components/AdminLTE/dist/css/skins/skin-blue.min.css') }}" rel="stylesheet"
-        type="text/css" />
-
-    <!-- bootstrap wysihtml5 - text editor -->
-    <!-- <link rel="stylesheet" href="{{ asset('/plugins/bootstrap-wysihtml5/bootstrap3-wysihtml5.min.css') }}"> -->
-
-    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
-    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
-    <!--[if lt IE 9]>
-  <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
-  <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
-  <![endif]-->
-    <link href="{{ asset('/bower_components/AdminLTE/plugins/datatables/dataTables.bootstrap.css') }}" rel="stylesheet"
-        type="text/css" />
-
-    <style>
-        .box {
-            width: 800px;
-            margin: 0 auto;
-        }
-
-        .active_tab1 {
-            background-color: #fff;
-            color: #333;
-            font-weight: 600;
-        }
-
-        .inactive_tab1 {
-            background-color: #f5f5f5;
-            color: #333;
-            cursor: not-allowed;
-        }
-
-        .has-error {
-            border-color: #cc0000;
-            background-color: #ffff99;
-        }
-
-        .select2 {
-            width: 100% !important;
-        }
-
-        .select2 .has-error {
-            border-color: #cc0000;
-            background-color: #ffff99;
-        }
-
-        .modal_field_name {
-            float: left;
-            font-weight: 700;
-            margin-right: 1%;
-            padding-top: 1%;
-            margin-top: 1%;
-        }
-
-        .modal_field_value {
-            margin-right: 1%;
-            padding-top: 1%;
-            margin-top: 1%;
-        }
-
-        .row {
-            margin-right: 0px !important;
-            margin-left: 0px !important;
-            margin-top: 1% !important;
-        }
-
-        .section1 {
-            border: 1.5px solid #9187878c;
-            margin: 2%;
-            padding: 2%;
-        }
-
-        .color1 {
-            margin: 0% !important;
-            background-color: #5f9ea061;
-        }
-
-        .modal-header {
-            background-color: #7fffd4;
-        }
-
-        .required-field::after {
-            content: "*";
-            color: red;
-        }
-
-        .imageSize {
-            font-size: 9px;
-            color: #333;
-        }
-
-        #divScrool {
-            overflow-x: scroll;
-        }
-    </style>
-
-
-</head>
-<!--
-BODY TAG OPTIONS:
-=================
-Apply one or more of the following classes to get the
-desired effect
-|---------------------------------------------------------|
-| SKINS         | skin-blue                               |
-|               | skin-black                              |
-|               | skin-purple                             |
-|               | skin-yellow                             |
-|               | skin-red                                |
-|               | skin-green                              |
-|---------------------------------------------------------|
-|LAYOUT OPTIONS | fixed                                   |
-|               | layout-boxed                            |
-|               | layout-top-nav                          |
-|               | sidebar-collapse                        |
-|               | sidebar-mini                            |
-|---------------------------------------------------------|
--->
-
-<body class="hold-transition skin-blue sidebar-mini">
-    <div class="wrapper">
-
-        <!-- Main Header -->
-        @include('layouts.header')
-        <!-- Sidebar -->
-        @include('layouts.sidebar')
-
-        <!-- Content Wrapper. Contains page content -->
-        <div class="content-wrapper">
-            <!-- Content Header (Page header) -->
-            <section class="content">
-                <div class="row">
-                    <!-- left column -->
-                    <div class="col-md-12">
-                        <!-- general form elements -->
-                        <div> <!-- class="box box-primary" -->
-                            <div class="box-header with-border">
-                                <h3 class="box-title"><b>
-
-                                    Minor Mismatch MIS Report(90% - 100%) whose payment has been stopped
-
-                                    </b></h3>
-                                <!-- <p><h3 class="box-title"><b>Bandhu Prakalpa (for SC)</b></h3></p> -->
-                            </div>
-
-                            <div>
-                                @if (($message = Session::get('success')) && ($id = Session::get('id')))
-                                    <div class="alert alert-success alert-block">
-                                        <button type="button" class="close" data-dismiss="alert">×</button>
-                                        <strong>{{ $message }} with Application ID: {{ $id }}</strong>
-
-
-                                    </div>
-                                @endif
-                                @if ($message = Session::get('error'))
-                                    <div class="alert alert-danger alert-block">
-                                        <button type="button" class="close" data-dismiss="alert">×</button>
-                                        <strong>{{ $message }}</strong>
-
-
-                                    </div>
-                                @endif
-                                @if (count($errors) > 0)
-                                    <div class="alert alert-danger alert-block">
-                                        <ul>
-                                            @foreach ($errors->all() as $error)
-                                                <li><strong> {{ $error }}</strong></li>
-                                            @endforeach
-                                        </ul>
-                                    </div>
-                                @endif
-                                <!--   @if ($message = Session::get('failure'))
-<div class="alert alert-success alert-block">
-                <button type="button" class="close" data-dismiss="alert">×</button>
-                      <strong>{{ $message }}</strong>
-              </div>
-@endif -->
-                            </div>
-                            <!-- /.box-header -->
-                            <!-- form start -->
-                            <form method="post" id="register_form" action="{{ url('wcd20210202ReportPost') }}"
-                                class="submit-once">
-                                {{ csrf_field() }}
-
-
-
-
-
-                                <div class="tab-content" style="margin-top:16px;">
-
-
-
-
-
-
-                                    <div class="tab-pane active" id="personal_details">
-                                        <div class="panel panel-default">
-                                            <div class="panel-heading">
-                                                <h4><b>Search Criteria</b></h4>
-                                            </div>
-                                            <div class="panel-body">
-
-
-
-                                                <div class="row">
-                                                    <div class="form-group col-md-3">
-                                                        <label for="cars" class="required-field">Choose Score:</label>
-                                                         <select name="minor_mismatch" id="minor_mismatch" class="form-control">
-                                                           <option value="1">90% - 100%</option>
-                                                           <option value="2">40% - 89%</option>
-                                                         </select>
-                                                        <span id="error_minor_mismatch" class="text-danger"></span>
-                                                    </div>
-                                                    @if ($district_visible)
-                                                        <div class="form-group col-md-4">
-                                                            <label class="">District</label>
-                                                            <select name="district" id="district" class="form-control"
-                                                                tabindex="6">
-                                                                <option value="">--All --</option>
-                                                                @foreach ($districts as $district)
-                                                                    <option value="{{ $district->district_code }}"
-                                                                        @if (old('district') == $district->district_code) selected @endif>
-                                                                        {{ $district->district_name }}</option>
-                                                                @endforeach
-                                                            </select>
-                                                            <span id="error_district" class="text-danger"></span>
-
-                                                        </div>
-                                                    @else
-                                                        <input type="hidden" name="district" id="district"
-                                                            value="{{ $district_code_fk }}" />
-                                                    @endif
-                                                    @if ($is_urban_visible)
-                                                        <div class="form-group col-md-4" id="divUrbanCode">
-                                                            <label>Rural/ Urban</label>
-
-                                                            <select name="urban_code" id="urban_code"
-                                                                class="form-control" tabindex="11">
-                                                                <option value="">--All --</option>
-                                                                @foreach (Config::get('constants.rural_urban') as $key => $val)
-                                                                    <option value="{{ $key }}"
-                                                                        @if (old('urban_code') == $key) selected @endif>
-                                                                        {{ $val }}</option>
-                                                                @endforeach
-
-                                                            </select>
-                                                            <span id="error_urban_code" class="text-danger"></span>
-                                                        </div>
-                                                    @else
-                                                        <input type="hidden" name="urban_code" id="urban_code"
-                                                            value="{{ $rural_urban_fk }}" />
-
-                                                    @endif
-                                                    @if ($block_visible)
-                                                        <div class="form-group col-md-4" id="divBodyCode">
-                                                            <label class="" id="blk_sub_txt">Block/Sub
-                                                                Division.</label>
-
-                                                            <select name="block" id="block" class="form-control"
-                                                                tabindex="16">
-                                                                <option value="">--All --</option>
-
-
-                                                            </select>
-                                                            <span id="error_block" class="text-danger"></span>
-                                                        </div>
-                                                    @else
-                                                        <input type="hidden" name="block" id="block"
-                                                            value="{{ $block_munc_corp_code_fk }}" />
-                                                    @endif
-
-                                                    {{-- <div class="form-group col-md-4" id="municipality_div" style="{{$municipality_visible?'':'display:none'}}">
-                <label class="">Municipality</label>
-                
-                <select name="muncid" id="muncid" class="form-control" tabindex="16" >
-                  <option value="">--All --</option>
-                    @foreach ($muncList as $munc)
-                  <option value="{{$munc->urban_body_code}}"> {{$munc->urban_body_name}}</option>
-                  @endforeach
-                   
-                </select>
-                  <span id="error_muncid" class="text-danger"></span>
-              </div> --}}
-
-
-                                                    {{-- <div class="form-group col-md-4" id="gp_ward_div" style="{{$gp_ward_visible?'':'display:none'}}">
-                <label class="" id="gp_ward_txt">GP/Ward</label>
-                
-                <select name="gp_ward" id="gp_ward" class="form-control" tabindex="17" >
-                  <option value="">--All --</option>
-                   @foreach ($gpList as $gp)
-                  <option value="{{$gp->gram_panchyat_code}}"> {{$gp->gram_panchyat_name}}</option>
-                  @endforeach
-                   
-                </select>
-                  <span id="error_gp_ward" class="text-danger"></span>
-              </div> --}}
-
-
-                                                </div>
-                                                <div class="row">
-                                                    
-                                                    <div class="col-md-12" align="center">
-
-                                                        <button type="button" id="submitting" value="Submit"
-                                                            class="btn btn-success success btn-lg modal-search form-submitted">Search
-                                                        </button>
-
-                                                        <div class=""><img src="{{ asset('images/ZKZg.gif') }}"
-                                                                id="submit_loader1" width="50px" height="50px"
-                                                                style="display:none;"></div>
-
-                                                        <!--<button type="button" name="btn_personal_details" id="btn_personal_details" class="btn btn-info btn-lg">Next</button>-->
-                                                    </div>
-                                                    <br />
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        <div class="tab-content" style="margin-top:16px;">
-
-
-                                            <div class="alert print-error-msg" style="display:none;" id="errorDiv">
-                                                <button type="button" class="close" aria-label="Close"
-                                                    onclick="closeError('errorDiv')"><span
-                                                        aria-hidden="true">&times;</span></button>
-                                                <ul></ul>
-                                            </div>
-
-
-
-                                            <div class="tab-pane active" id="search_details" style="display:none;">
-                                                <div class="panel panel-default">
-                                                    <div class="panel-heading" id="heading_msg">
-                                                        <h4><b>Search Result</b></h4>
-                                                    </div>
-                                                    <div class="panel-body">
-
-                                                        {{-- <div class="pull-right">Report Generated on:<b><span
-                                                                    id="report_generation_text"></span></b></div> --}}
-
-                                                        <button class="btn btn-info exportToExcel"
-                                                            type="button">Export to Excel</button><br /><br /><br />
-                                                        <div id="divScrool">
-                                                            <table id="example"
-                                                                class="table table-striped table-bordered table2excel"
-                                                                style="width:100%">
-                                                                <thead>
-                                                                    <tr>
-                                                                        <td colspan="21" align="center"
-                                                                            style="display:none;" id="heading_excel">
-                                                                            Heading</td>
-                                                                    </tr>
-                                                                    <tr>
-                                                                        <th id="">Sl No.(A)
-                                                                        </th>
-                                                                        <th id="location_id">District</th>
-                                                                        <th>Total</th>
-                                                                        <th>Verified as Minor Mismatch but Approval Pending</th>
-                                                                        <th>Verified & Approved as Minor Mismatch</th>
-                                                                        <th>Rejected</th>
-                                                                        <th>Pending</th>
-                                                                    </tr>
-                                                                </thead>
-                                                                <tbody>
-
-                                                                </tbody>
-                                                                <tfoot>
-                                                                    <tr id="fotter_id"></tr>
-                                                                    <tr>
-                                                                        <td colspan="21" align="center"
-                                                                            style="display:none;" id="fotter_excel">
-                                                                            Heading</td>
-                                                                    </tr>
-                                                                </tfoot>
-                                                            </table>
-                                                        </div>
-
-
-
-
-                                                    </div>
-                                                </div>
-                                            </div>
-
-
-                                        </div>
-                                    </div>
-                                </div>
-
-
-
-
-
-                        </div>
-
-
-
-
-
-                        </form>
-                    </div>
-                    <!-- /.box -->
-                </div>
-                <!--/.col (left) -->
-
+<style type="text/css">
+    .preloader1 {
+        position: fixed;
+        top: 40%;
+        left: 52%;
+        z-index: 999;
+        background: transparent !important;
+    }
+
+    .disabledcontent {
+        pointer-events: none;
+        opacity: 0.4;
+    }
+
+    .has-error {
+        border-color: #cc0000;
+        background-color: #ffff99;
+    }
+
+    .modal {
+        text-align: center;
+        padding: 0 !important;
+    }
+
+    .modal:before {
+        content: '';
+        display: inline-block;
+        height: 100%;
+        vertical-align: middle;
+        margin-right: -4px;
+    }
+
+    .modal-dialog {
+        display: inline-block;
+        text-align: left;
+        vertical-align: middle;
+    }
+
+    label.required:after {
+        color: red;
+        content: '*';
+        font-weight: bold;
+        margin-left: 5px;
+        float: right;
+        margin-top: 5px;
+    }
+
+    .filterDiv {
+        border: 1px solid #d9d9d9;
+        border-left: 3px solid deepskyblue;
+        margin-bottom: 10px;
+        padding: 8px;
+        box-shadow: 0 1px 1px rgb(0 0 0 / 10%);
+    }
+
+    .resultDiv {
+        border: 1px solid #d9d9d9;
+        border-left: 3px solid seagreen;
+        padding: 8px;
+        box-shadow: 0 1px 1px rgb(0 0 0 / 10%);
+    }
+
+    /* Enhanced Design Styles */
+    .page-header {
+        background: linear-gradient(135deg, #6b89ed 0%, #605164 100%);
+        color: white;
+        padding: 6px 30px;
+        border-radius: 12px;
+        margin-bottom: 25px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    .page-title {
+        font-size: 1.75rem;
+        font-weight: 700;
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .page-title i {
+        font-size: 1.5rem;
+    }
+
+    /* Button Styling */
+    .btn-action {
+        border: none !important;
+        border-radius: 6px !important;
+        padding: 8px 16px !important;
+        font-weight: 600 !important;
+        font-size: 12px !important;
+        transition: all 0.3s ease !important;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15) !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        gap: 6px !important;
+    }
+
+    .btn-action:hover {
+        transform: translateY(-2px) !important;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2) !important;
+    }
+</style>
+
+@extends('layouts.app-template-datatable')
+@section('content')
+    <div class="row mb-1 ml-2">
+        <div class="page-header col-sm-auto mt-4">
+            {{-- <h1 class="page-title">
+                <i class="fas fa-exchange-alt"></i> Districtwise Validation Report
+            </h1> --}}
         </div>
-        <!--  @if (session()->has('success'))
-<div class="alert alert-success">
-            {{ session()->get('success') }}
-        </div>
-@endif -->
-        <!-- /.row -->
-
-
-        </section>
-
-        <!-- Main content -->
-        <!--  <section class="content">
-
-      Your Page Content Here
-
-
-
-    </section> -->
-        <!-- /.content -->
     </div>
-    <!-- /.content-wrapper -->
+    <section class="content">
+        <div class="card">
+            <div class="card-header" style="background: linear-gradient(135deg, #f5f7fa 0%, #e4edf5 100%);">
+                <h5 class="mb-0">Filter Options</h5>
+            </div>
+            <div class="card-body" style="padding: 15px;">
+                <div id="loadingDiv"></div>
+                <div class="filterDiv">
+                    <div class="row">
+                        @if ($message = Session::get('success'))
+                            <div class="alert alert-success alert-block col-12">
+                                <button type="button" class="close" data-dismiss="alert">×</button>
+                                <strong>{{ $message }}</strong>
+                            </div>
+                        @endif
+                        @if (count($errors) > 0)
+                            <div class="alert alert-danger alert-block col-12">
+                                <ul class="mb-0">
+                                    @foreach ($errors->all() as $error)
+                                        <li><strong> {{ $error }}</strong></li>
+                                    @endforeach
+                                </ul>
+                            </div>
+                        @endif
+                    </div>
 
-    <!-- Footer -->
-    @include('layouts.footer')
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-row">
+                                {{-- <div class="row"> --}}
+                                <div class="form-group col-md-3">
+                                    <label for="cars" class="required-field">Choose Score:</label>
+                                    <select name="minor_mismatch" id="minor_mismatch" class="form-control">
+                                        <option value="1">90% - 100%</option>
+                                        <option value="2">40% - 89%</option>
+                                    </select>
+                                    <span id="error_minor_mismatch" class="text-danger"></span>
+                                </div>
+                                @if ($district_visible)
+                                    <div class="form-group col-md-3">
+                                        <label class="">District</label>
+                                        <select name="district" id="district" class="form-control" tabindex="6">
+                                            <option value="">--All --</option>
+                                            @foreach ($districts as $district)
+                                                <option value="{{ $district->district_code }}"
+                                                    @if (old('district') == $district->district_code) selected @endif>
+                                                    {{ $district->district_name }}</option>
+                                            @endforeach
+                                        </select>
+                                        <span id="error_district" class="text-danger"></span>
 
-    <!-- ./wrapper -->
+                                    </div>
+                                @else
+                                    <input type="hidden" name="district" id="district" value="{{ $district_code_fk }}" />
+                                @endif
+                                @if ($is_urban_visible)
+                                    <div class="form-group col-md-3" id="divUrbanCode">
+                                        <label>Rural/ Urban</label>
 
-    <!-- REQUIRED JS SCRIPTS -->
+                                        <select name="urban_code" id="urban_code" class="form-control" tabindex="11">
+                                            <option value="">--All --</option>
+                                            @foreach (Config::get('constants.rural_urban') as $key => $val)
+                                                <option value="{{ $key }}"
+                                                    @if (old('urban_code') == $key) selected @endif>
+                                                    {{ $val }}</option>
+                                            @endforeach
 
-    <!-- jQuery 2.1.3 -->
-    <script src="{{ asset('/bower_components/AdminLTE/plugins/jQuery/jquery-2.2.3.min.js') }}"></script>
-    <script src="{{ asset('/bower_components/AdminLTE/plugins/datatables/jquery.dataTables.min.js') }}"
-        type="text/javascript"></script>
-    <script src="{{ asset('/bower_components/AdminLTE/plugins/datatables/dataTables.bootstrap.min.js') }}"
-        type="text/javascript"></script>
-    <script src="{{ asset('js/select2.full.min.js') }}"></script>
+                                        </select>
+                                        <span id="error_urban_code" class="text-danger"></span>
+                                    </div>
+                                @else
+                                    <input type="hidden" name="urban_code" id="urban_code" value="{{ $rural_urban_fk }}" />
+                                @endif
+                                @if ($block_visible)
+                                    <div class="form-group col-md-3" id="divBodyCode">
+                                        <label class="" id="blk_sub_txt">Block/Sub
+                                            Division.</label>
 
-    <!-- Bootstrap 3.3.2 JS -->
-    <script src="{{ asset('/bower_components/AdminLTE/bootstrap/js/bootstrap.min.js') }}" type="text/javascript"></script>
-    <script src="{{ URL::asset('js/site.js') }}"></script>
+                                        <select name="block" id="block" class="form-control" tabindex="16">
+                                            <option value="">--All --</option>
 
-    <script src="{{ URL::asset('js/master-data-v2.js') }}"></script>
-    <!-- AdminLTE App -->
-    <script src="{{ asset('/bower_components/AdminLTE/dist/js/app.min.js') }}" type="text/javascript"></script>
-    <script src="{{ asset('js/jquery.dataTables.min.js') }}"></script>
-    <script src="{{ asset('js/jquery.table2excel.js') }}"></script>
 
+                                        </select>
+                                        <span id="error_block" class="text-danger"></span>
+                                    </div>
+                                @else
+                                    <input type="hidden" name="block" id="block"
+                                        value="{{ $block_munc_corp_code_fk }}" />
+                                @endif
+
+
+                                {{-- </div> --}}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="form-group col-md-6">
+                            <button type="button" id="submitting" value="Submit"
+                                class="btn btn-success success btn-lg modal-search form-submitted btn-action">
+                                <i class="fas fa-search"></i> Search
+                            </button>
+
+                            <div class=""><img src="{{ asset('images/ZKZg.gif') }}" id="submit_loader1" width="50px"
+                                    height="50px" style="display:none;"></div>
+                        </div>
+                    </div>
+
+                    <div class="table-responsive resultDiv mt-3" id="search_details" style="display:none;">
+                        <button class="btn btn-info exportToExcel btn-action" type="button">Export to
+                            Excel</button><br /><br /><br />
+                        <table id="example" class="display data-table table2excel" cellspacing="0" width="100%"
+                            style="border: 1px solid ghostwhite;">
+                            <thead style="font-size: 12px;">
+                                <tr role="row">
+                                    <th id="">Sl No.(A)
+                                    </th>
+                                    <th id="location_id">District</th>
+                                    <th>Total</th>
+                                    <th>Verified as Minor Mismatch but Approval Pending</th>
+                                    <th>Verified & Approved as Minor Mismatch</th>
+                                    <th>Rejected</th>
+                                    <th>Pending</th>
+                                </tr>
+                            </thead>
+                            <tbody style="font-size: 14px;"></tbody>
+                            <tfoot>
+                                <tr id="fotter_id"></tr>
+                                <tr>
+                                    <td colspan="21" align="center" style="display:none;" id="fotter_excel">Heading
+                                    </td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+            </div>
+    </section>
+@endsection
+
+@push('scripts')
     <script>
-        
         //alert(base_date);
 
         $(document).ready(function() {
@@ -502,7 +272,8 @@ desired effect
                     // exclude CSS class
                     exclude: ".noExl",
                     name: "Worksheet Name",
-                    filename: "Lakshmir Bhandar Minor Mismatch("+score+") MIS Report", //do not include extension
+                    filename: "Lakshmir Bhandar Minor Mismatch(" + score +
+                        ") MIS Report", //do not include extension
                     fileext: ".xls" // file extension
                 });
             });
@@ -691,11 +462,11 @@ desired effect
                 // }
 
                 if (minor_mismatch != '') {
-                  error_minor_mismatch = '';
+                    error_minor_mismatch = '';
                     $('#error_minor_mismatch').text(error_minor_mismatch);
                     $('#error_minor_mismatch').removeClass('has-error');
                 } else {
-                  error_minor_mismatch = 'Minor Mismatch Score is required.';
+                    error_minor_mismatch = 'Minor Mismatch Score is required.';
                     $('#error_minor_mismatch').text(error_minor_mismatch);
                     $('#minor_mismatch').addClass('has-error');
                 }
@@ -775,10 +546,13 @@ desired effect
                         //  var fotter_6=0;var fotter_7=0;
                         $.each(data.row_data, function(i, item) {
                             var total = isNaN(parseInt(item.total)) ? 0 : parseInt(item.total);
-                            var verified_approver_pending = isNaN(parseInt(item.approval_pending)) ? 0 : parseInt(item.approval_pending);
-                            var approved_and_verified = isNaN(parseInt(item.approved)) ? 0 : parseInt(item.approved);
+                            var verified_approver_pending = isNaN(parseInt(item.approval_pending)) ? 0 :
+                                parseInt(item.approval_pending);
+                            var approved_and_verified = isNaN(parseInt(item.approved)) ? 0 : parseInt(
+                                item.approved);
                             var rejected = isNaN(parseInt(item.rejected)) ? 0 : parseInt(item.rejected);
-                            var pending = total - (verified_approver_pending + approved_and_verified + rejected);
+                            var pending = total - (verified_approver_pending + approved_and_verified +
+                                rejected);
                             // var approved_f = isNaN(parseInt(item.approved_f)) ? 0 : parseInt(item
                             //     .approved_f);
 
@@ -854,6 +628,4 @@ desired effect
             $('#' + divId).hide();
         }
     </script>
-</body>
-
-</html>
+@endpush

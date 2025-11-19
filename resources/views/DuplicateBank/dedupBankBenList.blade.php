@@ -1,279 +1,231 @@
-<style type="text/css">
-    .required-field::after {
-        content: "*";
-        color: red;
-    }
-
-    .has-error {
-        border-color: #cc0000;
-        background-color: #ffff99;
-    }
-
-    .preloader1 {
-        position: fixed;
-        top: 40%;
-        left: 52%;
-        z-index: 999;
-    }
-
-    .preloader1 {
-        background: transparent !important;
-    }
-
-    .panel-heading {
-        padding: 0;
-        border: 0;
-    }
-
-    .panel-title>a,
-    .panel-title>a:active {
-        display: block;
-        padding: 10px;
-        color: #555;
-        font-size: 14px;
+<style>
+    .card-header-custom {
+        font-size: 16px;
+        background: linear-gradient(to right, #c9d6ff, #e2e2e2);
         font-weight: bold;
-        text-transform: uppercase;
-        letter-spacing: 1px;
-        word-spacing: 3px;
-        text-decoration: none;
-    }
-
-    .panel-heading a:before {
-        font-family: 'Glyphicons Halflings';
-        content: "\e114";
-        float: right;
-        transition: all 0.5s;
-    }
-
-    .panel-heading.active a:before {
-        -webkit-transform: rotate(180deg);
-        -moz-transform: rotate(180deg);
-        transform: rotate(180deg);
-    }
-
-    #enCloserTable tbody tr td {
-        padding: 10px 10px 10px 10px;
-    }
-
-    .modal-open {
-        overflow: visible !important;
-    }
-
-    .required:after {
-        color: red;
-        content: '*';
-        font-weight: bold;
-        margin-left: 5px;
-        float: right;
-        margin-top: 5px;
-    }
-
-    #loadingDivModal {
-        position: absolute;
-        top: 0px;
-        right: 0px;
-        width: 100%;
-        height: 100%;
-        background-color: #fff;
-        background-image: url('images/ajaxgif.gif');
-        background-repeat: no-repeat;
-        background-position: center;
-        z-index: 10000000;
-        opacity: 0.4;
-        filter: alpha(opacity=40);
-        /* For IE8 and earlier */
-    }
-
-    .disabledcontent {
-        opacity: 0.6;
-        pointer-events: none;
+        font-style: italic;
+        padding: 15px 20px;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.1);
     }
 </style>
-
-@extends('layouts.app-template-datatable_new')
+@extends('layouts.app-template-datatable')
 @section('content')
+    <!-- Main content -->
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-12 mt-4">
+                {{-- <form method="post" id="register_form" class="submit-once"> --}}
+                {{-- {{ csrf_field() }} --}}
 
-    <div class="content-wrapper">
-        <!-- Content Header (Page header) -->
-        <section class="content-header">
-            <h1>
-                Bank De-Duplicate Pending Beneficiary List
-            </h1>
 
-        </section>
-        <section class="content">
-            <div class="box box-default">
-                <div class="box-body">
+                <div class="tab-content" style="margin-top:16px;">
+                    <div class="tab-pane active" id="personal_details">
+                        <!-- Card with your design -->
+                        <div class="card" id="res_div">
+                            <div class="card-header card-header-custom">
+                                <h4 class="card-title mb-0"><b> Applications List</b></h4>
+                            </div>
+                            <div class="card-body" style="padding: 20px;">
+                                <!-- Alert Messages -->
+                                <div class="alert-section">
+                                    @if (($message = Session::get('success')) && ($id = Session::get('id')))
+                                        <div class="alert alert-success alert-dismissible fade show" role="alert">
+                                            <strong>{{ $message }} with Application ID:
+                                                {{ $id }}</strong>
+                                            <button type="button" class="close" data-dismiss="alert">×</button>
+                                        </div>
+                                    @endif
 
-                    <div class="panel panel-default">
-                        <div class="panel-heading"><span id="panel-icon">Filter Here</div>
-                        <div class="panel-body" style="padding: 5px;">
-                            <div class="row">
-                                @if ($message = Session::get('success'))
-                                    <div class="alert alert-success alert-block">
-                                        <button type="button" class="close" data-dismiss="alert">×</button>
-                                        <strong>{{ $message }}</strong>
+                                    @if ($message = Session::get('error'))
+                                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                                            <strong>{{ $message }}</strong>
+                                            <button type="button" class="close" data-dismiss="alert">×</button>
+                                        </div>
+                                    @endif
 
+                                    @if (count($errors) > 0)
+                                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                                            <ul>
+                                                @foreach ($errors as $error)
+                                                    <li><strong> {{ $error }}</strong></li>
+                                                @endforeach
+                                            </ul>
+                                            <button type="button" class="close" data-dismiss="alert">×</button>
+                                        </div>
+                                    @endif
+
+                                    <div class="alert print-error-msg" style="display:none;" id="errorDivMain">
+                                        <button type="button" class="close" aria-label="Close"
+                                            onclick="closeError('errorDivMain')">
+                                            <span aria-hidden="true">&times;</span>
+                                        </button>
+                                        <ul></ul>
                                     </div>
-                                @endif
-                                @if (count($errors) > 0)
+                                </div>
+
+                                <form name="casteManagement" id="casteManagement" class="submit-once">
+                                    {{ csrf_field() }}
+                                    <!-- Search Section -->
+                                    <div class="row mb-4">
+                                        <div class="col-md-12">
+                                            <div class="form-row align-items-end">
+
+                                                <div class="form-group col-md-3">
+                                                    <label class="">Search For</label>
+                                                    <select name="search_for" id="search_for" class="form-control"
+                                                        tabindex="6">
+                                                        <option value="1">Approval Pending</option>
+                                                        <option value="2">Verifier Pending</option>
+                                                        <option value="3">Rejected</option>
+                                                        <option value="4">Verified & Approved</option>
+                                                    </select>
+                                                    <span id="error_search_for" class="text-danger"></span>
+                                                </div>
+
+                                                @if ($district_visible)
+                                                    <div class="form-group col-md-3">
+                                                        <label class="">District</label>
+                                                        <select name="district" id="district" class="form-control"
+                                                            tabindex="6">
+                                                            <option value="">--All --</option>
+                                                            @foreach ($districts as $district)
+                                                                <option value="{{ $district->district_code }}"
+                                                                    @if (old('district') == $district->district_code) selected @endif>
+                                                                    {{ $district->district_name }}</option>
+                                                            @endforeach
+                                                        </select>
+                                                        <span id="error_district" class="text-danger"></span>
+
+                                                    </div>
+                                                @else
+                                                    <input type="hidden" name="district" id="district"
+                                                        value="{{ $district_code_fk }}" />
+                                                @endif
+                                                @if ($is_urban_visible)
+                                                    <div class="form-group col-md-3" id="divUrbanCode">
+                                                        <label class="">Rural/ Urban</label>
+
+                                                        <select name="urban_code" id="urban_code" class="form-control"
+                                                            tabindex="11">
+                                                            <option value="">--All --</option>
+                                                            @foreach (Config::get('constants.rural_urban') as $key => $val)
+                                                                <option value="{{ $key }}"
+                                                                    @if (old('urban_code') == $key) selected @endif>
+                                                                    {{ $val }}</option>
+                                                            @endforeach
+
+                                                        </select>
+                                                        <span id="error_urban_code" class="text-danger"></span>
+                                                    </div>
+                                                @else
+                                                    <input type="hidden" name="urban_code" id="urban_code"
+                                                        value="{{ $rural_urban_fk }}" />
+                                                @endif
+                                                @if ($block_visible)
+                                                    <div class="form-group col-md-3" id="divBodyCode">
+                                                        <label class="" id="blk_sub_txt">Block/Sub
+                                                            Division.</label>
+
+                                                        <select name="block" id="block" class="form-control"
+                                                            tabindex="16">
+                                                            <option value="">--All --</option>
+
+
+                                                        </select>
+                                                        <span id="error_block" class="text-danger"></span>
+                                                    </div>
+                                                @else
+                                                    <input type="hidden" name="block" id="block"
+                                                        value="{{ $block_munc_corp_code_fk }}" />
+                                                @endif
+
+                                                <div class="form-group col-md-3" id="municipality_div"
+                                                    style="{{ $municipality_visible ? '' : 'display:none' }}">
+                                                    <label class="">Municipality</label>
+
+                                                    <select name="muncid" id="muncid" class="form-control"
+                                                        tabindex="16">
+                                                        <option value="">--All --</option>
+                                                        @foreach ($muncList as $munc)
+                                                            <option value="{{ $munc->urban_body_code }}">
+                                                                {{ $munc->urban_body_name }}</option>
+                                                        @endforeach
+
+                                                    </select>
+                                                    <span id="error_muncid" class="text-danger"></span>
+                                                </div>
+
+                                                <div class="form-group col-md-3" id="gp_ward_div"
+                                                    style="{{ $gp_ward_visible ? '' : 'display:none' }}">
+                                                    <label class="" id="gp_ward_txt">GP/Ward</label>
+
+                                                    <select name="gp_ward" id="gp_ward" class="form-control"
+                                                        tabindex="17">
+                                                        <option value="">--All --</option>
+                                                        @foreach ($gpList as $gp)
+                                                            <option value="{{ $gp->gram_panchyat_code }}">
+                                                                {{ $gp->gram_panchyat_name }}</option>
+                                                        @endforeach
+
+                                                    </select>
+                                                    <span id="error_gp_ward" class="text-danger"></span>
+                                                </div>
+
+                                                <div class="form-group col-md-3">
+                                                    {{-- <button type="submit" name="submit" value="Submit"
+                                                        class="btn btn-success table-action-btn" id="search_sws">
+                                                        <i class="fas fa-search"></i> Search
+                                                    </button> --}}
+                                                    <input class="btn btn-success table-action-btn" type="submit"
+                                                        name="btnSubmit" value="Search">
+                                                </div>
+
+                                            </div>
+                                        </div>
+                                    </div>
+                                </form>
+
+                                @if (!empty($errorMsg))
                                     <div class="alert alert-danger alert-block">
-                                        <ul>
-                                            @foreach ($errors->all() as $error)
-                                                <li><strong> {{ $error }}</strong></li>
-                                            @endforeach
-                                        </ul>
-                                    </div>
-                                @endif
-                            </div>
-                            <div class="row">
-                                <div class="form-group col-md-3">
-                                    <label class="">Search For</label>
-                                    <select name="search_for" id="search_for" class="form-control"
-                                        tabindex="6">
-                                        <option value="1">Approval Pending</option>
-                                        <option value="2">Verifier Pending</option>
-                                        <option value="3">Rejected</option>
-                                        <option value="4">Verified & Approved</option>
-                                    </select>
-                                    <span id="error_search_for" class="text-danger"></span>
-                                </div>
-
-                                @if ($district_visible)
-                                    <div class="form-group col-md-3">
-                                        <label class="">District</label>
-                                        <select name="district" id="district" class="form-control"
-                                            tabindex="6">
-                                            <option value="">--All --</option>
-                                            @foreach ($districts as $district)
-                                                <option value="{{ $district->district_code }}"
-                                                    @if (old('district') == $district->district_code) selected @endif>
-                                                    {{ $district->district_name }}</option>
-                                            @endforeach
-                                        </select>
-                                        <span id="error_district" class="text-danger"></span>
+                                        <strong> {{ $errorMsg }}</strong></li>
 
                                     </div>
-                                @else
-                                    <input type="hidden" name="district" id="district"
-                                        value="{{ $district_code_fk }}" />
                                 @endif
-                                @if ($is_urban_visible)
-                                    <div class="form-group col-md-3" id="divUrbanCode">
-                                        <label class="">Rural/ Urban</label>
-
-                                        <select name="urban_code" id="urban_code" class="form-control"
-                                            tabindex="11">
-                                            <option value="">--All --</option>
-                                            @foreach (Config::get('constants.rural_urban') as $key => $val)
-                                                <option value="{{ $key }}"
-                                                    @if (old('urban_code') == $key) selected @endif>
-                                                    {{ $val }}</option>
-                                            @endforeach
-
-                                        </select>
-                                        <span id="error_urban_code" class="text-danger"></span>
+                                <!-- DataTable Section -->
+                                <div class="table-container">
+                                    <div class="table-responsive">
+                                        <table id="example" class="display data-table" cellspacing="0" width="100%">
+                                            <thead class="table-header-spacing">
+                                                <tr role="row">
+                                                    <th style="text-align: center">Beneficiary ID</th>
+                                                    <th style="text-align: center">Beneficiary Name</th>
+                                                    <th style="text-align: center">Block/ Municipality</th>
+                                                    <th style="text-align: center">GP/Ward</th>
+                                                    <th style="text-align: center">Old Account No.</th>
+                                                    <th style="text-align: center">Old IFSC</th>
+                                                    <th style="text-align: center">New Account No.</th>
+                                                    <th style="text-align: center">New IFSC</th>
+                                                    <th style="text-align: center">Mobile No</th>
+                                                    <th style="text-align: center">Process Type</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody style="font-size: 14px;"></tbody>
+                                        </table>
                                     </div>
-                                @else
-                                    <input type="hidden" name="urban_code" id="urban_code"
-                                        value="{{ $rural_urban_fk }}" />
-
-                                @endif
-                                @if ($block_visible)
-                                    <div class="form-group col-md-3" id="divBodyCode">
-                                        <label class="" id="blk_sub_txt">Block/Sub
-                                            Division.</label>
-
-                                        <select name="block" id="block" class="form-control"
-                                            tabindex="16">
-                                            <option value="">--All --</option>
-
-
-                                        </select>
-                                        <span id="error_block" class="text-danger"></span>
-                                    </div>
-                                @else
-                                    <input type="hidden" name="block" id="block"
-                                        value="{{ $block_munc_corp_code_fk }}" />
-                                @endif
-
-                                <div class="form-group col-md-3" id="municipality_div"
-                                    style="{{ $municipality_visible ? '' : 'display:none' }}">
-                                    <label class="">Municipality</label>
-
-                                    <select name="muncid" id="muncid" class="form-control" tabindex="16">
-                                        <option value="">--All --</option>
-                                        @foreach ($muncList as $munc)
-                                            <option value="{{ $munc->urban_body_code }}">
-                                                {{ $munc->urban_body_name }}</option>
-                                        @endforeach
-
-                                    </select>
-                                    <span id="error_muncid" class="text-danger"></span>
                                 </div>
-
-                                <div class="form-group col-md-3" id="gp_ward_div"
-                                    style="{{ $gp_ward_visible ? '' : 'display:none' }}">
-                                    <label class="" id="gp_ward_txt">GP/Ward</label>
-
-                                    <select name="gp_ward" id="gp_ward" class="form-control"
-                                        tabindex="17">
-                                        <option value="">--All --</option>
-                                        @foreach ($gpList as $gp)
-                                            <option value="{{ $gp->gram_panchyat_code }}">
-                                                {{ $gp->gram_panchyat_name }}</option>
-                                        @endforeach
-
-                                    </select>
-                                    <span id="error_gp_ward" class="text-danger"></span>
-                                </div>
-
-                                <div class="form-group col-md-3">
-                                    <label class="control-label">&nbsp;</label><br />
-                                    <button type="button" name="filter" id="filter" class="btn btn-primary"><i class="fa fa-search"></i> Search</button>
-                                    &nbsp;&nbsp;&nbsp;&nbsp;
-                                    <button type="button" name="excel_btn" id="excel_btn" class="btn btn-success"><i class="fa fa-file-excel-o"></i> Export to Excel</button>
-                                    {{-- <button type="button" name="reset" id="reset" class="btn btn-warning">Reset</button> --}}
-                                    
-                                </div>
-                            </div>
-
-                        </div>
-                    </div>
-
-                    <div class="panel panel-default">
-                        <div class="panel-heading" id="panel_head">List of Bank De-Duplication Beneficiaries</div>
-                        <div class="panel-body" style="padding: 5px; font-size: 14px;">
-                            {{-- <div id="loadingDiv">
-              </div> --}}
-                            <div class="table-responsive">
-                                <table id="example" class="display" cellspacing="0" width="100%">
-                                    <thead style="font-size: 12px;">
-                                        <th>Beneficiary ID</th>
-                                        <th>Beneficiary Name</th>
-                                        <th>Block/ Municipality</th>
-                                        <th>GP/Ward</th>
-                                        <th>Old Account No.</th>
-                                        <th>Old IFSC</th>
-                                        <th>New Account No.</th>
-                                        <th>New IFSC</th>
-                                        <th>Mobile No</th>
-                                        <th>Process Type</th>
-                                    </thead>
-                                    <tbody style="font-size: 14px;"></tbody>
-                                </table>
                             </div>
                         </div>
                     </div>
                 </div>
+                {{-- </form> --}}
             </div>
-        </section>
+        </div>
     </div>
 
 
 @endsection
-@section('script')
-    <script src="{{ URL::asset('js/master-data-v2.js') }}"></script>
+
+@push('scripts')
     <script>
         $(document).ready(function() {
             // $('#loadingDiv').hide();
@@ -330,7 +282,7 @@
                     url: "{{ route('getDeduplicationList') }}",
                     type: "POST",
                     data: function(d) {
-                            d.search_for = $('#search_for').val(),
+                        d.search_for = $('#search_for').val(),
                             d.rural_urban = $('#urban_code').val(),
                             d.block_ulb_code = $('#block').val(),
                             d.gp_ward_code = $('#gp_ward').val(),
@@ -349,8 +301,7 @@
                     $('.content').removeClass('disabledcontent');
                     $('#loadingDiv').hide();
                 },
-                "columns": [
-                    {
+                "columns": [{
                         "data": "ben_id"
                     },
                     {
@@ -631,4 +582,4 @@
 
         });
     </script>
-@stop
+@endpush
