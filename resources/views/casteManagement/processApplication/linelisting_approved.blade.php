@@ -178,7 +178,7 @@
             </div>
             <div class="card-body">
               <div class="table-responsive-custom">
-                <table id="example" class="data-table table-striped" style="width:100%">
+                <table id="example" class="data-table" style="width:100%">
                   <thead>
                     <tr>
                       <th>Application ID</th>
@@ -463,6 +463,7 @@
 @endsection
 
 @push('scripts')
+<script src="{{ asset('js/master-data-v2.js') }}"></script>
 <script type="text/javascript">
 $(document).ready(function() {
    var sessiontimeoutmessage='{{$sessiontimeoutmessage}}';

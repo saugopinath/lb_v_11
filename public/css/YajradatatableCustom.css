@@ -147,12 +147,12 @@
 }
 
 .alert-success {
-    background: linear-gradient(135deg, #d4edda, #c3e6cb);
+    background: linear-gradient(135deg, #40f66a, #045d18);
     color: #155724;
 }
 
 .alert-danger {
-    background: linear-gradient(135deg, #f8d7da, #f1b0b7);
+    background: linear-gradient(135deg, #fa3041, #4a030a);
     color: #721c24;
 }
 

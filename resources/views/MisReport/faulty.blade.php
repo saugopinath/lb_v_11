@@ -82,6 +82,9 @@
     padding: 15px 20px;
     border-bottom: 1px solid rgba(0, 0, 0, 0.1);
   }
+  .font-14 {
+    font-size: 14px;
+  }
   </style>
     
 @extends('../layouts.app-template-datatable')
@@ -91,14 +94,17 @@
           <!-- left column -->
           <div class="col-md-12">
             <!-- general form elements -->
-            <div>
+            
               <!-- class="box box-primary" -->
-              <div class="card-header">
-                <h3 class="card-title">
-                    Faulty Mis Report
-                  </h3>
-                <!-- <p><h3 class="card-title"><b>Bandhu Prakalpa (for SC)</b></h3></p> -->
-              </div>
+                
+                    <div class="container-fluid">
+                      <div class="row mb-2">
+                        <div class="col-sm-8">
+                          <h2>Process Application for Caste Info Modification</h2>
+                        </div>
+                      </div>
+                    </div>
+                  
 
               <div>
                 @if ( ($message = Session::get('success')) && ($id =Session::get('id')))
@@ -134,8 +140,7 @@
               <!-- form start -->
               <form method="post" id="register_form" action="{{url('wcd20210202ReportPost')}}" class="submit-once">
                 {{ csrf_field() }}
-                <div class="tab-content" style="margin-top:16px;">
-                  <div class="tab-pane active" id="personal_details">
+                
                     <div class="card">
                       <div class="card-header card-header-custom">
                         <h5>Search Criteria</h5>
@@ -234,7 +239,7 @@
                      <div class="tab-pane active" id="search_details" style="display:none;">
                                     <div class="card">
                                         <div class="card-header card-header-custom">
-                                            <h5 class="card-title mb-0" id="heading_msg">
+                                            <h5 class="card-title mb-0 font-14" id="heading_msg">
                                                 Search Result
                                             </h5>
                                         </div>
@@ -277,11 +282,10 @@
                                         </div>
                                     </div>
                                 </div>
-                  </div>
-                </div>
+                 
             </div>
             </form>
-          </div>
+          
           <!-- /.card -->
         </div>
         <!--/.col (left) -->
@@ -289,7 +293,7 @@
     @endsection
 
 @push('scripts')
-  
+  <script src="{{asset('js/master-data-v2.js') }}"></script>
   <script>
     var base_date = '{{$base_date}}';
     var c_date = '{{$c_date}}';
@@ -505,7 +509,7 @@
           //alert(data.title);
           if (data.return_status) {
             $('#search_details').show();
-            $("#heading_msg").html("<h4><b>" + data.heading_msg + "</b></h4>");
+            $("#heading_msg").html("<h5>" + data.heading_msg + "</h5>");
             $("#location_id").text(data.column);
             if ($.fn.DataTable.isDataTable('#example')) {
               $('#example').DataTable().destroy();
