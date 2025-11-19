@@ -251,7 +251,7 @@
     //console.log(process_type);
        var scheme_id=$("#scheme_id").val();
         var dataTable=$('#example').DataTable( {
-      dom: 'Bfrtip',
+      dom: 'Blfrtip',
       paging: true,
       pageLength:20,
       ordering: false,
@@ -289,7 +289,33 @@
        
        // { "data": "check" },
               
-      ],          
+      ],  
+       "buttons": [{
+            extend: 'pdf',
+            footer: true,
+            exportOptions: {
+              columns: [0, 1, 2, 3]
+            },
+            className: 'table-action-btn'
+          },
+          {
+            extend: 'print',
+            footer: true,
+            exportOptions: {
+              columns: [0, 1, 2, 3]
+            },
+            className: 'table-action-btn'
+          },
+          {
+            extend: 'csv',
+            footer: true,
+            exportOptions: {
+              columns: [0, 1, 2, 3]
+            },
+            className: 'table-action-btn'
+          }
+
+          ],        
     
     } );
    }
