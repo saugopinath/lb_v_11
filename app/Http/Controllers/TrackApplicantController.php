@@ -72,6 +72,7 @@ class TrackApplicantController extends Controller
         $payment_data=array();
         $is_public = $request['is_public'];
         $applicant_id = $request['applicant_id'];
+        dd( $applicant_id);
         $track_type = $request['trackType'];
         ini_set('max_execution_time', 300); //300 seconds = 5 minutes
         if($is_public==1){
