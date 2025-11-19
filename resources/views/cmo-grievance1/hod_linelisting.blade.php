@@ -96,25 +96,25 @@
 
                 {{-- Success Message --}}
                 @if (($message = Session::get('success')))
-                  <div class="alert alert-success alert-dismissible fade show" role="alert">
-                    <strong>{{ $message }}</strong>
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                  </div>
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                  <strong>{{ $message }}</strong>
+                  <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
                 @endif
 
                 {{-- Error Messages --}}
                 @if (($message = Session::get('message')))
-                  <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                    <strong>{{ $message }}</strong>
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                  </div>
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                  <strong>{{ $message }}</strong>
+                  <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
                 @endif
 
                 @if (($message = Session::get('msg1')))
-                  <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                    <strong>{{ $message }}</strong>
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                  </div>
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                  <strong>{{ $message }}</strong>
+                  <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
                 @endif
 
                 <div class="row">
@@ -132,12 +132,12 @@
                     <select name="district" id="district" class="form-select" tabindex="6">
                       <option value="">--All--</option>
                       @foreach ($districts as $district)
-                        <option value="{{ $district->district_code }}" 
-                          @if (old('district') == $district->district_code) selected @endif>
-                          {{ $district->district_name }}
-                        </option>
+                      <option value="{{ $district->district_code }}"
+                        @if (old('district')==$district->district_code) selected @endif>
+                        {{ $district->district_name }}
+                      </option>
                       @endforeach
-                      <option value="100" @if (old('district') == '100') selected @endif>Not Available</option>
+                      <option value="100" @if (old('district')=='100' ) selected @endif>Not Available</option>
                     </select>
                     <span id="error_district" class="text-danger"></span>
                   </div>
@@ -289,26 +289,50 @@
             data: "check"
           }
         ],
-        buttons: [{
+        "buttons": [{
             extend: 'pdf',
             footer: true,
             pageSize: 'A4',
             pageMargins: [40, 60, 40, 60],
             exportOptions: {
-              columns: [0, 1, 2, 3, 4, 5]
-            }
+              columns: [0, 1, 2, 3]
+            },
+            className: 'table-action-btn'
+          },
+          {
+            extend: 'print',
+            footer: true,
+            exportOptions: {
+              columns: [0, 1, 2, 3]
+            },
+            className: 'table-action-btn'
           },
           {
             extend: 'excel',
-            footer: true,
             pageSize: 'A4',
-            pageMargins: [40, 60, 40, 60],
+            footer: true,
             exportOptions: {
-              columns: [0, 1, 2, 3, 4, 5],
-              stripHtml: false
-            }
+              columns: [0, 1, 2, 3]
+            },
+            className: 'table-action-btn'
+          },
+          {
+            extend: 'copy',
+            footer: true,
+            exportOptions: {
+              columns: [0, 1, 2, 3]
+            },
+            className: 'table-action-btn'
+          },
+          {
+            extend: 'csv',
+            footer: true,
+            exportOptions: {
+              columns: [0, 1, 2, 3]
+            },
+            className: 'table-action-btn'
           }
-        ]
+        ],
       });
     }
 

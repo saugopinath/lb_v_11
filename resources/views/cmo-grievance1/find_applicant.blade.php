@@ -183,12 +183,9 @@
                             <input type="hidden" name="remarks" value="{{ $row->remarks }}">
                             @endif
                         </div>
-
-                        <input type="hidden" name="grievance_id" id="grievance_id" value="{{ $grievance_id }}">
-                        <input type="hidden" name="grievance_mobile_no" id="grievance_mobile_no" value="{{ $grievance_mobile_no }}">
-                        <input type="hidden" name="grievance_mobile_no" id="grievance_mobile_no" value="{{ $grievance_mobile_no }}">
-                        <input type="hidden" name="grievance_id" id="grievance_id" value={{$grievance_id}}>
-                        <input type="hidden" name="grievance_mobile" id="grievance_mobile" value={{$grievance_mobile_no}}>
+                        <input type="hidden" name="pension_id" id="pension_id" value="">
+                        <input type="hidden" name="grievance_id" id="grievance_id" value="{{$grievance_id}}">
+                        <input type="hidden" name="grievance_mobile_no" id="grievance_mobile_no" value="{{$grievance_mobile_no}}">
                         <div class="text-center mt-3">
                             <button class="btn btn-info" name="map_applicant" id="map_applicant" type="button">
                                 <i class="fas fa-map-marker-alt me-1"></i> Map Applicant
