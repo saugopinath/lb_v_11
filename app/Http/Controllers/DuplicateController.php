@@ -80,7 +80,7 @@ class DuplicateController extends Controller
 
     public function dup_aadhar_approved_verifier(Request $request)
     {
-
+        
         //return redirect("/")->with('error', 'Payment Server is down for Maintenance. Please try after some time.');
         $scheme_id = $this->scheme_id;
 

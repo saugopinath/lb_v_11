@@ -116,14 +116,14 @@ class WorkflowController extends Controller
       $allowded_arr = DistrictEntryMapping::where('district_code', $district_code)->first();
       $verification_allowded = intval($allowded_arr->main_verification);
       $approval_allowded = intval($allowded_arr->main_approval);
-
+      // dd($is_first);
       $ds_phase_list = DsPhase::all();
       if ($is_first) {   // First Level Verifier   	
         if ($mappingLevel == "State") {
           $level = "State";
         }
         /****************************District************************* */ else if ($mappingLevel == "District") {
-          $rows = $personal_modal->where('next_level_role_id', null)->where('created_by_dist_code', $district_code)->orderBy('id', 'desc')->paginate(10);
+          $rows = $personal_modal->where('next_level_role_id', null)->where('created_by_dist_code', $district_code)->paginate(10);
           return view('processApplication/pension_list', ['nhm_employee_details' => $rows, 'reject_revert_reason' => $reject_revert_reason, 'sessiontimeoutmessage' => $errormsg['sessiontimeOut']]);
         } else if ($mappingLevel == "Subdiv") {
           if ($is_urban == 1) {
@@ -228,7 +228,7 @@ class WorkflowController extends Controller
                 })
                 ->addColumn('age', function ($data) {
                   // Assuming ageCalculate() is a method on the current Controller/Class instance
-                  return $this->ageCalculate($data->dob);
+                  return  (int) $this->ageCalculate($data->dob);
                 })->addColumn('ss_card_no', function ($data) {
                   return $data->ss_card_no;
                 })
@@ -338,7 +338,7 @@ class WorkflowController extends Controller
               })
               ->addColumn('age', function ($data) {
                 // Assuming ageCalculate() is a method on the current Controller/Class instance
-                return $this->ageCalculate($data->dob);
+                return (int) $this->ageCalculate($data->dob);
               })->addColumn('mobile_no', function ($data) {
                 return $data->mobile_no;
               })
@@ -403,7 +403,8 @@ class WorkflowController extends Controller
             $districts = District::select(['district_code', 'district_name'])->get();
           }
         }
-        /****************************District************************* */ else if ($mappingLevel == "District") {
+        /****************************District************************* */ 
+        else if ($mappingLevel == "District") {
           //return redirect("/")->with('error', 'Approval temporary suspended.');
           $duty_level = 'DistrictApprover';
           $levels = [
@@ -1211,7 +1212,7 @@ class WorkflowController extends Controller
     $diff = 0;
     if ($dob != '') {
       //$diff = $this->ageCalculate($dob);
-      $diff = Carbon::parse($dob)->diffInYears($this->base_dob_chk_date);
+      $diff = (int) Carbon::parse($dob)->diffInYears($this->base_dob_chk_date);
     }
     return $diff;
   }

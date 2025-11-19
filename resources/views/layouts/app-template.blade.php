@@ -63,7 +63,7 @@
     <script src="{{ asset('bootstrap-5/js/bootstrap.bundle.min.js') }}"></script>
     <script src="{{ asset('AdminLTE_3/dist/js/adminlte.js') }}"></script>
     <script src="{{ asset('js/jquery-confirm.min.js') }}"></script>
-     <script src="{{ asset('js/validateAdhar.js') }}"></script>
+    <script src="{{ asset('js/validateAdhar.js') }}"></script>
     <script src="{{ asset('js/sweetalert2.all.min.js') }}"></script>
 
     {{-- Dynamic JS --}}
@@ -126,16 +126,12 @@
             }
 
             // Replace $.alert with SweetAlert2
-            Swal.fire({
-                title: 'Error!',
-                html: msg,
-                icon: 'error',
-                confirmButtonText: 'OK',
-                confirmButtonColor: '#d33',
-                customClass: {
-                    popup: 'sweet-alert-popup'
-                }
-            });
+            $.alert({
+                title: 'Error!!',
+                type: 'red',
+                icon: 'fa fa-warning',
+                content: msg,
+            })
         }
     </script>
 

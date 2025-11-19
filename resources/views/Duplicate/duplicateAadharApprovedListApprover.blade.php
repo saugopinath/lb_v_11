@@ -275,7 +275,7 @@
 
               <div class="table-responsive">
 
-                <table id="example" class="table table-bordered table-striped" width="100%">
+                <table id="example" class="data-table" width="100%">
                   <thead style="font-size:12px;">
                     <tr>
                       <th>Mobile No</th>
@@ -775,7 +775,7 @@
         $('#encolser_content').html(data);
         $('.ben_doc_button').attr('disabled', false);
         $('.ben_approve_button').attr('disabled', false);
-        $("#encolser_modal").modal();
+        $("#encolser_modal").modal('show');
       }).fail(function (jqXHR, textStatus, errorThrown) {
         $('.ben_doc_button').attr('disabled', false);
         $('.ben_approve_button').attr('disabled', false);

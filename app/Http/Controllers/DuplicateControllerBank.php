@@ -2242,6 +2242,7 @@ class DuplicateControllerBank extends Controller
                     //     dd($ben_details);
                     // }
                       
+                    
                     if ($ben_details == null) {
                         return $response = [
                             'status' => 1,
@@ -2383,7 +2384,7 @@ class DuplicateControllerBank extends Controller
                             
                         }
                         
-
+// dd('ok');
 
                         $dupTable = [];
                         $dupTable['is_approved'] = 1;
@@ -2470,7 +2471,7 @@ class DuplicateControllerBank extends Controller
                         }
                     }
                 } catch (\Exception $e) {
-                    dd($e);
+                    // dd($e);
                     DB::connection('pgsql_appwrite')->rollback();
                     DB::connection('pgsql_encwrite')->rollback();
                     DB::connection('pgsql_payment')->rollback();

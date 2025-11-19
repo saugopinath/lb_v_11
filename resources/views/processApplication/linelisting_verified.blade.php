@@ -161,8 +161,8 @@
 
           <div class="card-body p-2" style="font-size:14px;">
             <div class="table-responsive">
-              <table id="example" class="table table-bordered table-striped w-100">
-                <thead class="table-dark" style="font-size:12px;">
+              <table id="example" class="data-table ">
+                <thead >
                   <tr>
                     <th>Application ID</th>
                     <th>Applicant Name</th>

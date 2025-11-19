@@ -53,7 +53,7 @@ class LbEntryController extends Controller
         date_default_timezone_set('Asia/Kolkata');
         //$phaseArr = DsPhase::where('is_current', TRUE)->first();
         //$mydate = $phaseArr->base_dob;
-        $myYear =  date("Y");
+        $myYear = date("Y");
         //$mydate =  $myYear.'-'.'01'.'-'.'01';
         $mydate = date('Y-m-d');
         $max_date = strtotime("-25 year", strtotime($mydate));
@@ -106,10 +106,10 @@ class LbEntryController extends Controller
             return redirect("/")->with('error', 'User Disabled');
         }
         if ($is_active == 1) {
-            $entry_allowed = BlkUrbanlEntryMapping::where('main_entry', true)->where('block_ulb_code',  $blockCode)->count();
-            $entry_allowed_normal = BlkUrbanlEntryMapping::where('normal_entry', true)->where('block_ulb_code',  $blockCode)->count();
+            $entry_allowed = BlkUrbanlEntryMapping::where('main_entry', true)->where('block_ulb_code', $blockCode)->count();
+            $entry_allowed_normal = BlkUrbanlEntryMapping::where('normal_entry', true)->where('block_ulb_code', $blockCode)->count();
 
-            if ($entry_allowed == 0 && $entry_allowed_normal==0) {
+            if ($entry_allowed == 0 && $entry_allowed_normal == 0) {
                 return redirect("/")->with('error', 'Entry is disabled');
             }
             $sel_district_code = $dist_code;
@@ -151,7 +151,7 @@ class LbEntryController extends Controller
             } else
                 $doc_list_man = array();
             if (isset($doc_id_list['doc_list_opt']) && $doc_id_list['doc_list_opt'] != 'null') {
-                $doc_list_opt = DocumentType::select('id',  'is_profile_pic', 'doc_size_kb', 'doc_name', 'doc_type', 'doucument_group')->whereIn("id", json_decode($doc_id_list['doc_list_opt']))->get()->toArray();
+                $doc_list_opt = DocumentType::select('id', 'is_profile_pic', 'doc_size_kb', 'doc_name', 'doc_type', 'doucument_group')->whereIn("id", json_decode($doc_id_list['doc_list_opt']))->get()->toArray();
             } else
                 $doc_list_opt = array();
             if (count($doc_list_man) > 0 || count($doc_list_opt) > 0) {
@@ -214,7 +214,7 @@ class LbEntryController extends Controller
             return response()->json(['return_status' => $return_status, 'return_msg' => $return_msg]);
         }
         //dd(isset($request->application_id));
-        if (isset($request->application_id) && trim($request->application_id)!='') {
+        if (isset($request->application_id) && trim($request->application_id) != '') {
             $application_id = $request->application_id;
             if (empty($application_id)) {
                 $return_status = 0;
@@ -241,22 +241,22 @@ class LbEntryController extends Controller
             $cnt = $pension_details_aadhar->where('aadhar_hash', md5($aadhar_no))->count('application_id');
         }
         if ($cnt > 0) {
-            
+
             Session::put('dup_type', 'aadhar');
             Session::put('dup_type_value', Crypt::encryptString($aadhar_no));
             $return_status = 2;
-                return response()->json(['return_status' => $return_status, 'return_msg' => 'Duplicate Aadhaar Number']);  
-            } else {
+            return response()->json(['return_status' => $return_status, 'return_msg' => 'Duplicate Aadhaar Number']);
+        } else {
             $return_status = 1;
             return response()->json(['return_status' => $return_status, 'return_msg' => 'Aadhaar Number Available']);
         }
-       
+
     }
     public function personalEntry(Request $request)
     {
-        $session_lb_lifecertificate=array();
-        $session_lb_aadhaar_no=array();
-        $session_lb_castecertificate=array();
+        $session_lb_lifecertificate = array();
+        $session_lb_aadhaar_no = array();
+        $session_lb_castecertificate = array();
         $scheme_id = $this->scheme_id;
         $roleArray = $request->session()->get('role');
         $is_active = 0;
@@ -282,8 +282,8 @@ class LbEntryController extends Controller
         }
         $max_dob = $this->max_dob;
         $min_dob = $this->min_dob;
-        $caste_key =  array_keys(Config::get('constants.caste_lb'));
-        $marital_status_key =  array_keys(Config::get('constants.marital_status'));
+        $caste_key = array_keys(Config::get('constants.caste_lb'));
+        $marital_status_key = array_keys(Config::get('constants.marital_status'));
         $ds_cur_phase = 2;
         $phaseArr = DsPhase::where('is_current', TRUE)->first();
         if (!empty($phaseArr)) {
@@ -313,7 +313,7 @@ class LbEntryController extends Controller
             'mother_middle_name' => 'string|nullable',
             'mother_last_name' => 'nullable|string|max:200',
             'caste_category' => 'required|in:' . implode(",", $caste_key),
-            'caste_certificate_no'     => 'required_if:caste_category,SC,ST',
+            'caste_certificate_no' => 'required_if:caste_category,SC,ST',
             'aadhar_no' => 'required|numeric|digits:12',
             'mobile_no' => 'required|numeric|digits:10',
             'spouse_first_name' => 'string|nullable',
@@ -364,8 +364,8 @@ class LbEntryController extends Controller
                 $return_msg = array("" . $return_text);
                 return response()->json(['return_status' => $return_status, 'return_msg' => $return_msg]);
             }
-            if($request->type==10){
-                if(is_null($request->grievance_id) || $request->grievance_id==''){
+            if ($request->type == 10) {
+                if (is_null($request->grievance_id) || $request->grievance_id == '') {
                     $return_status = 0;
                     $return_text = 'Grivance ID is required';
                     $return_msg = array("" . $return_text);
@@ -378,20 +378,20 @@ class LbEntryController extends Controller
                     $return_msg = array("" . $return_text);
                     return response()->json(['return_status' => $return_status, 'return_msg' => $return_msg]);
                 }
-               $cnt= DB::table('cmo.cmo_sm_data')
-               ->where('grievance_id', $request->grievance_id)
-               // ->where('scheme_id', $scheme_id)
-               // ->where('grievance_mobile', $grievance_mobile_no)
-               ->where('is_redressed', 0) //Temporary Code
-               ->where('send_to_op', 1)
-               ->where('lgd_dist', $distCode)
-               ->count('id');
-               if($cnt==0){
-                $return_status = 0;
-                $return_text = 'Grivance ID is Invalid';
-                $return_msg = array("" . $return_text);
-                return response()->json(['return_status' => $return_status, 'return_msg' => $return_msg]);
-               }
+                $cnt = DB::table('cmo.cmo_sm_data')
+                    ->where('grievance_id', $request->grievance_id)
+                    // ->where('scheme_id', $scheme_id)
+                    // ->where('grievance_mobile', $grievance_mobile_no)
+                    ->where('is_redressed', 0) //Temporary Code
+                    ->where('send_to_op', 1)
+                    ->where('lgd_dist', $distCode)
+                    ->count('id');
+                if ($cnt == 0) {
+                    $return_status = 0;
+                    $return_text = 'Grivance ID is Invalid';
+                    $return_msg = array("" . $return_text);
+                    return response()->json(['return_status' => $return_status, 'return_msg' => $return_msg]);
+                }
 
             }
             $user_id = Auth::user()->id;
@@ -412,10 +412,10 @@ class LbEntryController extends Controller
             $modelNameAcceptReject = new DataSourceCommon;
             $Table = $getModelFunc->getTable($distCode, $this->source_type, 9);
             $modelNameAcceptReject->setTable('' . $Table);
-            $entry_allowed = BlkUrbanlEntryMapping::where('main_entry', true)->where('block_ulb_code',  $blockCode)->count();
-            $entry_allowed_normal = BlkUrbanlEntryMapping::where('normal_entry', true)->where('block_ulb_code',  $blockCode)->count();
+            $entry_allowed = BlkUrbanlEntryMapping::where('main_entry', true)->where('block_ulb_code', $blockCode)->count();
+            $entry_allowed_normal = BlkUrbanlEntryMapping::where('normal_entry', true)->where('block_ulb_code', $blockCode)->count();
 
-            if ($personalCount == 0 && $entry_allowed == 0 && $entry_allowed_normal==0) {
+            if ($personalCount == 0 && $entry_allowed == 0 && $entry_allowed_normal == 0) {
                 //dd($entry_allowed);
                 $return_status = 0;
                 $return_text = 'New Entry Not Allowed';
@@ -424,22 +424,22 @@ class LbEntryController extends Controller
             }
             $scheme_obj = Scheme::where('id', $scheme_id)->where('is_active', 1)->first();
             if ($request->entry_type == 2) {
-                if($scheme_obj->allow_ds_entry==0 && $personalCount == 0){
+                if ($scheme_obj->allow_ds_entry == 0 && $personalCount == 0) {
                     $return_status = 0;
                     $return_text = 'Form through Duare Sarkar camp temporary suspended';
                     $return_msg = array("" . $return_text);
                     return response()->json(['return_status' => $return_status, 'return_msg' => $return_msg]);
-                 }
-                    
+                }
+
             }
             if ($request->entry_type == 1) {
-                if($scheme_obj->allow_normal_entry==0){
+                if ($scheme_obj->allow_normal_entry == 0) {
                     $return_status = 0;
                     $return_text = 'Normal Form Entry temporary suspended';
                     $return_msg = array("" . $return_text);
                     return response()->json(['return_status' => $return_status, 'return_msg' => $return_msg]);
-                 }
-                    
+                }
+
             }
             DB::beginTransaction();
             $is_saved = 0;
@@ -491,11 +491,11 @@ class LbEntryController extends Controller
                     $sp_mobile_new = trim($request->mobile_no);
                 }
                 if ($request->entry_type == 2) {
-                 $pension_details['duare_sarkar_registration_no'] = trim($request->duare_sarkar_registration_no);
-                 $pension_details['duare_sarkar_date'] = $request->duare_sarkar_date;
+                    $pension_details['duare_sarkar_registration_no'] = trim($request->duare_sarkar_registration_no);
+                    $pension_details['duare_sarkar_date'] = $request->duare_sarkar_date;
                 }
                 if ($request->status == 1) {
-                    $pension_details['application_date'] = $request->application_date;   
+                    $pension_details['application_date'] = $request->application_date;
                 }
                 $pension_details['application_date'] = $request->application_date;
                 $pension_details['ben_fname'] = trim($request->first_name);
@@ -533,21 +533,20 @@ class LbEntryController extends Controller
 
                     $is_saved = $pension_personal_model->where('application_id', $application_id)->update($array);
                 } else {
-                    if($request->type==10){
+                    if ($request->type == 10) {
                         $pension_details['cmo_entry'] = 1;
                         $pension_details['cmo_grievance_id'] = $request->grievance_id;
                     }
                     if ($request->entry_type == 2) {
-                      $pension_details['ds_phase'] = $ds_cur_phase;
-                      if (!empty($phaseArr)) {
-                        if($phaseArr->is_samadhan==TRUE){
-                            $pension_details['is_samadhan'] = TRUE;
+                        $pension_details['ds_phase'] = $ds_cur_phase;
+                        if (!empty($phaseArr)) {
+                            if ($phaseArr->is_samadhan == TRUE) {
+                                $pension_details['is_samadhan'] = TRUE;
+                            } else {
+                                $pension_details['is_samadhan'] = FALSE;
+                            }
                         }
-                        else{
-                            $pension_details['is_samadhan'] = FALSE;
-                        }
-                      }
-                      
+
                     }
                     $pension_personal_model1 = $pension_personal_model;
                     foreach ($pension_details as $key => $val) {
@@ -559,7 +558,7 @@ class LbEntryController extends Controller
                     $application_row = $pension_personal_model->select('application_id')->where('application_id', $pension_personal_model1->application_id)->first();
                     $pension_details_aadhar->encoded_aadhar = Crypt::encryptString($post_aadhar_no);
                     $pension_details_aadhar->aadhar_hash = md5($post_aadhar_no);
-                    $pension_details_aadhar->application_id =   $application_row->application_id;
+                    $pension_details_aadhar->application_id = $application_row->application_id;
                     $pension_details_aadhar->created_by_level = $mapping_level;
                     $pension_details_aadhar->created_by = $user_id;
                     $pension_details_aadhar->ip_address = $request->ip();
@@ -570,8 +569,8 @@ class LbEntryController extends Controller
                     $pension_details_aadhar->action_type = class_basename(request()->route()->getAction()['controller']);
                     try {
                         $is_saved_aadhar = $pension_details_aadhar->save();
-                        if($request->type==10){
-                            $op_type='CMOENTRY';
+                        if ($request->type == 10) {
+                            $op_type = 'CMOENTRY';
                             $cmo_data = array();
                             $cmo_data['is_processed'] = 1;
                             $cmo_data['is_mark'] = 1;
@@ -579,29 +578,28 @@ class LbEntryController extends Controller
                             $cmo_data['marked_date'] = date('Y-m-d H:i:s');
                             $cmo_data['lb_application_id'] = $pension_personal_model1->application_id;
                             $is_cmo_update = DB::table('cmo.cmo_sm_data')
-                            ->where('grievance_id', $request->grievance_id)
-                            // ->where('scheme_id', $scheme_id)
-                            // ->where('pri_cont_no', $grievance_mobile_no)
-                            ->where('is_processed', 0) //Temporary Code
-                            ->where('send_to_op', 1)
-                            ->where('lgd_dist', $distCode)
-                            ->update($cmo_data);
-                        }
-                        else{
-                            $op_type='F';
+                                ->where('grievance_id', $request->grievance_id)
+                                // ->where('scheme_id', $scheme_id)
+                                // ->where('pri_cont_no', $grievance_mobile_no)
+                                ->where('is_processed', 0) //Temporary Code
+                                ->where('send_to_op', 1)
+                                ->where('lgd_dist', $distCode)
+                                ->update($cmo_data);
+                        } else {
+                            $op_type = 'F';
                         }
                     } catch (\Exception $e) {
                         DB::rollback();
                         $return_status = 0;
                         $return_text = 'Duplicate Aadhaar No.';
-                       
+
                         $return_msg = array("" . $return_text);
                         $max_tab_code = 0;
                         return response()->json(['return_status' => $return_status, 'return_msg' => $return_msg, 'max_tab_code' => $max_tab_code]);
                     }
                     $application_id = $application_row->application_id;
                     $op_type = $op_type;
-                    $modelNameAcceptReject->op_type =  $op_type;
+                    $modelNameAcceptReject->op_type = $op_type;
                     $modelNameAcceptReject->application_id = $application_id;
                     $modelNameAcceptReject->designation_id = $designation_id;
                     $modelNameAcceptReject->scheme_id = $scheme_id;
@@ -632,13 +630,13 @@ class LbEntryController extends Controller
                         $return_status = 0;
                         $return_text = 'Duplicate Aadhaar No.';
                         $return_msg = array("" . $return_text);
-                       
+
                         $max_tab_code = 0;
                         return response()->json(['return_status' => $return_status, 'return_msg' => $return_msg, 'max_tab_code' => $max_tab_code]);
                     }
                     $return_text = "Personal details has been successfully updated";
                 }
-                if (!empty($sp_mobile_old) ||  !empty($sp_mobile_new)) {
+                if (!empty($sp_mobile_old) || !empty($sp_mobile_new)) {
                     // dd('123');
                     //dump($sp_mobile_old); dd($sp_mobile_new);
                     $is_inserted_status_arr = DB::select("select lb_scheme.dup_adjustment_insert_update(old_mobile_no => '" . $sp_mobile_old . "',new_mobile_no => '" . $sp_mobile_new . "')");
@@ -669,45 +667,44 @@ class LbEntryController extends Controller
                 }
             } catch (\Exception $e) {
                 dd($e);
-               
+
                 DB::rollback();
                 $return_status = 0;
                 $return_text = 'Some error.Please try again';
                 $return_msg = array("" . $return_text);
                 $max_tab_code = 0;
             }
-           
+
 
             if ($is_saved) {
-                $api_code=1;
-                $ben_fullname=trim($request->first_name);
+                $api_code = 1;
+                $ben_fullname = trim($request->first_name);
                 $return_status = 1;
                 DB::commit();
-               
-                 if (env('APP_ENV') == 'prod'){
-                try {
-                $session_lb_lifecertificate=$this->bioauthcheckInsert($distCode,$application_id,$ben_fullname,$request->ip(),$post_aadhar_no,$blockCode,$user_id,$api_code);
-                }catch (\Exception $e) {
-                    // dd($e);
-                    $session_lb_lifecertificate=array();
+
+                if (env('APP_ENV') == 'prod') {
+                    try {
+                        $session_lb_lifecertificate = $this->bioauthcheckInsert($distCode, $application_id, $ben_fullname, $request->ip(), $post_aadhar_no, $blockCode, $user_id, $api_code);
+                    } catch (\Exception $e) {
+                        // dd($e);
+                        $session_lb_lifecertificate = array();
+                    }
+                    try {
+                        $session_lb_aadhaar_no = $this->RationcheckInsert($distCode, $application_id, $ben_fullname, $request->ip(), $post_aadhar_no, $blockCode, $user_id, $request->dob, $api_code);
+                    } catch (\Exception $e) {
+                        $session_lb_aadhaar_no = array();
+                    }
+                    try {
+                        if ($request->caste_category == 'SC' || $request->caste_category == 'ST') {
+                            $session_lb_castecertificate = $this->casteInfoCheckInsert($distCode, $application_id, $ben_fullname, $request->ip(), trim($request->caste_certificate_no), $blockCode, $user_id, $api_code);
+                        } else {
+                            $session_lb_castecertificate = array();
+                        }
+                    } catch (\Exception $e) {
+                        // dd($e);
+                        $session_lb_castecertificate = array();
+                    }
                 }
-                try {
-                $session_lb_aadhaar_no=$this->RationcheckInsert($distCode,$application_id,$ben_fullname,$request->ip(),$post_aadhar_no,$blockCode,$user_id,$request->dob,$api_code);
-                }catch (\Exception $e) {
-                    $session_lb_aadhaar_no=array();
-                }
-                try {
-                if($request->caste_category=='SC' || $request->caste_category=='ST'){
-                $session_lb_castecertificate=$this->casteInfoCheckInsert($distCode,$application_id,$ben_fullname,$request->ip(),trim($request->caste_certificate_no),$blockCode,$user_id,$api_code);
-                }
-                else{
-                    $session_lb_castecertificate=array();
-                }
-                }catch (\Exception $e) {
-                    // dd($e);
-                    $session_lb_castecertificate=array();
-                }
-            }
             } else {
                 $return_status = 0;
                 $return_text = 'Some error.Please try again';
@@ -717,7 +714,7 @@ class LbEntryController extends Controller
             $return_status = 0;
             $return_msg = $validator->errors()->all();
         }
-        return response()->json(['return_status' => $return_status, 'application_id' => $application_id, 'return_msg' => $return_msg, 'max_tab_code' => $max_tab_code,'session_lb_lifecertificate' => $session_lb_lifecertificate,'session_lb_castecertificate' => $session_lb_castecertificate,'session_lb_aadhaar_no'=> $session_lb_aadhaar_no]);
+        return response()->json(['return_status' => $return_status, 'application_id' => $application_id, 'return_msg' => $return_msg, 'max_tab_code' => $max_tab_code, 'session_lb_lifecertificate' => $session_lb_lifecertificate, 'session_lb_castecertificate' => $session_lb_castecertificate, 'session_lb_aadhaar_no' => $session_lb_aadhaar_no]);
     }
 
     public function contactEntry(Request $request)
@@ -831,7 +828,7 @@ class LbEntryController extends Controller
                 $personal_model = new DataSourceCommon;
                 $Table = $getModelFunc->getTable($distCode, $this->source_type, 1, 1);
                 $personal_model->setTable('' . $Table);
-                $personal_details_arr = $personal_model->select('application_id', 'created_by_local_body_code', 'tab_code','ds_phase')->where('application_id', $application_id)->first();
+                $personal_details_arr = $personal_model->select('application_id', 'created_by_local_body_code', 'tab_code', 'ds_phase')->where('application_id', $application_id)->first();
                 if ($personal_details_arr->created_by_local_body_code != $blockCode) {
                     $return_status = 0;
                     $return_text = 'You are not allowded to do so';
@@ -851,7 +848,10 @@ class LbEntryController extends Controller
 
                 if (!empty($personal_details_arr) && intval($personal_details_arr->tab_code) < 2) {
                     $input = [
-                        'tab_code' =>  2,'action_by' => Auth::user()->id,'action_ip_address' => request()->ip(),'action_type' => class_basename(request()->route()->getAction()['controller'])
+                        'tab_code' => 2,
+                        'action_by' => Auth::user()->id,
+                        'action_ip_address' => request()->ip(),
+                        'action_type' => class_basename(request()->route()->getAction()['controller'])
 
                     ];
                     $tab_max_code_saved = $personal_model->where('application_id', $application_id)->update($input);
@@ -863,28 +863,28 @@ class LbEntryController extends Controller
                     $block_ulb = UrbanBody::where('urban_body_code', $request->block)->first();
                     $gp_ward = Ward::where('urban_body_ward_code', $request->gp_ward)->first();
                     $pension_details['block_ulb_name'] = trim($block_ulb->urban_body_name);
-                    $pension_details['gp_ward_name']   = trim($gp_ward->urban_body_ward_name);
+                    $pension_details['gp_ward_name'] = trim($gp_ward->urban_body_ward_name);
                 } else {
-                    $block_ulb =  Taluka::where('block_code', $request->block)->first();
-                    $gp_ward =  GP::where('gram_panchyat_code', $request->gp_ward)->first();
+                    $block_ulb = Taluka::where('block_code', $request->block)->first();
+                    $gp_ward = GP::where('gram_panchyat_code', $request->gp_ward)->first();
                     $pension_details['block_ulb_name'] = trim($block_ulb->block_name);
-                    $pension_details['gp_ward_name']   = trim($gp_ward->gram_panchyat_name);
+                    $pension_details['gp_ward_name'] = trim($gp_ward->gram_panchyat_name);
                 }
-                $pension_details['ds_phase']       =      $personal_details_arr->ds_phase;
-                $pension_details['dist_code']       =      $request->district;
-                $pension_details['rural_urban_id']     =      $request->urban_code;
-                $pension_details['police_station']  = trim($request->police_station);
-                $pension_details['block_ulb_code']  = $request->block;
+                $pension_details['ds_phase'] = $personal_details_arr->ds_phase;
+                $pension_details['dist_code'] = $request->district;
+                $pension_details['rural_urban_id'] = $request->urban_code;
+                $pension_details['police_station'] = trim($request->police_station);
+                $pension_details['block_ulb_code'] = $request->block;
                 $pension_details['gp_ward_code'] = $request->gp_ward;
-                $pension_details['village_town_city']  = trim($request->village);
-                $pension_details['house_premise_no']  = trim($request->house_premise_no);
-                $pension_details['post_office']   = trim($request->post_office);
-                $pension_details['pincode']  = trim($request->pin_code);
-                $pension_details['created_by']  = Auth::user()->id;
-                $pension_details['created_by_level']  = $mapping_level;
+                $pension_details['village_town_city'] = trim($request->village);
+                $pension_details['house_premise_no'] = trim($request->house_premise_no);
+                $pension_details['post_office'] = trim($request->post_office);
+                $pension_details['pincode'] = trim($request->pin_code);
+                $pension_details['created_by'] = Auth::user()->id;
+                $pension_details['created_by_level'] = $mapping_level;
                 $pension_details['created_by_dist_code'] = $distCode;
                 $pension_details['created_by_local_body_code'] = $blockCode;
-                $pension_details['ip_address']  = $request->ip();
+                $pension_details['ip_address'] = $request->ip();
                 $pension_details['action_by'] = Auth::user()->id;
                 $pension_details['action_ip_address'] = request()->ip();
                 $pension_details['action_type'] = class_basename(request()->route()->getAction()['controller']);
@@ -892,7 +892,7 @@ class LbEntryController extends Controller
                     $is_saved = $pension_details_contact->where('application_id', $application_id)->update($pension_details);
                 } else {
 
-                    $pension_details['application_id']      =     $application_id;
+                    $pension_details['application_id'] = $application_id;
                     $is_saved = $pension_details_contact->insert($pension_details);
                 }
                 $return_status = 1;
@@ -1012,35 +1012,37 @@ class LbEntryController extends Controller
                 $return_msg = array("" . $return_text);
                 return response()->json(['return_status' => $return_status, 'return_msg' => $return_msg, 'max_tab_code' => $max_tab_code]);
             }
-            $DupCheckBankOap = DupCheck::getDupCheckBank(10,$bank_code);
-            $DupCheckBankOap=0;
-            if(!empty($DupCheckBankOap)){
+            $DupCheckBankOap = DupCheck::getDupCheckBank(10, $bank_code);
+            $DupCheckBankOap = 0;
+            if (!empty($DupCheckBankOap)) {
                 $return_status = 0;
-                $return_text = 'Duplicate Bank Account Number present in Old Age Pension Scheme with Beneficiary ID- '.$DupCheckBankOap.'';
+                $return_text = 'Duplicate Bank Account Number present in Old Age Pension Scheme with Beneficiary ID- ' . $DupCheckBankOap . '';
                 $return_msg = array("" . $return_text);
                 return response()->json(['return_status' => $return_status, 'return_msg' => $return_msg, 'max_tab_code' => $max_tab_code]);
             }
-            $DupCheckBankJohar = DupCheck::getDupCheckBank(1,$bank_code);
-            $DupCheckBankJohar=0;
-            if(!empty($DupCheckBankJohar)){
+            $DupCheckBankJohar = DupCheck::getDupCheckBank(1, $bank_code);
+            $DupCheckBankJohar = 0;
+            if (!empty($DupCheckBankJohar)) {
                 $return_status = 0;
-                $return_text = 'Duplicate Bank Account Number present Jai Johar Pension Scheme with Beneficiary ID- '.$DupCheckBankJohar.'';
+                $return_text = 'Duplicate Bank Account Number present Jai Johar Pension Scheme with Beneficiary ID- ' . $DupCheckBankJohar . '';
                 $return_msg = array("" . $return_text);
                 return response()->json(['return_status' => $return_status, 'return_msg' => $return_msg, 'max_tab_code' => $max_tab_code]);
             }
-            $DupCheckBankBandhu = DupCheck::getDupCheckBank(3,$bank_code);
-            $DupCheckBankBandhu=0;
-            if(!empty($DupCheckBankBandhu)){
+            $DupCheckBankBandhu = DupCheck::getDupCheckBank(3, $bank_code);
+            $DupCheckBankBandhu = 0;
+            if (!empty($DupCheckBankBandhu)) {
                 $return_status = 0;
-                $return_text = 'Duplicate Bank Account Number present Taposili Bandhu(for SC) Pension Scheme with Beneficiary ID- '.$DupCheckBankBandhu.'';
+                $return_text = 'Duplicate Bank Account Number present Taposili Bandhu(for SC) Pension Scheme with Beneficiary ID- ' . $DupCheckBankBandhu . '';
                 $return_msg = array("" . $return_text);
                 return response()->json(['return_status' => $return_status, 'return_msg' => $return_msg, 'max_tab_code' => $max_tab_code]);
             }
             DB::beginTransaction();
             if (!empty($personal_details_arr) && intval($personal_details_arr->tab_code) < 3) {
                 $input = [
-                    'tab_code' =>  3,
-                    'action_by' => Auth::user()->id,'action_ip_address' => request()->ip(),'action_type' => class_basename(request()->route()->getAction()['controller'])
+                    'tab_code' => 3,
+                    'action_by' => Auth::user()->id,
+                    'action_ip_address' => request()->ip(),
+                    'action_type' => class_basename(request()->route()->getAction()['controller'])
 
                 ];
                 $tab_max_code_saved = $personal_model->where('application_id', $application_id)->update($input);
@@ -1048,10 +1050,10 @@ class LbEntryController extends Controller
             } else {
                 $tab_max_code_saved = 1;
             }
-            $pension_details['bank_name']  = trim($request->name_of_bank);
-            $pension_details['branch_name']    = trim($request->bank_branch);
-            $pension_details['bank_code']    = trim($request->bank_account_number);
-            $pension_details['bank_ifsc']   = trim($request->bank_ifsc_code);
+            $pension_details['bank_name'] = trim($request->name_of_bank);
+            $pension_details['branch_name'] = trim($request->bank_branch);
+            $pension_details['bank_code'] = trim($request->bank_account_number);
+            $pension_details['bank_ifsc'] = trim($request->bank_ifsc_code);
             $pension_details['created_by_level'] = $mapping_level;
             $pension_details['created_by'] = Auth::user()->id;
             $pension_details['ip_address'] = $request->ip();
@@ -1125,7 +1127,7 @@ class LbEntryController extends Controller
                 $return_msg = array("" . $return_text);
                 Session::put('dup_type', 'bank');
                 Session::put('dup_type_value', Crypt::encryptString($request->bank_account_number));
-                
+
                 $max_tab_code = 0;
                 return response()->json(['return_status' => $return_status, 'return_msg' => $return_msg, 'max_tab_code' => $max_tab_code]);
             } else if ($is_inserted_status == 3) {
@@ -1181,7 +1183,7 @@ class LbEntryController extends Controller
             $return_msg = array("" . $return_text);
             return response()->json(['return_status' => $return_status, 'return_msg' => $return_msg, 'max_tab_code' => $max_tab_code]);
         }
-        
+
         $user_id = Auth::user()->id;
 
         $document_type = $request->document_type;
@@ -1300,7 +1302,7 @@ class LbEntryController extends Controller
                     array_push($already_uploaded, (int) $document_type);
 
 
-                if (count($already_uploaded) == count($in_array)  && array_diff($already_uploaded, $in_array) === array_diff($in_array, $already_uploaded)) {
+                if (count($already_uploaded) == count($in_array) && array_diff($already_uploaded, $in_array) === array_diff($in_array, $already_uploaded)) {
                     $max_insert_tab = 4;
                 } else {
                     $max_insert_tab = $max_tab_code;
@@ -1468,7 +1470,10 @@ class LbEntryController extends Controller
             $return_status = 1;
             if (!empty($personal_details_arr) && intval($personal_details_arr->tab_code) < 5) {
                 $input = [
-                    'tab_code' =>  4,'action_by' => Auth::user()->id,'action_ip_address' => request()->ip(),'action_type' => class_basename(request()->route()->getAction()['controller'])
+                    'tab_code' => 4,
+                    'action_by' => Auth::user()->id,
+                    'action_ip_address' => request()->ip(),
+                    'action_type' => class_basename(request()->route()->getAction()['controller'])
 
                 ];
                 $tab_max_code_saved = $personal_model->where('application_id', $application_id)->update($input);
@@ -1572,7 +1577,10 @@ class LbEntryController extends Controller
 
                 if (!empty($personal_details_arr) && intval($personal_details_arr->tab_code) < 5) {
                     $input = [
-                        'tab_code' =>  5,'action_by' => Auth::user()->id,'action_ip_address' => request()->ip(),'action_type' => class_basename(request()->route()->getAction()['controller'])
+                        'tab_code' => 5,
+                        'action_by' => Auth::user()->id,
+                        'action_ip_address' => request()->ip(),
+                        'action_type' => class_basename(request()->route()->getAction()['controller'])
 
                     ];
                     $tab_max_code_saved = $personal_model->where('application_id', $application_id)->update($input);
@@ -1626,7 +1634,7 @@ class LbEntryController extends Controller
                 }
                 $updated_source_lb_id = $DraftPersonalTable->where('application_id', $application_id)->update($update_dr_arr);
 
-                $modelNameAcceptReject->op_type =  $op_type;
+                $modelNameAcceptReject->op_type = $op_type;
                 $modelNameAcceptReject->application_id = $application_id;
                 $modelNameAcceptReject->designation_id = Auth::user()->designation_id;
                 $modelNameAcceptReject->scheme_id = $scheme_id;
@@ -1649,13 +1657,13 @@ class LbEntryController extends Controller
                 $message = 'Your Lakshmir Bhandar application is received with application ID ' . $application_id . ' . Lakshmir Bhandar, Govt of WB';
                 $url_base = url('/');
                 // dd($url_base);
-                
+
                 //$this->initiateSmsActivation($mobileNo, $message);
-                
+
             }
             //dd($url);
             return redirect('/' . $url)->with('success', 'Application Submitted Successfully')
-                ->with('id',  $application_id);
+                ->with('id', $application_id);
         } else {
             $return_status = 0;
             $return_msg = $validator->errors()->all();
@@ -1663,10 +1671,10 @@ class LbEntryController extends Controller
             return redirect("/lb-entry-draft-edit?status=" . $request->status . "&application_id=" . $request->application_id . "&tab_code=encloser")->with('errors', $return_msg);
         }
     }
-   
+
     public function draftedit(Request $request)
     {
-       // dd('ok');
+        // dd('ok');
         $dob_base_date = Carbon::parse($this->base_dob_chk_date)->format('d/m/Y');
         $designation_id = Auth::user()->designation_id;
         $max_dob = $this->max_dob;
@@ -1704,7 +1712,7 @@ class LbEntryController extends Controller
         }
         $is_active = 0;
         // $roleArray = $request->session()->get('role');
-        $roleArray=Configduty::where('user_id',Auth::user()->id)->get()->toArray();
+        $roleArray = Configduty::where('user_id', Auth::user()->id)->get()->toArray();
 
         $rowArr = [];
         $block_ulb_list = collect([]);
@@ -1741,19 +1749,19 @@ class LbEntryController extends Controller
         }
         if ($is_active == 1) {
             $scheme_details = Scheme::where('id', $scheme_id)->first();
-            if(empty($application_id)){
-                if($scheme_details->allow_ds_entry==0 && $scheme_details->allow_normal_entry==0) {
+            if (empty($application_id)) {
+                if ($scheme_details->allow_ds_entry == 0 && $scheme_details->allow_normal_entry == 0) {
                     return redirect("/")->with('error', 'New Entry is disabled');
                 }
-                    $entry_allowed = BlkUrbanlEntryMapping::where('main_entry', true)->where('block_ulb_code',  $blockCode)->count();
-                    $entry_allowed_normal = BlkUrbanlEntryMapping::where('normal_entry', true)->where('block_ulb_code',  $blockCode)->count();
+                $entry_allowed = BlkUrbanlEntryMapping::where('main_entry', true)->where('block_ulb_code', $blockCode)->count();
+                $entry_allowed_normal = BlkUrbanlEntryMapping::where('normal_entry', true)->where('block_ulb_code', $blockCode)->count();
 
-                    if ($entry_allowed == 0 && $entry_allowed_normal==0) {
-                        return redirect("/")->with('error', 'New Entry is disabled');
-                    }
-                   
-                    
-           }
+                if ($entry_allowed == 0 && $entry_allowed_normal == 0) {
+                    return redirect("/")->with('error', 'New Entry is disabled');
+                }
+
+
+            }
 
             $district_list = District::select(
                 'id',
@@ -1799,8 +1807,20 @@ class LbEntryController extends Controller
                     'spouse_lname',
                     'mobile_no',
                     'life_certificate_checked',
-                    'life_certificate_pass','caste_matched_with_certificate_no','caste_certificate_checked','last_biometric','life_certificate_lastdatetime','caste_certificate_check_lastdatetime','aadhaar_no_checked','aadhaar_no_checked_lastdatetime','aadhaar_no_validation_msg','aadhaar_no_checked_pass',
-                    'dob_kh','dob_is_match_kh','entry_type', 'application_date'
+                    'life_certificate_pass',
+                    'caste_matched_with_certificate_no',
+                    'caste_certificate_checked',
+                    'last_biometric',
+                    'life_certificate_lastdatetime',
+                    'caste_certificate_check_lastdatetime',
+                    'aadhaar_no_checked',
+                    'aadhaar_no_checked_lastdatetime',
+                    'aadhaar_no_validation_msg',
+                    'aadhaar_no_checked_pass',
+                    'dob_kh',
+                    'dob_is_match_kh',
+                    'entry_type',
+                    'application_date'
                 )->where(['created_by_local_body_code' => $blockCode, 'application_id' => $request->application_id])->first();
                 if (empty($personal_data->ben_fname)) {
                     return redirect("/")->with('error', 'Application Not Found');
@@ -1822,7 +1842,7 @@ class LbEntryController extends Controller
                 $personal_arr = $personal_data->toArray();
                 $rowArr = array_merge($rowArr, $personal_arr);
                 $tab_code = $personal_data->tab_code;
-                
+
             } else {
                 $tab_code = 0;
             }
@@ -1834,7 +1854,7 @@ class LbEntryController extends Controller
                 $Table = $getModelFunc->getTable($dist_code, $this->source_type, 3, 1);
                 $DraftAadharTable->setConnection('pgsql_appread');
                 $DraftContactTable->setTable('' . $Table);
-                $contactData = $DraftContactTable->select('dist_code', 'block_ulb_code', 'block_ulb_name', 'gp_ward_code', 'gp_ward_name', 'police_station', 'village_town_city', 'house_premise_no', 'post_office', 'residency_period',  'pincode', 'rural_urban_id')->where('application_id', $application_id)->first();
+                $contactData = $DraftContactTable->select('dist_code', 'block_ulb_code', 'block_ulb_name', 'gp_ward_code', 'gp_ward_name', 'police_station', 'village_town_city', 'house_premise_no', 'post_office', 'residency_period', 'pincode', 'rural_urban_id')->where('application_id', $application_id)->first();
 
                 if (!empty($contactData)) {
                     $contact_arr = $contactData->toArray();
@@ -1912,7 +1932,7 @@ class LbEntryController extends Controller
             } else
                 $doc_list_man = array();
             if (isset($doc_id_list['doc_list_opt']) && $doc_id_list['doc_list_opt'] != 'null') {
-                $doc_list_opt = DocumentType::select('id',  'is_profile_pic', 'doc_size_kb', 'doc_name', 'doc_type', 'doucument_group')->whereIn("id", json_decode($doc_id_list['doc_list_opt']))->get()->toArray();
+                $doc_list_opt = DocumentType::select('id', 'is_profile_pic', 'doc_size_kb', 'doc_name', 'doc_type', 'doucument_group')->whereIn("id", json_decode($doc_id_list['doc_list_opt']))->get()->toArray();
             } else
                 $doc_list_opt = array();
             if (count($doc_list_man) > 0 || count($doc_list_opt) > 0) {
@@ -1962,19 +1982,18 @@ class LbEntryController extends Controller
                 }
             }
             $cur_ds_phase_arr = DsPhase::where('is_current', TRUE)->first();
-            $ds_phase_text='';
+            $ds_phase_text = '';
             if (!empty($cur_ds_phase_arr)) {
-                if($cur_ds_phase_arr->is_samadhan==TRUE){
-                    $ds_phase_text='Samasyaa Samadhan Jan Sanjog';
-                }
-                else{
-                    $ds_phase_text='Duare Sarkar';
+                if ($cur_ds_phase_arr->is_samadhan == TRUE) {
+                    $ds_phase_text = 'Samasyaa Samadhan Jan Sanjog';
+                } else {
+                    $ds_phase_text = 'Duare Sarkar';
                 }
             }
-            
+
             $errormsg = Config::get('constants.errormsg');
 
-           // dd( $status);
+            // dd( $status);
             return view('LbForm/EditForm', [
                 'row' => $rowArr_collection,
                 'application_id' => $application_id,
@@ -2048,7 +2067,8 @@ class LbEntryController extends Controller
     }
     public function forwardData(Request $request)
     {
-        //dd('ok');
+        // dd('ok');
+        // dd($request->all());
         $this->shemeSessionCheck($request);
         $scheme_id = $request->session()->get('scheme_id');
         $mappingLevel = $request->session()->get('level');
@@ -2072,13 +2092,13 @@ class LbEntryController extends Controller
         if ($designation_id == 'Delegated Verifier') {
             $role = MapLavel::where('scheme_id', $scheme_id)->where('role_name', 'Verifier')->where('stack_level', 'Block')->first();
         } elseif ($designation_id == 'Delegated Approver') {
-            
-                $role = MapLavel::where('scheme_id', $scheme_id)->where('role_name', 'Approver')->where('stack_level', 'District')->first();
-            
-        }else {
+
+            $role = MapLavel::where('scheme_id', $scheme_id)->where('role_name', 'Approver')->where('stack_level', 'District')->first();
+
+        } else {
             $role = MapLavel::where('scheme_id', $scheme_id)->where('role_name', $designation_id)->where('stack_level', $duty->mapping_level)->first();
         }
-      
+
         if ($role->isEmpty) {
             return response()->json(['return_status' => 0, 'return_msg' => $errormsg['notauthorized']]);
         }
@@ -2112,24 +2132,24 @@ class LbEntryController extends Controller
 
         $getModelFunc = new getModelFunc();
         $personal_model = new DataSourceCommon;
-        $Table = $getModelFunc->getTable($district_code, $this->source_type, 1,  1);
+        $Table = $getModelFunc->getTable($district_code, $this->source_type, 1, 1);
         $personal_model->setTable('' . $Table);
         $pension_details_aadhar = new DataSourceCommon;
         $Table = $getModelFunc->getTable($district_code, $this->source_type, 2, 1);
         $pension_details_aadhar->setTable('' . $Table);
 
-
+        // dd('ok');
 
         $opreation_type = $request->opreation_type;
         if ($is_bulk == 1) {
-           
+
         }
         //dd($id);
         if ($opreation_type == 'A') { //echo 1;die;
-            $approval_allowded = BlkUrbanlEntryMapping::where('main_approval', true)->where('district_code',  $district_code)->count();
-            $approval_allowded_normal = BlkUrbanlEntryMapping::where('normal_approval', true)->where('district_code',  $district_code)->count();
+            $approval_allowded = BlkUrbanlEntryMapping::where('main_approval', true)->where('district_code', $district_code)->count();
+            $approval_allowded_normal = BlkUrbanlEntryMapping::where('normal_approval', true)->where('district_code', $district_code)->count();
 
-            if ($approval_allowded == 0 && $approval_allowded_normal==0) {
+            if ($approval_allowded == 0 && $approval_allowded_normal == 0) {
                 return response()->json(['return_status' => 0, 'return_msg' => 'Approval is temporarily suspended']);
             }
             if ($is_bulk == 0) {
@@ -2153,18 +2173,19 @@ class LbEntryController extends Controller
                 $count_rejected = DB::table('lb_scheme.ben_reject_details')->whereraw("date(rejection_date)>='2024-11-21' ")->count();
                 // if(($count_approved+$count_rejected+count($applicant_id_in))>=507002){
                 //     return response()->json(['return_status' => 0, 'return_msg' => 'Approval quota has been exceeded']);
-    
+
                 // }
             }
         } else if ($opreation_type == 'V') {
-            return response()->json(['return_status' => 0, 'return_msg' => 'Verification is temporarily suspended']);
-            $verification_allowded = BlkUrbanlEntryMapping::where('main_verification', true)->where('block_ulb_code', $request->session()->get('bodyCode'))->where('district_code',  $district_code)->count();
-            $verification_allowded_normal = BlkUrbanlEntryMapping::where('normal_verification', true)->where('block_ulb_code', $request->session()->get('bodyCode'))->where('district_code',  $district_code)->count();
+            // return response()->json(['return_status' => 0, 'return_msg' => 'Verification is temporarily suspended']);
+            $verification_allowded = BlkUrbanlEntryMapping::where('main_verification', true)->where('block_ulb_code', $request->session()->get('bodyCode'))->where('district_code', $district_code)->count();
+            $verification_allowded_normal = BlkUrbanlEntryMapping::where('normal_verification', true)->where('block_ulb_code', $request->session()->get('bodyCode'))->where('district_code', $district_code)->count();
 
-            if ($verification_allowded == 0 && $verification_allowded_normal==0) {
+            if ($verification_allowded == 0 && $verification_allowded_normal == 0) {
                 return response()->json(['return_status' => 0, 'return_msg' => 'Verification is temporarily suspended']);
             }
             if ($is_bulk == 0) {
+                // dd('ok');
                 $row = $personal_model->select('application_id')->where('application_id', $id)->whereNull('next_level_role_id')->where('created_by_dist_code', $request->session()->get('distCode'))->first();
                 $row_aadhar = $pension_details_aadhar->select('application_id', 'encoded_aadhar', 'aadhar_hash')->where('application_id', $id)->where('created_by_dist_code', $request->session()->get('distCode'))->first();
                 if (empty($row_aadhar->aadhar_hash)) {
@@ -2173,13 +2194,14 @@ class LbEntryController extends Controller
                 } else {
                     $aadhar_is_update = 0;
                 }
-                $count_draft = DB::table('lb_scheme.draft_ben_personal_details')->where('next_level_role_id',43)->count();
+                $count_draft = DB::table('lb_scheme.draft_ben_personal_details')->where('next_level_role_id', 43)->count();
                 $count_approved = DB::table('lb_scheme.ben_personal_details')->whereraw("date(approved_at)>='2024-11-21' ")->count();
                 $count_rejected = DB::table('lb_scheme.ben_reject_details')->whereraw("date(rejection_date)>='2024-11-21' ")->count();
                 // if(($count_draft+$count_approved+$count_rejected)>=507002){
                 //     return response()->json(['return_status' => 0, 'return_msg' => 'Verification quota has been exceeded']);
                 // }
             } else {
+
                 $applicant_id_post = request()->input('applicantId');
 
                 $applicant_id_in = explode(',', $applicant_id_post);
@@ -2188,15 +2210,15 @@ class LbEntryController extends Controller
                 if (count($row_list) != count($applicant_id_in)) {
                     return response()->json(['return_status' => 0, 'return_msg' => 'Applicant Id Not Valid']);
                 }
-                $count_draft = DB::table('lb_scheme.draft_ben_personal_details')->where('next_level_role_id',43)->count();
+                $count_draft = DB::table('lb_scheme.draft_ben_personal_details')->where('next_level_role_id', 43)->count();
                 $count_approved = DB::table('lb_scheme.ben_personal_details')->whereraw("date(approved_at)>='2024-11-21' ")->count();
                 $count_rejected = DB::table('lb_scheme.ben_reject_details')->whereraw("date(rejection_date)>='2024-11-21' ")->count();
                 // if((count($applicant_id_in)+$count_draft+$count_approved+$count_rejected)>=507002){
                 //     return response()->json(['return_status' => 0, 'return_msg' => 'Verification quota has been exceeded']);
                 // }
-                
+
             }
-           
+
         } else if ($opreation_type == 'R') {
             if ($is_bulk == 0) {
                 $row = $personal_model->select('application_id')->where('application_id', $id)->where('created_by_dist_code', $request->session()->get('distCode'))->first();
@@ -2252,11 +2274,18 @@ class LbEntryController extends Controller
             $rejected_cause = $reject_cause;
             $message = 'Reverted Succesfully!';
         }
-        $input = ['action_by' => Auth::user()->id,'action_ip_address' => request()->ip(),'action_type' => class_basename(request()->route()->getAction()['controller'])
-,'next_level_role_id' => $next_level_role_id, 'rejected_cause' => $rejected_cause, 'comments' => $comments];
+        $input = [
+            'action_by' => Auth::user()->id,
+            'action_ip_address' => request()->ip(),
+            'action_type' => class_basename(request()->route()->getAction()['controller'])
+            ,
+            'next_level_role_id' => $next_level_role_id,
+            'rejected_cause' => $rejected_cause,
+            'comments' => $comments
+        ];
 
 
-
+        // dd('ok');
         try {
 
 
@@ -2335,6 +2364,7 @@ class LbEntryController extends Controller
                         try {
                             $aadhar_update_status = $pension_details_aadhar->where('application_id', $id)->update($update_aadhar_arr);
                         } catch (\Exception $e) {
+                            // dd($e);
 
                             DB::rollback();
                             $return_status = 0;
@@ -2358,23 +2388,23 @@ class LbEntryController extends Controller
                     $implode_application_arr = implode("','", $applicationid_arr);
                     $in_pension_id = 'ARRAY[' . "'$implode_application_arr'" . ']';
                     if ($opreation_type == 'A') { //echo 2;
-                       // $fun_return = DB::select("select lb_scheme.beneficiary_approve_final_wtSws(" . $in_pension_id . ")");
-                       $fun_return = DB::select("select lb_scheme.beneficiary_approve_final_wtSws(in_application_id => $in_pension_id,in_action_by => $user_id,in_ip_address => '".request()->ip()."', in_action_type => '".class_basename(request()->route()->getAction()['controller'])."')");
+                        // $fun_return = DB::select("select lb_scheme.beneficiary_approve_final_wtSws(" . $in_pension_id . ")");
+                        $fun_return = DB::select("select lb_scheme.beneficiary_approve_final_wtSws(in_application_id => $in_pension_id,in_action_by => $user_id,in_ip_address => '" . request()->ip() . "', in_action_type => '" . class_basename(request()->route()->getAction()['controller']) . "')");
 
                     } else { //echo 3;
                         //$reject_fun = DB::select("select lb_scheme.beneficiary_rejected_final_wtSws(" . $in_pension_id . ")");
-                        $reject_fun = DB::select("select lb_scheme.beneficiary_rejected_final_wtSws(in_application_id => $in_pension_id,in_action_by => $user_id,in_ip_address => '".request()->ip()."', in_action_type => '".class_basename(request()->route()->getAction()['controller'])."')");
+                        $reject_fun = DB::select("select lb_scheme.beneficiary_rejected_final_wtSws(in_application_id => $in_pension_id,in_action_by => $user_id,in_ip_address => '" . request()->ip() . "', in_action_type => '" . class_basename(request()->route()->getAction()['controller']) . "')");
 
                     }
                 } else { // echo 4;
                     $in_pension_id = 'ARRAY[' . "'$row->application_id'" . ']';
                     if ($opreation_type == 'A') {  //echo 5;
                         //$fun_return = DB::select("select lb_scheme.beneficiary_approve_final_wtSws(" . $in_pension_id . ")");
-                        $fun_return = DB::select("select lb_scheme.beneficiary_approve_final_wtSws(in_application_id => $in_pension_id,in_action_by => $user_id,in_ip_address => '".request()->ip()."', in_action_type => '".class_basename(request()->route()->getAction()['controller'])."')");
+                        $fun_return = DB::select("select lb_scheme.beneficiary_approve_final_wtSws(in_application_id => $in_pension_id,in_action_by => $user_id,in_ip_address => '" . request()->ip() . "', in_action_type => '" . class_basename(request()->route()->getAction()['controller']) . "')");
 
                     } else { //echo 6;
                         //$reject_fun = DB::select("select lb_scheme.beneficiary_rejected_final_wtSws(" . $in_pension_id . ")");
-                        $reject_fun = DB::select("select lb_scheme.beneficiary_rejected_final_wtSws(in_application_id => $in_pension_id,in_action_by => $user_id,in_ip_address => '".request()->ip()."', in_action_type => '".class_basename(request()->route()->getAction()['controller'])."')");
+                        $reject_fun = DB::select("select lb_scheme.beneficiary_rejected_final_wtSws(in_application_id => $in_pension_id,in_action_by => $user_id,in_ip_address => '" . request()->ip() . "', in_action_type => '" . class_basename(request()->route()->getAction()['controller']) . "')");
 
                     }
                 }
@@ -2397,7 +2427,8 @@ class LbEntryController extends Controller
             }
             DB::commit();
         } catch (\Exception $e) {
-           
+            dd($e);
+
             $return_status = 0;
             $return_msg = $errormsg['roolback'];
             //$return_msg = $e;
@@ -2424,7 +2455,7 @@ class LbEntryController extends Controller
                 break;
             }
         }
-       // dd($is_active);
+        // dd($is_active);
         $return_status = 0;
         $return_msg = '';
         if ($is_active == 0 || empty($distCode)) {
@@ -2441,29 +2472,29 @@ class LbEntryController extends Controller
             $return_msg = array("" . $return_text);
             return response()->json(['return_status' => $return_status, 'return_msg' => $return_msg]);
         }
-        $insert_arr=array();
+        $insert_arr = array();
         $c_time = date('Y-m-d H:i:s', time());
-        $insert_arr['created_by_local_body_code']=$blockCode;
-        $insert_arr['caste_certificate_no']=$caste_certificate_no;
-        $insert_arr['api_hit_time']=$c_time;
-        $insert_arr['loginid']=$user_id;
-        if(!empty($request->module_type)){
-        $insert_arr['module_type']=$request->module_type;
+        $insert_arr['created_by_local_body_code'] = $blockCode;
+        $insert_arr['caste_certificate_no'] = $caste_certificate_no;
+        $insert_arr['api_hit_time'] = $c_time;
+        $insert_arr['loginid'] = $user_id;
+        if (!empty($request->module_type)) {
+            $insert_arr['module_type'] = $request->module_type;
         }
-        if(!empty($request->application_id)){
-            $insert_arr['application_id']=$request->application_id;
+        if (!empty($request->application_id)) {
+            $insert_arr['application_id'] = $request->application_id;
         }
         $post_url = 'https://wbgw.napix.gov.in/wb/bcwd/certtificate_api/certdet';
         $curl = curl_init($post_url);
         $headers = array(
-              'Content-Type: application/json',
-              'client-id: ff2c12aacd4ceacbbecbaac9ab979007',
-              'client-secret: ccb028f2e6aa601248a5edd74176b062',
+            'Content-Type: application/json',
+            'client-id: ff2c12aacd4ceacbbecbaac9ab979007',
+            'client-secret: ccb028f2e6aa601248a5edd74176b062',
 
         );
         $data = array("certno" => $caste_certificate_no);
         $data_string = json_encode($data);
-        $scheme_id =$this->scheme_id;
+        $scheme_id = $this->scheme_id;
         header("Access-Control-Allow-Origin: *");
         curl_setopt($curl, CURLOPT_URL, $post_url);
         curl_setopt($curl, CURLOPT_HTTPHEADER, $headers);
@@ -2472,41 +2503,40 @@ class LbEntryController extends Controller
         curl_setopt($curl, CURLOPT_POSTFIELDS, $data_string);
         $post_response = curl_exec($curl);
         $c_time = date('Y-m-d H:i:s', time());
-        $insert_arr['api_response_time']=$c_time;
+        $insert_arr['api_response_time'] = $c_time;
         if (curl_errno($curl)) {
             $error_msg = curl_error($curl);
-            $insert_arr['is_error']=1;
-            $insert_arr['error_msg']=$error_msg;
+            $insert_arr['is_error'] = 1;
+            $insert_arr['error_msg'] = $error_msg;
         }
         $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
         curl_close($curl);
-       // dd($httpcode);
-        if($httpcode==200){
-            $post_response=json_decode($post_response);
-            $insert_arr['status']=$post_response[0]->status;
-            $insert_arr['response_text']=json_encode($post_response);
+        // dd($httpcode);
+        if ($httpcode == 200) {
+            $post_response = json_decode($post_response);
+            $insert_arr['status'] = $post_response[0]->status;
+            $insert_arr['response_text'] = json_encode($post_response);
             $return_status = 1;
-            $return_msg='Caste Certificate Number Valid';
-            
-        }
-        else if($httpcode==404){
-            $post_response=json_decode($post_response);
-            $insert_arr['response_text']=json_encode($post_response);
-            $insert_arr['status']=$post_response->status;
-            $insert_arr['message']=$post_response->message;
+            $return_msg = 'Caste Certificate Number Valid';
+
+        } else if ($httpcode == 404) {
+            $post_response = json_decode($post_response);
+            $insert_arr['response_text'] = json_encode($post_response);
+            $insert_arr['status'] = $post_response->status;
+            $insert_arr['message'] = $post_response->message;
             $return_status = 2;
-            $return_msg='Caste Certificate Number Not Valid';
-        }else if($httpcode==401){
-            $post_response=json_decode($post_response);
-            $insert_arr['response_text']=json_encode($post_response);
-            $insert_arr['status']=$post_response->httpMessage;
-            $insert_arr['message']=$post_response->moreInformation;
+            $return_msg = 'Caste Certificate Number Not Valid';
+        } else if ($httpcode == 401) {
+            $post_response = json_decode($post_response);
+            $insert_arr['response_text'] = json_encode($post_response);
+            $insert_arr['status'] = $post_response->httpMessage;
+            $insert_arr['message'] = $post_response->moreInformation;
             $return_status = 3;
-            $return_msg='Invalid Crendential';
+            $return_msg = 'Invalid Crendential';
         }
-        $insert=DB::table('lb_scheme.ben_caste_api_response_track')->insert($insert_arr);
+        $insert = DB::table('lb_scheme.ben_caste_api_response_track')->insert($insert_arr);
         return response()->json(['return_status' => $return_status, 'return_msg' => $return_msg]);
-       
+
     }
     public function isAadharValid($num)
     {
@@ -2568,5 +2598,5 @@ class LbEntryController extends Controller
         }
         return intval($diff);
     }
-   
+
 }

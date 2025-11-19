@@ -1,3 +1,4 @@
+
 .table-container {
     border-radius: 12px;
     overflow: hidden;
@@ -139,22 +140,7 @@
     transform: translateY(-1px);
 }
 
-.alert-section .alert {
-    border-radius: 10px;
-    border: none;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-    margin-bottom: 20px;
-}
 
-.alert-success {
-    background: linear-gradient(135deg, #d4edda, #c3e6cb);
-    color: #155724;
-}
-
-.alert-danger {
-    background: linear-gradient(135deg, #f8d7da, #f1b0b7);
-    color: #721c24;
-}
 
 .pagination-container {
     display: flex;

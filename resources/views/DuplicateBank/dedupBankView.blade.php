@@ -229,7 +229,7 @@
 
               <!-- TABLE -->
               <div class="table-responsive mt-3">
-                <table id="example" class="table table-bordered table-striped w-100">
+                <table id="example" class="data-table">
 
                   <thead style="font-size:12px;">
                     <tr>
@@ -387,6 +387,7 @@
         }
       });
       $('#example').DataTable({
+        "dom": 'frtip',
         "paging": true,
         "searchable": true,
         "paging": false,
