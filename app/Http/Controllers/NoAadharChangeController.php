@@ -63,9 +63,7 @@ class NoAadharChangeController extends Controller
         $designation_id = Auth::user()->designation_id;
         //dd($designation_id);
         $user_id = Auth::user()->id;
-    
         $scheme_id = $this->scheme_id;
-        
         $duty_obj = Configduty::where('user_id', $user_id)->where('scheme_id', $scheme_id)->first();
         //dd($duty_obj);
         if (empty($duty_obj)) {
@@ -183,8 +181,6 @@ class NoAadharChangeController extends Controller
           ON A.application_id=B.application_id 
           ".$where_condition." 
          ) as K order by application_id";
-        
-          // dd($query);
           $data = DB::connection('pgsql_appread')->select($query);
         
   
