@@ -307,8 +307,8 @@
             },
             error: function (ex) {
               //console.log(ex);
-              //alert('Session time out..Please login again');
-              // window.location.href=base_url;
+              alert('Session time out..Please login again');
+              window.location.href=base_url;
             }
           },
           columns: [

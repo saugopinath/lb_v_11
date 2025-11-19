@@ -1,6 +1,6 @@
 @extends('layouts.app-template-datatable')
 @section('content')
-  <div class="content-wrapper">
+  {{-- <div class="content-wrapper"> --}}
     <!-- Content Header (Page header) -->
     <section class="content-header">
     <?php
@@ -21,5 +21,5 @@
     </section>
     @yield('action-content')
     <!-- /.content -->
-  </div>
+  {{-- </div> --}}
 @endsection
