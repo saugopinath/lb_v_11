@@ -318,9 +318,9 @@
                                     </div>
                                     <div id="radio_btn_confirm" style="font-size: 14px; font-weight: bold; font-style: italic;" class="text-warning text-center">Please select the option to process ?</div>
                                     <div class="form-group col-md-6" style="padding: 5px 5px 5px 5px; border: 1px solid whitesmoke; border-radius: 5px; margin: 5px 0px; background-color: whitesmoke; display: none;" id="div_overule">
-                                        <div class="form-check">
+                                        <div class="form-check minor_process">
                                             <input class="form-check-input" type="radio" name="process_type" id="process_type_11" value="11">
-                                            <label class="form-check-label minor_process" for="process_type_11" style="cursor: pointer; margin-bottom: 5px;">
+                                            <label class="form-check-label" for="process_type_11" style="cursor: pointer; margin-bottom: 5px;">
                                                 Minor mismatch, Keep existing bank information
                                             </label>
                                         </div>
@@ -330,9 +330,9 @@
                                                 Process with new bank information
                                             </label>
                                         </div> --}}
-                                        <div class="form-check">
+                                        <div class="form-check reject_process">
                                             <input class="form-check-input" type="radio" name="process_type" id="process_type_13" value="13">
-                                            <label class="form-check-label reject_process" for="process_type_13" style="cursor: pointer; margin-bottom: 5px;">
+                                            <label class="form-check-label" for="process_type_13" style="cursor: pointer; margin-bottom: 5px;">
                                                 Application is rejected due to major mismatch
                                             </label>
                                         </div>

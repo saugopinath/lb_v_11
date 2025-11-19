@@ -846,12 +846,13 @@
                         $('#ifsc_loader').hide();
                         $('.verifySubmit').removeAttr('disabled', true);
                         if (data.status == 2) {
-                            Swal.fire({
-                                icon: 'info',
+                            $.confirm({
                                 title: 'IFSC Not Found!',
-                                text: 'This ' + $ifsc_data + ' IFSC is not registered in our system.',
-                                confirmButtonColor: '#3085d6',
-                                confirmButtonText: 'OK'
+                                type: 'blue',
+                                icon: 'fa fa-info',
+                                content: 'This ' + $ifsc_data +
+                                    ' IFSC is not registered in our system.',
+
 
                             });
                             $('#bank_ifsc').val('');
@@ -921,15 +922,16 @@
                     error: function(jqXHR, textStatus,
                         errorThrown) {
                         $('#loadingDivModal').hide();
-                        Swal.fire({
+                        $.confirm({
                             title: 'Error',
-                            icon: 'error',
-                            text: 'Something went wrong..!!',
-                            confirmButtonColor: '#d33',
-                            confirmButtonText: 'OK'
-                        }).then((result) => {
-                            if (result.isConfirmed) {
-                                location.reload();
+                            type: 'red',
+                            icon: 'fa fa-warning',
+                            content: 'Something went wrong..!!',
+                            buttons: {
+                                Ok: function() {
+                                    location
+                                        .reload();
+                                }
                             }
                         });
                         return false;
@@ -939,6 +941,7 @@
 
         });
 
+        // -------------------- Final Approve Section-------------------------- //
         $(document).on('click', '.verifySubmit', function() {
             var error_name_of_bank = '';
             var error_bank_branch = '';
@@ -947,45 +950,44 @@
             var error_remarks = '';
             var error_file = '';
 
-            // Validation functions
             if ($.trim($('#bank_name').val()).length == 0) {
                 error_name_of_bank = 'Name of Bank is required';
                 $('#error_name_of_bank').text(error_name_of_bank);
-                $('#bank_name').addClass('is-invalid');
+                $('#bank_name').addClass('has-error');
             } else {
                 error_name_of_bank = '';
                 $('#error_name_of_bank').text(error_name_of_bank);
-                $('#bank_name').removeClass('is-invalid');
+                $('#bank_name').removeClass('has-error');
             }
 
             if ($.trim($('#branch_name').val()).length == 0) {
                 error_bank_branch = 'Bank Branch is required';
                 $('#error_bank_branch').text(error_bank_branch);
-                $('#branch_name').addClass('is-invalid');
+                $('#branch_name').addClass('has-error');
             } else {
                 error_bank_branch = '';
                 $('#error_bank_branch').text(error_bank_branch);
-                $('#branch_name').removeClass('is-invalid');
+                $('#branch_name').removeClass('has-error');
             }
 
             if ($.trim($('#bank_account_number').val()).length == 0) {
                 error_bank_account_number = 'Bank Account Number is required';
                 $('#error_bank_account_number').text(error_bank_account_number);
-                $('#bank_account_number').addClass('is-invalid');
+                $('#bank_account_number').addClass('has-error');
             } else {
                 error_bank_account_number = '';
                 $('#error_bank_account_number').text(error_bank_account_number);
-                $('#bank_account_number').removeClass('is-invalid');
+                $('#bank_account_number').removeClass('has-error');
             }
 
             if ($.trim($('#bank_ifsc').val()).length == 0) {
                 error_bank_ifsc_code = 'IFS Code is required';
                 $('#error_bank_ifsc_code').text(error_bank_ifsc_code);
-                $('#bank_ifsc').addClass('is-invalid');
+                $('#bank_ifsc').addClass('has-error');
             } else {
                 error_bank_ifsc_code = '';
                 $('#error_bank_ifsc_code').text(error_bank_ifsc_code);
-                $('#bank_ifsc').removeClass('is-invalid');
+                $('#bank_ifsc').removeClass('has-error');
             }
 
             $ifsc_data = $.trim($('#bank_ifsc').val());
@@ -993,37 +995,34 @@
             if ($ifscRGEX.test($ifsc_data)) {
                 error_bank_ifsc_code = '';
                 $('#error_bank_ifsc_code').text(error_bank_ifsc_code);
-                $('#bank_ifsc').removeClass('is-invalid');
+                $('#bank_ifsc').removeClass('has-error');
             } else {
                 error_bank_ifsc_code = 'Please check IFS Code format';
                 $('#error_bank_ifsc_code').text(error_bank_ifsc_code);
-                $('#bank_ifsc').addClass('is-invalid');
+                $('#bank_ifsc').addClass('has-error');
             }
-
             if ($.trim($('#remarks').val()).length == 0) {
                 error_remarks = 'Please add some remarks';
                 $('#error_remarks').text(error_remarks);
-                $('#remarks').addClass('is-invalid');
+                $('#remarks').addClass('has-error');
             } else {
                 error_remarks = '';
                 $('#error_remarks').text(error_remarks);
-                $('#remarks').removeClass('is-invalid');
+                $('#remarks').removeClass('has-error');
             }
 
             if ($('#upload_enquiry_report')[0].files.length == 0) {
                 error_file = 'Please upload required document';
                 $('#error_file').text(error_file);
-                $('#upload_enquiry_report').addClass('is-invalid');
+                $('#upload_enquiry_report').addClass('has-error');
             } else {
                 error_file = '';
                 $('#error_file').text(error_file);
-                $('#upload_enquiry_report').removeClass('is-invalid');
+                $('#upload_enquiry_report').removeClass('has-error');
             }
-
             var isFinalUpdateHappens = 0;
             var processType = $('input[name="process_type"]:checked').val();
             var matchingType = $('#mismatch_type').val();
-
             if (processType == 1) {
                 if (matchingType == 2) {
                     if (error_file != '') {
@@ -1035,7 +1034,8 @@
                     isFinalUpdateHappens = 1;
                 }
             } else if (processType == 2) {
-                if (error_name_of_bank != '' || error_bank_branch != '' || error_bank_account_number != '' || error_bank_ifsc_code != '' || error_remarks != '' || error_file != '') {
+                if (error_name_of_bank != '' || error_bank_branch != '' || error_bank_account_number !=
+                    '' || error_bank_ifsc_code != '' || error_remarks != '' || error_file != '') {
                     return false;
                 } else {
                     isFinalUpdateHappens = 1;
@@ -1047,7 +1047,6 @@
                     isFinalUpdateHappens = 1;
                 }
             }
-
             // Final Update Here
             if (isFinalUpdateHappens == 1) {
                 var process_type = $('input[name="process_type"]:checked').val();
@@ -1059,7 +1058,6 @@
                 var login_otp_no = $('#verify_otp_no').val();
                 var name_matching_score = $('#name_matching_score').val();
                 var msg = '';
-
                 if (process_type == 1) {
                     msg = '<span class="text-danger"><b>Name minor mismatch is ' + name_matching_score + '%</b></span>.<br> Are you sure to allow it as minor mismatch?';
                 } else {
@@ -1068,132 +1066,112 @@
 
                 if (process_type == 2) {
                     if ((bank_account_number == old_bank_accno) && (bank_ifsc == old_bank_ifsc)) {
-                        Swal.fire({
+                        $.confirm({
                             title: 'Alert!',
-                            icon: 'warning',
-                            text: 'Account number and ifsc same as previous one',
-                            confirmButtonColor: '#f0ad4e',
-                            confirmButtonText: 'OK'
+                            type: 'red',
+                            icon: 'fa fa-warning',
+                            content: 'Account number and ifsc same as previous one',
                         });
                         return false;
                     }
                 }
-
-                // Helper function to map types to colors
-                function getButtonColor(type) {
-                    const colorMap = {
-                        'red': '#d33',
-                        'green': '#28a745',
-                        'blue': '#3085d6',
-                        'orange': '#f0ad4e',
-                        'success': '#28a745',
-                        'error': '#d33',
-                        'warning': '#f0ad4e',
-                        'info': '#3085d6'
-                    };
-                    return colorMap[type] || '#3085d6';
-                }
-
-                // Map process type to icon
-                const iconMap = {
-                    '1': 'warning',
-                    '2': 'info',
-                    '3': 'error'
-                };
-
-                Swal.fire({
+                $.confirm({
                     title: 'Confirmation!',
-                    icon: iconMap[process_type] || 'question',
-                    html: msg,
-                    showCancelButton: true,
-                    confirmButtonText: 'Confirm',
-                    cancelButtonText: 'Cancel',
-                    confirmButtonColor: '#3085d6',
-                    cancelButtonColor: '#d33',
-                    reverseButtons: true
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        var upload_enquiry_report = $('#upload_enquiry_report')[0].files;
-                        var bank_name = $('#bank_name').val();
-                        var branch_name = $('#branch_name').val();
-                        var remarks = $('#remarks').val();
-                        var benId = $('#benId').val();
-                        var application_id = $('#application_id').val();
-                        var faildTableId = $('#faildTableId').val();
-                        var nameStatusCode = $('#nameStatusCode').val();
-                        var token = '{{ csrf_token() }}';
-                        var fd = new FormData();
-                        fd.append('benId', benId);
-                        fd.append('bank_ifsc', bank_ifsc);
-                        fd.append('matchingType', matchingType);
-                        fd.append('bank_name', bank_name);
-                        fd.append('bank_account_number', bank_account_number);
-                        fd.append('branch_name', branch_name);
-                        fd.append('upload_enquiry_report', upload_enquiry_report[0]);
-                        fd.append('_token', token);
-                        fd.append('old_bank_ifsc', old_bank_ifsc);
-                        fd.append('old_bank_accno', old_bank_accno);
-                        fd.append('remarks', remarks);
-                        fd.append('application_id', application_id);
-                        fd.append('process_type', process_type);
-                        fd.append('faildTableId', faildTableId);
-                        fd.append('nameStatusCode', nameStatusCode);
-                        fd.append('otp_login', login_otp_no);
-
-                        $('#loadingDivModal').show();
-                        $('.verifySubmit').attr('disabled', true);
-
-                        $.ajax({
-                            type: 'post',
-                            url: "{{ route('updateNameValidationFailed90to100') }}",
-                            data: fd,
-                            processData: false,
-                            contentType: false,
-                            dataType: 'json',
-                            success: function(response) {
-                                $('#loadingDivModal').hide();
-                                $('.verifySubmit').removeAttr('disabled', true);
-
-                                // Use Bootstrap 5 modal hide method
-                                var modal = bootstrap.Modal.getInstance(document.querySelector('.ben_bank_modal'));
-                                if (modal) {
-                                    modal.hide();
-                                }
-
-                                dataTable.ajax.reload();
-
-                                Swal.fire({
-                                    title: response.title,
-                                    icon: response.icon || 'success',
-                                    text: response.msg,
-                                    confirmButtonColor: getButtonColor(response.type),
-                                    confirmButtonText: 'OK'
-                                }).then((result) => {
-                                    if (result.isConfirmed) {
-                                        $("html, body").animate({
-                                            scrollTop: 0
-                                        }, "slow");
+                    type: 'orange',
+                    icon: 'fa fa-check',
+                    content: msg,
+                    buttons: {
+                        confirm: {
+                            text: 'confirm',
+                            btnClass: 'btn-blue',
+                            keys: ['enter', 'shift'],
+                            action: function() {
+                                var upload_enquiry_report = $('#upload_enquiry_report')[0]
+                                    .files;
+                                var bank_name = $('#bank_name').val();
+                                var branch_name = $('#branch_name').val();
+                                var remarks = $('#remarks').val();
+                                var benId = $('#benId').val();
+                                var application_id = $('#application_id').val();
+                                var faildTableId = $('#faildTableId').val();
+                                var nameStatusCode = $('#nameStatusCode').val();
+                                var token = '{{ csrf_token() }}';
+                                var fd = new FormData();
+                                fd.append('benId', benId);
+                                fd.append('bank_ifsc', bank_ifsc);
+                                fd.append('matchingType', matchingType);
+                                fd.append('bank_name', bank_name);
+                                fd.append('bank_account_number', bank_account_number);
+                                fd.append('branch_name', branch_name);
+                                fd.append('upload_enquiry_report', upload_enquiry_report[0]);
+                                fd.append('_token', token);
+                                fd.append('old_bank_ifsc', old_bank_ifsc);
+                                fd.append('old_bank_accno', old_bank_accno);
+                                fd.append('remarks', remarks);
+                                fd.append('application_id', application_id);
+                                fd.append('process_type', process_type);
+                                fd.append('faildTableId', faildTableId);
+                                fd.append('nameStatusCode', nameStatusCode);
+                                fd.append('otp_login', login_otp_no);
+                                $('#loadingDivModal').show();
+                                $('.verifySubmit').attr('disabled', true);
+                                $.ajax({
+                                    type: 'post',
+                                    url: "{{ route('updateNameValidationFailed90to100') }}",
+                                    data: fd,
+                                    processData: false,
+                                    contentType: false,
+                                    dataType: 'json',
+                                    success: function(response) {
+                                        $('#loadingDivModal').hide();
+                                        $('.verifySubmit').removeAttr(
+                                            'disabled', true);
+                                        $('.ben_bank_modal').modal('hide');
+                                        dataTable.ajax.reload();
+                                        $.confirm({
+                                            title: response.title,
+                                            type: response.type,
+                                            icon: response.icon,
+                                            content: response.msg,
+                                            buttons: {
+                                                Ok: function() {
+                                                    // $('.verifySubmit').removeAttr('disabled',true);
+                                                    // $('.ben_bank_modal').modal('hide');
+                                                    // dataTable.ajax.reload();
+                                                    $("html, body")
+                                                        .animate({
+                                                                scrollTop: 0
+                                                            },
+                                                            "slow");
+                                                }
+                                            }
+                                        });
+                                    },
+                                    complete: function() {
+                                        //  $('.verifySubmit').removeAttr('disabled',true);
+                                    },
+                                    error: function(jqXHR, textStatus,
+                                        errorThrown) {
+                                        $('.verifySubmit').removeAttr(
+                                            'disabled', true);
+                                        $('#loadingDivModal').hide();
+                                        ajax_error(jqXHR, textStatus,
+                                            errorThrown)
                                     }
                                 });
-                            },
-                            complete: function() {
-                                $('.verifySubmit').removeAttr('disabled', true);
-                            },
-                            error: function(jqXHR, textStatus, errorThrown) {
-                                $('.verifySubmit').removeAttr('disabled', true);
-                                $('#loadingDivModal').hide();
-                                ajax_error(jqXHR, textStatus, errorThrown);
                             }
-                        });
+                        },
+                        cancel: function() {
+
+                        }
                     }
                 });
             } else {
-                Swal.fire({
+                $.confirm({
                     title: 'Alert!',
-                    icon: 'error',
-                    text: 'Something went wrong!!',
-                    confirmButtonColor: '#d33',
-                    confirmButtonText: 'OK'
+                    type: 'red',
+                    icon: 'fa fa-warning',
+                    content: 'Something went wrong!!',
                 });
             }
         });
