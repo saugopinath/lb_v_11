@@ -219,6 +219,9 @@
                             <label class="form-check-label"><input class="form-check-input process_type_radio" type="radio" name="process_type" value="2"> Mobile Number</label>
                             <label class="form-check-label"><input class="form-check-input process_type_radio" type="radio" name="process_type" value="3"> Aadhaar Number</label>
                             <label class="form-check-label"><input class="form-check-input process_type_radio" type="radio" name="process_type" value="4"> Bank Account Number</label>
+                            <input type="hidden" name="grievance_id" id="grievance_id" value={{$grievance_id}}>
+                            <input type="hidden" name="grievance_mobile" id="grievance_mobile" value={{$grievance_mobile_no}}>
+                            <input type="hidden" name="new_process_id" id="new_process_id" value="" />
                         </div>
                     </div>
 
