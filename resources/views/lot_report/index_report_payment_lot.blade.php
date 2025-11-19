@@ -69,14 +69,15 @@
 
 @section('content')
 
-
-    <div class="container-fluid">
-        <div class="row mb-2">
-            <div class="col-sm-6">
-                <h1>Districtwise Beneficiary Payment Report</h1>
+    <section class="content-header">
+        <div class="container-fluid">
+            <div class="row mb-2">
+                <div class="col-sm-8">
+                    <h2>Districtwise Beneficiary Payment Report</h2>
+                </div>
             </div>
         </div>
-    </div>
+    </section>
 
     <div class="container-fluid">
 
@@ -261,7 +262,7 @@
 
 
 @push('scripts')
-    <script src="{{ URL::asset('js/master-data-v2.js') }}"></script>
+    <script src="{{ asset('js/master-data-v2.js') }}"></script>
     <script>
         $(document).ready(function () {
             $('#loadingDiv').hide();

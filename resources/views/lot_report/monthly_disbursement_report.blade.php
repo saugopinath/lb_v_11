@@ -166,8 +166,7 @@
 
                 {{-- Result Table --}}
                 <div class="table-responsive resultDiv mt-4" id="validation_lot_div">
-                    <table id="tableForLot" class="data-table"
-                        style="width:100%; border: 1px solid #f8f9fa;">
+                    <table id="tableForLot" class="data-table" style="width:100%; border: 1px solid #f8f9fa;">
                         <thead class="table-light" style="font-size: 12px;">
                             <tr>
                                 <th>Sl No</th>
@@ -209,9 +208,9 @@
 
 @endsection
 
-
-@push("scripts")
-    <script src="{{ URL::asset('js/master-data-v2.js') }}"></script>
+@push('scripts')
+    <script src="{{ asset('js/master-data-v2.js') }}"></script>
+    <script src="{{ asset('js/bootstrap-datepicker.min.js') }}"></script>
     <script>
         $(document).ready(function () {
             // Live Clock
@@ -233,11 +232,7 @@
                 //   "maxDate":  new Date(),
 
             });
-            {{--  var interval = setInterval(function () {
-                var momentNow = moment();
-                $('.date-part').html(momentNow.format('DD-MMMM-YYYY'));
-                $('.time-part').html(momentNow.format('hh:mm:ss A'));
-            }, 100);  --}}
+           
             $('#loadingDiv').hide();
             $('#filter_div').removeClass('disabledcontent');
             // $('#loader_img').hide();

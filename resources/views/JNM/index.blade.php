@@ -222,93 +222,139 @@
 @endsection
 @push("scripts")
 
-<script src="{{ URL::asset('js/master-data-v2.js') }}"></script>
-<script>
-    $(document).ready(function () {
-        $('#loadingDiv').hide();
-        $('.sidebar-menu li').removeClass('active');
-        $('.sidebar-menu #importJNMPData').addClass("active");
-        // $('.sidebar-menu #accValTrFailed').addClass("active");
-        $('#btn_import').removeAttr('disabled');
-        $('#go').removeAttr('disabled');
-        $('#final_marking').removeAttr('disabled');
-        $('#migrated_data').removeAttr('disabled');
-        $('#from_date').datepicker({
-            format: "dd/mm/yyyy",
-            todayHighlight: true,
-            autoclose: true,
-            "setDate": "today",
-            "endDate": "today+1",
-            //   "maxDate":  new Date(),
+    <script src="{{ asset('js/master-data-v2.js') }}"></script>
+    <script src="{{ asset('js/bootstrap-datepicker.min.js') }}"></script>
+    <script>
+        $(document).ready(function () {
+            $('#loadingDiv').hide();
+            $('.sidebar-menu li').removeClass('active');
+            $('.sidebar-menu #importJNMPData').addClass("active");
+            // $('.sidebar-menu #accValTrFailed').addClass("active");
+            $('#btn_import').removeAttr('disabled');
+            $('#go').removeAttr('disabled');
+            $('#final_marking').removeAttr('disabled');
+            $('#migrated_data').removeAttr('disabled');
+            $('#from_date').datepicker({
+                format: "dd/mm/yyyy",
+                todayHighlight: true,
+                autoclose: true,
+                "setDate": "today",
+                "endDate": "today+1",
+                //   "maxDate":  new Date(),
 
+            });
+            $('#to_date').datepicker({
+                format: "dd/mm/yyyy",
+                todayHighlight: true,
+                autoclose: true,
+                "setDate": "today",
+                "endDate": "today+1",
+                //   "maxDate":  new Date(),
+            });
+            updateJnmp();
+
+            // Importing datas
+            $(document).on('click', '#btn_import', function () {
+                var error_from_date = '';
+                var error_to_date = '';
+                var error_index = '';
+                var error_page_size = '';
+
+                if ($.trim($('#from_date').val()).length == 0) {
+                    error_from_date = 'From date is required';
+                    $('#error_from_date').text(error_from_date);
+                } else {
+                    error_from_date = '';
+                    $('#error_from_date').text(error_from_date);
+                }
+
+                if ($.trim($('#to_date').val()).length == 0) {
+                    error_to_date = 'TO date is required';
+                    $('#error_to_date').text(error_to_date);
+                } else {
+                    error_to_date = '';
+                    $('#error_to_date').text(error_to_date);
+                }
+
+                if ($.trim($('#index').val()).length == 0) {
+                    error_index = 'Index is required';
+                    $('#error_index').text(error_index);
+                } else {
+                    error_index = '';
+                    $('#error_index').text(error_index);
+                }
+
+                if ($.trim($('#page_size').val()).length == 0) {
+                    error_page_size = 'Page size is required';
+                    $('#error_page_size').text(error_page_size);
+                } else {
+                    error_page_size = '';
+                    $('#error_page_size').text(error_page_size);
+                }
+                if (error_from_date != '' && error_to_date != '' && error_index != '' && error_page_size != '') {
+                    return false;
+                } else {
+                    jnmpInsertData();
+                }
+            });
+
+            // Callback datas
+            $(document).on('click', '.limit_data', function (e) {
+                e.preventDefault();
+                var limit = $('#limit_jnm').val();
+                callingback(limit);
+            });
+
+            $(document).on('click', '#final_marking', function () {
+                $('#loadingDiv').show();
+                $.ajax({
+                    url: "{{ route('jnmpDataMarkasDeathInLB') }}",
+                    type: "POST",
+                    dataType: 'json',
+                    data: {
+                        _token: "{{ csrf_token() }}"
+                    },
+                    success: function (response) {
+                        $('#loadingDiv').hide();
+                        if (response.status == 1) {
+                            // updateJnmp();
+                            // $('#total_captured').text(response.totalData);
+                            $.alert({
+                                title: response.title,
+                                type: response.type,
+                                icon: response.icon,
+                                content: response.msg,
+                                buttons: {
+                                    formSubmit: {
+                                        text: 'Done',
+                                        btnClass: 'btn-blue',
+                                        action: function () {
+                                            updateJnmp();
+                                        }
+                                    },
+                                    cancel: function () {
+                                        updateJnmp();
+                                    }
+                                }
+                            });
+                            $("html, body").animate({
+                                scrollTop: 0
+                            }, "slow");
+                        }
+                    },
+                    error: function (jqXHR, textStatus, errorThrown) {
+                        $('#loadingDiv').hide();
+                        ajax_error(jqXHR, textStatus, errorThrown);
+                    }
+                });
+            });
         });
-        $('#to_date').datepicker({
-            format: "dd/mm/yyyy",
-            todayHighlight: true,
-            autoclose: true,
-            "setDate": "today",
-            "endDate": "today+1",
-            //   "maxDate":  new Date(),
-        });
-        updateJnmp();
 
-        // Importing datas
-        $(document).on('click', '#btn_import', function () {
-            {{--  alert('Hi!');  --}}
-            var error_from_date = '';
-            var error_to_date = '';
-            var error_index = '';
-            var error_page_size = '';
-
-            if ($.trim($('#from_date').val()).length == 0) {
-                error_from_date = 'From date is required';
-                $('#error_from_date').text(error_from_date);
-            } else {
-                error_from_date = '';
-                $('#error_from_date').text(error_from_date);
-            }
-
-            if ($.trim($('#to_date').val()).length == 0) {
-                error_to_date = 'TO date is required';
-                $('#error_to_date').text(error_to_date);
-            } else {
-                error_to_date = '';
-                $('#error_to_date').text(error_to_date);
-            }
-
-            if ($.trim($('#index').val()).length == 0) {
-                error_index = 'Index is required';
-                $('#error_index').text(error_index);
-            } else {
-                error_index = '';
-                $('#error_index').text(error_index);
-            }
-
-            if ($.trim($('#page_size').val()).length == 0) {
-                error_page_size = 'Page size is required';
-                $('#error_page_size').text(error_page_size);
-            } else {
-                error_page_size = '';
-                $('#error_page_size').text(error_page_size);
-            }
-            if (error_from_date != '' && error_to_date != '' && error_index != '' && error_page_size != '') {
-                return false;
-            } else {
-                jnmpInsertData();
-            }
-        });
-
-        // Callback datas
-        $(document).on('click', '.limit_data', function (e) {
-            e.preventDefault();
-            var limit = $('#limit_jnm').val();
-            callingback(limit);
-        });
-
-        $(document).on('click', '#final_marking', function () {
+        // Getting Pending datas
+        function updateJnmp() {
             $('#loadingDiv').show();
             $.ajax({
-                url: "{{ route('jnmpDataMarkasDeathInLB') }}",
+                url: "{{ route('totalJnmp') }}",
                 type: "POST",
                 dataType: 'json',
                 data: {
@@ -316,6 +362,47 @@
                 },
                 success: function (response) {
                     $('#loadingDiv').hide();
+                    $('#total_captured').text(response.totalJnmp);
+                    $('#total_pending').text(response.remainingJnmp);
+                    $('#total_done').text(response.updatedJnmp);
+
+                    $('#total_mark_death').text(response.data1);
+                    $('#total_cur_marked_death').text(response.data2);
+                    $('#total_reactive_death').text(response.data3);
+
+                },
+                error: function (jqXHR, textStatus, errorThrown) {
+                    $('#loadingDiv').hide();
+                    ajax_error(jqXHR, textStatus, errorThrown);
+                }
+            });
+        }
+
+        // insert data
+        function jnmpInsertData() {
+            var from_date = $('#from_date').val();
+            var to_date = $('#to_date').val();
+            var index = $('#index').val();
+            var page_size = $('#page_size').val();
+
+            $('#loadingDiv').show();
+            $.ajax({
+                url: "{{ route('jnmpInsertData') }}",
+                type: "POST",
+                dataType: 'json',
+                data: {
+                    from_date: from_date,
+                    to_date: to_date,
+                    index: index,
+                    page_size: page_size,
+                    _token: "{{ csrf_token() }}"
+                },
+                success: function (response) {
+                    $('#loadingDiv').hide();
+                    $('#from_date').val('');
+                    $('#to_date').val('');
+                    $('#index').val('');
+                    $('#page_size').val('');
                     if (response.status == 1) {
                         // updateJnmp();
                         // $('#total_captured').text(response.totalData);
@@ -326,10 +413,10 @@
                             content: response.msg,
                             buttons: {
                                 formSubmit: {
-                                    text: 'Done',
+                                    text: 'Send Response',
                                     btnClass: 'btn-blue',
                                     action: function () {
-                                        updateJnmp();
+                                        callingback(response.totalData);
                                     }
                                 },
                                 cancel: function () {
@@ -347,158 +434,65 @@
                     ajax_error(jqXHR, textStatus, errorThrown);
                 }
             });
-        });
-    });
-
-    // Getting Pending datas
-    function updateJnmp() {
-        $('#loadingDiv').show();
-        $.ajax({
-            url: "{{ route('totalJnmp') }}",
-            type: "POST",
-            dataType: 'json',
-            data: {
-                _token: "{{ csrf_token() }}"
-            },
-            success: function (response) {
-                $('#loadingDiv').hide();
-                $('#total_captured').text(response.totalJnmp);
-                $('#total_pending').text(response.remainingJnmp);
-                $('#total_done').text(response.updatedJnmp);
-
-                $('#total_mark_death').text(response.data1);
-                $('#total_cur_marked_death').text(response.data2);
-                $('#total_reactive_death').text(response.data3);
-
-            },
-            error: function (jqXHR, textStatus, errorThrown) {
-                $('#loadingDiv').hide();
-                ajax_error(jqXHR, textStatus, errorThrown);
-            }
-        });
-    }
-
-    // insert data
-    function jnmpInsertData() {
-        var from_date = $('#from_date').val();
-        var to_date = $('#to_date').val();
-        var index = $('#index').val();
-        var page_size = $('#page_size').val();
-
-        $('#loadingDiv').show();
-        $.ajax({
-            url: "{{ route('jnmpInsertData') }}",
-            type: "POST",
-            dataType: 'json',
-            data: {
-                from_date: from_date,
-                to_date: to_date,
-                index: index,
-                page_size: page_size,
-                _token: "{{ csrf_token() }}"
-            },
-            success: function (response) {
-                $('#loadingDiv').hide();
-                $('#from_date').val('');
-                $('#to_date').val('');
-                $('#index').val('');
-                $('#page_size').val('');
-                if (response.status == 1) {
-                    // updateJnmp();
-                    // $('#total_captured').text(response.totalData);
-                    $.alert({
-                        title: response.title,
-                        type: response.type,
-                        icon: response.icon,
-                        content: response.msg,
-                        buttons: {
-                            formSubmit: {
-                                text: 'Send Response',
-                                btnClass: 'btn-blue',
-                                action: function () {
-                                    callingback(response.totalData);
-                                }
-                            },
-                            cancel: function () {
-                                updateJnmp();
-                            }
-                        }
-                    });
-                    $("html, body").animate({
-                        scrollTop: 0
-                    }, "slow");
-                }
-            },
-            error: function (jqXHR, textStatus, errorThrown) {
-                $('#loadingDiv').hide();
-                ajax_error(jqXHR, textStatus, errorThrown);
-            }
-        });
-    }
-
-    // Calling Back
-    function callingback(limit) {
-        $('#loadingDiv').show();
-        $.ajax({
-            type: "POST",
-            url: "{{ route('jnmpDataCallbackDetails') }}",
-            data: {
-                limit: limit,
-                _token: "{{ csrf_token() }}"
-            },
-            // dataType: "json",
-            success: function (response) {
-                $('#loadingDiv').hide();
-                updateJnmp();
-                if (response.status == 400) {
-                    alert(response.message);
-                    if ($.trim($('#limit_jnm').val()).length == 0) {
-                        error_Jnmp_id = 'Limit is required';
-                        $('#error_jnm_id').text(error_Jnmp_id);
-                        $('#limit_jnm').addClass('has-error');
-                    } else {
-                        error_scheme_id = '';
-                        $('#error_jnm_id').text(error_Jnmp_id);
-                        $('#limit_jnm').removeClass('has-error');
-                    }
-                } else {
-                    $("#limit_jnm").val('');
-                    alert(response.message);
-                    {{--  $.alert({
-                        title: response.title,
-                        type: response.type,
-                        icon: response.icon,
-                        content: response.message
-                    });  --}}
-                }
-            },
-            complete: function () {
-                $('#spinner-div').hide();
-            },
-            error: function (jqXHR, textStatus, errorThrown) {
-                $('#loadingDiv').hide();
-                ajax_error(jqXHR, textStatus, errorThrown);
-            }
-        });
-    }
-
-    function ajax_error(jqXHR, textStatus, errorThrown) {
-        var msg = "<strong>Failed to Load data.</strong><br/>";
-        if (jqXHR.status !== 422 && jqXHR.status !== 400) {
-            msg += "<strong>" + jqXHR.status + ": " + errorThrown + "</strong>";
-        } else {
-            if (jqXHR.responseJSON.hasOwnProperty('exception')) {
-                msg += "Exception: <strong>" + jqXHR.responseJSON.exception_message + "</strong>";
-            } else {
-                msg += "Error(s):<strong><ul>";
-                $.each(jqXHR.responseJSON, function (key, value) {
-                    msg += "<li>" + value + "</li>";
-                });
-                msg += "</ul></strong>";
-            }
         }
-        alert(msg);
-    }
-</script>
+
+        // Calling Back
+        function callingback(limit) {
+            $('#loadingDiv').show();
+            $.ajax({
+                type: "POST",
+                url: "{{ route('jnmpDataCallbackDetails') }}",
+                data: {
+                    limit: limit,
+                    _token: "{{ csrf_token() }}"
+                },
+                // dataType: "json",
+                success: function (response) {
+                    $('#loadingDiv').hide();
+                    updateJnmp();
+                    if (response.status == 400) {
+                        alert(response.message);
+                        if ($.trim($('#limit_jnm').val()).length == 0) {
+                            error_Jnmp_id = 'Limit is required';
+                            $('#error_jnm_id').text(error_Jnmp_id);
+                            $('#limit_jnm').addClass('has-error');
+                        } else {
+                            error_scheme_id = '';
+                            $('#error_jnm_id').text(error_Jnmp_id);
+                            $('#limit_jnm').removeClass('has-error');
+                        }
+                    } else {
+                        $("#limit_jnm").val('');
+                        alert(response.message);
+                    }
+                },
+                complete: function () {
+                    $('#spinner-div').hide();
+                },
+                error: function (jqXHR, textStatus, errorThrown) {
+                    $('#loadingDiv').hide();
+                    ajax_error(jqXHR, textStatus, errorThrown);
+                }
+            });
+        }
+
+        function ajax_error(jqXHR, textStatus, errorThrown) {
+            var msg = "<strong>Failed to Load data.</strong><br/>";
+            if (jqXHR.status !== 422 && jqXHR.status !== 400) {
+                msg += "<strong>" + jqXHR.status + ": " + errorThrown + "</strong>";
+            } else {
+                if (jqXHR.responseJSON.hasOwnProperty('exception')) {
+                    msg += "Exception: <strong>" + jqXHR.responseJSON.exception_message + "</strong>";
+                } else {
+                    msg += "Error(s):<strong><ul>";
+                    $.each(jqXHR.responseJSON, function (key, value) {
+                        msg += "<li>" + value + "</li>";
+                    });
+                    msg += "</ul></strong>";
+                }
+            }
+            alert(msg);
+        }
+    </script>
 
 @endpush

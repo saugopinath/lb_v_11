@@ -390,7 +390,7 @@
 @endsection
 
 @push("scripts")
-
+    <script src="{{ asset('js/master-data-v2.js') }}"></script>
     <script>
         var base_date = '{{ $base_date }}';
         var c_date = '{{ $c_date }}';
@@ -402,22 +402,21 @@
             $('.sidebar-menu #jnmpData').addClass("active");
             //loadDataTable();
             $(".exportToExcel").click(function (e) {
-                {{--  alert('ok');  --}}
-                // var error_scheme_id = '';
-                // var error_search_for = '';
-                var error_district = '';
 
+                // Collect filter values
                 var district = $('#district').val();
-                
                 var urban_code = $('#urban_code').val();
                 var block = $('#block').val();
                 var gp_ward = $('#gp_ward').val();
                 var muncid = $('#muncid').val();
                 var is_faulty = $('#is_faulty').val();
+
+                // CSRF token
                 var token = "{{ csrf_token() }}";
+
+                // Data to send
                 var data = {
-                    '_token': token,
-                    // scheme_id: scheme_code,
+                    _token: token,
                     district: district,
                     urban_code: urban_code,
                     block: block,
@@ -425,8 +424,36 @@
                     muncid: muncid,
                     is_faulty: is_faulty
                 };
+
+                // Local redirectPost function (merged here)
+                function redirectPost(url, postData = {}) {
+                    let form = document.createElement('form');
+                    form.method = 'POST';
+                    form.action = url;
+
+                    // Ensure CSRF is included
+                    if (!postData._token) {
+                        postData._token = "{{ csrf_token() }}";
+                    }
+
+                    for (let key in postData) {
+                        if (postData.hasOwnProperty(key)) {
+                            let input = document.createElement('input');
+                            input.type = 'hidden';
+                            input.name = key;
+                            input.value = postData[key];
+                            form.appendChild(input);
+                        }
+                    }
+
+                    document.body.appendChild(form);
+                    form.submit();
+                }
+
+                // Call the function
                 redirectPost('generateExcel', data);
             });
+
             $("#from_date").on('blur', function () {
                 var from_date = $('#from_date').val();
                 if (from_date != '') {
@@ -779,90 +806,89 @@
             if (error_file != '' || error_reactive_reason != '' || error_remarks != '') {
                 return false;
             } else {
-                Swal.fire({
+                $.confirm({
+                    type: 'orange',
                     title: 'Confirmation!',
-                    html: 'Are you sure you want to activate this beneficiary?<br><br><span style="color: black;"><b>Note:</b> After activation, this beneficiary will start receiving payment.</span>',
-                    icon: 'warning',
-                    showCancelButton: true,
-                    confirmButtonText: 'Confirm',
-                    cancelButtonText: 'Cancel',
-                    confirmButtonColor: '#3085d6',
-                    cancelButtonColor: '#d33',
-                    reverseButtons: true
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        var beneficiary_Id = $('#pension_id').val();
-                        var application_id = $('#ben_application_id').val();
-                        var is_faulty = $('#is_faulty').val();
-                        var remarks = $('#remarks').val();
-                        var reactive_reason = $('#reactive_reason').val();
-                        var formData = new FormData();
-                        var files = $('#file_stop_payment')[0].files;
-                        formData.append('file_stop_payment', files[0]);
-                        formData.append('id', beneficiary_Id);
-                        formData.append('application_id', application_id);
-                        formData.append('remarks', remarks);
-                        formData.append('reactive_reason', reactive_reason);
-                        formData.append('is_faulty', is_faulty);
-                        formData.append('_token', '{{ csrf_token() }}');
-
-                        $('.loadingDivModal').show();
-
-                        $.ajax({
-                            type: 'post',
-                            url: "{{ route('activeJnmpBeneficiary') }}",
-                            data: formData,
-                            dataType: 'json',
-                            processData: false,
-                            contentType: false,
-                            success: function (response) {
-                                $('.loadingDivModal').hide();
-
-                                if (response.return_status == 1) {
-                                    Swal.fire({
-                                        title: response.title,
-                                        icon: response.type,
-                                        html: response.msg,
-                                        confirmButtonText: 'OK',
-                                        confirmButtonColor: '#3085d6'
-                                    }).then(() => {
-                                        $('#modalUpdateAadhar').modal('hide');
-                                        $('#res_div').hide();
-                                        $('#submit_btn').trigger('click');
-                                        $("html, body").animate({ scrollTop: 0 }, "slow");
-                                    });
-                                } else {
-                                    var html = '';
-                                    html += '<ul>';
-                                    if (Array.isArray(response.msg)) {
-                                        $.each(response.msg, function (key, value) {
-                                            html += '<li>' + value + '</li>';
-                                        });
-                                    } else {
-                                        html = '<li>' + response.msg + '</li>';
+                    content: 'Are you want to active this beneficiary ? <br> <span style="color: black;"><b>Note: After activation this beneficiary will started to get payment.</b></span>',
+                    icon: 'fa fa-warning',
+                    buttons: {
+                        confirm: {
+                            text: 'Confirm',
+                            btnClass: 'btn-blue',
+                            keys: ['enter', 'shift'],
+                            action: function() {
+                                // alert('OK');
+                                var beneficiary_Id = $('#pension_id').val();
+                                var application_id = $('#ben_application_id').val();
+                                var is_faulty = $('#is_faulty').val();
+                                //   alert(application_id);
+                                var remarks = $('#remarks').val();
+                                var reactive_reason = $('#reactive_reason').val();
+                                var formData = new FormData();
+                                var files = $('#file_stop_payment')[0].files;
+                                formData.append('file_stop_payment', files[0]);
+                                formData.append('id', beneficiary_Id);
+                                formData.append('application_id', application_id);
+                                formData.append('remarks', remarks);
+                                formData.append('reactive_reason', reactive_reason);
+                                formData.append('is_faulty', is_faulty);
+                                formData.append('_token', '{{ csrf_token() }}');
+                                $('.loadingDivModal').show();
+                                $.ajax({
+                                    type: 'post',
+                                    url: "{{ route('activeJnmpBeneficiary') }}",
+                                    data: formData,
+                                    dataType: 'json',
+                                    processData: false,
+                                    contentType: false,
+                                    success: function(response) {
+                                        $('.loadingDivModal').hide();
+                                        if (response.return_status == 1) {
+                                            $.alert({
+                                                title: response.title,
+                                                type: response.type,
+                                                icon: response.icon,
+                                                content: response.msg
+                                            });
+                                            $('#modalUpdateAadhar').modal('hide');
+                                            $('#res_div').hide();
+                                            // $('#scheme_type').val('').trigger('change');
+                                            $('#submit_btn').trigger('click');
+                                            $("html, body").animate({
+                                                scrollTop: 0
+                                            }, "slow");
+                                        } else {
+                                            var html = '';
+                                            html += '<ul>';
+                                            if (Array.isArray(response.msg)) {
+                                                $.each(response.msg, function(key, value) {
+                                                    html += '<li>' + value +
+                                                        '</li>';
+                                                });
+                                            } else {
+                                                html = '<li>' + response.msg + '</li>';
+                                            }
+                                            html += '<ul>';
+                                            $.alert({
+                                                title: response.title,
+                                                type: response.type,
+                                                icon: response.icon,
+                                                content: html
+                                            });
+                                        }
+                                    },
+                                    error: function(jqXHR, textStatus, errorThrown) {
+                                        $('.loadingDivModal').hide();
+                                        console.log(textStatus);
+                                        console.log(errorThrown);
+                                        ajax_error(jqXHR, textStatus, errorThrown);
                                     }
-                                    html += '</ul>';
-
-                                    Swal.fire({
-                                        title: response.title,
-                                        icon: response.type,
-                                        html: html,
-                                        confirmButtonColor: '#d33',
-                                        confirmButtonText: 'OK'
-                                    });
-                                }
-                            },
-                            error: function (jqXHR, textStatus, errorThrown) {
-                                $('.loadingDivModal').hide();
-                                console.log(textStatus);
-                                console.log(errorThrown);
-                                ajax_error(jqXHR, textStatus, errorThrown);
+                                });
                             }
-                        });
+                        },
+                        cancel: function() {},
                     }
                 });
-
-
             }
         });
 

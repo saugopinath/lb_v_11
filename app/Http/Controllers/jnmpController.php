@@ -25,6 +25,7 @@ use App\Models\getModelFunc;
 use App\Models\DocumentType;
 use App\Models\DsPhase;
 use Maatwebsite\Excel\Facades\Excel;
+use App\Exports\BankFailedExport;
 
 class jnmpController extends Controller
 {
@@ -175,18 +176,18 @@ class jnmpController extends Controller
         $is_faulty = $request->is_faulty;
         // echo $is_faulty;die;
         if ($request->ajax()) {
-            $query = $this->getDataquerys($district_code,$blockCode,$block,$gp_ward,$muncid,$dist_code,$is_faulty);
-          //   echo $query;die();
+            $query = $this->getDataquerys($district_code, $blockCode, $block, $gp_ward, $muncid, $dist_code, $is_faulty);
+            //   echo $query;die();
             $result = DB::connection('pgsql_appwrite')->select($query);
             // echo '<pre>';print_r($result);die();
             return datatables()->of($result)
-            ->addColumn('action', function($result){
-                $btn = '';
-                $btn .= '<button onclick=viewModalFunction(' . $result->application_id . ') class="btn btn-xs btn-primary"><i class="fa fa-eye"></i> Activate as alive</button>';
-                return $btn;
-            })
-            ->rawColumns(['action'])
-            ->make(true);
+                ->addColumn('action', function ($result) {
+                    $btn = '';
+                    $btn .= '<button onclick=viewModalFunction(' . $result->application_id . ') class="btn btn-xs btn-primary"><i class="fa fa-eye"></i> Activate as alive</button>';
+                    return $btn;
+                })
+                ->rawColumns(['action'])
+                ->make(true);
         }
     }
 
@@ -195,40 +196,49 @@ class jnmpController extends Controller
         $response = [];
         $statusCode = 200;
         if (!$request->ajax()) {
-        $statusCode = 400;
-        $response = array('error' => 'Error occured in form submit.');
-        return response()->json($response, $statusCode);
+            $statusCode = 400;
+            $response = array('error' => 'Error occured in form submit.');
+            return response()->json($response, $statusCode);
         }
         try {
             $app_id = $request->id;
             $is_faulty = $request->is_faulty;
             // echo $is_faulty;die;
-            if($is_faulty == 1){
+            if ($is_faulty == 1) {
                 $row = "SELECT j.deceasedfullname,j.dateofdeath,CONCAT(b.father_fname,' ',b.father_mname,' ',b.father_lname) AS father_name,b.* FROM jnmp.jnmp_data j JOIN lb_scheme.faulty_ben_personal_details b ON b.application_id = j.lb_application_id
-                WHERE b.jnmp_marked = 1 AND b.payment_suspended = 1 AND application_id = ".$app_id;
+                WHERE b.jnmp_marked = 1 AND b.payment_suspended = 1 AND application_id = " . $app_id;
             }
             if ($is_faulty == 2) {
                 $row = "SELECT j.deceasedfullname,j.dateofdeath,CONCAT(b.father_fname,' ',b.father_mname,' ',b.father_lname) AS father_name,b.* FROM jnmp.jnmp_data j JOIN lb_scheme.ben_personal_details b ON b.application_id = j.lb_application_id
-                WHERE b.jnmp_marked = 1 AND b.payment_suspended = 1 AND application_id = ".$app_id;
+                WHERE b.jnmp_marked = 1 AND b.payment_suspended = 1 AND application_id = " . $app_id;
             }
             // echo $row;die;
             $query = DB::connection('pgsql_appwrite')->select($row);
             // dd($query);
             if ($query == null) {
                 return  $response = array(
-                  'status' => 1, 'msg' => 'Somethimg went wrong.',
-                  'type' => 'red', 'icon' => 'fa fa-warning', 'title' => 'Warning!!'
+                    'status' => 1,
+                    'msg' => 'Somethimg went wrong.',
+                    'type' => 'red',
+                    'icon' => 'fa fa-warning',
+                    'title' => 'Warning!!'
                 );
-            }else{
+            } else {
                 $ben_arr = array(
-                    'ben_name' => trim($query[0]->ben_fname) . ' ' . trim($query[0]->ben_mname) . ' ' . trim($query[0]->ben_lname), 'beneficiary_id' => $query[0]->beneficiary_id, 'mobile_no' => $query[0]->mobile_no, 'application_id' => $query[0]->application_id,
+                    'ben_name' => trim($query[0]->ben_fname) . ' ' . trim($query[0]->ben_mname) . ' ' . trim($query[0]->ben_lname),
+                    'beneficiary_id' => $query[0]->beneficiary_id,
+                    'mobile_no' => $query[0]->mobile_no,
+                    'application_id' => $query[0]->application_id,
                     'father_name' => trim($query[0]->father_fname) . ' ' . trim($query[0]->father_mname) . ' ' . trim($query[0]->father_lname),
-                    'caste' => trim($query[0]->caste), 'gender' => trim($query[0]->gender),
-                    'dob' => date('d-m-Y', strtotime($query[0]->dob)),'aadhar_no' => trim($query[0]->aadhar_no),
+                    'caste' => trim($query[0]->caste),
+                    'gender' => trim($query[0]->gender),
+                    'dob' => date('d-m-Y', strtotime($query[0]->dob)),
+                    'aadhar_no' => trim($query[0]->aadhar_no),
                     // 'doc_name' => $doc_list->doc_name, 'doc_id' => $doc_list->id, 'doc_type' => $doc_list->doc_type, 'doc_size_kb' => $doc_list->doc_size_kb,
-                    'jnmp_fullname' => $query[0]->deceasedfullname, 'jnmp_date_of_death' => $query[0]->dateofdeath
-                  );
-                  $response = $ben_arr;
+                    'jnmp_fullname' => $query[0]->deceasedfullname,
+                    'jnmp_date_of_death' => $query[0]->dateofdeath
+                );
+                $response = $ben_arr;
             }
         } catch (\Exception $e) {
             $response = array(
@@ -250,7 +260,7 @@ class jnmpController extends Controller
             return response()->json($response, $statusCode);
         }
         try {
-// dd($request->all());
+            // dd($request->all());
             $user_id = Auth::user()->id;
             $designation_id = Auth::user()->designation_id;
             $duty = Configduty::where('user_id', '=', $user_id)->where('is_active', 1)->first();
@@ -270,19 +280,19 @@ class jnmpController extends Controller
             // DB::enableQueryLog();
             if ($is_faulty == 1) {
                 $getBenDetailsObj = DB::connection('pgsql_appread')
-                ->table('lb_scheme.' . $tableName['benTable'] . ' AS bp')
-                ->join('lb_scheme.' . $tableName['benContactTable'] . ' AS bc', 'bc.beneficiary_id', '=', 'bp.beneficiary_id')
-                ->where('bp.beneficiary_id', $beneficiary_id)
-                ->where('bp.application_id', $application_id)
-                ->get(['bp.ben_fname', 'bp.ben_mname', 'bp.ben_lname', 'bp.ss_card_no', 'bp.mobile_no', 'bp.created_by_dist_code', 'bp.created_by_local_body_code', 'bc.block_ulb_code', 'bc.gp_ward_code', 'bc.rural_urban_id']);
+                    ->table('lb_scheme.' . $tableName['benTable'] . ' AS bp')
+                    ->join('lb_scheme.' . $tableName['benContactTable'] . ' AS bc', 'bc.beneficiary_id', '=', 'bp.beneficiary_id')
+                    ->where('bp.beneficiary_id', $beneficiary_id)
+                    ->where('bp.application_id', $application_id)
+                    ->get(['bp.ben_fname', 'bp.ben_mname', 'bp.ben_lname', 'bp.ss_card_no', 'bp.mobile_no', 'bp.created_by_dist_code', 'bp.created_by_local_body_code', 'bc.block_ulb_code', 'bc.gp_ward_code', 'bc.rural_urban_id']);
             }
             if ($is_faulty == 2) {
                 $getBenDetailsObj = DB::connection('pgsql_appread')
-                ->table('lb_scheme.' . $tableName['benTable'] . ' AS bp')
-                ->join('lb_scheme.' . $tableName['benContactTable'] . ' AS bc', 'bc.beneficiary_id', '=', 'bp.beneficiary_id')
-                ->where('bp.beneficiary_id', $beneficiary_id)
-                ->where('bp.application_id', $application_id)
-                ->get(['bp.ben_fname', 'bp.ben_mname', 'bp.ben_lname', 'bp.ss_card_no', 'bp.mobile_no', 'bp.created_by_dist_code', 'bp.created_by_local_body_code', 'bc.block_ulb_code', 'bc.gp_ward_code', 'bc.rural_urban_id']);
+                    ->table('lb_scheme.' . $tableName['benTable'] . ' AS bp')
+                    ->join('lb_scheme.' . $tableName['benContactTable'] . ' AS bc', 'bc.beneficiary_id', '=', 'bp.beneficiary_id')
+                    ->where('bp.beneficiary_id', $beneficiary_id)
+                    ->where('bp.application_id', $application_id)
+                    ->get(['bp.ben_fname', 'bp.ben_mname', 'bp.ben_lname', 'bp.ss_card_no', 'bp.mobile_no', 'bp.created_by_dist_code', 'bp.created_by_local_body_code', 'bc.block_ulb_code', 'bc.gp_ward_code', 'bc.rural_urban_id']);
             }
             // print_r($getBenDetailsObj);die;
             DB::connection('pgsql_appwrite')->beginTransaction();
@@ -301,10 +311,10 @@ class jnmpController extends Controller
 
             $pension_details_encloser2 = new DataSourceCommon;
             if ($is_faulty == 1) {
-                $Table = $getModelFunc->getTableFaulty('','', 6, '');
+                $Table = $getModelFunc->getTableFaulty('', '', 6, '');
             }
             if ($is_faulty == 2) {
-                $Table = $getModelFunc->getTable('','', 6, '');
+                $Table = $getModelFunc->getTable('', '', 6, '');
             }
             // echo $Table;die;
             $pension_details_encloser2->setConnection('pgsql_encwrite');
@@ -320,8 +330,8 @@ class jnmpController extends Controller
             $update_ben_details->setConnection('pgsql_appwrite');
             $update_ben_details->setTable('' . $TableBen);
 
-        /*  Document Upload Section  */
-            if(!empty($request->file('file_stop_payment'))){
+            /*  Document Upload Section  */
+            if (!empty($request->file('file_stop_payment'))) {
                 $attributes = array();
                 $pension_details = array();
                 $query = DocumentType::select('id', 'doc_type', 'doc_name', 'doc_size_kb')->where('id', 250);
@@ -333,16 +343,19 @@ class jnmpController extends Controller
                 $messages['file_stop_payment.required'] = "Document for " . $doc_arr->doc_name . " must be uploaded";
                 $validator = Validator::make($request->all(), $rules, $messages, $attributes);
                 if ($validator->passes()) {
-                  $valid = 1;
+                    $valid = 1;
                 } else {
-                  $valid = 0;
-                  $return_msg = $validator->errors()->all();
-                  $return_status = 0;
+                    $valid = 0;
+                    $return_msg = $validator->errors()->all();
+                    $return_status = 0;
 
-                  $response = array(
-                    'status' => 7, 'msg' => $return_msg,
-                    'type' => 'red', 'icon' => 'fa fa-warning', 'title' => 'Error'
-                  );
+                    $response = array(
+                        'status' => 7,
+                        'msg' => $return_msg,
+                        'type' => 'red',
+                        'icon' => 'fa fa-warning',
+                        'title' => 'Error'
+                    );
                 }
                 // dd($valid);
                 if ($valid == 1) {
@@ -436,21 +449,24 @@ class jnmpController extends Controller
                 }
             } else {
                 $response = array(
-                    'status' => 9, 'msg' => 'Please upload bank passbook copy.',
-                    'type' => 'red', 'icon' => 'fa fa-warning', 'title' => 'Required'
-                  );
+                    'status' => 9,
+                    'msg' => 'Please upload bank passbook copy.',
+                    'type' => 'red',
+                    'icon' => 'fa fa-warning',
+                    'title' => 'Required'
+                );
             }
             // dump($executeInsert); dump($benPersonalUpdate); dump($benPaymentUpdate); dump($insertLog); die;
-           if ($executeInsert && $benPersonalUpdate && $benPaymentUpdate && $insertLog) {
-            $response = array('return_status' => 1, 'title' => 'Success', 'msg' => 'Activated Successfully', 'type' => 'green', 'icon' => 'fa fa-check');
-            DB::connection('pgsql_appwrite')->commit();
-            DB::connection('pgsql_encwrite')->commit();
-            DB::connection('pgsql_payment')->commit();
+            if ($executeInsert && $benPersonalUpdate && $benPaymentUpdate && $insertLog) {
+                $response = array('return_status' => 1, 'title' => 'Success', 'msg' => 'Activated Successfully', 'type' => 'green', 'icon' => 'fa fa-check');
+                DB::connection('pgsql_appwrite')->commit();
+                DB::connection('pgsql_encwrite')->commit();
+                DB::connection('pgsql_payment')->commit();
             } else {
-                    $response = array('return_status' => 2, 'title' => 'Error', 'msg' => 'Something Went Wrong', 'type' => 'red', 'icon' => 'fa fa-check');
-                    DB::connection('pgsql_appwrite')->rollback();
-                    DB::connection('pgsql_encwrite')->rollback();
-                    DB::connection('pgsql_payment')->rollback();
+                $response = array('return_status' => 2, 'title' => 'Error', 'msg' => 'Something Went Wrong', 'type' => 'red', 'icon' => 'fa fa-check');
+                DB::connection('pgsql_appwrite')->rollback();
+                DB::connection('pgsql_encwrite')->rollback();
+                DB::connection('pgsql_payment')->rollback();
             }
         } catch (\Exception $e) {
             dd($e);
@@ -461,11 +477,14 @@ class jnmpController extends Controller
             $return_text = 'Error. Please try again';
             $return_msg = array("" . $return_text);
             $response = array(
-                'status' => $statusCode, 'msg' => $return_msg,
-                'type' => 'red', 'icon' => 'fa fa-warning', 'title' => 'Warning!!'
-              );
+                'status' => $statusCode,
+                'msg' => $return_msg,
+                'type' => 'red',
+                'icon' => 'fa fa-warning',
+                'title' => 'Warning!!'
+            );
             //   $statusCode = 400;
-        }finally {
+        } finally {
             return response()->json($response, $statusCode);
         }
     }
@@ -521,11 +540,18 @@ class jnmpController extends Controller
         $schemeObj = 'Lakshmir Bhandar';
         $user_msg = 'Re-activate Death Incident Beneficiary List';
         // echo $block;die;
-        $query = $this->getDataquerys($district_code,$blockCode,$block,$gp_ward,$muncid,$dist_code,$is_faulty);
+        $query = $this->getDataquerys($district_code, $blockCode, $block, $gp_ward, $muncid, $dist_code, $is_faulty);
         $result = DB::connection('pgsql_mis')->select($query);
         // print_r($result);die;
         $excelarr[] = array(
-            'Application ID', 'Beneficiary ID', 'Name', 'Father Name', 'Block/Municipality', 'GP/Ward', 'Aadhar Number', 'Mobile Number',
+            'Application ID',
+            'Beneficiary ID',
+            'Name',
+            'Father Name',
+            'Block/Municipality',
+            'GP/Ward',
+            'Aadhar Number',
+            'Mobile Number',
         );
 
         foreach ($result as $arr) {
@@ -540,13 +566,16 @@ class jnmpController extends Controller
                 'Mobile Number' => trim($arr->mobile_no),
             );
         }
-        $file_name = $schemeObj.' '.$user_msg .' '.  date('d/m/Y');
+        /*  $file_name = $schemeObj.' '.$user_msg .' '.  date('d/m/Y');
         Excel::create($file_name, function ($excel) use ($excelarr) {
             $excel->setTitle('Jai Bangla Duplicate Report');
             $excel->sheet('Jai Bangla Duplicate Report', function ($sheet) use ($excelarr) {
                 $sheet->fromArray($excelarr, null, 'A1', false, false);
             });
-        })->download('xlsx');
+        })->download('xlsx'); */
+
+        $file_name = $schemeObj . '_' . $user_msg . '_' . date('d_m_Y');
+        return Excel::download(new BankFailedExport($excelarr), $file_name . '.xlsx');
     }
 
     // HOD
@@ -558,7 +587,7 @@ class jnmpController extends Controller
         $district = District::orderBy('district_name')->get();
         if ($designation_id == 'HOD') {
             return view('JnmpWithLb.linelisting_at_hod', ['districts' => $district]);
-        } else{
+        } else {
             return redirect("/")->with('success', 'User Disabled. ');
         }
     }
@@ -572,8 +601,8 @@ class jnmpController extends Controller
             $result = DB::connection('pgsql_appwrite')->select($query);
             // echo '<pre>';print_r($result);die();
             return datatables()->of($result)
-            ->addIndexColumn()
-            ->make(true);
+                ->addIndexColumn()
+                ->make(true);
         }
     }
 
@@ -587,7 +616,14 @@ class jnmpController extends Controller
         $result = DB::connection('pgsql_mis')->select($query);
         // print_r($result);die;
         $excelarr[] = array(
-            'Sl No', 'Application ID', 'Beneficiary ID', 'Name', 'District', 'Block/Municipality', 'GP/Ward', 'Mobile Number'
+            'Sl No',
+            'Application ID',
+            'Beneficiary ID',
+            'Name',
+            'District',
+            'Block/Municipality',
+            'GP/Ward',
+            'Mobile Number'
         );
 
         foreach ($result as $arr) {
@@ -602,7 +638,7 @@ class jnmpController extends Controller
                 'Mobile Number' => trim($arr->mobile_no)
             );
         }
-        $file_name = $schemeObj.' '.$user_msg .' '.  date('d/m/Y');
+        $file_name = $schemeObj . ' ' . $user_msg . ' ' .  date('d/m/Y');
         Excel::create($file_name, function ($excel) use ($excelarr) {
             $excel->setTitle('Jai Bangla Duplicate Report');
             $excel->sheet('Jai Bangla Duplicate Report', function ($sheet) use ($excelarr) {
@@ -611,7 +647,7 @@ class jnmpController extends Controller
         })->download('xlsx');
     }
 
-    public function getDataquerys($district_code,$blockCode,$block,$gp_ward,$muncid,$dist_code,$is_faulty)
+    public function getDataquerys($district_code, $blockCode, $block, $gp_ward, $muncid, $dist_code, $is_faulty)
     {
         // echo $is_faulty;die;
         if ($is_faulty == 1) {
@@ -622,7 +658,7 @@ class jnmpController extends Controller
             $query = "SELECT b.application_id AS application_id,b.beneficiary_id AS beneficiary_id,ben_fname,CONCAT(father_fname,' ',father_mname,' ',father_lname) AS father_name,block_ulb_name,gp_ward_name,aadhar_no,mobile_no FROM lb_scheme.ben_personal_details b JOIN lb_scheme.ben_contact_details c ON b.application_id = c.application_id
             WHERE b.jnmp_marked = 1 AND b.payment_suspended = 1";
         }
-        if(!empty($district_code)){
+        if (!empty($district_code)) {
             $query .= " AND b.created_by_dist_code = " . $district_code;
         }
         if (!empty($block)) {
@@ -642,7 +678,7 @@ class jnmpController extends Controller
     private function getHodDataQuery($dist_code)
     {
         if ($dist_code) {
-            $whereCon = "WHERE created_by_dist_code = ".$dist_code;
+            $whereCon = "WHERE created_by_dist_code = " . $dist_code;
         } else {
             $whereCon = "";
         }
@@ -658,7 +694,7 @@ class jnmpController extends Controller
             UNION ALL
             SELECT application_id, block_ulb_name, gp_ward_name FROM lb_scheme.faulty_ben_contact_details
         ) m ON m.application_id = t.application_id
-        JOIN public.m_district d ON t.created_by_dist_code = d.district_code ".$whereCon." ORDER BY d.district_name";
+        JOIN public.m_district d ON t.created_by_dist_code = d.district_code " . $whereCon . " ORDER BY d.district_name";
         return $query;
     }
 }
